@@ -107,7 +107,7 @@ public class SearchResultsModel extends PageModel {
     // override page model and return search results pager
     public WeblogEntryListData getWeblogEntriesPager() {
         if (pager == null) {
-            Map<LocalDate, List<WeblogEntry>> listMap = new TreeMap<>(Collections.reverseOrder());
+            Map<LocalDate, List<WeblogEntry>> listMap = Collections.emptyMap();
 
             if (pageRequest.getQuery() != null) {
 
