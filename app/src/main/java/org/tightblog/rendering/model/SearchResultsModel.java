@@ -43,6 +43,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -106,7 +107,7 @@ public class SearchResultsModel extends PageModel {
     // override page model and return search results pager
     public WeblogEntryListData getWeblogEntriesPager() {
         if (pager == null) {
-            Map<LocalDate, List<WeblogEntry>> listMap = new TreeMap<>(Collections.reverseOrder());
+            Map<LocalDate, List<WeblogEntry>> listMap = Collections.emptyMap();
 
             if (pageRequest.getQuery() != null) {
 
@@ -134,7 +135,13 @@ public class SearchResultsModel extends PageModel {
                     // Convert hits into WeblogEntry instances.  Results are mapped by Day -> Set of entries
                     // to eliminate any duplicates and then converted into Day -> List map used by pagers
                     listMap = convertHitsToEntries(hitsArr, searchTask).entrySet().stream()
-                            .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
+                            .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue()),
+                                (v1, v2) -> {
+                                    throw new RuntimeException(String.format("Duplicate key for values %s and %s",
+                                            v1, v2));
+                                },
+                                () -> new TreeMap<LocalDate, List<WeblogEntry>>(Comparator.reverseOrder()))
+                            );
                 }
             }
             pager = weblogEntryListGenerator.getSearchPager(pageRequest, listMap,
@@ -147,7 +154,7 @@ public class SearchResultsModel extends PageModel {
      * Create weblog entries for each result found.
      */
     Map<LocalDate, TreeSet<WeblogEntry>> convertHitsToEntries(ScoreDoc[] hits, SearchTask searchTask) {
-        Map<LocalDate, TreeSet<WeblogEntry>> results = new TreeMap<>(Collections.reverseOrder());
+        Map<LocalDate, TreeSet<WeblogEntry>> results = new HashMap<>();
 
         // determine offset and limit
         this.offset = pageRequest.getPageNum() * RESULTS_PER_PAGE;
@@ -175,7 +182,7 @@ public class SearchResultsModel extends PageModel {
                 LocalDate pubDate = entry.getPubTime().atZone(ZoneId.systemDefault()).toLocalDate();
 
                 // ensure we do not get duplicates from Lucene by using a set collection.
-                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntry::getPubTime)
+                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntry::getPubTime).reversed()
                         .thenComparing(WeblogEntry::getTitle)));
                 results.get(pubDate).add(entry);
             }
