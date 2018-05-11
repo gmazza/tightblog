@@ -33,8 +33,7 @@ import org.tightblog.business.search.FieldConstants;
 import org.tightblog.business.search.IndexManager;
 import org.tightblog.business.search.tasks.SearchTask;
 import org.tightblog.pojos.WeblogEntry;
-import org.tightblog.rendering.pagers.WeblogEntriesPager;
-import org.tightblog.rendering.pagers.WeblogEntriesSearchPager;
+import org.tightblog.rendering.generators.WeblogEntryListGenerator.WeblogEntryListData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,20 +103,10 @@ public class SearchResultsModel extends PageModel {
         return limit;
     }
 
-    private WeblogEntriesSearchPager.Creator searchPagerCreator;
-
-    SearchResultsModel() {
-        searchPagerCreator = new WeblogEntriesSearchPager.Creator();
-    }
-
-    void setSearchPagerCreator(WeblogEntriesSearchPager.Creator searchPagerCreator) {
-        this.searchPagerCreator = searchPagerCreator;
-    }
-
     // override page model and return search results pager
-    public WeblogEntriesPager getWeblogEntriesPager() {
+    public WeblogEntryListData getWeblogEntriesPager() {
         if (pager == null) {
-            Map<LocalDate, List<WeblogEntry>> listMap = Collections.emptyMap();
+            Map<LocalDate, List<WeblogEntry>> listMap = new TreeMap<>(Collections.reverseOrder());
 
             if (pageRequest.getQuery() != null) {
 
@@ -148,7 +137,7 @@ public class SearchResultsModel extends PageModel {
                             .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
                 }
             }
-            pager = searchPagerCreator.create(urlStrategy, pageRequest, listMap,
+            pager = weblogEntryListGenerator.getSearchPager(pageRequest, listMap,
                     resultCount > (offset + limit));
         }
         return pager;
