@@ -16,11 +16,13 @@
 package org.tightblog.ui.restapi;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.security.web.WebAttributes;
 import org.tightblog.business.JPAPersistenceStrategy;
 import org.tightblog.business.MailManager;
 import org.tightblog.business.UserManager;
 import org.tightblog.business.WeblogEntryManager;
 import org.tightblog.business.WeblogManager;
+import org.tightblog.business.WebloggerStaticConfig;
 import org.tightblog.pojos.GlobalRole;
 import org.tightblog.pojos.User;
 import org.tightblog.pojos.UserSearchCriteria;
@@ -31,6 +33,7 @@ import org.tightblog.pojos.WeblogRole;
 import org.tightblog.pojos.WebloggerProperties;
 import org.tightblog.ui.menu.Menu;
 import org.tightblog.ui.menu.MenuHelper;
+import org.tightblog.ui.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
 import org.tightblog.util.I18nMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -98,13 +101,21 @@ public class UIController {
 
     @RequestMapping(value = "/login")
     public ModelAndView login(@RequestParam(required = false) String activationCode,
-                              @RequestParam(required = false) Boolean error) {
+                              @RequestParam(required = false) Boolean error,
+                              HttpServletRequest request) {
 
         Map<String, Object> myMap = new HashMap<>();
         myMap.put("pageTitle", defaultMessages.getString("login.title"));
 
         if (Boolean.TRUE.equals(error)) {
-            myMap.put("actionError", defaultMessages.getString("error.password.mismatch"));
+            Object maybeError = request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+            String errorMessage;
+            if (maybeError instanceof InvalidVerificationCodeException) {
+                errorMessage = ((InvalidVerificationCodeException) maybeError).getMessage();
+            } else {
+                errorMessage = defaultMessages.getString("error.password.mismatch");
+            }
+            myMap.put("actionError", errorMessage);
         } else if (activationCode != null) {
             UserSearchCriteria usc = new UserSearchCriteria();
             usc.setActivationCode(activationCode);
@@ -373,6 +384,7 @@ public class UIController {
         } else {
             map.putIfAbsent("pageTitle", defaultMessages.getString(actionName + ".title"));
         }
+        map.put("mfaUse", WebloggerStaticConfig.getMFAOption());
         map.put("registrationPolicy", persistenceStrategy.getWebloggerProperties().getRegistrationPolicy());
         return new ModelAndView("." + actionName, map);
     }

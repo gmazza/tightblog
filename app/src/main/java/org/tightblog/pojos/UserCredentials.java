@@ -51,12 +51,35 @@ public class UserCredentials {
     private String password;
     private GlobalRole globalRole;
 
+    // for Google Authenticator use
+    // see http://www.baeldung.com/spring-security-two-factor-authentication-with-soft-token
+    private String isUsingMFA;
+    private String mfaSecret;
+
     // below two fields not persisted but used for password entry and confirmation
     // on new user & user update forms.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String passwordText;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String passwordConfirm;
+
+    @Transient
+    public String getIsUsingMFA() {
+        return isUsingMFA;
+    }
+
+    public void setIsUsingMFA(String isUsingMFA) {
+        this.isUsingMFA = isUsingMFA;
+    }
+
+    @Transient
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
+    }
 
     @Id
     public String getId() {
