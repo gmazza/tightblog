@@ -29,7 +29,7 @@ In addition to the cleanout of old functionality some new features have been add
 * (TightBlog 3.0) Commenters who are logged-in bloggers now have their blogger ID stored with the comment, simplifying comment entry and allowing for different styling of comments (e.g., different background color for comments made by the blogger on his own blog).
 * (TightBlog 3.0) The blog template engine (used for customized themes) now uses modern Thymeleaf 3.0 instead of Apache Velocity. 
 * (TightBlog 3.0) All emails sent are in HTML format and customizable by modifying the Thymeleaf templates in the webapp/thymeleaf/emails folder. 
-
+* (TightBlog 3.0) Login Multifactor Authentication (MFA) with Google Authenticator support added (Admin setting provided to either require it for all bloggers--the default--or have it disabled).
 
 Check <a href="https://glenmazza.net/blog">my blog</a> for recent status updates.
 
