@@ -16,6 +16,7 @@
 package org.tightblog.ui.restapi;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.WebAttributes;
 import org.tightblog.business.JPAPersistenceStrategy;
 import org.tightblog.business.MailManager;
@@ -23,6 +24,7 @@ import org.tightblog.business.UserManager;
 import org.tightblog.business.WeblogEntryManager;
 import org.tightblog.business.WeblogManager;
 import org.tightblog.business.WebloggerStaticConfig;
+import org.tightblog.business.WebloggerStaticConfig.MFAOption;
 import org.tightblog.pojos.GlobalRole;
 import org.tightblog.pojos.User;
 import org.tightblog.pojos.UserSearchCriteria;
@@ -30,7 +32,6 @@ import org.tightblog.pojos.UserStatus;
 import org.tightblog.pojos.UserWeblogRole;
 import org.tightblog.pojos.Weblog;
 import org.tightblog.pojos.WeblogRole;
-import org.tightblog.pojos.WebloggerProperties;
 import org.tightblog.ui.menu.Menu;
 import org.tightblog.ui.menu.MenuHelper;
 import org.tightblog.ui.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
@@ -123,19 +124,11 @@ public class UIController {
 
             if (users.size() == 1) {
                 User user = users.get(0);
-                // enable user account
                 user.setActivationCode(null);
-                WebloggerProperties.RegistrationPolicy regProcess =
-                        persistenceStrategy.getWebloggerProperties().getRegistrationPolicy();
-                if (WebloggerProperties.RegistrationPolicy.APPROVAL_REQUIRED.equals(regProcess)) {
-                    user.setStatus(UserStatus.EMAILVERIFIED);
-                    myMap.put("actionMessage", defaultMessages.getString("welcome.user.account.need.approval"));
-                    mailManager.sendRegistrationApprovalRequest(user);
-                } else {
-                    user.setStatus(UserStatus.ENABLED);
-                    myMap.put("actionMessage", defaultMessages.getString("welcome.user.account.activated"));
-                }
+                user.setStatus(UserStatus.EMAILVERIFIED);
+                myMap.put("actionMessage", defaultMessages.getString("welcome.user.account.need.approval"));
                 userManager.saveUser(user);
+                mailManager.sendRegistrationApprovalRequest(user);
             } else {
                 myMap.put("actionError", defaultMessages.getString("error.activate.user.invalidActivationCode"));
             }
@@ -161,6 +154,12 @@ public class UIController {
         response.sendRedirect(request.getContextPath() + "/");
     }
 
+    @RequestMapping(value = "/relogin")
+    public void logoutAndLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.getSession().invalidate();
+        response.sendRedirect(request.getContextPath() + "/tb-ui/app/login-redirect");
+    }
+
     @RequestMapping(value = "/login-redirect")
     public void loginRedirect(Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -170,7 +169,11 @@ public class UIController {
         } else {
             User user = userManager.getEnabledUserByUserName(principal.getName());
 
-            if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
+            if (MFAOption.REQUIRED.equals(WebloggerStaticConfig.getMFAOption()) &&
+                    ((UsernamePasswordAuthenticationToken) principal).getAuthorities().stream().anyMatch(
+                            role -> GlobalRole.MISSING_MFA_SECRET.name().equals(role.getAuthority()))) {
+                response.sendRedirect(request.getContextPath() + "/tb-ui/app/scanCode?request_locale=" + user.getLocale());
+            } else if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
                 response.sendRedirect(request.getContextPath() + "/tb-ui/app/home?request_locale=" + user.getLocale());
             } else {
                 List<UserWeblogRole> roles = userManager.getWeblogRoles(user);
@@ -183,6 +186,18 @@ public class UIController {
                 }
             }
         }
+    }
+
+    @RequestMapping(value = "/scanCode")
+    public ModelAndView scanAuthenticatorSecret(Principal principal, HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        User user = userManager.getEnabledUserByUserName(principal.getName());
+        String qrCode = userManager.generateMFAQRUrl(user);
+        Map<String, Object> myMap = new HashMap<>();
+        myMap.put("qrCode", qrCode);
+
+        return tightblogModelAndView("scanCode", myMap, (User) null, null);
     }
 
     @RequestMapping(value = "/get-default-blog")
