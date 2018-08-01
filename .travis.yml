@@ -1,5 +1,4 @@
 language: java
-script: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Ddocker.skip -B -V
 
 services:
   - docker
