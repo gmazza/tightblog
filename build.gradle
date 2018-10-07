@@ -140,7 +140,7 @@ dependencies {
 	compile 'org.apache.derby:derbyclient:10.14.2.0'
 	runtime 'org.apache.derby:derby:10.14.2.0'
 
-	// temp during dockerization
+	// PostgreSQL JDBC jar, can remove if using other databases.
 	runtime('org.postgresql:postgresql')
 
 	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.11')
