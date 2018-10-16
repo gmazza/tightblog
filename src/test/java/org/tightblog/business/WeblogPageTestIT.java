@@ -83,7 +83,7 @@ public class WeblogPageTestIT extends WebloggerTest {
         
         // check that create was successful
         testWeblog = getManagedWeblog(testWeblog);
-        template = weblogManager.getTemplateByName(testWeblog, testPage.getName());
+        template = weblogTemplateRepository.findByWeblogAndName(testWeblog, testPage.getName());
         assertNotNull(template);
 
         // update template
@@ -93,16 +93,16 @@ public class WeblogPageTestIT extends WebloggerTest {
         
         // check that update was successful
         testWeblog = getManagedWeblog(testWeblog);
-        template = weblogManager.getTemplateByName(testWeblog, "testtesttest");
+        template = weblogTemplateRepository.findByWeblogAndName(testWeblog, "testtesttest");
         assertNotNull(template);
 
         // delete template
-        weblogManager.removeTemplate(template);
+        weblogTemplateRepository.delete(template);
         endSession(true);
         
         // check that delete was successful
         testWeblog = getManagedWeblog(testWeblog);
-        template = weblogManager.getTemplateByName(testWeblog, testPage.getName());
+        template = weblogTemplateRepository.findByWeblogAndName(testWeblog, testPage.getName());
         assertNull(template);
     }
     
@@ -120,29 +120,29 @@ public class WeblogPageTestIT extends WebloggerTest {
         endSession(true);
         
         // lookup by id
-        page = weblogManager.getTemplate(id);
+        page = weblogTemplateRepository.findById(id).orElse(null);
         assertNotNull(page);
 
         // lookup by action
         testWeblog = getManagedWeblog(testWeblog);
-        page = weblogManager.getTemplateByAction(testWeblog, testPage.getRole());
+        page = weblogTemplateRepository.findByWeblogAndRole(testWeblog, testPage.getRole());
         assertNotNull(page);
 
         // lookup by name
-        page = weblogManager.getTemplateByName(testWeblog, testPage.getName());
+        page = weblogTemplateRepository.findByWeblogAndName(testWeblog, testPage.getName());
         assertNotNull(page);
 
         // lookup by link
-        page = weblogManager.getTemplateByPath(testWeblog, testPage.getRelativePath());
+        page = weblogTemplateRepository.findByWeblogAndRelativePath(testWeblog, testPage.getRelativePath());
         assertNotNull(page);
 
         // lookup all pages for weblog
-        List pages = weblogManager.getTemplates(testWeblog);
+        List pages = weblogTemplateRepository.findByWeblog(testWeblog);
         assertNotNull(pages);
         assertEquals(1, pages.size());
         
         // delete page
-        weblogManager.removeTemplate(page);
+        weblogTemplateRepository.delete(page);
         endSession(true);
     }
     

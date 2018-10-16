@@ -18,12 +18,23 @@ package org.tightblog.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.tightblog.pojos.Template;
+import org.tightblog.pojos.Weblog;
 import org.tightblog.pojos.WeblogTemplate;
+
+import java.util.List;
 
 @Repository
 @Transactional("transactionManager")
 public interface WeblogTemplateRepository extends JpaRepository<WeblogTemplate, String> {
 
+    WeblogTemplate findByWeblogAndRelativePath(Weblog weblog, String relativePath);
 
+    WeblogTemplate findByWeblogAndName(Weblog weblog, String name);
 
+    WeblogTemplate findByWeblogAndRole(Weblog weblog, Template.ComponentType role);
+
+    List<WeblogTemplate> findByWeblog(Weblog weblog);
+
+    Long deleteByWeblog(Weblog weblog);
 }

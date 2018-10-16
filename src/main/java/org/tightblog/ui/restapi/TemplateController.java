@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.business.UserManager;
 import org.tightblog.business.WeblogManager;
-import org.tightblog.business.JPAPersistenceStrategy;
 import org.tightblog.pojos.SharedTheme;
 import org.tightblog.business.ThemeManager;
 import org.tightblog.pojos.Template;
@@ -76,13 +75,6 @@ public class TemplateController {
     }
 
     @Autowired
-    private JPAPersistenceStrategy persistenceStrategy;
-
-    public void setPersistenceStrategy(JPAPersistenceStrategy persistenceStrategy) {
-        this.persistenceStrategy = persistenceStrategy;
-    }
-
-    @Autowired
     private UserManager userManager;
 
     public void setUserManager(UserManager userManager) {
@@ -116,13 +108,10 @@ public class TemplateController {
         if (weblog != null && user != null && userManager.checkWeblogRole(user, weblog, WeblogRole.OWNER)) {
             WeblogTemplateData wtd = new WeblogTemplateData();
 
-            WeblogTheme theme = new WeblogTheme(weblogManager, weblog,
+            WeblogTheme theme = new WeblogTheme(weblogTemplateRepository, weblog,
                     themeManager.getSharedTheme(weblog.getTheme()));
 
-            List<? extends Template> raw = theme.getTemplates();
-            List<Template> pages = new ArrayList<>();
-            pages.addAll(raw);
-            wtd.templates = pages;
+            wtd.templates = new ArrayList<>(theme.getTemplates());
 
             // build list of action types that may be added
             List<Template.ComponentType> availableRoles = Arrays.stream(Template.ComponentType.values()).
@@ -130,7 +119,7 @@ public class TemplateController {
                     collect(Collectors.toList());
 
             // remove from above list any already existing for the theme
-            pages.stream().filter(p -> p.getRole().isSingleton()).forEach(p ->
+            wtd.templates.stream().filter(p -> p.getRole().isSingleton()).forEach(p ->
                     availableRoles.removeIf(r -> r.name().equals(p.getRole().name())));
 
             availableRoles.forEach(role -> wtd.availableTemplateRoles.put(role.getName(), role.getReadableName()));
@@ -171,11 +160,11 @@ public class TemplateController {
             throws ServletException {
 
         try {
-            WeblogTemplate template = weblogManager.getTemplate(id);
+            WeblogTemplate template = weblogTemplateRepository.findById(id).orElse(null);
             if (template != null) {
                 if (userManager.checkWeblogRole(p.getName(), template.getWeblog().getHandle(), WeblogRole.OWNER)) {
-                    weblogManager.removeTemplate(template);
-                    persistenceStrategy.flush();
+                    weblogTemplateRepository.delete(template);
+                    weblogManager.saveWeblog(template.getWeblog());
                     response.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -192,7 +181,7 @@ public class TemplateController {
     @GetMapping(value = "/tb-ui/authoring/rest/template/{id}")
     public WeblogTemplate getWeblogTemplate(@PathVariable String id, Principal p, HttpServletResponse response) {
 
-        WeblogTemplate template = weblogManager.getTemplate(id);
+        WeblogTemplate template = weblogTemplateRepository.findById(id).orElse(null);
 
         boolean permitted = template != null &&
                 userManager.checkWeblogRole(p.getName(), template.getWeblog().getHandle(), WeblogRole.POST);
@@ -235,7 +224,7 @@ public class TemplateController {
                                       Principal p, Locale locale) throws ServletException {
         try {
             boolean createNew = false;
-            WeblogTemplate templateToSave = weblogManager.getTemplate(templateData.getId());
+            WeblogTemplate templateToSave = weblogTemplateRepository.findById(templateData.getId()).orElse(null);
 
             // Check user permissions
             User user = userManager.getEnabledUserByUserName(p.getName());
@@ -300,7 +289,7 @@ public class TemplateController {
                 be.addError(new ObjectError("WeblogTemplate",
                         messages.getMessage("templateEdit.error.relativePathRequired", null, locale)));
             } else {
-                WeblogTemplate test = weblogManager.getTemplateByPath(templateToCheck.getWeblog(),
+                WeblogTemplate test = weblogTemplateRepository.findByWeblogAndRelativePath(templateToCheck.getWeblog(),
                         templateToCheck.getRelativePath());
                 if (test != null && !test.getId().equals(templateToCheck.getId())) {
                     be.addError(new ObjectError("WeblogTemplate",
@@ -309,14 +298,15 @@ public class TemplateController {
             }
         }
 
-        WeblogTemplate template = weblogManager.getTemplateByName(templateToCheck.getWeblog(), templateToCheck.getName());
+        WeblogTemplate template = weblogTemplateRepository.findByWeblogAndName(templateToCheck.getWeblog(),
+                templateToCheck.getName());
         if (template != null && !template.getId().equals(templateToCheck.getId())) {
             be.addError(new ObjectError("WeblogTemplate", messages.getMessage("templates.error.nameAlreadyExists",
                 null, locale)));
         }
 
         if (templateToCheck.getRole().isSingleton()) {
-            template = weblogManager.getTemplateByAction(templateToCheck.getWeblog(), templateToCheck.getRole());
+            template = weblogTemplateRepository.findByWeblogAndRole(templateToCheck.getWeblog(), templateToCheck.getRole());
             if (template != null && !template.getId().equals(templateToCheck.getId())) {
                 be.addError(new ObjectError("WeblogTemplate",
                         messages.getMessage("templates.error.singletonActionAlreadyExists", null, locale)));
