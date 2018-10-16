@@ -43,8 +43,6 @@ public class WeblogCategoryFunctionalityTestIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
-    private WeblogCategory cat1;
-    private WeblogCategory cat2;
     private WeblogCategory testCat;
 
     /**
@@ -57,8 +55,8 @@ public class WeblogCategoryFunctionalityTestIT extends WebloggerTest {
         testWeblog = setupWeblog("categoryTestWeblog", testUser);
 
         // setup several categories for testing
-        cat1 = setupWeblogCategory(testWeblog, "catTest-cat1");
-        cat2 = setupWeblogCategory(testWeblog, "catTest-cat2");
+        setupWeblogCategory(testWeblog, "catTest-cat1");
+        setupWeblogCategory(testWeblog, "catTest-cat2");
 
         // a simple test cat at the root level
         testCat = setupWeblogCategory(testWeblog, "catTest-testCat");

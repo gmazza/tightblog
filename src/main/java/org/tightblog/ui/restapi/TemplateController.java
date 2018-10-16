@@ -38,6 +38,7 @@ import org.tightblog.pojos.Weblog;
 import org.tightblog.pojos.WeblogRole;
 import org.tightblog.pojos.WeblogTemplate;
 import org.tightblog.pojos.WeblogTheme;
+import org.tightblog.repository.WeblogTemplateRepository;
 import org.tightblog.util.ValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,13 @@ import java.util.stream.Collectors;
 public class TemplateController {
 
     private static Logger log = LoggerFactory.getLogger(TemplateController.class);
+
+    private WeblogTemplateRepository weblogTemplateRepository;
+
+    @Autowired
+    public TemplateController(WeblogTemplateRepository weblogTemplateRepository) {
+        this.weblogTemplateRepository = weblogTemplateRepository;
+    }
 
     @Autowired
     private JPAPersistenceStrategy persistenceStrategy;
@@ -270,8 +278,8 @@ public class TemplateController {
                     return ResponseEntity.badRequest().body(maybeError);
                 }
 
-                weblogManager.saveTemplate(templateToSave);
-                persistenceStrategy.flush();
+                weblogTemplateRepository.save(templateToSave);
+                weblogManager.saveWeblog(templateToSave.getWeblog());
 
                 return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(templateToSave.getId());
             } else {

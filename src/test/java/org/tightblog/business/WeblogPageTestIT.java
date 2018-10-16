@@ -78,7 +78,7 @@ public class WeblogPageTestIT extends WebloggerTest {
         WeblogTemplate template;
         
         // create template
-        weblogManager.saveTemplate(testPage);
+        weblogTemplateRepository.save(testPage);
         endSession(true);
         
         // check that create was successful
@@ -88,7 +88,7 @@ public class WeblogPageTestIT extends WebloggerTest {
 
         // update template
         template.setName("testtesttest");
-        weblogManager.saveTemplate(template);
+        weblogTemplateRepository.save(template);
         endSession(true);
         
         // check that update was successful
@@ -115,7 +115,7 @@ public class WeblogPageTestIT extends WebloggerTest {
         WeblogTemplate page;
         
         // create page
-        weblogManager.saveTemplate(testPage);
+        weblogTemplateRepository.save(testPage);
         String id = testPage.getId();
         endSession(true);
         
