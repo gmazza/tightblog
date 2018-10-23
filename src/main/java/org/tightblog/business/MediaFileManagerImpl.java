@@ -161,9 +161,7 @@ public class MediaFileManagerImpl implements MediaFileManager {
             }
         }
 
-//        weblogRepository.saveAndFlush(weblog);
           mediaDirectoryRepository.saveAndFlush(mediaFile.getDirectory());
-//        mediaFileRepository.saveAndFlush(mediaFile);
     }
 
     private void updateThumbnail(MediaFile mediaFile) {

@@ -33,7 +33,7 @@ sourceSets {
 	test {
 		java {
 			srcDir 'src/test/java'
-			exclude '**/MediaFileTestIT.java'
+			exclude '**/*IT.java'
 		}
 	}
 	integrationTest {
