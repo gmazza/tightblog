@@ -82,7 +82,7 @@ public class WeblogController {
     private DynamicProperties dp;
     private WeblogRepository weblogRepository;
     private WeblogEntryRepository weblogEntryRepository;
-    private MessageSource messages;
+    private MessageSource messaes;
     private WebloggerPropertiesRepository webloggerPropertiesRepository;
 
     @Value("${site.pages.maxEntries:30}")

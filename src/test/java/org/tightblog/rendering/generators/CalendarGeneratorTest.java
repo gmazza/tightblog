@@ -17,6 +17,7 @@ package org.tightblog.rendering.generators;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.MessageSource;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.CalendarData;
@@ -45,13 +46,15 @@ public class CalendarGeneratorTest {
     private CalendarGenerator calendarGenerator;
     private URLService mockUrlService;
     private Map<LocalDate, List<WeblogEntry>> dateToWeblogEntryMap;
+    private MessageSource mockMessageSource;
 
     @Before
     public void initialize() {
         Locale.setDefault(Locale.US);
         mockUrlService = mock(URLService.class);
+        mockMessageSource = mock(MessageSource.class);
         WeblogEntryManager mockWeblogEntryManager = mock(WeblogEntryManager.class);
-        calendarGenerator = new CalendarGenerator(mockWeblogEntryManager, mockUrlService);
+        calendarGenerator = new CalendarGenerator(mockWeblogEntryManager, mockUrlService, mockMessageSource);
         dateToWeblogEntryMap = new HashMap<>();
         when(mockWeblogEntryManager.getDateToWeblogEntryMap(any())).thenReturn(dateToWeblogEntryMap);
     }
