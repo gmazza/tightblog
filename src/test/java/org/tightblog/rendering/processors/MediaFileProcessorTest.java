@@ -47,7 +47,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 public class MediaFileProcessorTest {
 
     private static Logger log = LoggerFactory.getLogger(MediaFileProcessorTest.class);
