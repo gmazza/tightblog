@@ -41,10 +41,7 @@ import java.time.temporal.ChronoUnit;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MediaFileProcessorTest {
 
@@ -54,6 +51,7 @@ public class MediaFileProcessorTest {
     private WeblogRequest mediaFileRequest;
     private HttpServletRequest mockRequest;
     private HttpServletResponse mockResponse;
+    private LazyExpiringCache mockCache;
     private WeblogRepository mockWR;
     private MediaManager mockMFM;
 
@@ -70,7 +68,7 @@ public class MediaFileProcessorTest {
         when(mockResponse.getOutputStream()).thenReturn(mockSOS);
         mediaFileRequest = new WeblogRequest();
         mediaFileRequest.setExtraPathInfo("abc");
-        LazyExpiringCache mockCache = mock(LazyExpiringCache.class);
+        mockCache = mock(LazyExpiringCache.class);
         mockWR = mock(WeblogRepository.class);
         mockMFM = mock(MediaManager.class);
         processor = new MediaFileProcessor(mockWR, mockCache, mockMFM);
@@ -88,6 +86,7 @@ public class MediaFileProcessorTest {
         when(mockWR.findByHandleAndVisibleTrue("myhandle")).thenReturn(null);
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockResponse).sendError(SC_NOT_FOUND);
+        verify(mockCache, never()).incrementIncomingRequests();
     }
 
     @Test
@@ -102,6 +101,7 @@ public class MediaFileProcessorTest {
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockMFM, never()).getMediaFileWithContent(anyString());
         verify(mockResponse).sendError(SC_NOT_FOUND);
+        verify(mockCache, never()).incrementIncomingRequests();
     }
 
     @Test
@@ -109,6 +109,7 @@ public class MediaFileProcessorTest {
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockMFM).getMediaFileWithContent("abc");
         verify(mockResponse).sendError(SC_NOT_FOUND);
+        verify(mockCache, never()).incrementIncomingRequests();
     }
 
     @Test
@@ -122,6 +123,8 @@ public class MediaFileProcessorTest {
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockRequest).getDateHeader("If-Modified-Since");
         verify(mockResponse).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        verify(mockCache).incrementIncomingRequests();
+        verify(mockCache).incrementRequestsHandledBy304();
     }
 
     @Test
@@ -130,6 +133,8 @@ public class MediaFileProcessorTest {
         when(mockMFM.getMediaFileWithContent(anyString())).thenReturn(mediaFile);
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockResponse).sendError(SC_NOT_FOUND);
+        verify(mockCache).incrementIncomingRequests();
+        verify(mockCache, never()).incrementRequestsHandledBy304();
     }
 
     @Test
@@ -154,6 +159,8 @@ public class MediaFileProcessorTest {
 
         verify(mockResponse).setHeader("Cache-Control", "no-cache");
         verify(mockResponse).setDateHeader("Last-Modified", now.toEpochMilli());
+        verify(mockCache, times(2)).incrementIncomingRequests();
+        verify(mockCache, never()).incrementRequestsHandledBy304();
     }
 
     @Test
@@ -168,6 +175,8 @@ public class MediaFileProcessorTest {
         when(mockResponse.getOutputStream()).thenThrow(new IllegalArgumentException());
         processor.getMediaFile(mockRequest, mockResponse);
         verify(mockResponse).sendError(SC_NOT_FOUND);
+        verify(mockCache).incrementIncomingRequests();
+        verify(mockCache, never()).incrementRequestsHandledBy304();
     }
 
 }
