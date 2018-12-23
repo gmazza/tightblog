@@ -39,17 +39,15 @@ public class LazyExpiringCacheTest {
     }
 
     @Test
-    public void testAccessors() {
-        assertEquals("testCache", cache.getCacheHandlerId());
-        assertEquals(10, cache.getMaxEntries());
-    }
-
-    @Test
     public void testReturnNonExpiredValue() {
         CachedContent testContent = new CachedContent(Template.ComponentType.ATOMFEED);
         cache.put("abc", testContent);
         assertEquals(testContent, cache.get("abc", twentySecondsAgo));
+
+        // test accessors
         assertNotEquals(0, cache.getEstimatedSize());
+        assertEquals("testCache", cache.getCacheHandlerId());
+        assertEquals(10, cache.getMaxEntries());
 
         // test invalidate empties cache
         cache.invalidateAll();
@@ -69,6 +67,8 @@ public class LazyExpiringCacheTest {
         CachedContent testContent = new CachedContent(Template.ComponentType.ATOMFEED);
         cache.put("abc", testContent);
         assertNull(cache.get("abc", twentySecondsAgo));
+
+        // test stats not collected when caching disabled
         assertEquals(0, cache.getCacheRequestCount());
         assertEquals(0, cache.getCacheHitCount());
         assertEquals(0, cache.getCacheMissCount());
@@ -77,19 +77,15 @@ public class LazyExpiringCacheTest {
     }
 
     @Test
-    public void testReturnNullForExpiredValue() {
+    public void testReturnNullForExpiredOrNoncachedValues() {
         CachedContent testContent = new CachedContent(Template.ComponentType.ATOMFEED);
-        cache.put("abc", testContent);
-        assertNull(cache.get("abc", twentySecondsLater));
+        cache.put("tooOld", testContent);
+        assertNull(cache.get("tooOld", twentySecondsLater));
+        assertNull(cache.get("uncached", twentySecondsAgo));
     }
 
     @Test
-    public void testReturnNullForNoncachedValue() {
-        assertNull(cache.get("abc", twentySecondsAgo));
-    }
-
-    @Test
-    public void testIncomingRequests() {
+    public void testIncomingRequestStats() {
         assertEquals(0, cache.getIncomingRequests());
         cache.incrementIncomingRequests();
         cache.incrementIncomingRequests();
@@ -98,11 +94,10 @@ public class LazyExpiringCacheTest {
     }
 
     @Test
-    public void testRequestsHandledBy304() {
+    public void testRequestsHandledBy304Stats() {
         assertEquals(0, cache.getRequestsHandledBy304());
         cache.incrementRequestsHandledBy304();
         cache.incrementRequestsHandledBy304();
         assertEquals(2, cache.getRequestsHandledBy304());
     }
-
 }
