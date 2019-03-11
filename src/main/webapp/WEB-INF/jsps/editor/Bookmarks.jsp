@@ -80,13 +80,13 @@
         <td>{{item.name}}</td>
         <td>{{item.url}}</td>
         <td>{{item.description}}</td>
-        <td align="center">
+        <td class="buttontd">
             <a update-dialog="edit-dialog" ng-click="ctrl.editItem(item)">
                 <img src='<c:url value="/images/page_white_edit.png"/>' border="0" alt="icon"
                      title="<fmt:message key='generic.edit'/>"/>
             </a>
         </td>
-        <td align="center">
+        <td class="buttontd">
             <a ng-href="{{item.url}}" target="_blank">
                 <img src='<c:url value="/images/world_go.png"/>' border="0" alt="icon" title="<fmt:message key='bookmarks.visitLink.tip' />" />
             </a>

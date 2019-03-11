@@ -482,6 +482,10 @@ td.menuTabSelected {
     font-weight: bold;
 }
 
+td.buttontd {
+    text-align: center
+}
+
 /* ----------------------------------------------------------------------
 Menu item table (the bar below the tabs)
 ---------------------------------------------------------------------- */

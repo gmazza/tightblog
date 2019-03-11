@@ -1,26 +1,10 @@
 $(function() {
-  $("#confirm-delete").dialog({
-    autoOpen: false,
-    resizable: true,
-    height:310,
-    modal: true,
-    buttons: [
-       {
-          text: msg.deleteLabel,
-          click: function() {
-             angular.element('#ngapp-div').scope().ctrl.deleteWeblog();
-             angular.element('#ngapp-div').scope().$apply();
-             $( this ).dialog( "close" );
-          }
-       },
-       {
-          text: msg.cancelLabel,
-          click: function() {
-             $(this).dialog("close");
-          }
-       }
-    ]
-  });
+    $('#deleteButton').on("click", function() {
+        angular.element('#ngapp-div').scope().ctrl.deleteWeblog();
+        angular.element('#ngapp-div').scope().$apply();
+
+        $('#deleteWeblogModal').modal('hide');
+    });
 });
 
 tightblogApp.requires.push('ngSanitize');

@@ -133,8 +133,8 @@ public class TagController {
         return changeTags(weblogId, currentTagName, newTagName, p, response, true);
     }
 
-    @PostMapping(value = "/weblog/{weblogId}/rename/currenttag/{currentTagName}/newtag/{newTagName}")
-    public Map<String, Integer> renameTag(@PathVariable String weblogId, @PathVariable String currentTagName,
+    @PostMapping(value = "/weblog/{weblogId}/replace/currenttag/{currentTagName}/newtag/{newTagName}")
+    public Map<String, Integer> replaceTag(@PathVariable String weblogId, @PathVariable String currentTagName,
                                        @PathVariable String newTagName, Principal p, HttpServletResponse response)
             throws ServletException {
 

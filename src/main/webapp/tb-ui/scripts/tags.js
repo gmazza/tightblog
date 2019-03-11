@@ -1,61 +1,57 @@
   $(function() {
-    $("#confirm-delete-dialog").dialog({
-      autoOpen: false,
-      resizable: false,
-      height:170,
-      modal: true,
-      buttons: [
-      {
-        text: msg.deleteLabel,
-        click: function() {
-            angular.element('#ngapp-div').scope().ctrl.deleteTag(encodeURIComponent($(this).data('tagName')));
-            angular.element('#ngapp-div').scope().$apply();
-            $( this ).dialog( "close" );
-        }
-      },
-      {
-        text: msg.cancelLabel,
-        click: function() {
-          $( this ).dialog( "close" );
-        }
-      }
-      ]
+    $('#deleteTagModal').on('show.bs.modal', function(e) {
+        //get data-id attribute of the clicked element
+        var tagName = $(e.relatedTarget).attr('current-tag');
+
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        modal.find('button[id="deleteButton"]').data("tagName", tagName);
+        var tmpl = eval('`' + msg.confirmDeleteTmpl + '`')
+        modal.find('#confirmDeleteMsg').html(tmpl);
     });
 
-    $("#change-tag-dialog").dialog({
-      autoOpen: false,
-      resizable: false,
-      height:170,
-      modal: true,
-      buttons: [
-      {
-        text: msg.updateLabel,
-        click: function() {
-            var currentTag = $(this).data('currentTag');
-            var newTag = $('#tagname').val().trim();
-            if ($(this).data('action') == 'rename') {
-                angular.element('#ngapp-div').scope().ctrl.renameTag(currentTag, newTag);
+    $('#deleteButton').on("click", function() {
+        angular.element('#ngapp-div').scope().ctrl.deleteTag(encodeURIComponent($(this).data('tagName')));
+        angular.element('#ngapp-div').scope().$apply();
+
+        $('#deleteTagModal').modal('hide');
+        $(this).data("tagName", '');
+    });
+
+    $('#changeTagModal').on('show.bs.modal', function(e) {
+        $('#newTag').val('');
+
+        //get data-id attribute of the clicked element
+        var tagName = $(e.relatedTarget).attr('current-tag');
+        var action = $(e.relatedTarget).attr('action');
+
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        var button = modal.find('button[id="changeButton"]');
+        button.data("currentTag", tagName);
+        button.data("action", action);
+        var tmpl = eval('`' + (action == 'replace' ? msg.replaceTagTitleTmpl : msg.addTagTitleTempl) + '`')
+        modal.find('#changeTagModalTitle').html(tmpl);
+    });
+
+    $('#changeButton').on("click", function() {
+        var currentTag = $(this).data('currentTag');
+        var newTag = $('#newTag').val().trim();
+        if (newTag) {
+            if ($(this).data('action') == 'replace') {
+                angular.element('#ngapp-div').scope().ctrl.replaceTag(currentTag, newTag);
             } else {
                 angular.element('#ngapp-div').scope().ctrl.addTag(currentTag, newTag);
             }
             angular.element('#ngapp-div').scope().$apply();
-            $( this ).dialog( "close" );
-            $('#tagname').val('');
+            $('#changeTagModal').modal('hide');
         }
-      },
-      {
-        text: msg.cancelLabel,
-        click: function() {
-          $( this ).dialog( "close" );
-          $('#tagname').val('');
-        }
-      }
-      ]
     });
 
 });
 
-tightblogApp.controller('PageController', ['$http', function PageController($http) {
+tightblogApp.controller('PageController', ['$http',
+    function PageController($http) {
     var self = this;
     this.tagData = {};
     this.errorObj = null;
@@ -94,11 +90,11 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
         )
     }
 
-    this.renameTag = function(currentTag, newTag) {
-        $http.post(this.urlRoot + 'weblog/' + weblogId + '/rename/currenttag/' + currentTag + '/newtag/' + newTag).then(
+    this.replaceTag = function(currentTag, newTag) {
+        $http.post(this.urlRoot + 'weblog/' + weblogId + '/replace/currenttag/' + currentTag + '/newtag/' + newTag).then(
           function(response) {
              self.resultsMap = response.data;
-             self.successMessage = 'Renamed [' + currentTag + '] to [' + newTag + '] in ' + self.resultsMap.updated
+             self.successMessage = 'Replaced [' + currentTag + '] with [' + newTag + '] in ' + self.resultsMap.updated
                 + ' entries' + (self.resultsMap.unchanged > 0 ? ', deleted [' + currentTag + '] from '
                 + self.resultsMap.unchanged + ' entries already having [' + newTag + ']': '');
              self.loadTags();

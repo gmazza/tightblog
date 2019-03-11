@@ -235,22 +235,34 @@
 <br><br>
 
 <div ng-if="ctrl.weblog.id != null">
-    <h2><fmt:message key="weblogConfig.removeWebsiteHeading"/></h2>
+    <h2><fmt:message key="weblogConfig.deleteWeblogHeading"/></h2>
     <p>
         <span class="warning">
-            <fmt:message key="weblogConfig.removeWebsiteWarning"/>
+            <fmt:message key="weblogConfig.deleteWeblogWarning"/>
         </span>
     </p>
     <br>
-    <button confirm-delete-dialog="confirm-delete"><fmt:message key="weblogConfig.button.remove"/></button>
+    <button data-toggle="modal" data-target="#deleteWeblogModal"><fmt:message key="weblogConfig.button.delete"/></button>
     <br><br><br>
 </div>
 
-<div id="confirm-delete" title="<fmt:message key='weblogConfig.deleteTitle'/>" style="display:none">
-    {{ctrl.deleteWeblogConfirmation}}
-    <br/>
-    <br/>
-    <span class="warning">
-        <fmt:message key="weblogConfig.removeWebsiteWarning"/>
-    </span>
+<!-- Delete weblog modal -->
+<div class="modal fade" id="deleteWeblogModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalTitle">{{ctrl.deleteWeblogConfirmation}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="confirmDeleteMsg"><fmt:message key="weblogConfig.deleteWeblogWarning"/></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" id="deleteButton"><fmt:message key='generic.delete'/></button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -87,7 +87,7 @@
         <td>{{item.incomingRequests > 0 ? (item.requestsHandledBy304 / item.incomingRequests | number:3) : ''}}</td>
         <td>{{item.cacheRequestCount > 0 ? (item.cacheHitRate | number:3) : ''}}</td>
         <td>{{item.incomingRequests > 0 ? ((item.requestsHandledBy304 + item.cacheHitCount) / item.incomingRequests | number:3) : ''}}</td>
-        <td align="center">
+        <td class="buttontd">
             <input type="button" value="<fmt:message key='cachedData.clear'/>" ng-click="ctrl.clearCache(key)" ng-disabled="item.maxEntries == 0"/>
         </td>
        </tr>

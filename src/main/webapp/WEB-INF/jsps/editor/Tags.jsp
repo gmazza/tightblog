@@ -23,6 +23,9 @@
     var contextPath = "${pageContext.request.contextPath}";
     var weblogId = "<c:out value='${actionWeblog.id}'/>";
     var msg = {
+        confirmDeleteTmpl: "<fmt:message key='tags.confirm.delete.tmpl'/>",
+        replaceTagTitleTmpl: "<fmt:message key='tags.replace.title'/>",
+        addTagTitleTempl: "<fmt:message key='tags.add.title'/>",
         updateLabel: "<fmt:message key='generic.update'/>",
         deleteLabel: "<fmt:message key='generic.delete'/>",
         cancelLabel: "<fmt:message key='generic.cancel'/>"
@@ -52,7 +55,7 @@
 
 <div class="tablenav">
 
-    <span ng-if="ctrl.pageNum > 0 || ctrl.tagsData.hasMore">
+    <span ng-if="ctrl.pageNum > 0 || ctrl.tagsData.hasMore" ng-cloak>
         <center>
             &laquo;
             <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
@@ -92,28 +95,64 @@
                 <a ng-href='{{tag.viewUrl}}' target="_blank"><fmt:message key="tags.column.view" /></a>
             </td>
 
-            <td>
-                <button rename-tag-dialog="change-tag-dialog" current-tag="{{tag.name}}"><fmt:message key="generic.rename" /></button>
+            <td class="buttontd">
+                <button class="btn btn-warning" current-tag="{{tag.name}}" action="replace"
+                    current-tag="{{tag.name}}" data-toggle="modal" data-target="#changeTagModal"><fmt:message key="tags.replace" /></button>
             </td>
 
-            <td>
-                <button add-tag-dialog="change-tag-dialog" current-tag="{{tag.name}}"><fmt:message key="generic.add" /></button>
+            <td class="buttontd">
+                <button class="btn btn-warning" current-tag="{{tag.name}}" action="add"
+                    current-tag="{{tag.name}}" data-toggle="modal" data-target="#changeTagModal"><fmt:message key="generic.add" /></button>
             </td>
 
-            <td>
-                <button confirm-delete-dialog="confirm-delete-dialog" name-to-delete="{{tag.name}}"><fmt:message key="generic.delete" /></button>
+            <td class="buttontd">
+                <button class="btn btn-danger" current-tag="{{tag.name}}" data-toggle="modal" data-target="#deleteTagModal"><fmt:message key="generic.delete" /></button>
             </td>
         </tr>
     </tbody>
 </table>
 
-<div id="change-tag-dialog" style="display:none">
-  <label for="name"><fmt:message key='generic.name'/>:</label>
-  <input id="tagname" type="text" class="text ui-widget-content ui-corner-all">
+<!-- Delete tag modal -->
+<div class="modal fade" id="deleteTagModal" tabindex="-1" role="dialog" aria-labelledby="deleteTagModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTagModalTitle"><fmt:message key='tags.confirm.delete.title'/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="confirmDeleteMsg"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" id="deleteButton" data-tagName="populatedByJS" ><fmt:message key='generic.delete'/></button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="confirm-delete-dialog" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key="tags.confirm.delete"/></p>
+<!-- Replace/Add tag modal -->
+<div class="modal fade" id="changeTagModal" tabindex="-1" role="dialog" aria-labelledby="changeTagModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changeTagModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <label for="newTag"><fmt:message key='generic.name'/>:</label>
+          <input id="newTag" type="text">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-warning" id="changeButton" action="populatedByJS" data-currentTag="populatedByJS" ><fmt:message key='generic.save'/></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <span ng-if="ctrl.tagsData.tags.length == 0">

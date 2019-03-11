@@ -144,7 +144,7 @@
         <%-- Next / previous links --%>
         <%-- ============================================================= --%>
 
-        <span ng-if="ctrl.pageNum > 0 || ctrl.commentData.hasMore">
+        <span ng-if="ctrl.pageNum > 0 || ctrl.commentData.hasMore" ng-cloak>
             <center>
                 &laquo;
                 <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"

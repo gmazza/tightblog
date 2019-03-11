@@ -68,13 +68,13 @@
               <td>{{item.numEntries}}</td>
               <td>{{ctrl.formatDate(item.firstEntry)}}</td>
               <td>{{ctrl.formatDate(item.lastEntry)}}</td>
-              <td align="center">
+              <td class="buttontd">
                 <a edit-dialog="edit-dialog" ng-click="ctrl.setEditItem(item)">
                     <img src='<c:url value="/images/page_white_edit.png"/>' border="0" alt="icon"
                          title="<fmt:message key='generic.edit'/>"/>
                 </a>
               </td>
-              <td align="center">
+              <td class="buttontd">
                   <span ng-if="ctrl.items.length > 1">
                       <a confirm-delete-dialog="delete-dialog" name-to-delete="{{item.name}}" ng-click="ctrl.setDeleteItem(item)">
                           <img src="<c:url value='/images/delete.png'/>" border="0" alt="icon"
