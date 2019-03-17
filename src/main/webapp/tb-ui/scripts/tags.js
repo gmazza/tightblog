@@ -30,7 +30,7 @@
         var button = modal.find('button[id="changeButton"]');
         button.data("currentTag", tagName);
         button.data("action", action);
-        var tmpl = eval('`' + (action == 'replace' ? msg.replaceTagTitleTmpl : msg.addTagTitleTempl) + '`')
+        var tmpl = eval('`' + (action == 'replace' ? msg.replaceTagTitleTmpl : msg.addTagTitleTmpl) + '`')
         modal.find('#changeTagModalTitle').html(tmpl);
     });
 
@@ -135,35 +135,3 @@ tightblogApp.controller('PageController', ['$http',
     this.loadTags();
 
   }]);
-
-function showTagDialog(action, titleStub) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attr, ctrl) {
-            elem.bind('click', function(e) {
-                $('#change-tag-dialog').data('currentTag',  attr.currentTag)
-                           .data('action',  action)
-                           .dialog("option", {"title" : titleStub + attr.currentTag})
-                           .dialog('open');
-            });
-        }
-    };
-}
-
-tightblogApp.directive('addTagDialog', function(){return showTagDialog('add', 'Add to ')});
-
-tightblogApp.directive('renameTagDialog', function(){return showTagDialog('rename', 'Rename ')});
-
-tightblogApp.directive('confirmDeleteDialog', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attr, ctrl) {
-            var dialogId = '#' + attr.confirmDeleteDialog;
-            elem.bind('click', function(e) {
-                $(dialogId).data('tagName',  attr.nameToDelete)
-                    .dialog("option", {"title" : attr.nameToDelete})
-                    .dialog('open');
-            });
-        }
-    };
-});

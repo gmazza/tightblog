@@ -305,7 +305,7 @@ div.viewdetails {
     margin-right: 5px;
     padding: 5px 5px 5px 7px;
 }
-.control input {
+.control input, .control button {
     margin: 0.3em;
 }
 .control select {

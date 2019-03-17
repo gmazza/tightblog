@@ -21,15 +21,12 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>'/>
 <script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js"/>'></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-sanitize.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var msg = {
-        deleteLabel: '<fmt:message key="generic.delete"/>',
-        cancelLabel: '<fmt:message key="generic.cancel"/>',
         deleteWeblogTmpl: '<fmt:message key="weblogConfig.deleteConfirm"/>'
     };
     // Below populated for weblog update only
@@ -261,7 +258,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" id="deleteButton"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteWeblog()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>

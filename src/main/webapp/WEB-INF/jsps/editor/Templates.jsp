@@ -19,25 +19,11 @@
 
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
 <script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js"/>'></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
-    var msg= {
-        deleteLabel: '<fmt:message key="generic.delete"/>',
-        cancelLabel: '<fmt:message key="generic.cancel"/>'
-    };
-
-    function toggleCheckboxes(toggle, name) {;
-        var inputs = document.getElementsByName(name);
-        for(var i = 0; i < inputs.length ; i++) {
-            if(inputs[i].type == 'checkbox' && inputs[i].disabled == false) {
-               inputs[i].checked = toggle;
-            }
-        }
-    };
-var actionWeblogId = "<c:out value='${param.weblogId}'/>";
+    var actionWeblogId = "<c:out value='${param.weblogId}'/>";
 </script>
 
 <script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
@@ -86,8 +72,9 @@ var actionWeblogId = "<c:out value='${param.weblogId}'/>";
     <table class="table table-sm table-bordered table-striped">
         <thead class="thead-light">
         <tr>
-          <th width="4%"><input type="checkbox" onclick="toggleCheckboxes(this.checked,'idSelections');"
-            title="<fmt:message key="templates.selectAllLabel"/>"/></th>
+          <th width="4%"><input type="checkbox" ng-model="ctrl.checkAll"
+                ng-change="ctrl.toggleCheckboxes(ctrl.checkAll)"
+            title="<fmt:message key='templates.selectAllLabel'/>"/></th>
           <th width="17%"><fmt:message key="generic.name"/></th>
           <th width="20%"><fmt:message key="templates.path"/></th>
           <th width="34%"><fmt:message key="templates.role"/></th>
@@ -100,7 +87,7 @@ var actionWeblogId = "<c:out value='${param.weblogId}'/>";
         <tr ng-repeat="tpl in ctrl.weblogTemplateData.templates">
             <td class="center" style="vertical-align:middle">
               <span ng-if="tpl.derivation != 'Default'">
-                  <input type="checkbox" name="idSelections" value="{{tpl.id}}" />
+                  <input type="checkbox" name="idSelections" ng-model="tpl.selected" value="{{tpl.id}}" />
               </span>
             </td>
 
@@ -151,7 +138,11 @@ var actionWeblogId = "<c:out value='${param.weblogId}'/>";
     </table>
 
     <div class="control">
-    	<input confirm-delete-dialog="confirm-delete" type="button" value="<fmt:message key='templates.deleteselected'/>" />
+      <span style="padding-left:7px">
+    	<button ng-disabled="!ctrl.templatesSelected()" data-toggle="modal" data-target="#deleteTemplatesModal">
+    	    <fmt:message key='templates.deleteselected'/>
+    	</button>
+      </span>
 
       <c:url var="templateEditUrl" value="/tb-ui/app/authoring/themeEdit">
           <c:param name="weblogId" value="${weblogId}" />
@@ -197,12 +188,23 @@ var actionWeblogId = "<c:out value='${param.weblogId}'/>";
 
 <br/>
 
-<div id="confirm-delete" title="<fmt:message key='generic.confirm'/>" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key="templateRemoves.youSure" />
-	<br/>
-	<br/>
-	<span class="warning">
-		<fmt:message key="templateRemoves.youSureWarning" />
-	</span>
-  </p>
+<!-- Delete templates modal -->
+<div class="modal fade" id="deleteTemplatesModal" tabindex="-1" role="dialog" aria-labelledby="deleteTemplatesTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTemplatesTitle"><fmt:message key="templates.confirmDelete"/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="confirmSwitchMsg"><fmt:message key="templates.deleteWarning" /></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteTemplates()"><fmt:message key='generic.confirm'/></button>
+      </div>
+    </div>
+  </div>
 </div>

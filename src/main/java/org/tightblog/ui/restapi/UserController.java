@@ -332,7 +332,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/memberupdate", produces = "text/plain")
+    @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/memberupdate")
     public ResponseEntity updateWeblogMembership(@PathVariable String weblogId, Principal p, Locale locale,
                                                  @RequestBody List<UserWeblogRole> roles)
             throws ServletException {

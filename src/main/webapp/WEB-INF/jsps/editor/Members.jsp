@@ -69,7 +69,7 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
     <button type="button" class="close" data-ng-click="ctrl.messageToShow = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
-    <b>{{ctrl.errorObj}}</b>
+    <b>{{ctrl.errorObj.errorMessage}}</b>
 </div>
 
     <table class="table table-bordered table-hover">
