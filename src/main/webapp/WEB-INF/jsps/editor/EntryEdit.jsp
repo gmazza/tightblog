@@ -22,8 +22,8 @@
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
 <link rel="stylesheet" href="//cdn.quilljs.com/0.20.1/quill.snow.css">
 
-<script src="<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />"></script>
-<script src='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js"/>'></script>
+<script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
+<script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-sanitize.min.js"></script>
 <script src="//cdn.quilljs.com/0.20.1/quill.js"></script>
@@ -35,8 +35,7 @@
     var newEntryUrl = "<c:url value='/tb-ui/app/authoring/entryAdd'/>?weblogId=" + weblogId;
     var loginUrl = "<c:url value='/tb-ui/app/login-redirect'/>";
     var msg = {
-        deleteLabel: "<fmt:message key='generic.delete'/>",
-        cancelLabel: "<fmt:message key='generic.cancel'/>",
+        confirmDeleteTmpl: "<fmt:message key='entryEdit.confirmDeleteTmpl'/>",
         commentCountTmpl: "<fmt:message key='entryEdit.hasComments'/>",
         sessionTimeoutTmpl: "<fmt:message key='entryEdit.sessionTimedOut'/>"
     };
@@ -327,11 +326,28 @@
         </span>
 
         <span style="float:right" ng-show="ctrl.entry.id">
-            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" delete-entry-dialog="confirm-delete"/>
+            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" data-title="{{ctrl.entry.title}}" data-toggle="modal" data-target="#deleteEntryModal"/>
         </span>
     </div>
 </div>
 
-<div id="confirm-delete" title="<fmt:message key='entryEdit.deleteEntry'/>" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key="entryEdit.confirmDelete"/></p>
+<!-- Delete entry modal -->
+<div class="modal fade" id="deleteEntryModal" tabindex="-1" role="dialog" aria-labelledby="deleteEntryModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEntryModalTitle"><fmt:message key="generic.confirm.delete"/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <span id="confirmDeleteMsg"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteWeblogEntry()"><fmt:message key='generic.delete'/></button>
+      </div>
+    </div>
+  </div>
 </div>
