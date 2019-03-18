@@ -21,16 +21,15 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
 <script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js"/>'></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var weblogId = "<c:out value='${actionWeblog.id}'/>";
     var directoryId = "<c:out value='${param.directoryId}'/>";
     var msg = {
-        confirmLabel: '<fmt:message key="generic.confirm"/>',
-        deleteLabel: '<fmt:message key="generic.delete"/>',
-        cancelLabel: '<fmt:message key="generic.cancel"/>',
+        confirmDeleteFilesTmpl: "<fmt:message key='mediafileView.confirmDeleteFilesTmpl'/>",
+        confirmDeleteFolderTmpl: "<fmt:message key='mediafileView.confirmDeleteFolderTmpl'/>",
+        confirmMoveFilesTmpl: "<fmt:message key='mediafileView.confirmMoveFilesTmpl'/>",
         fileDeleteSuccess: '<fmt:message key="mediaFileView.delete.success"/>',
         folderDeleteSuccess: '<fmt:message key="mediaFileView.deleteFolder.success"/>',
         fileMoveSuccess: '<fmt:message key="mediaFileView.move.success"/>',
@@ -112,6 +111,7 @@
 
             <div class="mediaObjectInfo">
                 <input type="checkbox"
+                       name="idSelections"
                        ng-model="mediaFile.selected"
                        value="{{mediaFile.id}}">
 
@@ -131,12 +131,14 @@
            ng-click="ctrl.onToggle()"
            />
 
-        <input type="button" delete-files-dialog="confirm-delete-files"
+        <input ng-disabled="!ctrl.filesSelected()" type="button"
+           data-toggle="modal" data-target="#deleteFilesModal"
            value='<fmt:message key="mediaFileView.deleteSelected" />'
            />
 
-        <input type="button" move-files-dialog="confirm-move-file"
+        <input ng-disabled="!ctrl.filesSelected() || ctrl.directoryToView == ctrl.directoryToMoveTo" type="button"
            value='<fmt:message key="mediaFileView.moveSelected" />'
+           data-toggle="modal" data-target="#moveFilesModal" data-folder-id="{{ctrl.directoryToMoveTo}}"
            ng-show="ctrl.mediaDirectories.length > 1">
 
         <select id="moveTargetMenu" size="1" required
@@ -147,7 +149,8 @@
 
     <span style="float:right">
         <input type="button" value='<fmt:message key="mediaFileView.deleteFolder" />'
-            delete-folder-dialog="confirm-delete-folder" ng-show="ctrl.mediaDirectories.length > 1" />
+            data-toggle="modal" data-folder-id="{{ctrl.directoryToView}}" data-target="#deleteFolderModal"
+            ng-show="ctrl.mediaDirectories.length > 1" />
     </span>
 </div>
 
@@ -184,18 +187,65 @@
     </div>
 </div>
 
-<div id="confirm-delete-files" title="<fmt:message key='generic.confirm'/>" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key='mediaFileView.delete.confirm' /></p>
+<!-- Delete media files modal -->
+<div class="modal fade" id="deleteFilesModal" tabindex="-1" role="dialog" aria-labelledby="deleteFilesTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteFilesTitle"><fmt:message key="generic.confirm.delete"/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="deleteFilesMsg"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteFiles()"><fmt:message key='generic.delete'/></button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="confirm-delete-folder" title="<fmt:message key='generic.confirm'/>" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key='mediaFileView.deleteFolder.confirm' /></p>
+<!-- Delete media folder modal -->
+<div class="modal fade" id="deleteFolderModal" tabindex="-1" role="dialog" aria-labelledby="deleteFolderTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteFolderTitle"><fmt:message key="generic.confirm.delete"/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="deleteFolderMsg"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteFolder()"><fmt:message key='generic.delete'/></button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="confirm-move-file" title="<fmt:message key='generic.confirm'/>" style="display:none">
-   <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><fmt:message key='mediaFileView.move.confirm' /></p>
+<!-- Move files modal -->
+<div class="modal fade" id="moveFilesModal" tabindex="-1" role="dialog" aria-labelledby="moveFilesTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="moveFilesTitle"><fmt:message key="generic.confirm.move"/></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span id="moveFilesMsg"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-warning" ng-click="ctrl.moveFiles()"><fmt:message key='generic.confirm'/></button>
+      </div>
+    </div>
+  </div>
 </div>
-
-<br>
-<br>
-<br>

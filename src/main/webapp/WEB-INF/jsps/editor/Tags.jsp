@@ -153,5 +153,4 @@
 
 <span ng-if="ctrl.tagsData.tags.length == 0">
     <fmt:message key="tags.noneFound" />
-    <br><br><br><br><br><br><br><br><br><br><br><br>
 </span>

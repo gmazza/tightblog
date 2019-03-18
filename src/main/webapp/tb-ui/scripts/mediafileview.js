@@ -1,78 +1,44 @@
 $(function() {
-    $("#confirm-delete-files").dialog({
-      autoOpen: false,
-      resizable: true,
-      height:200,
-      modal: true,
-      buttons: [
-        {
-          text: msg.deleteLabel,
-          click: function() {
-            angular.element('#ngapp-div').scope().ctrl.deleteFiles();
-            angular.element('#ngapp-div').scope().$apply();
-            $( this ).dialog( "close" );
-          }
-        },
-        {
-          text: msg.cancelLabel,
-          click: function() {
-             $(this).dialog("close");
-          }
-        }
-      ]
+    $('#deleteFilesModal').on('show.bs.modal', function(e) {
+        // get data-id attribute of the clicked element
+        var count = $('input[name="idSelections"]:checked').size();
+
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        var tmpl = eval('`' + msg.confirmDeleteFilesTmpl + '`')
+        modal.find('#deleteFilesMsg').html(tmpl);
     });
 
-    $("#confirm-delete-folder").dialog({
-      autoOpen: false,
-      resizable: true,
-      height:200,
-      modal: true,
-      buttons: [
-        {
-          text: msg.deleteLabel,
-          click: function() {
-            angular.element('#ngapp-div').scope().ctrl.deleteFolder();
-            angular.element('#ngapp-div').scope().$apply();
-            $( this ).dialog( "close" );
-          }
-        },
-        {
-           text: msg.cancelLabel,
-           click: function() {
-              $(this).dialog("close");
-           }
-        }
-       ]
-     });
+    $('#deleteFolderModal').on('show.bs.modal', function(e) {
+        // get data-id attribute of the clicked element
+        var folderId = $(e.relatedTarget).attr('data-folder-id');
+        var folderName = angular.element('#ngapp-div').scope().ctrl.getFolderName(folderId);
+        var count = angular.element('#ngapp-div').scope().ctrl.mediaFiles.length;
 
-    $("#confirm-move-file").dialog({
-      autoOpen: false,
-      resizable: true,
-      height:200,
-      modal: true,
-      buttons: [
-        {
-          text: msg.confirmLabel,
-          click: function() {
-            angular.element('#ngapp-div').scope().ctrl.moveFiles();
-            angular.element('#ngapp-div').scope().$apply();
-            $( this ).dialog( "close" );
-          }
-        },
-        {
-          text: msg.cancelLabel,
-          click: function() {
-             $(this).dialog("close");
-          }
-        }
-      ]
-     });
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        var tmpl = eval('`' + msg.confirmDeleteFolderTmpl + '`')
+        modal.find('#deleteFolderMsg').html(tmpl);
+    });
+
+    $('#moveFilesModal').on('show.bs.modal', function(e) {
+        // get data-id attribute of the clicked element
+        var newFolderId = $(e.relatedTarget).attr('data-folder-id');
+        var newFolderName = angular.element('#ngapp-div').scope().ctrl.getFolderName(newFolderId);
+        var count = $('input[name="idSelections"]:checked').size();
+
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        var tmpl = eval('`' + msg.confirmMoveFilesTmpl + '`')
+        modal.find('#moveFilesMsg').html(tmpl);
+    });
 });
 
 tightblogApp.controller('PageController', ['$http', function PageController($http) {
     var self = this;
     this.successMessage = null;
     this.errorMessage = null;
+    this.mediaDirectories = null;
 
     this.loadMediaDirectories = function() {
       $http.get(contextPath + '/tb-ui/authoring/rest/weblog/' + weblogId + '/mediadirectories').then(function(response) {
@@ -90,6 +56,19 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
           self.loadMediaFiles();
         }
       });
+    }
+
+    this.getFolderName = function(folderId) {
+        for (i = 0; self.mediaDirectories && i < self.mediaDirectories.length; i++) {
+           if (self.mediaDirectories[i].id == folderId) {
+               return self.mediaDirectories[i].name;
+           }
+        }
+        return null;
+    }
+
+    this.filesSelected = function() {
+        return $('input[name="idSelections"]:checked').size() > 0;
     }
 
     this.loadMediaFiles = function() {
@@ -133,6 +112,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
 
     this.deleteFolder = function() {
       this.messageClear();
+      $('#deleteFolderModal').modal('hide');
       $http.delete(contextPath + '/tb-ui/authoring/rest/mediadirectory/' + self.directoryToView).then(
         function(response) {
           self.successMessage = msg.folderDeleteSuccess;
@@ -145,6 +125,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
 
     this.deleteFiles = function() {
       this.messageClear();
+      $('#deleteFilesModal').modal('hide');
       var selectedFiles = [];
       angular.forEach(this.mediaFiles, function(mediaFile) {
           if (!!mediaFile.selected) selectedFiles.push(mediaFile.id);
@@ -162,6 +143,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
 
     this.moveFiles = function() {
       this.messageClear();
+      $('#moveFilesModal').modal('hide');
       var selectedFiles = [];
       angular.forEach(this.mediaFiles, function(mediaFile) {
           if (!!mediaFile.selected) selectedFiles.push(mediaFile.id);
@@ -197,20 +179,3 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
     }
 
 }]);
-
-function showDialog(dialogId) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attr, ctrl) {
-            elem.bind('click', function(e) {
-                $(dialogId).dialog('open');
-            });
-        }
-    };
-}
-
-tightblogApp.directive('moveFilesDialog', function(){return showDialog('#confirm-move-file')});
-
-tightblogApp.directive('deleteFilesDialog', function(){return showDialog('#confirm-delete-files')});
-
-tightblogApp.directive('deleteFolderDialog', function(){return showDialog('#confirm-delete-folder')});

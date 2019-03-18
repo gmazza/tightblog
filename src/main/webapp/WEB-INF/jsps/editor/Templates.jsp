@@ -199,7 +199,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <span id="confirmSwitchMsg"><fmt:message key="templates.deleteWarning" /></span>
+        <span id="deleteTemplatesMsg"><fmt:message key="templates.deleteWarning" /></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>

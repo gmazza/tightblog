@@ -251,6 +251,4 @@
 
 <span ng-if="ctrl.entriesData.entries.length == 0">
     <fmt:message key="entries.noneFound" />
-    <br><br><br><br><br><br><br><br><br><br><br><br>
 </span>
-
