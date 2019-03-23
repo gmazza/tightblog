@@ -13,7 +13,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
          if (response.status == 408)
            window.location.replace($('#refreshURL').attr('value'));  // return;
          if (response.status == 400) {
-           self.errorObj = response.data;
+           self.errorMessage = response.data;
            self.messageToShow = 'error';
          }
       })
@@ -35,7 +35,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
          if (response.status == 408)
            window.location.replace($('#refreshURL').attr('value'));  // return;
          if (response.status == 400) {
-           self.errorObj = response.data;
+           self.errorMessage = response.data;
            self.messageToShow = 'error';
          }
       })
