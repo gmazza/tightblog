@@ -1,6 +1,5 @@
 $(function() {
     $('#deleteFilesModal').on('show.bs.modal', function(e) {
-        // get data-id attribute of the clicked element
         var count = $('input[name="idSelections"]:checked').size();
 
         // populate delete modal with tag-specific information
@@ -23,8 +22,8 @@ $(function() {
 
     $('#moveFilesModal').on('show.bs.modal', function(e) {
         // get data-id attribute of the clicked element
-        var newFolderId = $(e.relatedTarget).attr('data-folder-id');
-        var newFolderName = angular.element('#ngapp-div').scope().ctrl.getFolderName(newFolderId);
+        var targetFolderId = $(e.relatedTarget).attr('data-folder-id');
+        var targetFolderName = angular.element('#ngapp-div').scope().ctrl.getFolderName(targetFolderId);
         var count = $('input[name="idSelections"]:checked').size();
 
         // populate delete modal with tag-specific information
@@ -44,16 +43,10 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
       $http.get(contextPath + '/tb-ui/authoring/rest/weblog/' + weblogId + '/mediadirectories').then(function(response) {
         self.mediaDirectories = response.data;
         if (self.mediaDirectories && self.mediaDirectories.length > 0) {
-          if (directoryId) {
-            self.directoryToView = directoryId;
-            self.directoryToMoveTo = directoryId;
-          } else if (self.directoryToView) {
-            self.directoryToMoveTo = self.directoryToView;
-          } else {
-            self.directoryToView = self.mediaDirectories[0].id;
-            self.directoryToMoveTo = self.mediaDirectories[0].id;
-          }
-          self.loadMediaFiles();
+            if (!self.currentFolderId) {
+                self.currentFolderId = directoryId ? directoryId : self.mediaDirectories[0].id;
+            }
+            self.loadMediaFiles();
         }
       });
     }
@@ -72,39 +65,31 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
     }
 
     this.loadMediaFiles = function() {
-      $http.get(contextPath + '/tb-ui/authoring/rest/mediadirectories/' + self.directoryToView + '/files').then(function(response) {
+      $http.get(contextPath + '/tb-ui/authoring/rest/mediadirectories/' + self.currentFolderId + '/files').then(function(response) {
         self.mediaFiles = response.data;
       });
     };
     this.loadMediaDirectories();
 
-    var toggleState = 'Off'
-
+    var allFilesSelected = false;
     this.onToggle = function() {
-        if (toggleState == 'Off') {
-            toggleState = 'On';
-            angular.forEach(this.mediaFiles, function(mediaFile) {
-              mediaFile.selected = true;
-            })
-        } else {
-            toggleState = 'Off';
-            angular.forEach(this.mediaFiles, function(mediaFile) {
-              mediaFile.selected = false;
-            })
-        }
+        allFilesSelected = !allFilesSelected;
+        angular.forEach(this.mediaFiles, function(mediaFile) {
+          mediaFile.selected = allFilesSelected;
+        })
     }
 
-    this.createNewDirectory = function() {
-      if (!self.newDirectoryName) {
+    this.addFolder = function() {
+      if (!self.newFolderName) {
         return;
       }
       this.messageClear();
       $http.put(contextPath + '/tb-ui/authoring/rest/weblog/' + weblogId + '/mediadirectories',
-         JSON.stringify(self.newDirectoryName)).then(
+         JSON.stringify(self.newFolderName)).then(
         function(response) {
+          self.currentFolderId = response.data;
+          self.newFolderName = '';
           self.loadMediaDirectories();
-          self.directoryToView = response.data;
-          self.newDirectoryName = '';
         },
         self.commonErrorResponse
       )
@@ -113,10 +98,10 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
     this.deleteFolder = function() {
       this.messageClear();
       $('#deleteFolderModal').modal('hide');
-      $http.delete(contextPath + '/tb-ui/authoring/rest/mediadirectory/' + self.directoryToView).then(
+      $http.delete(contextPath + '/tb-ui/authoring/rest/mediadirectory/' + self.currentFolderId).then(
         function(response) {
           self.successMessage = msg.folderDeleteSuccess;
-          self.directoryToView = null;
+          self.currentFolderId = null;
           self.loadMediaDirectories();
         },
         self.commonErrorResponse
@@ -150,7 +135,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
       })
 
       $http.post(contextPath + '/tb-ui/authoring/rest/mediafiles/weblog/' + weblogId +
-      "/todirectory/" + self.directoryToMoveTo,
+      "/todirectory/" + self.targetFolderId,
       JSON.stringify(selectedFiles)).then(
         function(response) {
           self.successMessage = msg.fileMoveSuccess;

@@ -73,7 +73,7 @@
         <%-- Folder to View combo-box --%>
         <fmt:message key="mediaFileView.viewFolder" />:
         <%-- ng-options: http://preview.tinyurl.com/z8okbq8 --%>
-        <select ng-model="ctrl.directoryToView"
+        <select ng-model="ctrl.currentFolderId"
                 ng-change="ctrl.loadMediaFiles()"
                 ng-options="dir.id as dir.name for dir in ctrl.mediaDirectories"
                 size="1" required></select>
@@ -96,7 +96,7 @@
                     <c:param name="weblogId" value="${actionWeblog.id}" />
                 </c:url>
 
-                <a ng-href="<c:out value='${editUrl}'/>&amp;directoryId={{ctrl.directoryToView}}&amp;mediaFileId={{mediaFile.id}}">
+                <a ng-href="<c:out value='${editUrl}'/>&amp;directoryId={{ctrl.currentFolderId}}&amp;mediaFileId={{mediaFile.id}}">
                     <img ng-if="mediaFile.imageFile"
                          ng-src='{{mediaFile.thumbnailURL}}'
                          alt='{{mediaFile.altText}}'
@@ -136,20 +136,20 @@
            value='<fmt:message key="mediaFileView.deleteSelected" />'
            />
 
-        <input ng-disabled="!ctrl.filesSelected() || ctrl.directoryToView == ctrl.directoryToMoveTo" type="button"
+        <input ng-disabled="!ctrl.filesSelected()" type="button"
            value='<fmt:message key="mediaFileView.moveSelected" />'
-           data-toggle="modal" data-target="#moveFilesModal" data-folder-id="{{ctrl.directoryToMoveTo}}"
+           data-toggle="modal" data-target="#moveFilesModal" data-folder-id="{{ctrl.targetFolderId}}"
            ng-show="ctrl.mediaDirectories.length > 1">
 
         <select id="moveTargetMenu" size="1" required
-           ng-model="ctrl.directoryToMoveTo"
-           ng-options="dir.id as dir.name for dir in ctrl.mediaDirectories"
+           ng-model="ctrl.targetFolderId"
+           ng-options="dir.id as dir.name for dir in ctrl.mediaDirectories | filter: {id : '!' + ctrl.currentFolderId}"
            ng-show="ctrl.mediaDirectories.length > 1"></select>
     </span>
 
     <span style="float:right">
         <input type="button" value='<fmt:message key="mediaFileView.deleteFolder" />'
-            data-toggle="modal" data-folder-id="{{ctrl.directoryToView}}" data-target="#deleteFolderModal"
+            data-toggle="modal" data-folder-id="{{ctrl.currentFolderId}}" data-target="#deleteFolderModal"
             ng-show="ctrl.mediaDirectories.length > 1" />
     </span>
 </div>
@@ -166,20 +166,19 @@
         <c:url var="mediaFileAddURL" value="/tb-ui/app/authoring/mediaFileAdd">
             <c:param name="weblogId" value="${actionWeblog.id}" />
         </c:url>
-        <a href='${mediaFileAddURL}&directoryId={{ctrl.directoryToView}}' style='font-weight:bold;'>
+        <a href='${mediaFileAddURL}&directoryId={{ctrl.currentFolderId}}' style='font-weight:bold;'>
             <fmt:message key="mediaFileView.add"/>
         </a>
 
         <br><br>
         <div>
             <img src='<c:url value="/images/folder_add.png"/>' border="0" alt="icon">
-            <fmt:message key="mediaFileView.addDirectory" /><br />
+            <fmt:message key="mediaFileView.addFolder" /><br />
             <div style="padding-left:2em; padding-top:1em">
-                <fmt:message key="mediaFileView.directoryName" />
-                <input type="text" id="newDirectoryNameField" ng-model="ctrl.newDirectoryName" size="10" maxlength="25"/>
-                <input type="button" id="newDirectoryButton"
-                    value='<fmt:message key="mediaFileView.create" />' ng-click="ctrl.createNewDirectory()"
-                    ng-disabled="ctrl.newDirectoryName == ''" />
+                <fmt:message key="generic.name" />:
+                <input type="text" ng-model="ctrl.newFolderName" size="10" maxlength="25"/>
+                <input type="button" value='<fmt:message key="mediaFileView.create" />' ng-click="ctrl.addFolder()"
+                    ng-disabled="ctrl.newFolderName == ''" />
             </div>
         </div>
 
