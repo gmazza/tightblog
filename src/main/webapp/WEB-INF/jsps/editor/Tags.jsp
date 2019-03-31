@@ -21,7 +21,6 @@
     var contextPath = "${pageContext.request.contextPath}";
     var weblogId = "<c:out value='${actionWeblog.id}'/>";
     var msg = {
-        confirmDeleteTmpl: "<fmt:message key='tags.confirm.delete.tmpl'/>",
         replaceTagTitleTmpl: "<fmt:message key='tags.replace.title'/>",
         addTagTitleTmpl: "<fmt:message key='tags.add.title'/>"
     };
@@ -68,19 +67,23 @@
 <table class="table table-sm  table-bordered table-striped">
     <thead class="thead-light">
         <tr>
+            <th width="4%"><input type="checkbox" ng-model="ctrl.checkAll"
+                ng-disabled="ctrl.tagData.tags.length == 0" ng-change="ctrl.toggleCheckboxes(ctrl.checkAll)"
+                title="<fmt:message key='generic.selectAll'/>"/></th>
             <th width="20%"><fmt:message key="tags.column.tag" /></th>
             <th width="10%"><fmt:message key="categories.column.count" /></th>
             <th width="10%"><fmt:message key="categories.column.firstEntry" /></th>
             <th width="10%"><fmt:message key="categories.column.lastEntry" /></th>
             <th width="14%"></th>
-            <th width="10%"></th>
-            <th width="10%"></th>
-            <th width="10%"></th>
+            <th width="13%"></th>
+            <th width="13%"></th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat="tag in ctrl.tagData.tags" ng-cloak>
-
+            <td class="center" style="vertical-align:middle">
+                  <input type="checkbox" name="idSelections" ng-model="tag.selected" value="{{tag.name}}" />
+            </td>
             <td>{{tag.name}}</td>
             <td>{{tag.total}}</td>
             <td>{{ctrl.formatDate(tag.firstEntry)}}</td>
@@ -99,30 +102,31 @@
                 <button class="btn btn-warning" current-tag="{{tag.name}}" action="add"
                     current-tag="{{tag.name}}" data-toggle="modal" data-target="#changeTagModal"><fmt:message key="generic.add" /></button>
             </td>
-
-            <td class="buttontd">
-                <button class="btn btn-danger" current-tag="{{tag.name}}" data-toggle="modal" data-target="#deleteTagModal"><fmt:message key="generic.delete" /></button>
-            </td>
         </tr>
     </tbody>
 </table>
 
+<div class="control" ng-if="ctrl.tagData.tags.length > 0">
+  <span style="padding-left:7px">
+    <button ng-disabled="!ctrl.tagsSelected()" data-toggle="modal" data-target="#deleteTagsModal">
+        <fmt:message key='generic.deleteSelected'/>
+    </button>
+  </span>
+</div>
+
 <!-- Delete tag modal -->
-<div class="modal fade" id="deleteTagModal" tabindex="-1" role="dialog" aria-labelledby="deleteTagModalTitle" aria-hidden="true">
+<div class="modal fade" id="deleteTagsModal" tabindex="-1" role="dialog" aria-labelledby="deleteTagsModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteTagModalTitle"><fmt:message key='tags.confirm.delete.title'/></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="deleteTagsModalTitle"><fmt:message key='tags.confirmDelete'/></h5>
       </div>
       <div class="modal-body">
-        <span id="confirmDeleteMsg"></span>
+        <span id="confirmDeleteMsg"><fmt:message key='tags.deleteWarning'/></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" id="deleteButton" ng-click="ctrl.deleteTag($event)" data-tagname="populatedByJS" >
+        <button type="button" class="btn btn-danger" id="deleteButton" ng-click="ctrl.deleteTags()">
             <fmt:message key='generic.delete'/>
         </button>
       </div>
@@ -136,22 +140,22 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="changeTagModalTitle"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
       </div>
       <div class="modal-body">
           <label for="newTag"><fmt:message key='generic.name'/>:</label>
-          <input id="newTag" type="text">
+          <input id="newTag" ng-model="ctrl.newTagName" type="text">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-warning" id="changeButton" action="populatedByJS" data-currentTag="populatedByJS" ><fmt:message key='generic.save'/></button>
+        <button type="button" class="btn btn-secondary" ng-click="ctrl.inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" ng-disabled="!ctrl.newTagName" class="btn btn-warning" id="changeButton" ng-click="ctrl.tagUpdate()"
+                action="populatedByJS" data-currentTag="populatedByJS" >
+            <fmt:message key='generic.save'/>
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<span ng-if="ctrl.tagsData.tags.length == 0">
+<span ng-if="ctrl.tagData.tags.length == 0">
     <fmt:message key="tags.noneFound" />
 </span>

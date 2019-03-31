@@ -19,17 +19,17 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
     this.deleteTemplates = function() {
         $('#deleteTemplatesModal').modal('hide');
 
+        var selectedItems = [];
         $('input[name="idSelections"]:checked').each(function(){
-            self.deleteTemplate($(this).val());
+            selectedItems.push($(this).val());
         });
-    }
 
-    this.deleteTemplate = function(templateId) {
-      $http.delete(contextPath + '/tb-ui/authoring/rest/template/' + templateId).then(
-         function(response) {
-             self.loadTemplateData();
-         }
-      );
+        $http.post(contextPath + '/tb-ui/authoring/rest/templates/delete',
+            JSON.stringify(selectedItems)).then(
+            function(response) {
+                self.loadTemplateData();
+            }
+        );
     }
 
     this.templatesSelected = function() {

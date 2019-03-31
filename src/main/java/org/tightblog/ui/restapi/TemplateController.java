@@ -147,8 +147,7 @@ public class TemplateController {
         }
     }
 
-    @DeleteMapping(value = "/tb-ui/authoring/rest/template/{id}")
-    public void deleteTemplate(@PathVariable String id, Principal p, HttpServletResponse response)
+    private void deleteTemplate(@PathVariable String id, Principal p, HttpServletResponse response)
             throws ServletException {
 
         try {
@@ -168,6 +167,17 @@ public class TemplateController {
             log.error("Error deleting template with ID: ", id, e);
             throw new ServletException(e.getMessage());
         }
+    }
+
+    @PostMapping(value = "/tb-ui/authoring/rest/templates/delete")
+    public void deleteTemplates(@RequestBody List<String> ids, Principal p, HttpServletResponse response)
+            throws ServletException {
+        if (ids != null && ids.size() > 0) {
+            for (String id : ids) {
+                deleteTemplate(id, p, response);
+            }
+        }
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/template/{id}")

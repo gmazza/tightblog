@@ -18,6 +18,7 @@ package org.tightblog.ui.restapi;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
@@ -107,8 +108,7 @@ public class TagController {
         }
     }
 
-    @DeleteMapping(value = "/weblog/{weblogId}/tagname/{tagName}")
-    public void deleteTag(@PathVariable String weblogId, @PathVariable String tagName, Principal p,
+    private void deleteTag(@PathVariable String weblogId, @PathVariable String tagName, Principal p,
                           HttpServletResponse response) throws ServletException {
 
         Weblog weblog = weblogRepository.findById(weblogId).orElse(null);
@@ -123,6 +123,17 @@ public class TagController {
             log.error("Error removing tagName {} from weblog {}", tagName, weblog.getId(), e);
             throw new ServletException(e.getMessage());
         }
+    }
+
+    @PostMapping(value = "/weblog/{weblogId}/delete")
+    public void deleteTags(@PathVariable String weblogId, @RequestBody List<String> tagNames, Principal p,
+                           HttpServletResponse response) throws ServletException {
+        if (tagNames != null && tagNames.size() > 0) {
+            for (String tagName : tagNames) {
+                deleteTag(weblogId, tagName, p, response);
+            }
+        }
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     @PostMapping(value = "/weblog/{weblogId}/add/currenttag/{currentTagName}/newtag/{newTagName}")

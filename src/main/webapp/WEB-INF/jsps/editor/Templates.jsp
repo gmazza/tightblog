@@ -139,7 +139,7 @@
     <div class="control">
       <span style="padding-left:7px">
     	<button ng-disabled="!ctrl.templatesSelected()" data-toggle="modal" data-target="#deleteTemplatesModal">
-    	    <fmt:message key='templates.deleteselected'/>
+    	    <fmt:message key='generic.deleteSelected'/>
     	</button>
       </span>
 
@@ -193,16 +193,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteTemplatesTitle"><fmt:message key="templates.confirmDelete"/></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
       </div>
       <div class="modal-body">
         <span id="deleteTemplatesMsg"><fmt:message key="templates.deleteWarning" /></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteTemplates()"><fmt:message key='generic.confirm'/></button>
+        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteTemplates()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
