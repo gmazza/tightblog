@@ -10,14 +10,6 @@
         modal.find('#confirmDeleteMsg').html(tmpl);
     });
 
-    $('#deleteButton').on("click", function() {
-        angular.element('#ngapp-div').scope().ctrl.deleteTag(encodeURIComponent($(this).data('tagName')));
-        angular.element('#ngapp-div').scope().$apply();
-
-        $('#deleteTagModal').modal('hide');
-        $(this).data("tagName", '');
-    });
-
     $('#changeTagModal').on('show.bs.modal', function(e) {
         $('#newTag').val('');
 
@@ -67,10 +59,16 @@ tightblogApp.controller('PageController', ['$http',
         }
     }
 
-    this.deleteTag = function(tagName) {
-        $http.delete(this.urlRoot + 'weblog/' + weblogId + '/tagname/' + tagName).then(
+    this.deleteTag = function(obj) {
+        $('#deleteTagModal').modal('hide');
+
+        // https://stackoverflow.com/a/18030442/1207540
+        var tagname = obj.toElement.dataset.tagname;
+
+        $http.delete(this.urlRoot + 'weblog/' + weblogId + '/tagname/' + tagname).then(
           function(response) {
-             self.successMessage = '[' + tagName + '] deleted';
+             self.successMessage = '[' + tagname + '] deleted';
+             $('#deleteButton').attr("data-tagname", '');
              self.loadTags();
           },
           self.commonErrorResponse

@@ -122,7 +122,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" id="deleteButton" data-tagName="populatedByJS" ><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" id="deleteButton" ng-click="ctrl.deleteTag($event)" data-tagname="populatedByJS" >
+            <fmt:message key='generic.delete'/>
+        </button>
       </div>
     </div>
   </div>
