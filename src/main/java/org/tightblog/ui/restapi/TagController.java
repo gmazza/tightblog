@@ -107,29 +107,21 @@ public class TagController {
         }
     }
 
-    private void deleteTag(@PathVariable String weblogId, @PathVariable String tagName, Principal p,
-                          HttpServletResponse response) throws ServletException {
-
-        Weblog weblog = weblogRepository.findById(weblogId).orElse(null);
-        try {
-            if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
-                weblogManager.removeTag(weblog, tagName);
-                response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            }
-        } catch (Exception e) {
-            log.error("Error removing tagName {} from weblog {}", tagName, weblog.getId(), e);
-            throw new ServletException(e.getMessage());
-        }
-    }
-
     @PostMapping(value = "/weblog/{weblogId}/delete")
     public void deleteTags(@PathVariable String weblogId, @RequestBody List<String> tagNames, Principal p,
                            HttpServletResponse response) throws ServletException {
         if (tagNames != null && tagNames.size() > 0) {
-            for (String tagName : tagNames) {
-                deleteTag(weblogId, tagName, p, response);
+            Weblog weblog = weblogRepository.findById(weblogId).orElse(null);
+            if (weblog != null && userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
+                for (String tagName : tagNames) {
+                    try {
+                        weblogManager.removeTag(weblog, tagName);
+                    } catch (Exception e) {
+                        String message = String.format("Error removing tagName %s from weblog %s: %s", tagName,
+                                weblog.getHandle(), e.getMessage());
+                        throw new ServletException(message);
+                    }
+                }
             }
         }
         response.setStatus(HttpServletResponse.SC_OK);

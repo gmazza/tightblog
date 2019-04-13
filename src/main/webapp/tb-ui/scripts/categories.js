@@ -23,9 +23,9 @@ $(function() {
 
         var action = $(e.relatedTarget).data('action');
 
-        // populate delete modal with category-specific information
+        // populate edit modal with category-specific information
         var modal = $(this)
-        var button = modal.find('button[id="editButton"]');
+        var button = modal.find('button[id="saveButton"]');
         button.attr("data-category-id", categoryId);
         button.attr("data-action", action);
         var tmpl = eval('`' + (action == 'rename' ? msg.editTitleTmpl : msg.addTitle) + '`');

@@ -99,7 +99,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" ng-click="ctrl.inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-warning" ng-disabled="!ctrl.itemToEdit.name" id="editButton" ng-click="ctrl.updateItem($event)"
+        <button type="button" class="btn btn-warning" ng-disabled="!ctrl.itemToEdit.name" id="saveButton" ng-click="ctrl.updateItem($event)"
             data-action="populatedByJS" data-category-id="populatedByJS">
             <fmt:message key='generic.save'/>
         </button>

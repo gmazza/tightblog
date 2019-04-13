@@ -14,7 +14,7 @@
     limitations under the License.
 -->
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
-<script src="<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />"></script>
+<script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
@@ -82,7 +82,8 @@
     <tbody>
         <tr ng-repeat="tag in ctrl.tagData.tags" ng-cloak>
             <td class="center" style="vertical-align:middle">
-                  <input type="checkbox" name="idSelections" ng-model="tag.selected" value="{{tag.name}}" />
+                  <input type="checkbox" name="idSelections" ng-attr-title="checkbox for {{tag.name}}"
+                    ng-model="tag.selected" value="{{tag.name}}" />
             </td>
             <td>{{tag.name}}</td>
             <td>{{tag.total}}</td>
