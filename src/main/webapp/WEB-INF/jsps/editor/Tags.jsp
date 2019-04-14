@@ -38,11 +38,6 @@
     </button>
 </div>
 
-<p class="subtitle">
-    <fmt:message key="tags.subtitle">
-        <fmt:param value="${actionWeblog.handle}"/>
-    </fmt:message>
-</p>
 <p class="pagetip">
     <fmt:message key="tags.prompt"/>
 </p>

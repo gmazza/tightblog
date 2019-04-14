@@ -32,12 +32,6 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/members'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
-<p class="subtitle">
-    <fmt:message key="members.subtitle" >
-        <fmt:param value="${actionWeblog.handle}"/>
-    </fmt:message>
-</p>
-
 <p><fmt:message key="members.description" /></p>
 
 <div class="sidebarFade">

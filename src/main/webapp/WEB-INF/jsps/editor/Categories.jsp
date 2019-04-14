@@ -35,12 +35,6 @@
 <script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/categories.js'/>"></script>
 
-<p class="subtitle">
-    <fmt:message key="categories.subtitle">
-        <fmt:param value="${actionWeblog.handle}"/>
-    </fmt:message>
-</p>
-
 <p class="pagetip">
     <fmt:message key="categories.rootPrompt"/>
 </p>

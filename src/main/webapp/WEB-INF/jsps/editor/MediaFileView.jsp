@@ -41,14 +41,6 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/mediaFileView'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
-<%-- Subtitle and folder path --%>
-
-<p class="subtitle">
-    <fmt:message key="mediaFileView.subtitle" >
-       <fmt:param value="${actionWeblog.handle}"/>
-    </fmt:message>
-</p>
-
 <p class="pagetip">
     <fmt:message key="mediaFileView.rootPageTip" />
 </p>

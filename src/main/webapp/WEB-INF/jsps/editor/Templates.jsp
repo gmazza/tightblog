@@ -47,12 +47,6 @@
         </ul>
     </div>
 
-    <p class="subtitle">
-       <fmt:message key="templates.subtitle" >
-           <fmt:param value="${actionWeblog.handle}"/>
-       </fmt:message>
-    </p>
-
     <p class="pagetip">
        <fmt:message key="templates.tip" />
     </p>

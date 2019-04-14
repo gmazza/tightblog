@@ -27,9 +27,13 @@
     width: 100%;
 }
 #menu {
-    padding: 0px 10px 0px 10px;
+    padding: 10px 10px 0px 10px;
 }
 #content {
+}
+
+body, h1, h2, h3, h4, h5, h6 {
+    font-weight: 300;
 }
 /*
     NOTE: these wrap divs are kinda lame, however they are necessary.

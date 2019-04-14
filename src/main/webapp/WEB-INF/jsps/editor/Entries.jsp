@@ -37,12 +37,6 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/entries'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
-<p class="subtitle">
-    <fmt:message key="entries.subtitle" >
-        <fmt:param value="${actionWeblog.handle}" />
-    </fmt:message>
-</p>
-
 <p class="pagetip">
     <fmt:message key="entries.tip" />
 </p>

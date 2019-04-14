@@ -7,22 +7,12 @@ function extractLast( term ) {
 }
 
 function onClickAddImage(){
-    $( "#mediaFileChooser" ).attr('src', mediaFileChooserUrl);
-    $(function() {
-        $("#mediafile_edit_lightbox").dialog({
-            modal  : true,
-            width  : 600,
-            height : 600
-        });
-    });
-}
-
-function onClose() {
-    $("#mediaFileChooser").attr('src','about:blank');
+    $("#mediaFileChooser" ).attr('src', mediaFileChooserUrl);
+    $("#insertMediaFileModal").modal('show');
 }
 
 function onSelectMediaFile(name, url, alt, title, anchor, isImage) {
-    $("#mediafile_edit_lightbox").dialog("close");
+    $("#insertMediaFileModal").modal('hide');
     $("#mediaFileChooser").attr('src','about:blank');
     var anchorTag;
     if (isImage === true) {

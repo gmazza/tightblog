@@ -45,18 +45,6 @@
 <script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/entryedit.js'/>"></script>
 
-<%-- Titling, processing actions different between entry add and edit --%>
-<c:choose>
-    <c:when test="${actionName == 'entryEdit'}">
-        <c:set var="subtitleKey">entryEdit.subtitle.editEntry</c:set>
-        <c:set var="mainAction">entryEdit</c:set>
-    </c:when>
-    <c:otherwise>
-        <c:set var="subtitleKey">entryEdit.subtitle.newEntry</c:set>
-        <c:set var="mainAction">entryAdd</c:set>
-    </c:otherwise>
-</c:choose>
-
 <div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
     {{ctrl.successMessage}}
     <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
@@ -75,15 +63,7 @@
     </ul>
 </div>
 
-
-<p class="subtitle">
-    <fmt:message key="${subtitleKey}">
-        <fmt:param value="${actionWeblog.handle}"/>
-    </fmt:message>
-</p>
-
 <div>
-
     <table class="entryEditTable" cellpadding="0" cellspacing="0" style="width:100%">
 
         <tr>
@@ -242,20 +222,6 @@
         </div>
     </div>
 
-
-    <%-- ********************************************************************* --%>
-    <%-- Lightbox for popping up image chooser --%>
-
-    <div id="mediafile_edit_lightbox" title="<fmt:message key='entryEdit.insertMediaFile'/>" style="display:none">
-        <iframe id="mediaFileChooser"
-                style="visibility:inherit"
-                height="100%"
-                width="100%"
-                frameborder="no"
-                scrolling="auto">
-        </iframe>
-    </div>
-
     <%-- ================================================================== --%>
     <%-- advanced settings  --%>
 
@@ -329,6 +295,31 @@
             <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" data-title="{{ctrl.entry.title}}" data-toggle="modal" data-target="#deleteEntryModal"/>
         </span>
     </div>
+</div>
+
+<!-- Choose media file modal -->
+<div class="modal fade" id="insertMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="insertMediaFileModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="insertMediaFileModalTitle"><fmt:message key='entryEdit.insertMediaFile'/></h5>
+      </div>
+      <div class="modal-body">
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" id="mediaFileChooser"
+                    style="visibility:inherit"
+                    height="100%"
+                    width="100%"
+                    frameborder="no"
+                    scrolling="auto">
+            </iframe>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Delete entry modal -->

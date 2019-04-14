@@ -53,15 +53,9 @@
     </button>
 </div>
 
-<p class="subtitle">
-    <span ng-show="ctrl.entryTitleMsg != ''">
+<p class="subtitle" ng-show="ctrl.entryTitleMsg != ''">
+    <span>
         <span ng-bind-html="ctrl.entryTitleMsg"></span>
-    </span>
-
-    <span ng-show="ctrl.entryTitleMsg == null || ctrl.entryTitleMsg.length() == 0">
-        <fmt:message key="comments.website.subtitle">
-            <fmt:param value="${actionWeblog.handle}"/>
-        </fmt:message>
     </span>
 </p>
 
