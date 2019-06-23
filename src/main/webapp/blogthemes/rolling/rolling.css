@@ -1,54 +1,37 @@
-body {
-  font-family: verdana, sans-serif;
+h1, h2, h3, h4, h5 {
+    color: blue;
 }
 
 .next-previous-links {
-    font-size: 80%;
     text-align: center;
     padding: .5em 0 .5em 0;
 }
 
-/* entries ----------------------------------------------- */
-
-.entryTitle {
-    font-weight: bold;
-    font-size: 130%;
-}
-
-.entryPubInfo {
-    font-size: 80%;
-    color: #999;
-}
-
-/* sidemenu items ----------------------------------------------- */
-
 .rCategory li {
-    font-size: 80%;
     display: inline;
     list-style-type: none;
     padding-right: 20px;
 }
 
-li.selected {
-    font-weight: bold;
+/* entries */
+div.entry h5.card-title {
+    color: black;
 }
 
-ul.sideboxList {
-    margin: 0;
-    padding-left: 0;
-    font-size: medium;
-    list-style-type: none;
+.pubInfo {
+    font-size: 80%;
+    color: darkgray;
 }
 
-li.sideboxListItem {
+pre.code {
+    background-color: lightblue;
+    padding: .25em .5em .5em .5em !important;
 }
 
+/* sidebar items */
 li.rssItem::before {
     content: url([(${url.getSiteHome()})]/images/feed-icon-12x12.gif);
 }
-
-
-/* calendar ----------------------------------------------- */
 
 .hCalendarDay{
     text-align : center;
@@ -81,157 +64,7 @@ th.hCalendarDayNameRow {
   font-style : italic;
 }
 
-
-/* comments ----------------------------------------------- */
-
-p.comment-details {
-    font-size: 80%;
-    color: #999;
-}
-
-form ul{ position: relative; list-style: none; width: 100%; }
-
-label.desc{
-    margin: 4px 0 3px 0;
-    border: 0;
-    color: #444;
-    font-size: 1em;
-    line-height: 1.3em;
-    display: block;
-    font-weight: bold;
-}
-
-input.text, input.number, input.url, input.email, input.password, input.file,
-textarea.textarea, select.select{
-    font-size: 1.2em;
-    border-top: 1px solid #7c7c7c;
-    border-left: 1px solid #c3c3c3;
-    border-right: 1px solid #c3c3c3;
-    border-bottom: 1px solid #ddd;
-    color: #333;
-}
-input.text, input.number, input.url, input.email, input.password, input.file{ padding: 2px; }
-
-input.checkbox, input.radio{
-    display: block;
-    line-height: 1.4em;
-    margin: 8px 0 0 3px;
-    width: 13px;
-    height: 13px;
-}
-
-label.choice{
-    display: block;
-    line-height: 1.4em;
-    margin: -19px 0 0 25px;
-    padding: 4px 0 5px 0;
-    color: #444;
-    width: 80%;
-}
-
-p {
-  font-family: verdana, sans-serif;
-  font-size: small;
-  color: black;
-}
-
-h1, h2 {
-    color: #0074D9;
-}
-
-a {
-  text-decoration: none;
-}
-
-a:link {
-  color: blue;
-  font-weight: medium;
-}
-
-a:visited {
-  color: purple;
-  font-weight: medium;
-}
-
-a:hover {
-  text-decoration: underline overline;
-}
-
-#MainColumn {
-  margin-top:      5px;
-  margin-left:    65px;
-  margin-bottom:   5px;
-  margin-right:  245px;
-}
-
-#SideBar {
-  position: absolute;
-  top:     0px;
-  right:  10px;
-  width: 220px;
-}
-
-.daypermalink {
-  border-style : none;
-}
-
-div.box, .comments, .comments-form {
-  margin: 5px 5px 5px 5px;
-  border: dashed 1px gray;
-  padding: 2px;
-}
-
-h2 {
-  border-left-width: 15px;
-  border-right-width: 15px;
-  border-top-width: 15px;
-  margin: 2px;
-  padding: 4px;
-}
-
-h2.box, .comments-head {
-  font-size: medium;
-  font-weight : bolder;
-  text-transform : uppercase;
-  letter-spacing : 0.3em;
-  border-style : none;
-  background-color : #0074D9;
-  color : white;
-}
-
-h2.daybox {
-  text-align : left;
-  font-size: medium;
-  font-weight : bolder;
-  text-transform : uppercase;
-  letter-spacing : 0.3em;
-  border-style : none;
-  background-color : #0074D9;
-  color : white;
-}
-
-h2.sidebox {
-   background-color: #0074D9
-}
-
-pre {
-    font-size: 10pt;
-    overflow: auto;
-    word-wrap: break-word;
-}
-
-code {
-    font-size: 10pt;
-}
-
-pre.code {
-    background-color: #f8f8ff;
-    font-family: 'Bitstream Vera Sans Mono', 'Courier', monospace;
-    margin: 0 !important;
-    border: none !important;
-    padding: .25em .5em .5em .5em !important;
-}
-
+/* Used for gist-it: https://gist-it.appspot.com/ */
 div.size300 pre.prettyprint, div.size300 div.gist div.file-data {
     height:300px
 }
