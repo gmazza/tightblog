@@ -18,6 +18,7 @@ package org.tightblog;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.tightblog.rendering.requests.WeblogPageRequest;
+import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.rendering.thymeleaf.ThymeleafRenderer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,10 +59,6 @@ public class TestUtils {
         return createBaseMockServletRequest(addBlogHandle("page/%s/page/my-custom-page"));
     }
 
-    public static HttpServletRequest createMockServletRequestForWeblogSearchRequest() {
-        return createBaseMockServletRequest(addBlogHandle("page/%s/search?q=antelope"));
-    }
-
     private static String addBlogHandle(String urlPath) {
         return String.format("/tb-ui/rendering/" + urlPath, BLOG_HANDLE);
     }
@@ -72,6 +69,14 @@ public class TestUtils {
         verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         return (WeblogPageRequest) results.get("model");
+    }
+
+    public static WeblogSearchRequest extractWeblogSearchRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
+            throws IOException {
+        ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
+        Map<String, Object> results = stringObjectMapCaptor.getValue();
+        return (WeblogSearchRequest) results.get("model");
     }
 
     // Spring REST parses servlet path directly, so not necessary to place in HttpServletRequest object.

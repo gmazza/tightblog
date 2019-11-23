@@ -26,7 +26,7 @@ import org.tightblog.rendering.controller.CommentController;
 import org.tightblog.rendering.controller.FeedController;
 import org.tightblog.rendering.controller.MediaFileController;
 import org.tightblog.rendering.controller.PageController;
-import org.tightblog.rendering.controller.SearchProcessor;
+import org.tightblog.rendering.controller.SearchController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,7 +195,7 @@ public class RequestMappingFilter implements Filter {
             } else if (context.equals("mediafile")) {
                 forwardUrl = generateForwardUrl(MediaFileController.PATH, handle, null, data);
             } else if (context.equals("search")) {
-                forwardUrl = generateForwardUrl(SearchProcessor.PATH, handle, context, null);
+                forwardUrl = generateForwardUrl(SearchController.PATH, handle, context, null);
             }
         }
 

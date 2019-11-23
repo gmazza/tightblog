@@ -21,7 +21,6 @@
 package org.tightblog.rendering.requests;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopFieldDocs;
@@ -32,10 +31,9 @@ import org.tightblog.rendering.generators.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.SearchResultsModel;
 import org.tightblog.service.indexer.FieldConstants;
 import org.tightblog.service.indexer.SearchTask;
-import org.tightblog.util.Utilities;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -65,19 +63,10 @@ public class WeblogSearchRequest extends WeblogPageRequest {
         this.searchModel = searchModel;
     }
 
-    public static WeblogSearchRequest create(HttpServletRequest servletRequest,
-                                                   SearchResultsModel searchResultsModel) {
-        WeblogSearchRequest weblogSearchRequest = new WeblogSearchRequest(searchResultsModel);
-        WeblogRequest.parseRequest(weblogSearchRequest, servletRequest);
-        weblogSearchRequest.parseSearchRequestInfo();
-        return weblogSearchRequest;
-    }
-
-    private void parseSearchRequestInfo() {
-        if (StringUtils.isNotBlank(extraPathInfo)) {
-            this.searchPhrase = StringEscapeUtils.escapeXml10(getRequestParameter("q"));
-            this.category = Utilities.decode(getRequestParameter("cat"));
-        }
+    public WeblogSearchRequest(String weblogHandle, Principal principal, SearchResultsModel searchModel) {
+        setPrincipal(principal);
+        setWeblogHandle(weblogHandle);
+        this.searchModel = searchModel;
     }
 
     public String getSearchPhrase() {
@@ -171,7 +160,7 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     /**
      * Create weblog entries for each result found.
      */
-    Map<LocalDate, TreeSet<WeblogEntry>> convertHitsToEntries(ScoreDoc[] hits, SearchTask searchTask) {
+    public Map<LocalDate, TreeSet<WeblogEntry>> convertHitsToEntries(ScoreDoc[] hits, SearchTask searchTask) {
         Map<LocalDate, TreeSet<WeblogEntry>> results = new HashMap<>();
 
         // determine offset and limit
