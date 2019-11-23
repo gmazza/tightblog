@@ -52,7 +52,7 @@ public class TestUtils {
     }
 
     public static HttpServletRequest createMockServletRequestForWeblogFeedRequest() {
-        return createBaseMockServletRequest(addBlogHandle("feed/%s/feed"));
+        return createBaseMockServletRequest(addBlogHandle("feed/%s"));
     }
 
     public static HttpServletRequest createMockServletRequestForCustomPageRequest() {

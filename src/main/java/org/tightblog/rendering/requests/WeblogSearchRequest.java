@@ -58,14 +58,8 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     private int limit;
     private SearchResultsModel searchModel;
 
-    public WeblogSearchRequest(SearchResultsModel searchModel) {
-        super(null, null, searchModel);
-        this.searchModel = searchModel;
-    }
-
     public WeblogSearchRequest(String weblogHandle, Principal principal, SearchResultsModel searchModel) {
-        setPrincipal(principal);
-        setWeblogHandle(weblogHandle);
+        super(weblogHandle, principal, searchModel);
         this.searchModel = searchModel;
     }
 

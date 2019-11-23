@@ -155,8 +155,8 @@ public class SearchControllerTest {
 
     @Test
     public void testWeblogEntryListGeneratorCalledWithCorrectParameters() throws IOException {
-        controller.getSearchResults("myblog", "collectibles",
-                "stamps", 4, mockPrincipal);
+        controller.getSearchResults("myblog", "stamps", "collectibles",
+                4, mockPrincipal);
 
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 
@@ -180,8 +180,8 @@ public class SearchControllerTest {
     @Test
     public void test404OnMissingWeblog() throws IOException {
         when(mockWD.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
-        ResponseEntity<Resource> result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal);
+        ResponseEntity<Resource> result = controller.getSearchResults("myblog", "foo", null,
+                0, mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -325,8 +325,8 @@ public class SearchControllerTest {
 
     @Test
     public void testEntriesByDateMapPopulatedWhenResultsReturned() throws IOException {
-        controller.getSearchResults("myblog", "collectibles",
-                "stamps", 4, mockPrincipal);
+        controller.getSearchResults("myblog", "stamps",
+                "collectibles", 4, mockPrincipal);
 
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 
@@ -381,5 +381,4 @@ public class SearchControllerTest {
         when(mockWeblogEntryDao.findByIdOrNull(entry.getId())).thenReturn(entry);
         return entry;
     }
-
 }

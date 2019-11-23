@@ -54,7 +54,7 @@ import java.util.function.Function;
  * Handles search queries for weblogs.
  */
 @RestController
-@RequestMapping(path = "/tb-ui/rendering/search/**")
+@RequestMapping(path = SearchController.PATH)
 public class SearchController extends AbstractController {
 
     private static Logger log = LoggerFactory.getLogger(SearchController.class);
@@ -81,8 +81,8 @@ public class SearchController extends AbstractController {
 
     @GetMapping(path = "/{weblogHandle}")
     ResponseEntity<Resource> getSearchResults(@PathVariable String weblogHandle,
+                                              @RequestParam(value = "q") String query,
                                               @RequestParam(value = "cat", required = false) String category,
-                                              @RequestParam(value = "q", required = false) String query,
                                               @RequestParam(value = "page", required = false) Integer pageNum,
                                               Principal principal) {
         WeblogSearchRequest searchRequest = new WeblogSearchRequest(weblogHandle, principal, searchResultsModel);
