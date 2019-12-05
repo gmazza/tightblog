@@ -77,7 +77,7 @@ public class FeedController extends AbstractController {
 
     @Autowired
     public FeedController(WeblogDao weblogDao, LazyExpiringCache weblogFeedCache,
-                          @Qualifier("atomRenderer") ThymeleafRenderer thymeleafRenderer,
+                          @Qualifier("standardRenderer") ThymeleafRenderer thymeleafRenderer,
                           ThemeManager themeManager, FeedModel feedModel, DynamicProperties dp) {
         this.weblogDao = weblogDao;
         this.weblogFeedCache = weblogFeedCache;
