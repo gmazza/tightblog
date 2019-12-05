@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 @RequestMapping(path = ExternalSourceController.PATH)
 // Validate constraint annotations on method parameters
 @Validated
-@ConditionalOnProperty(name="external.github.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "external.github.enabled", havingValue = "true")
 public class ExternalSourceController {
 
     private static Logger log = LoggerFactory.getLogger(ExternalSourceController.class);
