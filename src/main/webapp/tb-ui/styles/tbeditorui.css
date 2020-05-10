@@ -117,10 +117,6 @@ a:active {
     text-decoration: underline;
 }
 
-[v-cloak] {
-    display: none;
-}
-
 p.subtitle {
     margin: 5px 0px 15px;
     font-size: 1em;
