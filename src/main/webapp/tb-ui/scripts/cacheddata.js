@@ -1,15 +1,13 @@
-var dataObj = {
-    urlRoot : contextPath + '/tb-ui/admin/rest/server/',
-    metadata : { weblogList : [] },
-    cacheData : {},
-    weblogToReindex : null,
-    successMessage : null,
-    errorMessage : null
-}
-
 var vm = new Vue({
-    data: dataObj,
     el: '#template',
+    data: {
+        urlRoot : contextPath + '/tb-ui/admin/rest/server/',
+        metadata : { weblogList : [] },
+        cacheData : {},
+        weblogToReindex : null,
+        successMessage : null,
+        errorMessage : null
+    },
     methods: {
         messageClear: function() {
             this.successMessage = null;
