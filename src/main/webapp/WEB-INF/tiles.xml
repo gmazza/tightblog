@@ -113,7 +113,7 @@
     </definition>
 
     <!-- global admin pages (and associates) -->
-    <definition name=".globalConfig" extends=".tiles-tabbedpage" >
+    <definition name=".globalConfig" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/admin/GlobalConfig.jsp" />
     </definition>
 

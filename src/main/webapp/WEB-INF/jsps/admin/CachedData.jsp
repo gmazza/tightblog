@@ -21,9 +21,7 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 <!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
-
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 
 <script>
@@ -38,7 +36,7 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/admin/cachedData'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" ng-cloak>
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
     {{successMessage}}
     <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>

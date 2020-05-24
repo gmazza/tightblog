@@ -21,21 +21,22 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 
 <p class="subtitle"><fmt:message key="globalConfig.subtitle" /></p>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/globalconfig.js'/>"></script>
+<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/admin/globalConfig'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
+    {{successMessage}}
+    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
@@ -50,8 +51,8 @@
     <tr>
         <td class="label"><fmt:message key="globalConfig.frontpageWeblogHandle" /></td>
         <td class="field">
-            <select ng-model="ctrl.webloggerProps.mainBlog.id" size="1">
-                <option ng-repeat="(key, value) in ctrl.metadata.weblogList" value="{{key}}">{{value}}</option>
+            <select v-model="webloggerProps.mainBlog.id" size="1">
+                <option v-for="(value, key) in metadata.weblogList" v-bind:value="key">{{value}}</option>
                 <option value=""><fmt:message key="globalConfig.none" /></option>
             </select>
         </td>
@@ -60,15 +61,15 @@
     <tr>
         <td class="label"><fmt:message key="globalConfig.requiredRegistrationProcess" /></td>
         <td class="field">
-             <select ng-model="ctrl.webloggerProps.registrationPolicy" size="1" required>
-                 <option ng-repeat="(key, value) in ctrl.metadata.registrationOptions" value="{{key}}">{{value}}</option>
+             <select v-model="webloggerProps.registrationPolicy" size="1" required>
+                 <option v-for="(value, key) in metadata.registrationOptions" v-bind:value="key">{{value}}</option>
              </select>
         </td>
         <td class="description"><fmt:message key="globalConfig.tip.requiredRegistrationProcess"/></td>
     </tr>
     <tr>
         <td class="label"><fmt:message key="globalConfig.newUsersCreateBlogs" /></td>
-        <td class="field"><input type="checkbox" ng-model="ctrl.webloggerProps.usersCreateBlogs"></td>
+        <td class="field"><input type="checkbox" v-model="webloggerProps.usersCreateBlogs"></td>
         <td class="description"><fmt:message key="globalConfig.tip.newUsersCreateBlogs"/></td>
     </tr>
     <tr>
@@ -80,32 +81,32 @@
         <tr>
                <td class="label"><fmt:message key="globalConfig.htmlWhitelistLevel" /></td>
                <td class="field">
-                   <select ng-model="ctrl.webloggerProps.blogHtmlPolicy" size="1" required>
-                       <option ng-repeat="(key, value) in ctrl.metadata.blogHtmlLevels" value="{{key}}">{{value}}</option>
+                   <select v-model="webloggerProps.blogHtmlPolicy" size="1" required>
+                       <option v-for="(value, key) in metadata.blogHtmlLevels" v-bind:value="key">{{value}}</option>
                    </select>
                </td>
                <td class="description"><fmt:message key="globalConfig.tip.htmlWhitelistLevel"/></td>
         </tr>
         <tr>
             <td class="label"><fmt:message key="globalConfig.allowCustomTheme" /></td>
-            <td class="field"><input type="checkbox" ng-model="ctrl.webloggerProps.usersCustomizeThemes"></td>
+            <td class="field"><input type="checkbox" v-model="webloggerProps.usersCustomizeThemes"></td>
             <td class="description"><fmt:message key="globalConfig.tip.allowCustomTheme"/></td>
         </tr>
         <c:if test="${showMediaFileTab}">
             <tr>
                 <td class="label"><fmt:message key="globalConfig.maxMediaFileAllocationMb" /></td>
-                <td class="field"><input type="number" ng-model="ctrl.webloggerProps.maxFileUploadsSizeMb" size='35'></td>
+                <td class="field"><input type="number" v-model="webloggerProps.maxFileUploadsSizeMb" size='35'></td>
                 <td class="description"><fmt:message key="globalConfig.tip.maxMediaFileAllocationMb"/></td>
             </tr>
         </c:if>
         <tr>
             <td class="label"><fmt:message key="globalConfig.defaultAnalyticsTrackingCode" /></td>
-            <td class="field"><textarea rows="10" cols="70" ng-model="ctrl.webloggerProps.defaultAnalyticsCode"></textarea></td>
+            <td class="field"><textarea rows="10" cols="70" v-model="webloggerProps.defaultAnalyticsCode"></textarea></td>
             <td class="description"><fmt:message key="globalConfig.tip.defaultAnalyticsTrackingCode"/></td>
         </tr>
         <tr>
             <td class="label"><fmt:message key="globalConfig.allowAnalyticsCodeOverride" /></td>
-            <td class="field"><input type="checkbox" ng-model="ctrl.webloggerProps.usersOverrideAnalyticsCode"></td>
+            <td class="field"><input type="checkbox" v-model="webloggerProps.usersOverrideAnalyticsCode"></td>
             <td class="description"><fmt:message key="globalConfig.tip.allowAnalyticsCodeOverride"/></td>
         </tr>
     <tr>
@@ -117,38 +118,38 @@
         <tr>
             <td class="label"><fmt:message key="globalConfig.enableComments" /></td>
             <td class="field">
-                <select ng-model="ctrl.webloggerProps.commentPolicy" size="1" required>
-                    <option ng-repeat="(key, value) in ctrl.metadata.commentOptions" value="{{key}}">{{value}}</option>
+                <select v-model="webloggerProps.commentPolicy" size="1" required>
+                    <option v-for="(value, key) in metadata.commentOptions" v-bind:value="key">{{value}}</option>
                 </select>
             </td>
             <td class="description"></td>
         </tr>
-        <tr ng-show="ctrl.webloggerProps.commentPolicy != 'NONE'">
+        <tr v-if="webloggerProps.commentPolicy != 'NONE'">
             <td class="label"><fmt:message key="globalConfig.commentHtmlWhitelistLevel" /></td>
             <td class="field">
-                <select ng-model="ctrl.webloggerProps.commentHtmlPolicy" size="1" required>
-                    <option ng-repeat="(key, value) in ctrl.metadata.commentHtmlLevels" value="{{key}}">{{value}}</option>
+                <select v-model="webloggerProps.commentHtmlPolicy" size="1" required>
+                    <option v-for="(value, key) in metadata.commentHtmlLevels" v-bind:value="key">{{value}}</option>
                 </select>
             </td>
             <td class="description"><fmt:message key="globalConfig.tip.commentHtmlWhitelistLevel"/></td>
         </tr>
-        <tr ng-show="ctrl.webloggerProps.commentPolicy != 'NONE'">
+        <tr v-if="webloggerProps.commentPolicy != 'NONE'">
             <td class="label"><fmt:message key="globalConfig.spamPolicy" /></td>
             <td class="field">
-                <select ng-model="ctrl.webloggerProps.spamPolicy" size="1" required>
-                    <option ng-repeat="(key, value) in ctrl.metadata.spamOptions" value="{{key}}">{{value}}</option>
+                <select v-model="webloggerProps.spamPolicy" size="1" required>
+                    <option v-for="(value, key) in metadata.spamOptions" v-bind:value="key">{{value}}</option>
                 </select>
             </td>
             <td class="description"><fmt:message key="globalConfig.tip.spamPolicy"/></td>
         </tr>
-        <tr ng-show="ctrl.webloggerProps.commentPolicy != 'NONE'">
+        <tr v-if="webloggerProps.commentPolicy != 'NONE'">
             <td class="label"><fmt:message key="globalConfig.emailComments" /></td>
-            <td class="field"><input type="checkbox" ng-model="ctrl.webloggerProps.usersCommentNotifications"></td>
+            <td class="field"><input type="checkbox" v-model="webloggerProps.usersCommentNotifications"></td>
             <td class="description"><fmt:message key="globalConfig.tip.emailComments"/></td>
         </tr>
-        <tr ng-show="ctrl.webloggerProps.commentPolicy != 'NONE'">
+        <tr v-if="webloggerProps.commentPolicy != 'NONE'">
             <td class="label"><fmt:message key="globalConfig.ignoreUrls" /></td>
-            <td class="field"><textarea rows="7" cols="80" ng-model="ctrl.webloggerProps.globalSpamFilter"></textarea></td>
+            <td class="field"><textarea rows="7" cols="80" v-model="webloggerProps.globalSpamFilter"></textarea></td>
             <td class="description"><fmt:message key="globalConfig.tip.ignoreUrls"/></td>
         </tr>
     <tr>
@@ -157,5 +158,9 @@
 </table>
 
 <div class="control">
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" ng-click="ctrl.updateProperties()"/>
+    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" v-on:click="updateProperties()"/>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/globalconfig.js'/>"></script>
