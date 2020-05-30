@@ -1,127 +1,121 @@
-tightblogApp.controller('PageController', ['$http',
-    function PageController($http) {
-
-        var self = this;
-        this.urlRoot = contextPath + '/tb-ui/admin/rest/useradmin/';
-        this.pendingList = {};
-        this.userList = {};
-        this.userToEdit = null;
-        this.userBeingEdited = null;
-        this.userCredentials = null;
-        this.userBlogList = {};
-        this.errorObj = {};
-
-        this.loadMetadata = function() {
-            $http.get(contextPath + '/tb-ui/register/rest/useradminmetadata').then(
-            function(response) {
-                self.metadata = response.data;
-              },
-              self.commonErrorResponse
-            )
-        };
-
-        this.loadUserList = function() {
-            $http.get(this.urlRoot + 'userlist').then(
-            function(response) {
-                self.userList = response.data;
-                if (!self.userToEdit && Object.keys(self.userList).length > 0) {
-                  for (first in self.userList) {
-                     self.userToEdit = first;
-                     break;
-                  }
-                }
-              },
-              self.commonErrorResponse
-            )
-        };
-
-        this.getPendingRegistrations = function() {
-            $http.get(this.urlRoot + 'registrationapproval').then(
-              function(response) {
-                 self.pendingList = response.data;
-              }
-            )
-        }
-
-        this.approveUser = function(userId) {
+var vm = new Vue({
+    el: '#template',
+    data: {
+        urlRoot: contextPath + '/tb-ui/admin/rest/useradmin/',
+        metadata: { weblogList : [] },
+        pendingList: {},
+        userList: {},
+        userToEdit: null,
+        userBeingEdited: null,
+        userCredentials: null,
+        userBlogList: {},
+        successMessage: null,        
+        errorObj: {}
+    },
+    methods: {
+        loadMetadata: function() {
+            axios
+            .get(contextPath + '/tb-ui/register/rest/useradminmetadata')
+            .then(response => {
+                this.metadata = response.data;
+            })
+                        .catch(error => this.commonErrorResponse(error, null));
+        },
+        getPendingRegistrations: function() {
+            axios
+            .get(this.urlRoot + 'registrationapproval')
+            .then(response => {
+                this.pendingList = response.data;
+            });
+        },
+        loadUserList: function() {
+            axios
+            .get(this.urlRoot + 'userlist')
+            .then(response => {
+                this.userList = response.data;
+                if (!this.userToEdit && Object.keys(this.userList).length > 0) {
+                    for (first in this.userList) {
+                        this.userToEdit = first;
+                        break;
+                    }
+                    }
+            })
+            .catch(error => this.commonErrorResponse(error, null));
+        },
+        approveUser: function(userId) {
             this.processRegistration(userId, 'approve');
-        }
-
-        this.declineUser = function(userId) {
+        },
+        declineUser: function(userId) {
             this.processRegistration(userId, 'reject');
-        }
-
-        this.processRegistration = function(userId, command) {
+        },
+        processRegistration: function(userId, command) {
             this.messageClear();
-            $http.post(this.urlRoot + 'registrationapproval/' + userId + '/' + command).then(
-                function(response) {
-                   self.getPendingRegistrations();
-                   self.loadUserList();
-                },
-                self.commonErrorResponse
-            )
-        }
-
-        this.loadUser = function() {
+            axios
+            .post(this.urlRoot + 'registrationapproval/' + userId + '/' + command)
+            .then(response => {
+                this.getPendingRegistrations();
+                this.loadUserList();
+            })
+            .catch(error => this.commonErrorResponse(error, null));
+        },
+        loadUser: function() {
             this.messageClear();
-            $http.get(this.urlRoot + 'user/' + this.userToEdit).then(
-              function(response) {
-                 self.userBeingEdited = response.data.user;
-                 self.userCredentials = response.data.credentials;
-              }
-            )
+            axios
+            .get(this.urlRoot + 'user/' + this.userToEdit)
+            .then(response => {
+                 this.userBeingEdited = response.data.user;
+                 this.userCredentials = response.data.credentials;
+            });
 
-            $http.get(this.urlRoot + 'user/' + this.userToEdit + '/weblogs').then(
-              function(response) {
-                 self.userBlogList = response.data;
-              }
-            )
-        }
-
-        this.updateUser = function() {
+            axios
+            .get(this.urlRoot + 'user/' + this.userToEdit + '/weblogs')
+            .then(response => {
+                 this.userBlogList = response.data;
+            })
+        },
+        updateUser: function() {
             this.messageClear();
             var userData = {};
             userData.user = this.userBeingEdited;
             userData.credentials = this.userCredentials;
 
-            $http.put(self.urlRoot + 'user/' + this.userBeingEdited.id, JSON.stringify(userData)).then(
-              function(response) {
-                  self.userBeingEdited = response.data.user;
-                  self.userCredentials  = response.data.credentials;
-                  self.loadUserList();
-                  self.getPendingRegistrations();
-                  self.successMessage = "User [" + self.userBeingEdited.screenName + "] updated."
-              },
-              function(response) {
-                if (response.status == 400) {
-                   self.errorObj = response.data;
+            axios
+            .put(this.urlRoot + 'user/' + this.userBeingEdited.id, userData)
+            .then(response => {
+                this.userBeingEdited = response.data.user;
+                this.userCredentials  = response.data.credentials;
+                this.loadUserList();
+                this.getPendingRegistrations();
+                this.successMessage = "User [" + this.userBeingEdited.screenName + "] updated."
+            })
+            .catch(error => {
+                if (error.response.status == 400) {
+                   this.errorObj = error.response.data;
                 } else {
-                   self.commonErrorResponse(response);
+                   this.commonErrorResponse(response);
                 }
-              })
-        }
-
-        this.cancelChanges = function() {
+            })
+        },
+        cancelChanges: function() {
             this.messageClear();
             this.userBeingEdited = null;
             this.userCredentials = null;
-        }
-
-        this.commonErrorResponse = function(response) {
+        },
+        messageClear: function() {
+            this.successMessage = null;
+            this.errorObj = {};
+        },
+        commonErrorResponse: function(response) {
             if (response.status == 408) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
-               self.errorObj.errorMessage = response.data;
+               this.errorObj.errorMessage = response.data;
             }
         }
-
-        this.messageClear = function() {
-            this.successMessage = null;
-            this.errorObj = {};
-        }
-
+    },
+    mounted: function() {
         this.loadMetadata();
         this.getPendingRegistrations();
         this.loadUserList();
-    }]
-);
+    }
+})
