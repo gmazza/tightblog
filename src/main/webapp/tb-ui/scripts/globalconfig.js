@@ -53,8 +53,8 @@ var vm = new Vue({
       } else {
          this.errorMessage = errorMsg ? errorMsg : error.response.data.error;
       }
-  }
-},
+    }
+  },
   mounted: function() {
     this.loadMetadata();
     this.loadWebloggerProperties();

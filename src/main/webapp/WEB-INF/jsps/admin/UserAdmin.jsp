@@ -19,53 +19,54 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
    var contextPath = "${pageContext.request.contextPath}";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/useradmin.js'/>"></script>
+<div id="template">
 
 <input type="hidden" id="refreshURL" value="<c:url value='/tb-ui/app/admin/userAdmin'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
+    {{successMessage}}
+    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+       <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
-<div id="pendingList">
-   <span ng-repeat="item in ctrl.pendingList" style='color:red'>New registration request: {{item.screenName}} ({{item.emailAddress}}):
-   <input ng-click="ctrl.approveUser(item.id)" type="button" value="<fmt:message key='userAdmin.accept' />">
-   <input ng-click="ctrl.declineUser(item.id)" type="button" value="<fmt:message key='userAdmin.decline' />"><br></span>
+<div id="pendingList" v-cloak>
+   <span v-for="item in pendingList" style='color:red'>New registration request: {{item.screenName}} ({{item.emailAddress}}):
+   <input v-on:click="approveUser(item.id)" type="button" value="<fmt:message key='userAdmin.accept' />">
+   <input v-on:click="declineUser(item.id)" type="button" value="<fmt:message key='userAdmin.decline' />"><br></span>
 </div>
 
 <p class="subtitle"><fmt:message key="userAdmin.subtitle" /></p>
-<span id="userEdit">
-    <select ng-model="ctrl.userToEdit" size="1">
-        <option ng-repeat="(key, value) in ctrl.userList" value="{{key}}">{{value}}</option>
+<span id="userEdit" v-cloak>
+    <select v-model="userToEdit" size="1">
+        <option v-for="(value, key) in userList" v-bind:value="key">{{value}}</option>
     </select>
-    <input ng-click="ctrl.loadUser()" type="button" style="margin:4px" value='<fmt:message key="generic.edit" />'/>
+    <input v-on:click="loadUser()" type="button" style="margin:4px" value='<fmt:message key="generic.edit" />'/>
 </span>
 
-<table class="formtable" ng-show="ctrl.userBeingEdited">
+<table class="formtable" v-if="userBeingEdited" v-cloak>
   <tr>
       <td class="label"><fmt:message key="userSettings.username" /></td>
       <td class="field">
-        <input type="text" size="30" maxlength="30" ng-model="ctrl.userBeingEdited.userName" readonly cssStyle="background: #e5e5e5">
+        <input type="text" size="30" maxlength="30" v-model="userBeingEdited.userName" readonly cssStyle="background: #e5e5e5">
       </td>
       <td class="description">
         <fmt:message key="userSettings.tip.username" />
@@ -74,46 +75,46 @@
 
   <tr>
       <td class="label"><fmt:message key="userSettings.accountCreateDate" /></td>
-      <td class="field">{{ctrl.userBeingEdited.dateCreated | date:'short'}}</td>
+      <td class="field">{{userBeingEdited.dateCreated}}</td>
       <td class="description"></td>
   </tr>
 
   <tr>
       <td class="label"><fmt:message key="userSettings.lastLogin" /></td>
-      <td class="field">{{ctrl.userBeingEdited.lastLogin | date:'short'}}</td>
+      <td class="field">{{userBeingEdited.lastLogin}}</td>
       <td class="description"></td>
   </tr>
 
   <tr>
       <td class="label"><label for="screenName"><fmt:message key="userSettings.screenname" /></label></td>
-      <td class="field"><input id="screenName" type="text" size="30" ng-model="ctrl.userBeingEdited.screenName" minlength="3" maxlength="30" required></td>
+      <td class="field"><input id="screenName" type="text" size="30" v-model="userBeingEdited.screenName" minlength="3" maxlength="30" required></td>
       <td class="description"><fmt:message key="userAdmin.tip.screenName" /></td>
   </tr>
 
   <tr>
       <td class="label"><label for="emailAddress"><fmt:message key="userSettings.email" /></label></td>
-      <td class="field"><input id="emailAddress" type="email" size="40" ng-model="ctrl.userBeingEdited.emailAddress" maxlength="40" required></td>
+      <td class="field"><input id="emailAddress" type="email" size="40" v-model="userBeingEdited.emailAddress" maxlength="40" required></td>
       <td class="description"><fmt:message key="userAdmin.tip.email" /></td>
   </tr>
 
-  <tr ng-show="ctrl.userBeingEdited.status == 'ENABLED'">
+  <tr v-if="userBeingEdited.status == 'ENABLED'">
       <td class="label"><label for="passwordText"><fmt:message key="userSettings.password" /></label></td>
       <td class="field">
-      <input id="passwordText" type="password" size="20" ng-model="ctrl.userCredentials.passwordText" minlength="8" maxlength="20"></td>
+      <input id="passwordText" type="password" size="20" v-model="userCredentials.passwordText" minlength="8" maxlength="20"></td>
       <td class="description"><fmt:message key="userAdmin.tip.password" /></td>
   </tr>
-  <tr ng-show="ctrl.userBeingEdited.status == 'ENABLED'">
+  <tr v-if="userBeingEdited.status == 'ENABLED'">
       <td class="label"><label for="passwordConfirm"><fmt:message key="userSettings.passwordConfirm" /></label></td>
       <td class="field">
-      <input id="passwordConfirm" type="password" size="20" ng-model="ctrl.userCredentials.passwordConfirm" minlength="8" maxlength="20"></td>
+      <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20"></td>
       <td class="description"><fmt:message key="userAdmin.tip.passwordConfirm" /></td>
   </tr>
 
   <tr>
       <td class="label"><label for="userStatus"><fmt:message key="userAdmin.userStatus" /></label></td>
       <td class="field">
-          <select id="userStatus" ng-model="ctrl.userBeingEdited.status" size="1">
-              <option ng-repeat="(key, value) in ctrl.metadata.userStatuses" value="{{key}}">{{value}}</option>
+          <select id="userStatus" v-model="userBeingEdited.status" size="1">
+              <option v-for="(value, key) in metadata.userStatuses" v-bind:value="key">{{value}}</option>
           </select>
       </td>
       <td class="description"><fmt:message key="userAdmin.tip.userStatus" /></td>
@@ -122,8 +123,8 @@
   <tr>
       <td class="label"><label for="globalRole"><fmt:message key="userAdmin.globalRole" /></label></td>
       <td class="field">
-          <select id="globalRole" ng-model="ctrl.userBeingEdited.globalRole" size="1">
-              <option ng-repeat="(key, value) in ctrl.metadata.globalRoles" value="{{key}}">{{value}}</option>
+          <select id="globalRole" v-model="userBeingEdited.globalRole" size="1">
+              <option v-for="(value, key) in metadata.globalRoles" v-bind:value="key">{{value}}</option>
           </select>
       </td>
       <td class="description"><fmt:message key="userAdmin.tip.globalRole" /></td>
@@ -133,9 +134,9 @@
       <tr>
           <td class="label"><label for="hasMfaSecret"><fmt:message key="userAdmin.hasMfaSecret" /></label></td>
           <td class="field">
-              <input type="text" size="5" maxlength="5" ng-model="ctrl.userCredentials.hasMfaSecret" readonly>
-              <span ng-hide="ctrl.userCredentials.hasMfaSecret == false">
-                  <input type="checkbox" id="eraseSecret" ng-model="ctrl.userCredentials.eraseMfaSecret">
+              <input type="text" size="5" maxlength="5" v-model="userCredentials.hasMfaSecret" readonly>
+              <span v-show="userCredentials.hasMfaSecret == true">
+                  <input type="checkbox" id="eraseSecret" v-model="userCredentials.eraseMfaSecret">
                   <label for="eraseSecret"><fmt:message key="userAdmin.mfaSecret.erase" /></label>
               </span>
           </td>
@@ -146,7 +147,7 @@
 
 <br>
 
-<div class="showinguser" ng-show="ctrl.userBeingEdited">
+<div class="showinguser" v-if="userBeingEdited" v-cloak>
     <p><fmt:message key="userAdmin.userMemberOf"/></p>
     <table class="table table-bordered table-hover">
       <thead class="thead-light">
@@ -159,9 +160,9 @@
         </tr>
       </thead>
       <tbody>
-          <tr ng-repeat="weblogRole in ctrl.userBlogList">
+          <tr v-for="weblogRole in userBlogList">
               <td>
-                  <a ng-href='{{weblogRole.weblog.absoluteURL}}'>
+                  <a v-bind:href='weblogRole.weblog.absoluteURL'>
                       {{weblogRole.weblog.name}} [{{weblogRole.weblog.handle}}]
                   </a>
               </td>
@@ -173,13 +174,13 @@
               </td>
               <td>
                   <img src='<c:url value="/images/page_white_edit.png"/>' />
-                  <a target="_blank" ng-href="<c:url value='/tb-ui/app/authoring/entries'/>?weblogId={{weblogRole.weblog.id}}">
+                  <a target="_blank" v-bind:href="'<c:url value='/tb-ui/app/authoring/entries'/>?weblogId=' + weblogRole.weblog.id">
                       <fmt:message key="userAdmin.editEntries" />
                   </a>
               </td>
               <td>
                   <img src='<c:url value="/images/page_white_edit.png"/>' />
-                  <a target="_blank" ng-href="<c:url value='/tb-ui/app/authoring/weblogConfig'/>?weblogId={{weblogRole.weblog.id}}">
+                  <a target="_blank" v-bind:href="'<c:url value='/tb-ui/app/authoring/weblogConfig'/>?weblogId=' + weblogRole.weblog.id">
                       <fmt:message key="userAdmin.manage" /></a>
                   </a>
               </td>
@@ -191,7 +192,11 @@
 <br>
 <br>
 
-<div class="control" ng-show="ctrl.userBeingEdited">
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" ng-click="ctrl.updateUser()"/>
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.cancel'/>" ng-click="ctrl.cancelChanges()"/>
+<div class="control" v-show="userBeingEdited" v-cloak>
+    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" v-on:click="updateUser()"/>
+    <input class="buttonBox" type="button" value="<fmt:message key='generic.cancel'/>" v-on:click="cancelChanges()"/>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/useradmin.js'/>"></script>

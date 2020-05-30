@@ -117,7 +117,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/admin/GlobalConfig.jsp" />
     </definition>
 
-    <definition name=".userAdmin" extends=".tiles-tabbedpage" >
+    <definition name=".userAdmin" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/admin/UserAdmin.jsp" />
     </definition>
 
