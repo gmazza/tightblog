@@ -10,83 +10,92 @@ $(function() {
     });
 });
 
-tightblogApp.controller('PageController', ['$http', function PageController($http) {
-    var self = this;
-    this.itemToEdit = {};
-    this.errorObj = {};
-
-    this.itemsSelected = function() {
-        return $('input[name="idSelections"]:checked').size() > 0;
-    }
-
-    this.toggleCheckboxes = function(checked) {
-        $('input[name="idSelections"]').each(function(){
-            $(this).prop('checked', checked);
-        });
-    }
-
-    this.loadItems = function() {
-      $http.get(contextPath + '/tb-ui/authoring/rest/weblog/' + actionWeblogId + '/bookmarks').then(
-         function(response) {
-            self.items = response.data;
-         },
-         self.commonErrorResponse
-      );
-    };
-
-    this.deleteLinks = function() {
-        this.messageClear();
-        $('#deleteLinksModal').modal('hide');
-
-        var selectedLinkIds = [];
-        $('input[name="idSelections"]:checked').each(function(){
-            selectedLinkIds.push($(this).val());
-        });
-
-        $http.post(contextPath + '/tb-ui/authoring/rest/bookmarks/delete',
-            JSON.stringify(selectedLinkIds)).then(
-            function(response) {
-                self.successMessage = selectedLinkIds.length + ' link(s) deleted';
-                self.loadItems();
+var vm = new Vue({
+    el: '#template',
+    data: {
+        items: {},
+        itemToEdit: {},
+        successMessage: null,
+        checkAll: false,
+        errorObj: {}
+    },
+    computed: {
+        orderedItems: function () {
+          return _.orderBy(this.items, 'position')
+        }
+    },
+    methods: {
+        itemsSelected: function() {
+            return $('input[name="idSelections"]:checked').size() > 0;
+        },
+        toggleCheckboxes: function(checked) {
+            $('input[name="idSelections"]').each(function(){
+                $(this).prop('checked', checked);
+            });
+        },
+        loadItems: function() {
+            axios
+            .get(contextPath + '/tb-ui/authoring/rest/weblog/' + actionWeblogId + '/bookmarks')
+            .then(response => {
+                  this.items = response.data;
+            })
+            .catch(error => {
+               self.commonErrorResponse(error, null)
+            });
+        },
+        deleteLinks: function() {
+            this.messageClear();
+            $('#deleteLinksModal').modal('hide');
+    
+            var selectedLinkIds = [];
+            $('input[name="idSelections"]:checked').each(function(){
+                selectedLinkIds.push($(this).val());
+            });
+    
+            axios
+            .post(contextPath + '/tb-ui/authoring/rest/bookmarks/delete', selectedLinkIds)
+            .then(response => {
+                    this.successMessage = selectedLinkIds.length + ' link(s) deleted';
+                    this.loadItems();
+            });
+        },
+        editItem: function(item) {
+            this.itemToEdit = JSON.parse(JSON.stringify(item));
+        },
+        addItem: function() {
+            this.itemToEdit = {};
+        },
+        updateItem: function() {
+            this.messageClear();
+            if (this.itemToEdit.name && this.itemToEdit.url) {
+                axios
+                .put(contextPath + (this.itemToEdit.id ? '/tb-ui/authoring/rest/bookmark/' + this.itemToEdit.id
+                    : '/tb-ui/authoring/rest/bookmarks?weblogId=' + actionWeblogId),
+                    this.itemToEdit)
+                .then(response => {
+                     $("#editLinkModal").modal("hide");
+                     this.itemToEdit = {};
+                     this.loadItems();
+                 })
+                .catch(error => this.commonErrorResponse(error))
             }
-        );
-    }
-
-    this.editItem = function(item) {
-        angular.copy(item, this.itemToEdit);
-    }
-
-    this.addItem = function() {
-        this.itemToEdit = {};
-    }
-
-    this.updateItem = function() {
-        this.messageClear();
-        if (this.itemToEdit.name && this.itemToEdit.url) {
-            $http.put(contextPath + (this.itemToEdit.id ? '/tb-ui/authoring/rest/bookmark/' + this.itemToEdit.id
-                : '/tb-ui/authoring/rest/bookmarks?weblogId=' + actionWeblogId),
-                JSON.stringify(this.itemToEdit)).then(
-              function(response) {
-                 $("#editLinkModal").modal("hide");
-                 self.itemToEdit = {};
-                 self.loadItems();
-              },
-              self.commonErrorResponse
-            )
+        },
+        messageClear: function() {
+            this.errorObj = {};
+        },
+        inputClear: function() {
+            this.messageClear();
+            this.itemToEdit = {};
+        },
+        commonErrorResponse: function(error) {
+            if (error.response.status == 408) {
+                window.location.replace($('#refreshURL').attr('value'));
+            } else {
+                this.errorObj = error.response.data;
+            }
         }
+    },
+    mounted: function() {
+        this.loadItems();
     }
-
-    this.commonErrorResponse = function(response) {
-        if (response.status == 408) {
-           window.location.replace($('#refreshURL').attr('value'));
-        } else {
-           self.errorObj = response.data;
-        }
-    }
-
-    this.messageClear = function() {
-        this.errorObj = {};
-    }
-
-    this.loadItems();
-  }]);
+})

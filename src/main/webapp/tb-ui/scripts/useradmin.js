@@ -19,7 +19,7 @@ var vm = new Vue({
             .then(response => {
                 this.metadata = response.data;
             })
-                        .catch(error => this.commonErrorResponse(error, null));
+            .catch(error => this.commonErrorResponse(error, null));
         },
         getPendingRegistrations: function() {
             axios
@@ -56,7 +56,7 @@ var vm = new Vue({
                 this.getPendingRegistrations();
                 this.loadUserList();
             })
-            .catch(error => this.commonErrorResponse(error, null));
+            .catch(error => this.commonErrorResponse(error));
         },
         loadUser: function() {
             this.messageClear();
@@ -88,13 +88,7 @@ var vm = new Vue({
                 this.getPendingRegistrations();
                 this.successMessage = "User [" + this.userBeingEdited.screenName + "] updated."
             })
-            .catch(error => {
-                if (error.response.status == 400) {
-                   this.errorObj = error.response.data;
-                } else {
-                   this.commonErrorResponse(response);
-                }
-            })
+            .catch(error => this.commonErrorResponse(error))
         },
         cancelChanges: function() {
             this.messageClear();
@@ -105,11 +99,11 @@ var vm = new Vue({
             this.successMessage = null;
             this.errorObj = {};
         },
-        commonErrorResponse: function(response) {
-            if (response.status == 408) {
-               window.location.replace($('#refreshURL').attr('value'));
+        commonErrorResponse: function(error) {
+            if (error.response.status == 408) {
+                window.location.replace($('#refreshURL').attr('value'));
             } else {
-               this.errorObj.errorMessage = response.data;
+                this.errorObj = error.response.data;
             }
         }
     },

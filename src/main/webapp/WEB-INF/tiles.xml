@@ -167,7 +167,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Tags.jsp" />
     </definition>
 
-    <definition name=".blogroll" extends=".tiles-tabbedpage" >
+    <definition name=".blogroll" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Blogroll.jsp" />
     </definition>
 
