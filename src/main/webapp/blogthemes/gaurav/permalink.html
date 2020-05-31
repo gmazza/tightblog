@@ -46,9 +46,9 @@
                                     :
                                  utils.msg('macro.weblog.nocommentsyet')}">
                     </div>
-                    <th:block th:with="comments=${model.commentForm.preview ? model.commentForm : entry.getComments()}">
+                    <th:block th:with="comments=${entry.getComments()}">
                         <div class="panel-body">
-                            <th:block th:each="comment,iterStat : ${comments}" th:if="${comment.approved || model.commentForm.preview}">
+                            <th:block th:each="comment,iterStat : ${comments}" th:if="${comment.approved}">
                                 <div th:id="|comment-${comment.timestamp}|" th:class="${iterStat.even}? 'even' : 'odd'">
                                     <p th:utext="${comment.content}">xxx</p>
                                     <p class="small">
