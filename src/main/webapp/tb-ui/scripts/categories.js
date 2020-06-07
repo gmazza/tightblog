@@ -47,7 +47,7 @@ var vm = new Vue({
             var compareVal = this.selectedCategoryId;
             return this.items.filter(function(item) {
                 return item.id != compareVal;
-            })            
+            })
         }
     },
     methods: {
@@ -55,7 +55,7 @@ var vm = new Vue({
             this.messageClear();
             // https://stackoverflow.com/a/18030442/1207540
             var categoryId = obj.target.getAttribute("data-category-id");
-    
+
             this.messageClear();
             if (this.itemToEdit.name) {
                 this.itemToEdit.name = this.itemToEdit.name.replace(/[,%"/]/g,'');
@@ -76,7 +76,7 @@ var vm = new Vue({
         deleteItem: function() {
             this.messageClear();
             $('#deleteCategoryModal').modal('hide');
-      
+
             axios
             .delete(contextPath + '/tb-ui/authoring/rest/category/' + this.selectedCategoryId + '?targetCategoryId=' + this.targetCategoryId)
             .then(response => {
