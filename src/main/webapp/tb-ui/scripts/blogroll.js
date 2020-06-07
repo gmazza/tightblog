@@ -13,7 +13,7 @@ $(function() {
 var vm = new Vue({
     el: '#template',
     data: {
-        items: {},
+        items: [],
         itemToEdit: {},
         successMessage: null,
         checkAll: false,
@@ -21,7 +21,8 @@ var vm = new Vue({
     },
     computed: {
         orderedItems: function () {
-          return _.orderBy(this.items, 'position')
+            // using lodash
+            return _.orderBy(this.items, 'position')
         }
     },
     methods: {
