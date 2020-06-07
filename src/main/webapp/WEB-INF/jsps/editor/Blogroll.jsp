@@ -24,6 +24,7 @@
 <!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var msg= {

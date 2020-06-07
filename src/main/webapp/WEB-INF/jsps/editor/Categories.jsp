@@ -19,8 +19,12 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -32,21 +36,20 @@
     var actionWeblogId = "<c:out value='${param.weblogId}'/>";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/categories.js'/>"></script>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+        <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
 <p class="pagetip">
     <fmt:message key="categories.rootPrompt"/>
 </p>
+
+<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/categories'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
@@ -61,25 +64,25 @@
             <th width="10%"><fmt:message key="generic.delete"/></th>
         </tr>
       </thead>
-      <tbody ng-cloak>
-          <tr ng-repeat="item in ctrl.items | orderBy:'position'">
+      <tbody v-cloak>
+          <tr v-for="item in orderedItems">
               <td>{{item.name}}</td>
               <td>{{item.numEntries}}</td>
-              <td>{{item.firstEntry | date:'d MMM y' }}</td>
-              <td>{{item.lastEntry | date:'d MMM y' }}</td>
+              <td>{{item.firstEntry}}</td>
+              <td>{{item.lastEntry}}</td>
               <td class="buttontd">
-                  <button class="btn btn-warning" data-category-id="{{item.id}}" data-category-name="{{item.name}}" data-action="rename"
-                      data-toggle="modal" data-target="#editCategoryModal"><fmt:message key="generic.rename" /></button>
-              </td>
-              <td class="buttontd">
-                  <span ng-if="ctrl.items.length > 1">
-                    <button class="btn btn-danger" data-category-id="{{item.id}}" data-category-name="{{item.name}}"
-                        data-toggle="modal" data-target="#deleteCategoryModal"><fmt:message key="generic.delete" /></button>
-                  </span>
-              </td>
-          </tr>
+                <button class="btn btn-warning" v-bind:data-category-id="item.id" v-bind:data-category-name="item.name" data-action="rename"
+                    data-toggle="modal" data-target="#editCategoryModal"><fmt:message key="generic.rename" /></button>
+             </td>
+             <td class="buttontd">
+                 <span v-if="items.length > 1">
+                   <button class="btn btn-danger" v-on:click="selectedCategoryId = item.id" v-bind:data-category-id="item.id" v-bind:data-category-name="item.name"
+                       data-toggle="modal" data-target="#deleteCategoryModal"><fmt:message key="generic.delete" /></button>
+                 </span>
+             </td>
+        </tr>
       </tbody>
-       </table>
+    </table>
 
     <div class="control clearfix">
         <input type="button" data-toggle="modal" data-target="#editCategoryModal" data-action="add"
@@ -94,15 +97,15 @@
         <h5 class="modal-title" id="editCategoryModalTitle"></h5>
       </div>
       <div class="modal-body">
-        <span ng-show="ctrl.showUpdateErrorMessage">
+        <span v-if="showUpdateErrorMessage">
             <fmt:message key='categories.error.duplicateName'/><br>
         </span>
         <label for="category-name"><fmt:message key='generic.name'/>:</label>
-        <input id="category-name" ng-model="ctrl.itemToEdit.name" maxlength="80" size="40"/>
+        <input id="category-name" v-model="itemToEdit.name" maxlength="80" size="40"/>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" ng-click="ctrl.inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-warning" ng-disabled="!ctrl.itemToEdit.name" id="saveButton" ng-click="ctrl.updateItem($event)"
+        <button type="button" class="btn btn-secondary" v-on:click="inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" class="btn btn-warning" v-bind:disabled="!itemToEdit.name" id="saveButton" v-on:click="updateItem($event)"
             data-action="populatedByJS" data-category-id="populatedByJS">
             <fmt:message key='generic.save'/>
         </button>
@@ -120,17 +123,20 @@
       </div>
       <div class="modal-body">
         <p>
-        <!-- | filter: { id: '!' + ctrl.itemToDelete.id } -->
             <fmt:message key="categories.deleteMoveToWhere"/>
-            <select ng-model="ctrl.targetCategoryId" size="1" required
-                ng-options="item.id as item.name for item in ctrl.items | filter: {id : '!' + ctrl.selectedCategoryId }"
-            ></select>
+            <select v-model="targetCategoryId" size="1" required>
+                <option v-for="item in moveToCategories" v-bind:value="item.id">{{item.name}}</option>
+            </select>
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" ng-disabled="!ctrl.targetCategoryId" ng-click="ctrl.deleteItem()" id="deleteButton"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" v-bind:disabled="!targetCategoryId" v-on:click="deleteItem()" id="deleteButton"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/categories.js'/>"></script>

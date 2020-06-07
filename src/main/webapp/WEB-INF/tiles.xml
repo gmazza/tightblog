@@ -159,7 +159,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Comments.jsp" />
     </definition>
 
-    <definition name=".categories" extends=".tiles-tabbedpage" >
+    <definition name=".categories" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Categories.jsp" />
     </definition>
 
