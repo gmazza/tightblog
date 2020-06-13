@@ -61,7 +61,10 @@ var vm = new Vue({
             });
         },
         editItem: function(item) {
-            this.itemToEdit = JSON.parse(JSON.stringify(item));
+            this.itemToEdit = item;
+            var modal = $("#editLinkModal");
+            modal.find('#editLinkModalTitle').html(msg.editTitle);
+            modal.modal("show");
         },
         addItem: function() {
             this.itemToEdit = {};

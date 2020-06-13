@@ -74,8 +74,9 @@
         <td><a target="_blank" v-bind:href="item.url">{{item.url}}</a></td>
         <td>{{item.description}}</td>
         <td class="buttontd">
-            <button class="btn btn-warning" data-action="edit"
-               data-toggle="modal" data-target="#editLinkModal" v-on:click="editItem(item)"><fmt:message key="generic.edit" /></button>
+            <button class="btn btn-warning" v-on:click="editItem(item)">
+                <fmt:message key="generic.edit" />
+            </button>
         </td>
     </tr>
   </tbody>
