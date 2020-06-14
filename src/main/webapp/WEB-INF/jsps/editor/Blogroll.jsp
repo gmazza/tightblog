@@ -28,7 +28,7 @@
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var msg= {
-        editTitle: '<fmt:message key="generic.edit"/>',
+        editTitle: '<fmt:message key="blogroll.editLink"/>',
         addTitle: '<fmt:message key="blogroll.addLink"/>'
     };
     var actionWeblogId = "<c:out value='${param.weblogId}'/>";
@@ -74,8 +74,9 @@
         <td><a target="_blank" v-bind:href="item.url">{{item.url}}</a></td>
         <td>{{item.description}}</td>
         <td class="buttontd">
-            <button class="btn btn-warning" data-action="edit"
-               data-toggle="modal" data-target="#editLinkModal" v-on:click="editItem(item)"><fmt:message key="generic.edit" /></button>
+            <button class="btn btn-warning" v-on:click="editItem(item)">
+                <fmt:message key="generic.edit" />
+            </button>
         </td>
     </tr>
   </tbody>
@@ -93,11 +94,11 @@
 </div>
 
 <!-- Add/Edit Link modal -->
-<div class="modal fade" id="editLinkModal" tabindex="-1" role="dialog" aria-labelledby="editLinkModalTitle" aria-hidden="true">
+<div class="modal fade" id="editLinkModal" v-show="showEditModal" v-tabindex="-1" role="dialog" aria-labelledby="editLinkModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editLinkModalTitle"></h5>
+        <h5 class="modal-title" id="editLinkModalTitle">{{editModalTitle}}</h5>
       </div>
       <div class="modal-body">
         <p class="pagetip">
