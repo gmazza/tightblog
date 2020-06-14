@@ -1,20 +1,9 @@
-$(function() {
-    $('#editLinkModal').on('show.bs.modal', function(e) {
-        var action = $(e.relatedTarget).data('action');
-
-        var modal = $(this)
-        var button = modal.find('button[id="saveButton"]');
-        button.attr("data-action", action);
-        var title = (action == 'edit') ? msg.editTitle : msg.addTitle;
-        modal.find('#editLinkModalTitle').html(title);
-    });
-});
-
 var vm = new Vue({
     el: '#template',
     data: {
         items: [],
         itemToEdit: {},
+        editModalTitle: '',
         successMessage: null,
         checkAll: false,
         errorObj: {}
@@ -61,13 +50,15 @@ var vm = new Vue({
             });
         },
         editItem: function(item) {
-            this.itemToEdit = item;
-            var modal = $("#editLinkModal");
-            modal.find('#editLinkModalTitle').html(msg.editTitle);
-            modal.modal("show");
+            this.itemToEdit = {};
+            Object.assign(this.itemToEdit, item);
+            this.editModalTitle = msg.editTitle;
+            $("#editLinkModal").modal("show");
         },
         addItem: function() {
             this.itemToEdit = {};
+            this.editModalTitle = msg.addTitle;
+            $("#editLinkModal").modal("show");
         },
         updateItem: function() {
             this.messageClear();
