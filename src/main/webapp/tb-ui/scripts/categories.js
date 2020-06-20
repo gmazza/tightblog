@@ -1,38 +1,11 @@
-$(function() {
-    $('#deleteCategoryModal').on('show.bs.modal', function(e) {
-        // used by tmpl below
-        var categoryName = $(e.relatedTarget).data('category-name');
-        var modal = $(this)
-        var tmpl = eval('`' + msg.confirmDeleteTmpl + '`')
-        modal.find('#deleteCategoryModalTitle').html(tmpl);
-    });
-
-    $('#editCategoryModal').on('show.bs.modal', function(e) {
-        $('#category-name').val('');
-
-        var categoryId = $(e.relatedTarget).data('category-id');
-        var action = $(e.relatedTarget).data('action');
-
-        // .data('xxx') doesn't refresh w/changes by Vue
-        // categoryName used by tmpl below for renames
-        var categoryName = e.relatedTarget.dataset.categoryName;
-
-        // populate edit modal with category-specific information
-        var modal = $(this)
-        var button = modal.find('button[id="saveButton"]');
-        button.attr("data-category-id", categoryId);
-        button.attr("data-action", action);
-        var tmpl = eval('`' + (action == 'rename' ? msg.editTitleTmpl : msg.addTitle) + '`');
-        modal.find('#editCategoryModalTitle').html(tmpl);
-    });
-});
-
 var vm = new Vue({
     el: '#template',
     data: {
         items: [],
         itemToEdit: {},
         errorObj: {},
+        editModalTitle: '',
+        deleteModalTitle: '',
         showUpdateErrorMessage: false,
         selectedCategoryId: null,
         targetCategoryId: null,
@@ -53,10 +26,8 @@ var vm = new Vue({
     methods: {
         updateItem: function(obj) {
             this.messageClear();
-            // https://stackoverflow.com/a/18030442/1207540
-            var categoryId = obj.target.getAttribute("data-category-id");
+            var categoryId = this.itemToEdit.id;
 
-            this.messageClear();
             if (this.itemToEdit.name) {
                 this.itemToEdit.name = this.itemToEdit.name.replace(/[,%"/]/g,'');
                 if (this.itemToEdit.name) {
@@ -72,6 +43,27 @@ var vm = new Vue({
                     .catch(error => this.commonErrorResponse(error));
                 }
             }
+        },
+        showDeleteModal: function(item) {
+            this.selectedCategoryId = item.id;
+            // categoryName used in eval below
+            var categoryName = item.name;
+            this.deleteModalTitle = eval('`' + msg.confirmDeleteTmpl + '`')
+            $('#deleteCategoryModal').modal('show');
+        },
+        showEditModal: function(item) {
+            this.itemToEdit = {};
+            this.itemToEdit.id = item.id;
+            this.itemToEdit.name = item.name;
+            // categoryName used in eval below
+            var categoryName = item.name;
+            this.editModalTitle = eval('`' + msg.editTitleTmpl + '`');
+            $("#editCategoryModal").modal("show");
+        },
+        showAddModal: function() {
+            this.itemToEdit = {};
+            this.editModalTitle = msg.addTitle;
+            $("#editCategoryModal").modal("show");
         },
         deleteItem: function() {
             this.messageClear();
