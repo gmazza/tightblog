@@ -83,7 +83,7 @@
 </table>
 
 <div class="control clearfix">
-    <input type="button" data-toggle="modal" data-target="#editLinkModal" data-action="add"
+    <input type="button" 
         value="<fmt:message key='blogroll.addLink'/>" v-on:click="addItem()">
 
     <span v-if="items.length > 0">

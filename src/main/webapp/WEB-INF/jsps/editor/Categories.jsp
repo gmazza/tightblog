@@ -71,22 +71,24 @@
               <td>{{item.firstEntry}}</td>
               <td>{{item.lastEntry}}</td>
               <td class="buttontd">
-                <button class="btn btn-warning" v-bind:data-category-id="item.id" v-bind:data-category-name="item.name" data-action="rename"
-                    data-toggle="modal" data-target="#editCategoryModal"><fmt:message key="generic.rename" /></button>
-             </td>
-             <td class="buttontd">
-                 <span v-if="items.length > 1">
-                   <button class="btn btn-danger" v-on:click="selectedCategoryId = item.id" v-bind:data-category-id="item.id" v-bind:data-category-name="item.name"
-                       data-toggle="modal" data-target="#deleteCategoryModal"><fmt:message key="generic.delete" /></button>
-                 </span>
-             </td>
-        </tr>
+                  <button class="btn btn-warning" v-on:click="showEditModal(item)">
+                    <fmt:message key="generic.rename" />
+                  </button>
+              </td>
+              <td class="buttontd">
+                  <span v-if="items.length > 1">
+                      <button class="btn btn-danger" v-on:click="showDeleteModal(item)">
+                          <fmt:message key="generic.delete" />
+                      </button>
+                  </span>
+              </td>
+          </tr>
       </tbody>
     </table>
 
     <div class="control clearfix">
-        <input type="button" data-toggle="modal" data-target="#editCategoryModal" data-action="add"
-            data-category-id="" value="<fmt:message key='categories.addCategory'/>">
+        <input type="button" v-on:click="showAddModal()"
+            value="<fmt:message key='categories.addCategory'/>">
     </div>
 
 <!-- Add/Edit Category modal -->
@@ -94,7 +96,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editCategoryModalTitle"></h5>
+        <h5 class="modal-title" id="editCategoryModalTitle" v-html="editModalTitle"></h5>
       </div>
       <div class="modal-body">
         <span v-if="showUpdateErrorMessage">
@@ -104,9 +106,11 @@
         <input id="category-name" v-model="itemToEdit.name" maxlength="80" size="40"/>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" v-on:click="inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-warning" v-bind:disabled="!itemToEdit.name" id="saveButton" v-on:click="updateItem($event)"
-            data-action="populatedByJS" data-category-id="populatedByJS">
+        <button type="button" class="btn btn-secondary" v-on:click="inputClear()" data-dismiss="modal">
+            <fmt:message key='generic.cancel'/>
+        </button>
+        <button type="button" class="btn btn-warning" v-bind:disabled="!itemToEdit.name || itemToEdit.name.trim().length == 0" 
+              id="saveButton" v-on:click="updateItem()">
             <fmt:message key='generic.save'/>
         </button>
       </div>
@@ -119,7 +123,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteCategoryModalTitle"></h5>
+        <h5 class="modal-title" id="deleteCategoryModalTitle" v-html="deleteModalTitle"></h5>
       </div>
       <div class="modal-body">
         <p>
