@@ -36,6 +36,8 @@
     var actionWeblogId = "<c:out value='${param.weblogId}'/>";
 </script>
 
+<div id="template">
+
 <div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorObj.errors" v-cloak>
     <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
@@ -48,8 +50,6 @@
 <p class="pagetip">
     <fmt:message key="categories.rootPrompt"/>
 </p>
-
-<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/categories'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 

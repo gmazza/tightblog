@@ -1,136 +1,130 @@
-$(function() {
-    $('#changeTagModal').on('show.bs.modal', function(e) {
-        //get data-id attribute of the clicked element
-        var tagName = $(e.relatedTarget).attr('current-tag');
-        var action = $(e.relatedTarget).attr('action');
-
-        // populate delete modal with tag-specific information
-        var modal = $(this)
-        var button = modal.find('button[id="changeButton"]');
-        button.data("currentTag", tagName);
-        button.data("action", action);
-        var tmpl = eval('`' + (action == 'replace' ? msg.replaceTagTitleTmpl : msg.addTagTitleTmpl) + '`')
-        modal.find('#changeTagModalTitle').html(tmpl);
-    });
-});
-
-tightblogApp.controller('PageController', ['$http',
-    function PageController($http) {
-    var self = this;
-    this.tagData = {};
-    this.errorObj = null;
-    this.pageNum = 0;
-    this.urlRoot = contextPath + '/tb-ui/authoring/rest/tags/';
-    this.resultsMap = {};
-
-    this.tagsSelected = function() {
-        return $('input[name="idSelections"]:checked').size() > 0;
-    }
-
-    this.toggleCheckboxes = function(checked) {
-        $('input[name="idSelections"]').each(function(){
-            $(this).prop('checked', checked);
-        });
-    }
-
-    this.deleteTags = function() {
-        this.messageClear();
-        $('#deleteTagsModal').modal('hide');
-
-        var selectedTagNames = [];
-        $('input[name="idSelections"]:checked').each(function(){
-            selectedTagNames.push($(this).val());
-        });
-
-        $http.post(contextPath + '/tb-ui/authoring/rest/tags/weblog/' + weblogId + '/delete',
-            JSON.stringify(selectedTagNames)).then(
-            function(response) {
-                self.successMessage = selectedTagNames.length + ' tag(s) deleted';
-                self.loadTags();
+var vm = new Vue({
+    el: '#template',
+    data: {
+        tagData: { tags : {} },
+        errorObj: {},
+        editModalTitle: '',
+        editModalAction: null,
+        editModalCurrentTag: null,
+        newTagName: null,
+        pageNum: 0,
+        urlRoot: contextPath + '/tb-ui/authoring/rest/tags/',
+        resultsMap: {},
+        successMessage: ''
+    },
+    methods: {
+        tagsSelected: function() {
+            return $('input[name="idSelections"]:checked').size() > 0;
+        },
+        toggleCheckboxes: function(checked) {
+            $('input[name="idSelections"]').each(function(){
+                $(this).prop('checked', checked);
+            });
+        },
+        deleteTags: function() {
+            this.messageClear();
+            $('#deleteTagsModal').modal('hide');
+    
+            var selectedTagNames = [];
+            $('input[name="idSelections"]:checked').each(function(){
+                selectedTagNames.push($(this).val());
+            });
+    
+            axios
+            .post(contextPath + '/tb-ui/authoring/rest/tags/weblog/' + weblogId + '/delete', selectedTagNames)
+            .then(response => {
+                    this.successMessage = selectedTagNames.length + ' tag(s) deleted';
+                    this.loadTags();
+            });
+        },
+        showReplaceModal: function(oldTag) {
+            this.messageClear();
+             // tagName needed for eval below
+            var tagName = oldTag.name;
+            this.editModalTitle = eval('`' + msg.replaceTagTitleTmpl + '`');
+            this.editModalAction = 'replace';
+            this.editModalCurrentTag = tagName;
+            $('#changeTagModal').modal('show');      
+        },
+        showAddModal: function(currentTag) {
+            this.messageClear();
+            // tagName needed for eval below
+            var tagName = currentTag.name;
+            this.editModalTitle = eval('`' + msg.addTagTitleTmpl + '`');
+            this.editModalAction = 'add';
+            this.editModalCurrentTag = tagName;
+            $('#changeTagModal').modal('show');
+        },
+        tagUpdate: function() {
+            this.messageClear();
+            if (this.editModalAction == 'replace') {
+                this.replaceTag(this.editModalCurrentTag, this.newTagName);
+            } else if (this.editModalAction == 'add') {
+                this.addTag(this.editModalCurrentTag, this.newTagName);
             }
-        );
-    }
-
-    this.tagUpdate = function() {
-        this.messageClear();
-        var changeButton = $('#changeButton');
-        var currentTag = changeButton.data('currentTag');
-
-        if (changeButton.data('action') == 'replace') {
-            this.replaceTag(currentTag, this.newTagName);
-        } else {
-            this.addTag(currentTag, this.newTagName);
-        }
-        $('#changeTagModal').modal('hide');
-        this.inputClear();
-    }
-
-    this.addTag = function(currentTag, newTag) {
-        this.messageClear();
-        $http.post(this.urlRoot + 'weblog/' + weblogId + '/add/currenttag/' + currentTag + '/newtag/' + newTag).then(
-          function(response) {
-             self.resultsMap = response.data;
-             self.successMessage = 'Added [' + newTag + '] to ' + self.resultsMap.updated + ' entries having ['
-                + currentTag + (self.resultsMap.unchanged > 0 ? '] (' + self.resultsMap.unchanged
-                + ' already had [' + newTag + '])' : ']');
-             self.loadTags();
-          },
-          self.commonErrorResponse
-        )
-    }
-
-    this.replaceTag = function(currentTag, newTag) {
-        this.messageClear();
-        $http.post(this.urlRoot + 'weblog/' + weblogId + '/replace/currenttag/' + currentTag + '/newtag/' + newTag).then(
-          function(response) {
-             self.resultsMap = response.data;
-             self.successMessage = 'Replaced [' + currentTag + '] with [' + newTag + '] in ' + self.resultsMap.updated
-                + ' entries' + (self.resultsMap.unchanged > 0 ? ', deleted [' + currentTag + '] from '
-                + self.resultsMap.unchanged + ' entries already having [' + newTag + ']': '');
-             self.loadTags();
-          },
-          self.commonErrorResponse
-        )
-    }
-
-    this.loadTags = function() {
-        $http.get(this.urlRoot + weblogId + '/page/' + this.pageNum).then(
-        function(response) {
-            self.tagData = response.data;
-          },
-          self.commonErrorResponse
-        )
-    };
-
-    this.previousPage = function() {
-        this.messageClear();
-        this.pageNum--;
+            $('#changeTagModal').modal('hide');
+            this.inputClear();
+        },
+        addTag: function(currentTag, newTag) {
+            this.messageClear();
+            axios
+            .post(this.urlRoot + 'weblog/' + weblogId + '/add/currenttag/' + currentTag + '/newtag/' + newTag)
+            .then(response => {
+                 this.resultsMap = response.data;
+                 this.successMessage = 'Added [' + newTag + '] to ' + this.resultsMap.updated + ' entries having ['
+                    + currentTag + (this.resultsMap.unchanged > 0 ? '] (' + this.resultsMap.unchanged
+                    + ' already had [' + newTag + '])' : ']');
+                 this.loadTags();
+            })
+            .catch(error => this.commonErrorResponse(error));
+        },
+        replaceTag: function(currentTag, newTag) {
+            this.messageClear();
+            axios
+            .post(this.urlRoot + 'weblog/' + weblogId + '/replace/currenttag/' + currentTag + '/newtag/' + newTag)
+            .then(response => {
+                 this.resultsMap = response.data;
+                 this.successMessage = 'Replaced [' + currentTag + '] with [' + newTag + '] in ' + this.resultsMap.updated
+                    + ' entries' + (this.resultsMap.unchanged > 0 ? ', deleted [' + currentTag + '] from '
+                    + this.resultsMap.unchanged + ' entries already having [' + newTag + ']': '');
+                 this.loadTags();
+            })
+            .catch(error => this.commonErrorResponse(error));
+        },
+        loadTags: function() {
+            axios
+            .get(this.urlRoot + weblogId + '/page/' + this.pageNum)
+            .then(response => {
+                this.tagData = response.data;
+            })
+            .catch(error => this.commonErrorResponse(error));
+        },
+        previousPage: function() {
+            this.messageClear();
+            this.pageNum--;
+            this.loadTags();
+        },
+        nextPage: function() {
+            this.messageClear();
+            this.pageNum++;
+            this.loadTags();
+        },
+        commonErrorResponse: function(error) {
+            if (response.status == 408) {
+               window.location.replace($('#refreshURL').attr('value'));
+            }  else {
+               this.errorObj = error.response.data;
+            }
+        },
+        messageClear: function() {
+            this.successMessage = '';
+            this.errorObj = {};
+        },
+        inputClear: function() {
+            this.newTagName = '';
+        }    
+    },
+    mounted: function() {
         this.loadTags();
-    };
-
-    this.nextPage = function() {
-        this.messageClear();
-        this.pageNum++;
-        this.loadTags();
-    };
-
-    this.commonErrorResponse = function(response) {
-        if (response.status == 408) {
-           window.location.replace($('#refreshURL').attr('value'));
-        }  else {
-           self.errorObj = response.data;
-        }
     }
-
-    this.messageClear = function() {
-        self.successMessage = '';
-        this.errorObj = {};
-    }
-
-    this.inputClear = function() {
-        this.newTagName = '';
-    }
-
-    this.loadTags();
-
-  }]);
+});

@@ -14,8 +14,10 @@
     limitations under the License.
 -->
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -26,24 +28,23 @@
     };
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/tags.js'/>"></script>
+<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/tags'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
+    {{successMessage}}
+    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+       <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
@@ -53,16 +54,13 @@
 
 <div class="tablenav">
 
-    <span ng-if="ctrl.pageNum > 0 || ctrl.tagsData.hasMore" ng-cloak>
-        <center>
-            &laquo;
-            <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
-                ng-disabled="ctrl.pageNum <= 0" ng-click="ctrl.previousPage()">
-            |
-            <input type="button" value="<fmt:message key='weblogEntryQuery.next'/>"
-                ng-disabled="!ctrl.tagsData.hasMore" ng-click="ctrl.nextPage()">
-            &raquo;
-        </center>
+    <span style="text-align:center;" v-if="pageNum > 0 || tagData.hasMore" v-cloak>
+        &laquo;
+        <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
+          v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">            |
+        <input type="button" value="<fmt:message key='weblogEntryQuery.next'/>"
+          v-bind:disabled="!tagData.hasMore" v-on:click="nextPage()">
+        &raquo;
     </span>
 
     <br>
@@ -71,8 +69,9 @@
 <table class="table table-sm  table-bordered table-striped">
     <thead class="thead-light">
         <tr>
-            <th width="4%"><input type="checkbox" ng-model="ctrl.checkAll"
-                ng-disabled="ctrl.tagData.tags.length == 0" ng-change="ctrl.toggleCheckboxes(ctrl.checkAll)"
+            <th width="4%"><input type="checkbox"
+                v-bind:disabled="tagData.tags.length == 0" 
+                v-on:input="toggleCheckboxes($event.target.checked)"
                 title="<fmt:message key='generic.selectAll'/>"/></th>
             <th width="20%"><fmt:message key="tags.column.tag" /></th>
             <th width="10%"><fmt:message key="categories.column.count" /></th>
@@ -84,36 +83,38 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="tag in ctrl.tagData.tags" ng-cloak>
+        <tr v-for="tag in tagData.tags" v-cloak>
             <td class="center" style="vertical-align:middle">
-                  <input type="checkbox" name="idSelections" ng-attr-title="checkbox for {{tag.name}}"
-                    ng-model="tag.selected" value="{{tag.name}}" />
+                  <input type="checkbox" name="idSelections" v-bind:title="'checkbox for ' + tag.name"
+                    v-model="tag.selected" v-bind:value="tag.name" />
             </td>
             <td>{{tag.name}}</td>
             <td>{{tag.total}}</td>
-            <td>{{tag.firstEntry | date:'d MMM y' }}</td>
-            <td>{{tag.lastEntry | date:'d MMM y' }}</td>
+            <td>{{tag.firstEntry}}</td>
+            <td>{{tag.lastEntry}}</td>
 
             <td>
-                <a ng-href='{{tag.viewUrl}}' target="_blank"><fmt:message key="tags.column.view" /></a>
+                <a v-bind:href='tag.viewUrl' target="_blank"><fmt:message key="tags.column.view" /></a>
             </td>
 
             <td class="buttontd">
-                <button class="btn btn-warning" current-tag="{{tag.name}}" action="replace"
-                    current-tag="{{tag.name}}" data-toggle="modal" data-target="#changeTagModal"><fmt:message key="tags.replace" /></button>
-            </td>
+              <button class="btn btn-warning" v-on:click="showReplaceModal(tag)">
+                <fmt:message key="tags.replace" />
+              </button>
+          </td>
 
-            <td class="buttontd">
-                <button class="btn btn-warning" current-tag="{{tag.name}}" action="add"
-                    current-tag="{{tag.name}}" data-toggle="modal" data-target="#changeTagModal"><fmt:message key="generic.add" /></button>
-            </td>
-        </tr>
+          <td class="buttontd">
+              <button class="btn btn-warning" v-on:click="showAddModal(tag)">
+                <fmt:message key="generic.add" />
+              </button>
+          </td>
+      </tr>
     </tbody>
 </table>
 
-<div class="control" ng-if="ctrl.tagData.tags.length > 0">
+<div class="control" v-if="tagData.tags.length > 0">
   <span style="padding-left:7px">
-    <button ng-disabled="!ctrl.tagsSelected()" data-toggle="modal" data-target="#deleteTagsModal">
+    <button v-bind:disabled="!tagsSelected()" data-toggle="modal" data-target="#deleteTagsModal">
         <fmt:message key='generic.deleteSelected'/>
     </button>
   </span>
@@ -131,7 +132,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" id="deleteButton" ng-click="ctrl.deleteTags()">
+        <button type="button" class="btn btn-danger" id="deleteButton" v-on:click="deleteTags()">
             <fmt:message key='generic.delete'/>
         </button>
       </div>
@@ -144,15 +145,15 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="changeTagModalTitle"></h5>
+        <h5 class="modal-title" id="changeTagModalTitle" v-html="editModalTitle"></h5>
       </div>
       <div class="modal-body">
           <label for="newTag"><fmt:message key='generic.name'/>:</label>
-          <input id="newTag" ng-model="ctrl.newTagName" type="text">
+          <input id="newTag" v-model="newTagName" type="text">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" ng-click="ctrl.inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" ng-disabled="!ctrl.newTagName" class="btn btn-warning" id="changeButton" ng-click="ctrl.tagUpdate()"
+        <button type="button" class="btn btn-secondary" v-on:click="inputClear()" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
+        <button type="button" v-bind:disabled="!newTagName" class="btn btn-warning" id="changeButton" v-on:click="tagUpdate()"
                 action="populatedByJS" data-currentTag="populatedByJS" >
             <fmt:message key='generic.save'/>
         </button>
@@ -161,6 +162,10 @@
   </div>
 </div>
 
-<span ng-if="ctrl.tagData.tags.length == 0">
+<span v-if="tagData.tags.length == 0">
     <fmt:message key="tags.noneFound" />
 </span>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/tags.js'/>"></script>
