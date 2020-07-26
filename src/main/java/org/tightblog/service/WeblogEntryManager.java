@@ -492,7 +492,7 @@ public class WeblogEntryManager {
                 cqd.params.add(size++, csc.getWeblog());
                 appendConjuctionToWhereClause(whereClause, "c.weblog = ?").append(size);
             }
-            if (csc.getCategoryName() != null) {
+            if (!StringUtils.isEmpty(csc.getCategoryName())) {
                 cqd.params.add(size++, csc.getCategoryName());
                 appendConjuctionToWhereClause(whereClause, "c.weblogEntry.category.name = ?").append(size);
             }

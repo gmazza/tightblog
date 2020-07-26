@@ -4,6 +4,7 @@ var vm = new Vue({
         items: [],
         itemToEdit: {},
         editModalTitle: '',
+        showEditModal: false,
         successMessage: null,
         checkAll: false,
         errorObj: {}
