@@ -20,9 +20,12 @@
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -32,8 +35,7 @@
     };
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/entries.js'/>"></script>
+<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/entries'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
@@ -41,7 +43,6 @@
     <fmt:message key="entries.tip" />
 </p>
 
-{{entryArr = ctrl.entriesData.entries;""}}
 <div class="sidebarFade">
     <div class="menu-tr">
         <div class="menu-tl">
@@ -56,20 +57,20 @@
                     <div class="sideformrow">
                         <label for="categoryId" class="sideformrow">
                         <fmt:message key="generic.category" /></label>
-                        <select id="categoryId" ng-model="ctrl.searchParams.categoryName" size="1" required>
-                           <option ng-repeat="(key, value) in ctrl.lookupFields.categories" value="{{key}}">{{value}}</option>
+                        <select id="categoryId" v-model="searchParams.categoryName" size="1" required>
+                           <option v-for="(value, key) in lookupFields.categories" v-bind:value="key">{{value}}</option>
                         </select>
                     </div>
                     <br /><br />
 
                     <div class="sideformrow">
                         <label for="startDateString" class="sideformrow"><fmt:message key="entries.label.startDate" />:</label>
-                        <input type="text" id="startDateString" ng-model="ctrl.searchParams.startDateString" size="12" readonly="true"/>
+                        <date-picker @update-date="updateStartDate" v-once></date-picker>
                     </div>
 
                     <div class="sideformrow">
                         <label for="endDateString" class="sideformrow"><fmt:message key="entries.label.endDate" />:</label>
-                        <input type="text" id="endDateString" ng-model="ctrl.searchParams.endDateString" size="12" readonly="true"/>
+                        <date-picker @update-date="updateEndDate" v-once></date-picker>
                     </div>
                     <br /><br />
 
@@ -78,8 +79,8 @@
                             <fmt:message key="entries.label.status" />:
                         </label>
                         <div>
-                            <select id="status" ng-model="ctrl.searchParams.status" size="1" required>
-                                <option ng-repeat="(key, value) in ctrl.lookupFields.statusOptions" value="{{key}}">{{value}}</option>
+                            <select id="status" v-model="searchParams.status" size="1" required>
+                                <option v-for="(value, key) in lookupFields.statusOptions" v-bind:value="key">{{value}}</option>
                             </select>
                         </div>
                     </div>
@@ -90,13 +91,13 @@
                             <br /><br />
                         </label>
                         <div>
-                            <div ng-repeat="(key, value) in ctrl.lookupFields.sortByOptions">
-                                <input type="radio" name="sortBy" ng-model="ctrl.searchParams.sortBy" ng-value='key'> {{value}}<br>
+                            <div v-for="(value, key) in lookupFields.sortByOptions">
+                                <input type="radio" name="sortBy" v-model="searchParams.sortBy" v-bind:value="key">{{value}}<br>
                             </div>
                         </div>
                     </div>
                     <br />
-                    <input ng-click="ctrl.loadEntries()" type="button" value="<fmt:message key='entries.button.query'/>" />
+                    <input v-on:click="loadEntries()" type="button" value="<fmt:message key='entries.button.query'/>" />
                 </div>
             </div> <!-- sidebarInner -->
         </div>
@@ -108,19 +109,19 @@
 <%-- Number of entries and date message --%>
 <%-- ============================================================= --%>
 
-<div class="tablenav" ng-cloak>
+<div class="tablenav" v-cloak>
 
     <div style="float:left;">
-        {{entryArr.length}} <fmt:message key="entries.nowShowing"/>
+        {{entriesData.entries.length}} <fmt:message key="entries.nowShowing"/>
     </div>
-    <span ng-if="entryArr.length > 0">
+    <span v-if="entriesData.entries.length > 0">
         <div style="float:right;">
-            <span ng-if="entryArr[0].pubTime != null">
-                {{entryArr[0].pubTime | date:'short'}}
+            <span v-if="entriesData.entries[0].pubTime != null">
+                {{entriesData.entries[0].pubTime}}
             </span>
             ---
-            <span ng-if="entryArr[entryArr.length - 1].pubTime != null">
-                {{entryArr[entryArr.length - 1].pubTime | date:'short'}}
+            <span v-if="entriesData.entries[entriesData.entries.length - 1].pubTime != null">
+                {{entriesData.entries[entriesData.entries.length - 1].pubTime}}
             </span>
         </div>
     </span>
@@ -130,14 +131,14 @@
     <%-- Next / previous links --%>
     <%-- ============================================================= --%>
 
-    <span ng-if="ctrl.pageNum > 0 || ctrl.entriesData.hasMore">
+    <span v-if="pageNum > 0 || entriesData.hasMore">
         <center>
             &laquo;
             <input type="button" value="<fmt:message key='entries.prev'/>"
-                ng-disabled="ctrl.pageNum <= 0" ng-click="ctrl.previousPage()">
+                v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
             |
             <input type="button" value="<fmt:message key='entries.next'/>"
-                ng-disabled="!ctrl.entriesData.hasMore" ng-click="ctrl.nextPage()">
+                v-bind:disabled="!entriesData.hasMore" v-on:click="nextPage()">
             &raquo;
         </center>
     </span>
@@ -175,18 +176,18 @@
     </thead>
 
     <tbody>
-        <tr ng-repeat="entry in ctrl.entriesData.entries"
-            ng-class="{DRAFT : 'draftentry', PENDING : 'pendingentry', SCHEDULED : 'scheduledentry'}[entry.status]" ng-cloak>
+        <tr v-for="entry in entriesData.entries"
+            v-bind:class="entryStatusClass(entry.status)" v-cloak>
 
             <td>
-                <span ng-if="entry.pubTime != null">
-                  {{entry.pubTime | date:'short'}}
+                <span v-if="entry.pubTime != null">
+                  {{entry.pubTime}}
                 </span>
             </td>
 
             <td>
-                <span ng-if="entry.updateTime != null">
-                  {{entry.updateTime | date:'short'}}
+                <span v-if="entry.updateTime != null">
+                  {{entry.updateTime}}
                 </span>
             </td>
 
@@ -195,7 +196,7 @@
             </td>
 
             <td>
-                {{entry.title | limitTo:80}}
+                {{entry.title.substr(0, 80)}}
             </td>
 
             <td>
@@ -203,19 +204,19 @@
             </td>
 
             <td>
-                <span ng-if="entry.status == 'PUBLISHED'">
-                    <a ng-href='{{entry.permalink}}' target="_blank"><fmt:message key="entries.view" /></a>
+                <span v-if="entry.status == 'PUBLISHED'">
+                    <a v-bind:href='entry.permalink' target="_blank"><fmt:message key="entries.view" /></a>
                 </span>
             </td>
 
             <td>
-                <a target="_blank" ng-href="<c:url value='/tb-ui/app/authoring/entryEdit'/>?weblogId=<c:out value='${param.weblogId}'/>&entryId={{entry.id}}">
+                <a target="_blank" v-bind:href="'<c:url value='/tb-ui/app/authoring/entryEdit'/>?weblogId=<c:out value='${param.weblogId}'/>&entryId=' + entry.id">
                     <fmt:message key="generic.edit" />
                 </a>
             </td>
 
             <td class="buttontd">
-                <button class="btn btn-danger" data-title="{{entry.title}}" data-id="{{entry.id}}" data-toggle="modal" data-target="#deleteEntryModal"><fmt:message key="generic.delete" /></button>
+                <button class="btn btn-danger" v-on:click="showDeleteModal(entry)"><fmt:message key="generic.delete" /></button>
             </td>
 
         </tr>
@@ -233,16 +234,20 @@
         </button>
       </div>
       <div class="modal-body">
-        <span id="confirmDeleteMsg"></span>
+        <span id="confirmDeleteMsg" v-html="deleteModalMsg"></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" id="deleteButton" data-id="populatedByJS" ng-click="ctrl.deleteWeblogEntry($event)"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" id="deleteButton" v-on:click="deleteWeblogEntry()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
 </div>
 
-<span ng-if="ctrl.entriesData.entries.length == 0">
+<span v-if="entriesData.entries.length == 0">
     <fmt:message key="entries.noneFound" />
 </span>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/entries.js'/>"></script>

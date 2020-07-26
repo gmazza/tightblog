@@ -150,7 +150,7 @@
         <put-attribute name="sidebarType"  value="sidebar" />
     </definition>
 
-    <definition name=".entries" extends=".tiles-tabbedpage" >
+    <definition name=".entries" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Entries.jsp" />
         <put-attribute name="useAngularHeader" value="true"/>
     </definition>

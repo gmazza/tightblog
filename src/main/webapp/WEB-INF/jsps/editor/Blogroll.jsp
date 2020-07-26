@@ -94,7 +94,7 @@
 </div>
 
 <!-- Add/Edit Link modal -->
-<div class="modal fade" id="editLinkModal" v-show="showEditModal" v-tabindex="-1" role="dialog" aria-labelledby="editLinkModalTitle" aria-hidden="true">
+<div class="modal fade" id="editLinkModal" v-show="showEditModal" tabindex="-1" role="dialog" aria-labelledby="editLinkModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
