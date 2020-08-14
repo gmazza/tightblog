@@ -1,5 +1,0 @@
-Create only Theme a and b.
-
-Set all colours on theme b to #5c82a7.
-
-Changed list header border to #5c82a7.

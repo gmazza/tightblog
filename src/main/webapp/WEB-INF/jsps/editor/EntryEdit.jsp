@@ -66,7 +66,7 @@
                 <label for="title"><fmt:message key="entryEdit.entryTitle" /></label>
             </td>
             <td>
-                <input id="title" type="text" ng-model="ctrl.entry.title" maxlength="255" tabindex="1" style="width:60%">
+                <input id="title" type="text" ng-model="ctrl.entry.title" maxlength="255" tabindex="1" style="width:60%" autocomplete="off">
             </td>
         </tr>
 

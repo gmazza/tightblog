@@ -20,10 +20,12 @@
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
-<script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js"/>'></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-sanitize.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
+<script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -34,8 +36,7 @@
     var entryTitleTmpl = "<fmt:message key='comments.entry.subtitle'/>";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/comments.js'/>"></script>
+<div id="template">
 
 <c:choose>
     <c:when test="${param.entryId == null}">
@@ -46,22 +47,20 @@
     </c:otherwise>
 </c:choose>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+       <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
-<p class="subtitle" ng-show="ctrl.entryTitleMsg != ''">
+<p class="subtitle" v-show="entryTitleMsg != ''">
     <span>
-        <span ng-bind-html="ctrl.entryTitleMsg"></span>
+        <span v-html="entryTitleMsg"></span>
     </span>
 </p>
-
-{{commentArr = ctrl.commentData.comments;""}}
 
     <p class="pagetip">
         <fmt:message key="comments.tip" />
@@ -78,19 +77,19 @@
 
                     <div class="sideformrow">
                         <label for="searchText" class="sideformrow"><fmt:message key="comments.searchString" />:</label>
-                        <input id="searchText" type="text" ng-model="ctrl.searchParams.searchText" size="30"/>
+                        <input id="searchText" type="text" v-model="searchParams.searchText" size="30"/>
                     </div>
                     <br />
                     <br />
 
                     <div class="sideformrow">
                         <label for="startDateString" class="sideformrow"><fmt:message key="entries.label.startDate" />:</label>
-                        <input type="text" id="startDateString" ng-model="ctrl.searchParams.startDateString" size="12" readonly="true"/>
+                        <input type="text" id="startDateString" v-model="searchParams.startDateString" size="12" readonly="true"/>
                     </div>
 
                     <div class="sideformrow">
                         <label for="endDateString" class="sideformrow"><fmt:message key="entries.label.endDate" />:</label>
-                        <input type="text" id="endDateString" ng-model="ctrl.searchParams.endDateString" size="12" readonly="true"/>
+                        <input type="text" id="endDateString" v-model="searchParams.endDateString" size="12" readonly="true"/>
                     </div>
                     <br /><br />
 
@@ -99,24 +98,24 @@
                             <fmt:message key="comments.pendingStatus" />:
                         </label>
                         <div>
-                            <select id="status" ng-model="ctrl.searchParams.status" size="1" required>
-                                <option ng-repeat="(key, value) in ctrl.lookupFields" value="{{key}}">{{value}}</option>
+                            <select id="status" v-model="searchParams.status" size="1" required>
+                                <option v-for="(value, key) in lookupFields" v-bind:value="key">{{value}}</option>
                             </select>
                         </div>
                     </div>
                     <br><br>
-                    <input ng-click="ctrl.loadComments()" type="button" value="<fmt:message key='entries.button.query'/>" />
+                    <input v-on:click="loadComments()" type="button" value="<fmt:message key='entries.button.query'/>" />
                     <br>
                 </div>
             </div>
         </div>
     </div>
 
-<div ng-if="commentArr.length == 0">
+<div v-if="commentData.comments.length == 0">
     <fmt:message key="comments.noCommentsFound" />
 </div>
 
-<div ng-if="commentArr.length > 0">
+<div v-if="commentData.comments.length > 0">
 
     <%-- ============================================================= --%>
     <%-- Number of comments and date message --%>
@@ -124,13 +123,13 @@
 
         <div class="tablenav">
 
-        <div style="float:left" ng-bind-html="ctrl.nowShowingMsg"></div>
+        <div style="float:left" v-html="nowShowingMsg"></div>
 
-        <span ng-if="commentArr.length > 0">
+        <span v-if="commentData.comments.length > 0">
             <div style="float:right;">
-                {{commentArr[0].postTime | date:'short'}}
+                {{commentData.comments[0].postTime}}
                 ---
-                {{commentArr[commentArr.length - 1].postTime | date:'short'}}
+                {{commentData.comments[commentData.comments.length - 1].postTime}}
             </div>
         </span>
         <br><br>
@@ -140,14 +139,14 @@
         <%-- Next / previous links --%>
         <%-- ============================================================= --%>
 
-        <span ng-if="ctrl.pageNum > 0 || ctrl.commentData.hasMore" ng-cloak>
+        <span v-if="pageNum > 0 || commentData.hasMore" v-cloak>
             <center>
                 &laquo;
                 <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
-                    ng-disabled="ctrl.pageNum <= 0" ng-click="ctrl.previousPage()">
+                    v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
                 |
                 <input type="button" value="<fmt:message key='weblogEntryQuery.next'/>"
-                    ng-disabled="!ctrl.commentData.hasMore" ng-click="ctrl.nextPage()">
+                    v-bind:disabled="!commentData.hasMore" v-on:click="nextPage()">
                 &raquo;
             </center>
         </span>
@@ -178,18 +177,18 @@
         <%-- ========================================================= --%>
 
         <tbody>
-            <tr ng-repeat="comment in commentArr">
+            <tr v-for="comment in commentData.comments">
                 <td>
-                    <input ng-if="comment.status == 'SPAM' || comment.status == 'DISAPPROVED' || comment.status == 'PENDING'"
-                        type="button" value="<fmt:message key='comments.approve'/>" ng-click="ctrl.approveComment(comment)"/>
-                    <input ng-if="comment.status == 'APPROVED'"
-                        type="button" value="<fmt:message key='comments.hide'/>" ng-click="ctrl.hideComment(comment)"/>
+                    <input v-if="comment.status == 'SPAM' || comment.status == 'DISAPPROVED' || comment.status == 'PENDING'"
+                        type="button" value="<fmt:message key='comments.approve'/>" v-on:click="approveComment(comment)"/>
+                    <input v-if="comment.status == 'APPROVED'"
+                        type="button" value="<fmt:message key='comments.hide'/>" v-on:click="hideComment(comment)"/>
                 </td>
                 <td>
-                    <input type="button" value="<fmt:message key='generic.delete'/>" ng-click="ctrl.deleteComment(comment)"/>
+                    <input type="button" value="<fmt:message key='generic.delete'/>" v-on:click="deleteComment(comment)"/>
                 </td>
 
-                <td ng-class="{SPAM : 'spamcomment', PENDING : 'pendingcomment', DISAPPROVED : 'pendingcomment'}[comment.status]">
+                <td v-bind:class="commentStatusClass(comment.status)">
 
                     <%-- comment details table in table --%>
                     <table class="innertable" >
@@ -198,34 +197,34 @@
                             <div class="viewdetails bot">
                                 <div class="details">
                                     <fmt:message key="comments.entryTitled" />:&nbsp;
-                                    <a ng-href='{{comment.weblogEntry.permalink}}' target="_blank">{{comment.weblogEntry.title}}</a>
+                                    <a v-bind:href='comment.weblogEntry.permalink' target="_blank">{{comment.weblogEntry.title}}</a>
                                 </div>
                                 <div class="details">
                                     <fmt:message key="comments.commentBy" />:&nbsp;
-                                    <span ng-bind-html="ctrl.getCommentHeader(comment)"></span>
+                                    <span v-html="getCommentHeader(comment)"></span>
                                 </div>
-                                <span ng-if="comment.url">
+                                <span v-if="comment.url">
                                     <div class="details">
                                         <fmt:message key="comments.commentByURL" />:&nbsp;
-                                        <a ng-href='{{comment.url}}'>
-                                        {{comment.url | limitTo:60}}{{comment.url.length > 60 ? '...' : ''}}
+                                        <a v-href='comment.url'>
+                                        {{comment.url}}
                                         </a>
                                     </div>
                                 </span>
                                 <div class="details">
-                                    <fmt:message key="comments.postTime" />: {{comment.postTime | date:'short'}}
+                                    <fmt:message key="comments.postTime" />: {{comment.postTime}}
                                 </div>
                             </div>
                             <div class="viewdetails bot">
                                  <div class="details bot">
-                                      <textarea style='width:100%' rows='10' ng-model="comment.content" ng-readonly="!comment.editable"></textarea>
+                                      <textarea style='width:100%' rows='10' v-model="comment.content" v-bind:readonly="!comment.editable"></textarea>
                                  </div>
-                                 <div class="details" ng-show="!comment.editable">
-                                      <a ng-click="ctrl.editComment(comment)"><fmt:message key="generic.edit"/></a>
+                                 <div class="details" v-show="!comment.editable">
+                                      <a v-on:click="editComment(comment)"><fmt:message key="generic.edit"/></a>
                                  </div>
-                                 <div class="details" ng-show="comment.editable">
-                                      <a ng-click="ctrl.saveComment(comment)"><fmt:message key="generic.save"/></a> &nbsp;|&nbsp;
-                                      <a ng-click="ctrl.editCommentCancel(comment)"><fmt:message key="generic.cancel"/></a>
+                                 <div class="details" v-show="comment.editable">
+                                      <a v-on:click="saveComment(comment)"><fmt:message key="generic.save"/></a> &nbsp;|&nbsp;
+                                      <a v-on:click="editCommentCancel(comment)"><fmt:message key="generic.cancel"/></a>
                                  </div>
                             </div>
                         </tr>
@@ -236,3 +235,7 @@
     </table>
     <br>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/comments.js'/>"></script>
