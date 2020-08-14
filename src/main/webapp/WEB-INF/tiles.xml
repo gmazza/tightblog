@@ -155,7 +155,7 @@
         <put-attribute name="useAngularHeader" value="true"/>
     </definition>
 
-    <definition name=".comments" extends=".tiles-tabbedpage" >
+    <definition name=".comments" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Comments.jsp" />
     </definition>
 

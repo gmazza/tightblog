@@ -70,7 +70,7 @@
             <tr>
                 <td width="20%" align="right"><fmt:message key="login.totpCode" /></td>
                 <td width="80%">
-                    <input type="text" name="totpCode" size="20" onBlur="this.value=this.value.trim()"/>
+                    <input type="text" name="totpCode" size="20" onBlur="this.value=this.value.trim()" autocomplete="off"/>
                 </td>
             </tr>
         </c:if>

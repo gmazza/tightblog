@@ -1,6 +1,5 @@
 Vue.component('date-picker', {
     template: '<input type="text" size="12" readonly/>',
-    props: [ 'dpName' ],
     mounted: function() {
         var self = this;
         $(this.$el).datepicker({
@@ -15,9 +14,9 @@ Vue.component('date-picker', {
         });
     },
     beforeDestroy: function() {
-      $(this.$el).datepicker('hide').datepicker('destroy');
+        $(this.$el).datepicker('hide').datepicker('destroy');
     }
-  });
+});
   
 var vm = new Vue({
     el: '#template',

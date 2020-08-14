@@ -17,11 +17,13 @@ package org.tightblog.bloggerui.controller;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.bloggerui.model.CommentData;
 import org.tightblog.service.EmailService;
@@ -149,12 +151,14 @@ public class CommentController {
 
     @PostMapping(value = "/{id}/approve")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void approveComment(@PathVariable String id, Principal p) {
         changeApprovalStatus(id, ApprovalStatus.APPROVED);
     }
 
     @PostMapping(value = "/{id}/hide")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void hideComment(@PathVariable String id, Principal p) {
         changeApprovalStatus(id, ApprovalStatus.DISAPPROVED);
     }
