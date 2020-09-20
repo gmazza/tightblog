@@ -138,7 +138,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileView.jsp" />
     </definition>
 
-    <definition name=".entryEdit" extends=".tiles-tabbedpage" >
+    <definition name=".entryEdit" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
         <put-attribute name="sidebar" value="/WEB-INF/jsps/editor/EntrySidebar.jsp" />
         <put-attribute name="sidebarType"  value="sidebar" />

@@ -160,6 +160,9 @@ var vm = new Vue({
         },    
         messageClear: function() {
             this.errorObj = {};
+        },
+        formatDate: function(isoDate) {
+            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
         },    
         commonErrorResponse: function(error) {
             if (error.response.status == 408) {

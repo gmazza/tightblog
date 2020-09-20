@@ -23,6 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.36/dayjs.min.js"></script>
 
 <script>
    var contextPath = "${pageContext.request.contextPath}";
@@ -75,13 +76,13 @@
 
   <tr>
       <td class="label"><fmt:message key="userSettings.accountCreateDate" /></td>
-      <td class="field">{{userBeingEdited.dateCreated}}</td>
+      <td class="field">{{ formatDate(userBeingEdited.dateCreated) }}</td>
       <td class="description"></td>
   </tr>
 
   <tr>
       <td class="label"><fmt:message key="userSettings.lastLogin" /></td>
-      <td class="field">{{userBeingEdited.lastLogin}}</td>
+      <td class="field">{{ formatDate(userBeingEdited.lastLogin) }}</td>
       <td class="description"></td>
   </tr>
 

@@ -26,6 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.36/dayjs.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -117,12 +118,12 @@
     <span v-if="entriesData.entries.length > 0">
         <div style="float:right;">
             <span v-if="entriesData.entries[0].pubTime != null">
-                {{entriesData.entries[0].pubTime}}
+                {{ formatDate(entriesData.entries[0].pubTime) }}
             </span>
             ---
             <span v-if="entriesData.entries[entriesData.entries.length - 1].pubTime != null">
-                {{entriesData.entries[entriesData.entries.length - 1].pubTime}}
-            </span>
+                {{ formatDate(entriesData.entries[entriesData.entries.length - 1].pubTime) }}
+           </span>
         </div>
     </span>
     <br><br>
@@ -181,13 +182,13 @@
 
             <td>
                 <span v-if="entry.pubTime != null">
-                  {{entry.pubTime}}
+                    {{ formatDate(entry.pubTime) }}
                 </span>
             </td>
 
             <td>
                 <span v-if="entry.updateTime != null">
-                  {{entry.updateTime}}
+                    {{ formatDate(entry.updateTime) }}
                 </span>
             </td>
 

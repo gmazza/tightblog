@@ -66,117 +66,119 @@ $(function() {
     });
 });
 
-tightblogApp.requires.push('ngSanitize');
-
-tightblogApp.controller('PageController', ['$http', '$interpolate', '$sce',
-    function PageController($http, $interpolate, $sce) {
-        var self = this;
-        this.recentEntries = {};
-        this.urlRoot = contextPath + '/tb-ui/authoring/rest/weblogentries/';
-        this.entry = { commentCountIncludingUnapproved : 0, category : {} };
-        this.errorObj = {};
-
-        this.getRecentEntries = function(entryType) {
-            $http.get(this.urlRoot + weblogId + '/recententries/' + entryType).then(
-              function(response) {
-                 self.recentEntries[entryType] = response.data;
-              }
-            )
-        };
-
-        this.loadMetadata = function() {
-            $http.get(this.urlRoot + weblogId + '/entryeditmetadata').then(
-            function(response) {
-                self.metadata = response.data;
-                if (!entryId) {
+var vm = new Vue({
+    el: '#template',
+    data: {
+        entry: {
+            commentCountIncludingUnapproved: 0,
+            category: {}
+        },
+        errorObj: {},
+        entryId: entryIdParam,
+        successMessage: null,
+        recentEntries: {},
+        metadata: {},
+        urlRoot: contextPath + '/tb-ui/authoring/rest/weblogentries/'
+    },
+    methods: {
+       getRecentEntries: function(entryType) {
+            axios
+            .get(this.urlRoot + weblogId + '/recententries/' + entryType)
+            .then(response => {
+                 this.recentEntries[entryType] = response.data;
+            })
+        },
+        loadMetadata: function() {
+            axios
+            .get(this.urlRoot + weblogId + '/entryeditmetadata')
+            .then(response => {
+                this.metadata = response.data;
+                if (!this.entryId) {
                     // new entry init
-                    self.entry.category.id = Object.keys(self.metadata.categories)[0];
-                    self.entry.commentDays = "" + self.metadata.defaultCommentDays;
-                    self.entry.editFormat = self.metadata.defaultEditFormat;
+                    this.entry.category.id = Object.keys(this.metadata.categories)[0];
+                    this.entry.commentDays = "" + this.metadata.defaultCommentDays;
+                    this.entry.editFormat = this.metadata.defaultEditFormat;
                 }
-              },
-              self.commonErrorResponse
-            )
-        };
-
-        this.getEntry = function() {
-            $http.get(this.urlRoot + entryId).then(
-              function(response) {
-                 self.entry = response.data;
-                 self.commentCountMsg = $sce.trustAsHtml($interpolate(msg.commentCountTmpl)
-                    ({commentCount:self.entry.commentCountIncludingUnapproved}));
-                 self.entry.commentDays = "" + self.entry.commentDays;
-              }
-            )
-        };
-
-        this.saveEntry = function(saveType) {
+            })
+            .catch(error => commonErrorResponse(error))
+        },
+        getEntry: function() {
+            axios
+            .get(this.urlRoot + this.entryId)
+            .then(response => {
+                 this.entry = response.data;
+                 var commentCount = this.entry.commentCountIncludingUnapproved;
+                 this.commentCountMsg = eval('`' + msg.commentCountTmpl + '`');
+                 this.entry.commentDays = "" + this.entry.commentDays;
+            });
+        },
+        saveEntry: function(saveType) {
             this.messageClear();
             var urlStem = weblogId + '/entries';
 
-            oldStatus = self.entry.status;
-            self.entry.status = saveType;
+            oldStatus = this.entry.status;
+            this.entry.status = saveType;
 
-            $http.post(self.urlRoot + urlStem, JSON.stringify(self.entry)).then(
-              function(response) {
-                entryId = response.data.entryId;
-                self.successMessage = response.data.message;
-                self.errorObj = {};
-                self.loadRecentEntries();
-                self.getEntry();
+            axios
+            .post(this.urlRoot + urlStem, this.entry)
+            .then(response => {
+                this.entryId = response.data.entryId;
+                this.successMessage = response.data.message;
+                this.errorObj = {};
+                this.loadRecentEntries();
+                this.getEntry();
                 window.scrollTo(0, 0);
-              },
-             function(response) {
-               self.entry.status = oldStatus;
-               if (response.status == 408) {
-                 self.errorObj.errorMessage = $sce.trustAsHtml($interpolate(msg.sessionTimeoutTmpl)({loginUrl}));
+            })
+            .catch(error => {
+               this.entry.status = oldStatus;
+               if (error.response.status == 408) {
+                 this.errorObj.errorMessage = eval('`' + msg.sessionTimeoutTmpl + '`');
                  window.scrollTo(0, 0);
                } else {
-                 self.commonErrorResponse(response);
+                 this.commonErrorResponse(error);
                }
             })
-        };
-
-        this.previewEntry = function() {
-            window.open(self.entry.previewUrl);
-        }
-
-        this.deleteWeblogEntry = function() {
+        },
+        previewEntry: function() {
+            window.open(this.entry.previewUrl);
+        },
+        deleteWeblogEntry: function() {
             $('#deleteWeblogEntryModal').modal('hide');
 
-            $http.delete(this.urlRoot + entryId).then(
-                function(response) {
+            axios
+            .delete(this.urlRoot + this.entryId)
+            .then(response => {
                     document.location.href=newEntryUrl;
-                },
-                self.commonErrorResponse
-            )
-        }
-
-        this.loadRecentEntries = function() {
+            })
+            .catch(error => this.commonErrorResponse(error));
+        },
+        loadRecentEntries: function() {
             this.getRecentEntries('DRAFT');
             this.getRecentEntries('PUBLISHED');
             this.getRecentEntries('SCHEDULED');
             this.getRecentEntries('PENDING');
-        }
-
-        this.messageClear = function() {
+        },
+        formatDate: function(isoDate) {
+            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+        },
+        messageClear: function() {
             this.successMessage = null;
             this.errorObj = {};
-        }
-
-        this.commonErrorResponse = function(response) {
-            if (response.status == 408) {
+        },
+        commonErrorResponse: function(error) {
+            if (error.response.status == 408) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
-               self.errorObj = response.data;
+               this.errorObj = error.response.data;
                window.scrollTo(0, 0);
             }
         }
-
+    },
+    mounted: function() {
         this.loadMetadata();
         this.loadRecentEntries();
-        if (entryId) {
+        if (this.entryId) {
             this.getEntry();
         }
-    }]
-);
+    }
+});

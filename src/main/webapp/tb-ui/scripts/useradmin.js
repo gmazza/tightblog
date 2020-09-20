@@ -95,6 +95,9 @@ var vm = new Vue({
             this.userBeingEdited = null;
             this.userCredentials = null;
         },
+        formatDate: function(isoDate) {
+            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+        },
         messageClear: function() {
             this.successMessage = null;
             this.errorObj = {};
