@@ -38,6 +38,10 @@
         <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
+    <definition name=".tiles-vue-manualpage" template="/WEB-INF/jsps/tiles/tiles-manualpage.jsp" 
+        extends=".tiles-vue-tabbedpage">
+    </definition>
+
     <definition name=".tiles-simplepage" template="/WEB-INF/jsps/tiles/tiles-simplepage.jsp">
         <put-attribute name="bannerStatus" value="/WEB-INF/jsps/tiles/bannerStatus.jsp" />
         <put-attribute name="head"         value="/WEB-INF/jsps/tiles/head.jsp" />
@@ -138,16 +142,12 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileView.jsp" />
     </definition>
 
-    <definition name=".entryEdit" extends=".tiles-vue-tabbedpage" >
+    <definition name=".entryEdit" extends=".tiles-vue-manualpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
-        <put-attribute name="sidebar" value="/WEB-INF/jsps/editor/EntrySidebar.jsp" />
-        <put-attribute name="sidebarType"  value="sidebar" />
     </definition>
 
-    <definition name=".entryAdd" extends=".tiles-tabbedpage" >
+    <definition name=".entryAdd" extends=".tiles-vue-manualpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
-        <put-attribute name="sidebar" value="/WEB-INF/jsps/editor/EntrySidebar.jsp" />
-        <put-attribute name="sidebarType"  value="sidebar" />
     </definition>
 
     <definition name=".entries" extends=".tiles-vue-tabbedpage" >

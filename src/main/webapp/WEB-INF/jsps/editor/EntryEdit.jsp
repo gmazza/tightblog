@@ -43,6 +43,11 @@
 
 <div id="template">
 
+ <div id="content">
+    <div id="sidebar_maincontent_wrap">
+        <div id="maincontent">
+
+
 <div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
     {{successMessage}}
     <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
@@ -265,6 +270,91 @@
     </div>
   </div>
 </div>
+
+</div></div>
+
+<div id="sidebar_rightcontent_wrap">
+    <div id="rightcontent">
+
+<div class="sidebarFade">
+    <div class="menu-tr">
+        <div class="menu-tl">
+
+            <div class="sidebarInner" v-cloak>
+
+                <h3><fmt:message key="entryEdit.comments" /></h3>
+
+                <div v-show="entry.commentCountIncludingUnapproved > 0">
+                    <a v-bind:href="entry.commentsUrl" v-html="commentCountMsg"></a>
+                </div>
+                <div v-show="entry.commentCountIncludingUnapproved == 0">
+                    <fmt:message key="generic.none" />
+                </div>
+
+                <div v-if="recentEntries.PENDING && recentEntries.PENDING.length > 0">
+                    <hr size="1" noshade="noshade" />
+                    <h3><fmt:message key="entryEdit.pendingEntries" /></h3>
+
+                    <span v-for="post in recentEntries.PENDING">
+                        <span class="entryEditSidebarLink">
+                            <img src='${pageContext.request.contextPath}/images/table_edit.png'
+                                 align="absmiddle" border="0" alt="icon" title="Edit" />
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
+                        </span>
+                        <br>
+                    </span>
+                </div>
+
+                <div v-if="recentEntries.DRAFT && recentEntries.DRAFT.length > 0">
+                    <hr size="1" noshade="noshade" />
+                    <h3><fmt:message key="entryEdit.draftEntries" /></h3>
+
+                    <span v-for="post in recentEntries.DRAFT">
+                        <span class="entryEditSidebarLink">
+                            <img src='${pageContext.request.contextPath}/images/table_edit.png'
+                                 align="absmiddle" border="0" alt="icon" title="Edit" />
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
+                        </span>
+                        <br>
+                    </span>
+                </div>
+
+                <div v-if="recentEntries.PUBLISHED && recentEntries.PUBLISHED.length > 0">
+                    <hr size="1" noshade="noshade" />
+                    <h3><fmt:message key="entryEdit.publishedEntries" /></h3>
+
+                    <span v-for="post in recentEntries.PUBLISHED">
+                        <span class="entryEditSidebarLink">
+                            <img src='${pageContext.request.contextPath}/images/table_edit.png'
+                                 align="absmiddle" border="0" alt="icon" title="Edit" />
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
+                        </span>
+                        <br>
+                    </span>
+                </div>
+
+                <div v-if="recentEntries.SCHEDULED && recentEntries.SCHEDULED.length > 0">
+                    <hr size="1" noshade="noshade" />
+                    <h3><fmt:message key="entryEdit.scheduledEntries" /></h3>
+
+                    <span v-for="post in recentEntries.SCHEDULED">
+                        <span class="entryEditSidebarLink">
+                            <img src='${pageContext.request.contextPath}/images/table_edit.png'
+                                 align="absmiddle" border="0" alt="icon" title="Edit" />
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
+                        </span>
+                        <br>
+                    </span>
+                </div>
+
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div></div></div>
 
 </div>
 
