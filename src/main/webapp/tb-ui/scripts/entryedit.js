@@ -76,6 +76,7 @@ var vm = new Vue({
         errorObj: {},
         entryId: entryIdParam,
         successMessage: null,
+        commentCountMsg: null,
         recentEntries: {},
         metadata: {},
         urlRoot: contextPath + '/tb-ui/authoring/rest/weblogentries/'
