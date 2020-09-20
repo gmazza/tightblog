@@ -21,15 +21,17 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <link rel="stylesheet" media="all" href='<c:url value="/tb-ui/jquery-ui-1.11.4/jquery-ui.min.css"/>' />
 
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-sanitize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.36/dayjs.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var weblogId = "<c:out value='${actionWeblog.id}'/>";
-    var entryId = "<c:out value='${param.entryId}'/>";
+    var entryIdParam = "<c:out value='${param.entryId}'/>";
     var newEntryUrl = "<c:url value='/tb-ui/app/authoring/entryAdd'/>?weblogId=" + weblogId;
     var loginUrl = "<c:url value='/tb-ui/app/login-redirect'/>";
     var msg = {
@@ -39,22 +41,21 @@
     };
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/entryedit.js'/>"></script>
+<div id="template">
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
+    {{successMessage}}
+    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+        <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
@@ -66,7 +67,7 @@
                 <label for="title"><fmt:message key="entryEdit.entryTitle" /></label>
             </td>
             <td>
-                <input id="title" type="text" ng-model="ctrl.entry.title" maxlength="255" tabindex="1" style="width:60%" autocomplete="off">
+                <input id="title" type="text" v-model="entry.title" maxlength="255" tabindex="1" style="width:60%" autocomplete="off">
             </td>
         </tr>
 
@@ -74,41 +75,41 @@
             <td class="entryEditFormLabel">
                 <fmt:message key="entryEdit.status" />
             </td>
-            <td ng-cloak>
+            <td v-cloak>
                 <fmt:message key="generic.date.toStringFormat" var="dateFormat"/>
-                <span ng-show="ctrl.entry.status == 'PUBLISHED'" style="color:green; font-weight:bold">
+                <span v-show="entry.status == 'PUBLISHED'" style="color:green; font-weight:bold">
                     <fmt:message key="entryEdit.published" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ctrl.entry.updateTime | date:'short'}})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
                 </span>
-                <span ng-show="ctrl.entry.status == 'DRAFT'" style="color:orange; font-weight:bold">
+                <span v-show="entry.status == 'DRAFT'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.draft" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ctrl.entry.updateTime | date:'short'}})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
                 </span>
-                <span ng-show="ctrl.entry.status == 'PENDING'" style="color:orange; font-weight:bold">
+                <span v-show="entry.status == 'PENDING'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.pending" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ctrl.entry.updateTime | date:'short'}})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
                 </span>
-                <span ng-show="ctrl.entry.status == 'SCHEDULED'" style="color:orange; font-weight:bold">
+                <span v-show="entry.status == 'SCHEDULED'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.scheduled" />
-                    (<fmt:message key="entryEdit.updateTime"/> {{ctrl.entry.updateTime | date:'short'}})
+                    (<fmt:message key="entryEdit.updateTime"/> {{ formatDate(entry.updateTime) }})
                 </span>
-                <span ng-show="!ctrl.entry.status" style="color:red; font-weight:bold">
+                <span v-show="!entry.status" style="color:red; font-weight:bold">
                     <fmt:message key="entryEdit.unsaved" />
                 </span>
             </td>
         </tr>
 
-        <tr ng-show="ctrl.entry.id" ng-cloak>
+        <tr v-show="entry.id" v-cloak>
             <td class="entryEditFormLabel">
                 <label for="permalink"><fmt:message key="entryEdit.permalink" /></label>
             </td>
             <td>
-                <span ng-show="ctrl.entry.status == 'PUBLISHED'">
-                    <a id="permalink" ng-href='{{ctrl.entry.permalink}}' target="_blank">{{ctrl.entry.permalink}}</a>
+                <span v-show="entry.status == 'PUBLISHED'">
+                    <a id="permalink" v-bind:href='entry.permalink' target="_blank">{{entry.permalink}}</a>
                     <img src='<c:url value="/images/launch-link.png"/>' />
                 </span>
-                <span ng-show="ctrl.entry.status != 'PUBLISHED'">
-                    {{ctrl.entry.permalink}}
+                <span v-show="entry.status != 'PUBLISHED'">
+                    {{entry.permalink}}
                 </span>
             </td>
         </tr>
@@ -117,9 +118,9 @@
             <td class="entryEditFormLabel">
                 <label for="categoryId"><fmt:message key="generic.category" /></label>
             </td>
-            <td ng-cloak>
-                <select id="categoryId" ng-model="ctrl.entry.category.id" size="1" required>
-                   <option ng-repeat="(key, value) in ctrl.metadata.categories" value="{{key}}">{{value}}</option>
+            <td v-cloak>
+                <select id="categoryId" v-model="entry.category.id" size="1" required>
+                   <option v-for="(value, key) in metadata.categories" v-bind:value="key">{{value}}</option>
                 </select>
             </td>
         </tr>
@@ -129,18 +130,18 @@
                 <label for="tags"><fmt:message key="generic.tags" /></label>
             </td>
             <td>
-                <input id="tags" type="text" cssClass="entryEditTags" ng-model="ctrl.entry.tagsAsString"
+                <input id="tags" type="text" cssClass="entryEditTags" v-model="entry.tagsAsString"
                     maxlength="255" tabindex="3" style="width:60%">
             </td>
         </tr>
 
-        <tr ng-cloak>
+        <tr v-cloak>
             <td class="entryEditFormLabel">
                 <label for="title"><fmt:message key="entryEdit.editFormat" /></label>
             </td>
-            <td ng-cloak>
-                <select ng-model="ctrl.entry.editFormat" size="1" required>
-                   <option ng-repeat="(key, value) in ctrl.metadata.editFormats" value="{{key}}">{{value}}</option>
+            <td v-cloak>
+                <select v-model="entry.editFormat" size="1" required>
+                   <option v-for="(value, key) in metadata.editFormats" v-bind:value="key">{{value}}</option>
                 </select>
             </td>
         </tr>
@@ -157,15 +158,15 @@
             <fmt:message key="entryEdit.content" />
         </h3>
         <div>
-            <textarea id="edit_content" cols="75" rows="25" style="width:100%" ng-model="ctrl.entry.text" tabindex="5"></textarea>
+            <textarea id="edit_content" cols="75" rows="25" style="width:100%" v-model="entry.text" tabindex="5"></textarea>
         </div>
         <h3><fmt:message key="entryEdit.summary"/><tags:help key="entryEdit.summary.tooltip"/></h3>
         <div>
-            <textarea id="edit_summary" cols="75" rows="10" style="width:100%" ng-model="ctrl.entry.summary" tabindex="6"></textarea>
+            <textarea id="edit_summary" cols="75" rows="10" style="width:100%" v-model="entry.summary" tabindex="6"></textarea>
         </div>
         <h3><fmt:message key="entryEdit.notes"/><tags:help key="entryEdit.notes.tooltip"/></h3>
         <div>
-            <textarea id="edit_notes" cols="75" rows="10" style="width:100%" ng-model="ctrl.entry.notes" tabindex="7"></textarea>
+            <textarea id="edit_notes" cols="75" rows="10" style="width:100%" v-model="entry.notes" tabindex="7"></textarea>
         </div>
     </div>
 
@@ -178,20 +179,20 @@
 
     <label for="link"><fmt:message key="entryEdit.specifyPubTime" />:</label>
     <div>
-        <input type="number" min="0" max="23" step="1" ng-model="ctrl.entry.hours"/>
+        <input type="number" min="0" max="23" step="1" v-model="entry.hours"/>
         :
-        <input type="number" min="0" max="59" step="1" ng-model="ctrl.entry.minutes"/>
+        <input type="number" min="0" max="59" step="1" v-model="entry.minutes"/>
         &nbsp;&nbsp;
-        <input type="text" id="publishDateString" size="12" readonly ng-model="ctrl.entry.dateString"/>
-        {{ctrl.metadata.timezone}}
+        <input type="text" id="publishDateString" size="12" readonly v-model="entry.dateString"/>
+        {{metadata.timezone}}
     </div>
     <br />
 
-    <span ng-show="ctrl.metadata.commentingEnabled">
+    <span v-show="metadata.commentingEnabled">
         <fmt:message key="entryEdit.allowComments" />
         <fmt:message key="entryEdit.commentDays" />
-        <select id="commentDaysId" ng-model="ctrl.entry.commentDays" size="1" required>
-           <option ng-repeat="(key, value) in ctrl.metadata.commentDayOptions" value="{{key}}">{{value}}</option>
+        <select id="commentDaysId" v-model="entry.commentDays" size="1" required>
+           <option v-for="(value, key) in metadata.commentDayOptions" v-bind:value="key">{{value}}</option>
         </select>
         <br />
     </span>
@@ -201,20 +202,20 @@
     <table>
         <tr>
             <td><fmt:message key="entryEdit.searchDescription" />:<tags:help key="entryEdit.searchDescription.tooltip"/></td>
-            <td style="width:75%"><input type="text" style="width:100%" maxlength="255" ng-model="ctrl.entry.searchDescription"></td>
+            <td style="width:75%"><input type="text" style="width:100%" maxlength="255" v-model="entry.searchDescription"></td>
         </tr>
         <tr>
             <td><fmt:message key="entryEdit.enclosureURL" />:<tags:help key="entryEdit.enclosureURL.tooltip"/></td>
-            <td><input type="text" style="width:100%" maxlength="255" ng-model="ctrl.entry.enclosureUrl"></td>
+            <td><input type="text" style="width:100%" maxlength="255" v-model="entry.enclosureUrl"></td>
         </tr>
-        <tr ng-show="entryId">
+        <tr v-show="entryId">
             <td></td>
             <td>
-                <span ng-show="ctrl.entry.enclosureType">
-                    <fmt:message key="entryEdit.enclosureType" />: {{ctrl.entry.enclosureType}}
+                <span v-show="entry.enclosureType">
+                    <fmt:message key="entryEdit.enclosureType" />: {{entry.enclosureType}}
                 </span>
-                <span ng-show="ctrl.entry.enclosureLength">
-                    <fmt:message key="entryEdit.enclosureLength" />: {{ctrl.entry.enclosureLength}}
+                <span v-show="entry.enclosureLength">
+                    <fmt:message key="entryEdit.enclosureLength" />: {{entry.enclosureLength}}
                 </span>
             </td>
         </tr>
@@ -226,20 +227,20 @@
     <br>
     <div class="control">
         <span style="padding-left:7px">
-            <input type="button" value="<fmt:message key='entryEdit.save'/>" ng-click="ctrl.saveEntry('DRAFT')"/>
-            <span ng-show="ctrl.entry.id">
-                <input type="button" value="<fmt:message key='entryEdit.fullPreviewMode' />" ng-click="ctrl.previewEntry()" />
+            <input type="button" value="<fmt:message key='entryEdit.save'/>" v-on:click="saveEntry('DRAFT')"/>
+            <span v-show="entry.id">
+                <input type="button" value="<fmt:message key='entryEdit.fullPreviewMode' />" v-on:click="previewEntry()" />
             </span>
-            <span ng-show="ctrl.metadata.author">
-                <input type="button" value="<fmt:message key='entryEdit.post'/>" ng-click="ctrl.saveEntry('PUBLISHED')"/>
+            <span v-show="metadata.author">
+                <input type="button" value="<fmt:message key='entryEdit.post'/>" v-on:click="saveEntry('PUBLISHED')"/>
             </span>
-            <span ng-show="!ctrl.metadata.author">
-                <input type="button" value="<fmt:message key='entryEdit.submitForReview'/>" ng-click="ctrl.saveEntry('PENDING')"/>
+            <span v-show="!metadata.author">
+                <input type="button" value="<fmt:message key='entryEdit.submitForReview'/>" v-on:click="saveEntry('PENDING')"/>
             </span>
         </span>
 
-        <span style="float:right" ng-show="ctrl.entry.id">
-            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" data-title="{{ctrl.entry.title}}" data-toggle="modal" data-target="#deleteEntryModal"/>
+        <span style="float:right" v-show="entry.id">
+            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" v-bind:data-title="entry.title" data-toggle="modal" data-target="#deleteEntryModal"/>
         </span>
     </div>
 </div>
@@ -259,8 +260,12 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteWeblogEntry()"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" v-on:click="deleteWeblogEntry()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/entryedit.js'/>"></script>

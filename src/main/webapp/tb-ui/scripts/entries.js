@@ -113,6 +113,9 @@ var vm = new Vue({
         updateEndDate: function(date) {
             this.searchParams.endDateString = date;
         },
+        formatDate: function(isoDate) {
+            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+        },
         commonErrorResponse: function(error) {
             if (error.response.status == 408) {
                window.location.replace($('#refreshURL').attr('value'));

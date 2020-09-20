@@ -26,6 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
 <script src="<c:url value='/tb-ui/jquery-ui-1.11.4/jquery-ui.min.js'/>"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.36/dayjs.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -127,9 +128,9 @@
 
         <span v-if="commentData.comments.length > 0">
             <div style="float:right;">
-                {{commentData.comments[0].postTime}}
+                {{ formatDate(commentData.comments[0].postTime) }}
                 ---
-                {{commentData.comments[commentData.comments.length - 1].postTime}}
+                {{ formatDate(commentData.comments[commentData.comments.length - 1].postTime) }}
             </div>
         </span>
         <br><br>
@@ -212,7 +213,7 @@
                                     </div>
                                 </span>
                                 <div class="details">
-                                    <fmt:message key="comments.postTime" />: {{comment.postTime}}
+                                    <fmt:message key="comments.postTime" />: {{ formatDate(comment.postTime) }}
                                 </div>
                             </div>
                             <div class="viewdetails bot">

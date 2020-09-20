@@ -24,68 +24,68 @@
     <div class="menu-tr">
         <div class="menu-tl">
             
-            <div class="sidebarInner" ng-cloak>
+            <div class="sidebarInner" v-cloak>
                 
                 <h3><fmt:message key="entryEdit.comments" /></h3>
 
-                <div ng-show="ctrl.entry.commentCountIncludingUnapproved > 0">
-                    <a ng-href="{{ctrl.entry.commentsUrl}}" ng-bind-html="ctrl.commentCountMsg"></a>
+                <div v-show="entry.commentCountIncludingUnapproved > 0">
+                    <a v-bind:href="entry.commentsUrl" v-html="commentCountMsg"></a>
                 </div>
-                <div ng-show="ctrl.entry.commentCountIncludingUnapproved == 0">
+                <div v-show="entry.commentCountIncludingUnapproved == 0">
                     <fmt:message key="generic.none" />
                 </div>
                 
-                <div ng-show="ctrl.recentEntries.PENDING.length > 0">
+                <div v-show="recentEntries.PENDING.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.pendingEntries" /></h3>
 
-                    <span ng-repeat="post in ctrl.recentEntries.PENDING">
+                    <span v-for="post in recentEntries.PENDING">
                         <span class="entryEditSidebarLink">
                             <img src='${pageContext.request.contextPath}/images/table_edit.png'
                                  align="absmiddle" border="0" alt="icon" title="Edit" />
-                            <a ng-href="{{post.editUrl}}">{{post.title | limitTo:50}}{{post.title > 50 ? '...' : ''}}</a>
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
                         </span>
                         <br>
                     </span>
                 </div>
 
-                <div ng-show="ctrl.recentEntries.DRAFT.length > 0">
+                <div v-show="recentEntries.DRAFT.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.draftEntries" /></h3>
 
-                    <span ng-repeat="post in ctrl.recentEntries.DRAFT">
+                    <span v-for="post in recentEntries.DRAFT">
                         <span class="entryEditSidebarLink">
                             <img src='${pageContext.request.contextPath}/images/table_edit.png'
                                  align="absmiddle" border="0" alt="icon" title="Edit" />
-                            <a ng-href="{{post.editUrl}}">{{post.title | limitTo:50}}{{post.title > 50 ? '...' : ''}}</a>
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
                         </span>
                         <br>
                     </span>
                 </div>
 
-                <div ng-show="ctrl.recentEntries.PUBLISHED.length > 0">
+                <div v-show="recentEntries.PUBLISHED.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.publishedEntries" /></h3>
 
-                    <span ng-repeat="post in ctrl.recentEntries.PUBLISHED">
+                    <span v-for="post in recentEntries.PUBLISHED">
                         <span class="entryEditSidebarLink">
                             <img src='${pageContext.request.contextPath}/images/table_edit.png'
                                  align="absmiddle" border="0" alt="icon" title="Edit" />
-                            <a ng-href="{{post.editUrl}}">{{post.title | limitTo:50}}{{post.title > 50 ? '...' : ''}}</a>
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
                         </span>
                         <br>
                     </span>
                 </div>
 
-                <div ng-show="ctrl.recentEntries.SCHEDULED.length > 0">
+                <div v-show="recentEntries.SCHEDULED.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.scheduledEntries" /></h3>
 
-                    <span ng-repeat="post in ctrl.recentEntries.SCHEDULED">
+                    <span v-for="post in recentEntries.SCHEDULED">
                         <span class="entryEditSidebarLink">
                             <img src='${pageContext.request.contextPath}/images/table_edit.png'
                                  align="absmiddle" border="0" alt="icon" title="Edit" />
-                            <a ng-href="{{post.editUrl}}">{{post.title | limitTo:50}}{{post.title > 50 ? '...' : ''}}</a>
+                            <a v-bind:href="post.editUrl">{{post.title}}</a>
                         </span>
                         <br>
                     </span>
