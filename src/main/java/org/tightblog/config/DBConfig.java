@@ -19,7 +19,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
-import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -44,9 +43,8 @@ public class DBConfig extends JpaBaseConfiguration {
 
     @Autowired
     protected DBConfig(DataSource dataSource, JpaProperties properties,
-                                       ObjectProvider<JtaTransactionManager> jtaTransactionManagerProvider,
-                                       ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
-        super(dataSource, properties, jtaTransactionManagerProvider, transactionManagerCustomizers);
+                                       ObjectProvider<JtaTransactionManager> jtaTransactionManagerProvider) {
+        super(dataSource, properties, jtaTransactionManagerProvider);
     }
 
     @Override
