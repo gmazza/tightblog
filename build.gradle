@@ -44,6 +44,7 @@ sourceSets {
 			exclude '**/*IT.java'
 		}
 	}
+	// https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests
 	integrationTest {
 		java {
 			compileClasspath += main.output + test.output
@@ -95,8 +96,8 @@ processIntegrationTestResources {
 }
 
 configurations {
-	integrationTestCompile.extendsFrom testCompile
-	integrationTestRuntime.extendsFrom testRuntime
+	integrationTestImplementation.extendsFrom implementation, testImplementation
+	integrationTestRuntimeOnly.extendsFrom runtimeOnly
 	// using log4j2 instead of logback
 	// global excludes: http://mrhaki.blogspot.com/2012/10/gradle-goodness-exclude-transitive.html
 	all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
@@ -123,39 +124,39 @@ spotbugs {
 }
 
 dependencies {
-	compile("org.springframework.boot:spring-boot-starter-data-jpa") {
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
 		exclude group: "org.hibernate", module: "hibernate-entitymanager"
 	}
-	compile('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.4')
-	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-starter-mail')
-	compile('org.springframework.boot:spring-boot-starter-log4j2')
-	compile('org.springframework.boot:spring-boot-starter-validation')
-    compile('org.springframework.security:spring-security-taglibs:5.4.0')
-	compile('org.springframework.mobile:spring-mobile-device:1.1.5.RELEASE')
-	compile('org.apache.commons:commons-lang3:3.11')
-	compile('org.apache.commons:commons-text:1.9')
-	compile('org.apache.lucene:lucene-analyzers-common:7.4.0')
-	compile('org.apache.lucene:lucene-queryparser:7.4.0')
-	compile('org.apache.tiles:tiles-jsp:3.0.8')
-	compile('javax.servlet:jstl:1.2')
-	compile('commons-validator:commons-validator:1.7')
-	compile('org.jsoup:jsoup:1.13.1')
-	compile('com.github.ben-manes.caffeine:caffeine:2.8.5')
-	compile('org.thymeleaf:thymeleaf-spring4:3.0.11.RELEASE')
-	compile('org.jboss.aerogear:aerogear-otp-java:1.0.0')
-	compile('com.atlassian.commonmark:commonmark:0.15.2')
-	compile('commons-fileupload:commons-fileupload:1.4')
+	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.4')
+	implementation('org.springframework.boot:spring-boot-starter-security')
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-mail')
+	implementation('org.springframework.boot:spring-boot-starter-log4j2')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
+	implementation('org.springframework.security:spring-security-taglibs:5.4.0')
+	implementation('org.springframework.mobile:spring-mobile-device:1.1.5.RELEASE')
+	implementation('org.apache.commons:commons-lang3:3.11')
+	implementation('org.apache.commons:commons-text:1.9')
+	implementation('org.apache.lucene:lucene-analyzers-common:7.4.0')
+	implementation('org.apache.lucene:lucene-queryparser:7.4.0')
+	implementation('org.apache.tiles:tiles-jsp:3.0.8')
+	implementation('javax.servlet:jstl:1.2')
+	implementation('commons-validator:commons-validator:1.7')
+	implementation('org.jsoup:jsoup:1.13.1')
+	implementation('com.github.ben-manes.caffeine:caffeine:2.8.5')
+	implementation('org.thymeleaf:thymeleaf-spring4:3.0.11.RELEASE')
+	implementation('org.jboss.aerogear:aerogear-otp-java:1.0.0')
+	implementation('com.atlassian.commonmark:commonmark:0.15.2')
+	implementation('commons-fileupload:commons-fileupload:1.4')
+	implementation('org.apache.derby:derbyclient:10.14.2.0')
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 
-	compile 'org.apache.derby:derbyclient:10.14.2.0'
-	runtime 'org.apache.derby:derby:10.14.2.0'
+	runtimeOnly('org.apache.derby:derby:10.14.2.0')
 
 	// PostgreSQL JDBC jar, can remove if using other databases.
-	runtime('org.postgresql:postgresql')
+	runtimeOnly('org.postgresql:postgresql')
 
 	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.11')
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
