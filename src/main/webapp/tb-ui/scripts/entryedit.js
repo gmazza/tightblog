@@ -77,7 +77,12 @@ var vm = new Vue({
         entryId: entryIdParam,
         successMessage: null,
         commentCountMsg: null,
-        recentEntries: {},
+        recentEntries: {
+            PENDING: {},
+            SCHEDULED: {},
+            DRAFT: {},
+            PUBLISHED: {}
+        },
         metadata: {},
         urlRoot: contextPath + '/tb-ui/authoring/rest/weblogentries/'
     },
@@ -180,6 +185,8 @@ var vm = new Vue({
         this.loadRecentEntries();
         if (this.entryId) {
             this.getEntry();
+        } else {
+            this.loadMetadata();
         }
     }
 });

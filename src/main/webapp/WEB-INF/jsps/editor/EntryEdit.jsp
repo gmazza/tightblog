@@ -48,14 +48,14 @@
         <div id="maincontent">
 
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
     {{successMessage}}
     <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorObj.errors" v-cloak>
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
     <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
@@ -291,7 +291,7 @@
                     <fmt:message key="generic.none" />
                 </div>
 
-                <div v-if="recentEntries.PENDING && recentEntries.PENDING.length > 0">
+                <div v-show="recentEntries.PENDING && recentEntries.PENDING.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.pendingEntries" /></h3>
 
@@ -305,7 +305,7 @@
                     </span>
                 </div>
 
-                <div v-if="recentEntries.DRAFT && recentEntries.DRAFT.length > 0">
+                <div v-show="recentEntries.DRAFT && recentEntries.DRAFT.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.draftEntries" /></h3>
 
@@ -319,7 +319,7 @@
                     </span>
                 </div>
 
-                <div v-if="recentEntries.PUBLISHED && recentEntries.PUBLISHED.length > 0">
+                <div v-show="recentEntries.PUBLISHED && recentEntries.PUBLISHED.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.publishedEntries" /></h3>
 
@@ -333,7 +333,7 @@
                     </span>
                 </div>
 
-                <div v-if="recentEntries.SCHEDULED && recentEntries.SCHEDULED.length > 0">
+                <div v-show="recentEntries.SCHEDULED && recentEntries.SCHEDULED.length > 0">
                     <hr size="1" noshade="noshade" />
                     <h3><fmt:message key="entryEdit.scheduledEntries" /></h3>
 
