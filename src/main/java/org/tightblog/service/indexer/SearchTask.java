@@ -141,10 +141,11 @@ public class SearchTask extends AbstractTask {
     }
 
     public int getResultsCount() {
-        if (searchResults == null) {
+        if (searchResults == null || searchResults.totalHits == null) {
             return -1;
         }
-        return (int) searchResults.totalHits;
+
+        return (int) searchResults.totalHits.value;
     }
 
     public String getTerm() {

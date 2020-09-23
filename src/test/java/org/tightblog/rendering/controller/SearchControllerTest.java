@@ -22,6 +22,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.search.TotalHits;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -345,7 +346,7 @@ public class SearchControllerTest {
         when(mockIndexSearcher.doc(hits[0].doc)).thenReturn(doc1);
         when(mockIndexSearcher.doc(hits[1].doc)).thenReturn(doc2);
 
-        TopFieldDocs docs = new TopFieldDocs(2, hits, null, 100.0f);
+        TopFieldDocs docs = new TopFieldDocs(new TotalHits(2, TotalHits.Relation.EQUAL_TO), hits, null);
         // mock executeIndexOperationNow to return the specified SearchTask object
         // see http://www.baeldung.com/mockito-void-methods
         doAnswer(invocation -> {
