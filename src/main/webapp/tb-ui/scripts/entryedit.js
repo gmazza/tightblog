@@ -156,24 +156,12 @@ var vm = new Vue({
         previewEntry: function() {
             window.open(this.entry.previewUrl);
         },
-/*
-    $('#deleteEntryModal').on('show.bs.modal', function(e) {
-        //get data-id attribute of the clicked element
-        var title = $(e.relatedTarget).attr('data-title');
-
-        // populate delete modal with tag-specific information
-        var modal = $(this)
-        var tmpl = eval('`' + msg.confirmDeleteTmpl + '`')
-        modal.find('#confirmDeleteMsg').html(tmpl);
-    });
-*/
         showDeleteModal: function(entry) {
             // title used in eval below
             var title = entry.title;
             this.deleteModalMsg = eval('`' + msg.confirmDeleteTmpl + '`')
             $('#deleteEntryModal').modal('show');
         },
- 
         deleteWeblogEntry: function() {
             $('#deleteEntryModal').modal('hide');
 
