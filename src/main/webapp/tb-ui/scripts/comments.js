@@ -162,7 +162,7 @@ var vm = new Vue({
             this.errorObj = {};
         },
         formatDate: function(isoDate) {
-            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+            return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
         },    
         commonErrorResponse: function(error) {
             if (error.response.status == 408) {

@@ -85,12 +85,12 @@
 
                     <div class="sideformrow">
                         <label for="startDateString" class="sideformrow"><fmt:message key="entries.label.startDate" />:</label>
-                        <input type="text" id="startDateString" v-model="searchParams.startDateString" size="12" readonly="true"/>
+                        <date-picker @update-date="updateStartDate" v-once></date-picker>
                     </div>
 
                     <div class="sideformrow">
                         <label for="endDateString" class="sideformrow"><fmt:message key="entries.label.endDate" />:</label>
-                        <input type="text" id="endDateString" v-model="searchParams.endDateString" size="12" readonly="true"/>
+                        <date-picker @update-date="updateEndDate" v-once></date-picker>
                     </div>
                     <br /><br />
 

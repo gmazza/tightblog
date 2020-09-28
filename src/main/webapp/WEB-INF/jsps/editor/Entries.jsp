@@ -165,8 +165,8 @@
 
     <thead class="thead-light">
         <tr>
-            <th width="10%"><fmt:message key="entries.pubTime" /></th>
-            <th width="10%"><fmt:message key="entries.updateTime" /></th>
+            <th width="15%"><fmt:message key="entries.pubTime" /></th>
+            <th width="15%"><fmt:message key="entries.updateTime" /></th>
             <th width="8%"><fmt:message key="generic.category" /></th>
             <th><fmt:message key="entries.entryTitle" /></th>
             <th width="16%"><fmt:message key="generic.tags" /></th>

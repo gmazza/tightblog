@@ -188,7 +188,7 @@
         :
         <input type="number" min="0" max="59" step="1" v-model="entry.minutes"/>
         &nbsp;&nbsp;
-        <input type="text" id="publishDateString" size="12" readonly v-model="entry.dateString"/>
+        <date-picker @update-date="updatePublishDate" v-model="entry.dateString"></date-picker>
         {{metadata.timezone}}
     </div>
     <br />
@@ -245,7 +245,7 @@
         </span>
 
         <span style="float:right" v-show="entry.id">
-            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" v-bind:data-title="entry.title" data-toggle="modal" data-target="#deleteEntryModal"/>
+            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" v-on:click="showDeleteModal(entry)"/>
         </span>
     </div>
 </div>
@@ -261,7 +261,7 @@
         </button>
       </div>
       <div class="modal-body">
-          <span id="confirmDeleteMsg"></span>
+          <span id="confirmDeleteMsg" v-html="deleteModalMsg"></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>

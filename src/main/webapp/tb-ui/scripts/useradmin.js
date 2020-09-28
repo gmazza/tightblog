@@ -96,7 +96,7 @@ var vm = new Vue({
             this.userCredentials = null;
         },
         formatDate: function(isoDate) {
-            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+            return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
         },
         messageClear: function() {
             this.successMessage = null;

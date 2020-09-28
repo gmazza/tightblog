@@ -7,26 +7,6 @@ function extractLast( term ) {
 }
 
 $(function() {
-    $( "#accordion" ).accordion({});
-
-    $( "#publishDateString" ).datepicker({
-        showOn: "button",
-        buttonImage: "../../../images/calendar.png",
-        buttonImageOnly: true,
-        changeMonth: true,
-        changeYear: true
-    });
-
-    $('#deleteEntryModal').on('show.bs.modal', function(e) {
-        //get data-id attribute of the clicked element
-        var title = $(e.relatedTarget).attr('data-title');
-
-        // populate delete modal with tag-specific information
-        var modal = $(this)
-        var tmpl = eval('`' + msg.confirmDeleteTmpl + '`')
-        modal.find('#confirmDeleteMsg').html(tmpl);
-    });
-
     // tag autocomplete
     $( "#tags" )
     // don't navigate away from the field on tab when selecting an item
@@ -66,6 +46,33 @@ $(function() {
     });
 });
 
+Vue.component('date-picker', {
+ //   https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components
+    template: `
+        <input type="text" size="12" 
+            v-bind:value="datevalue" 
+            v-on:input="$emit('input', $event.target.value)"
+        readonly/>
+        `,
+    props: ['datevalue'],
+    mounted: function() {
+        var self = this;
+        $(this.$el).datepicker({
+            showOn: "button",
+            buttonImage: "../../../images/calendar.png",
+            buttonImageOnly: true,
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function(date) {
+                self.$emit('update-date', date);
+            }
+        });
+    },
+    beforeDestroy: function() {
+        $(this.$el).datepicker('hide').datepicker('destroy');
+    }
+});
+
 var vm = new Vue({
     el: '#template',
     data: {
@@ -77,6 +84,7 @@ var vm = new Vue({
         entryId: entryIdParam,
         successMessage: null,
         commentCountMsg: null,
+        deleteModalMsg: null,
         recentEntries: {
             PENDING: {},
             SCHEDULED: {},
@@ -148,8 +156,26 @@ var vm = new Vue({
         previewEntry: function() {
             window.open(this.entry.previewUrl);
         },
+/*
+    $('#deleteEntryModal').on('show.bs.modal', function(e) {
+        //get data-id attribute of the clicked element
+        var title = $(e.relatedTarget).attr('data-title');
+
+        // populate delete modal with tag-specific information
+        var modal = $(this)
+        var tmpl = eval('`' + msg.confirmDeleteTmpl + '`')
+        modal.find('#confirmDeleteMsg').html(tmpl);
+    });
+*/
+        showDeleteModal: function(entry) {
+            // title used in eval below
+            var title = entry.title;
+            this.deleteModalMsg = eval('`' + msg.confirmDeleteTmpl + '`')
+            $('#deleteEntryModal').modal('show');
+        },
+ 
         deleteWeblogEntry: function() {
-            $('#deleteWeblogEntryModal').modal('hide');
+            $('#deleteEntryModal').modal('hide');
 
             axios
             .delete(this.urlRoot + this.entryId)
@@ -165,7 +191,10 @@ var vm = new Vue({
             this.getRecentEntries('PENDING');
         },
         formatDate: function(isoDate) {
-            return dayjs(isoDate).format('DD MMM YYYY h:m:ss A');
+            return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
+        },
+        updatePublishDate: function(date) {
+            this.entry.dateString = date;
         },
         messageClear: function() {
             this.successMessage = null;
@@ -181,6 +210,7 @@ var vm = new Vue({
         }
     },
     mounted: function() {
+        $( "#accordion" ).accordion({});
         this.loadMetadata();
         this.loadRecentEntries();
         if (this.entryId) {
