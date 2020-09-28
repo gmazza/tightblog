@@ -1,23 +1,3 @@
-Vue.component('date-picker', {
-    template: '<input type="text" size="12" readonly/>',
-    mounted: function() {
-        var self = this;
-        $(this.$el).datepicker({
-            showOn: "button",
-            buttonImage: "../../../images/calendar.png",
-            buttonImageOnly: true,
-            changeMonth: true,
-            changeYear: true,
-            onSelect: function(date) {
-                self.$emit('update-date', date);
-            }
-        });
-    },
-    beforeDestroy: function() {
-        $(this.$el).datepicker('hide').datepicker('destroy');
-    }
-});
-  
 var vm = new Vue({
     el: '#template',
     data: {

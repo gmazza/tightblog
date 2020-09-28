@@ -239,4 +239,5 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/comments.js'/>"></script>

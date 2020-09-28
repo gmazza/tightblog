@@ -77,7 +77,7 @@
             <th width="10%"><fmt:message key="categories.column.count" /></th>
             <th width="10%"><fmt:message key="categories.column.firstEntry" /></th>
             <th width="10%"><fmt:message key="categories.column.lastEntry" /></th>
-            <th width="14%"></th>
+            <th width="15%"><fmt:message key="tags.view.published" /></th>
             <th width="13%"></th>
             <th width="13%"></th>
         </tr>
