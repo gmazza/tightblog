@@ -1,49 +1,58 @@
-function split( val ) {
-    return val.split( / \s*/ );
-}
-
-function extractLast( term ) {
-    return split( term ).pop();
-}
-
-$(function() {
-    // tag autocomplete
-    $( "#tags" )
-    // don't navigate away from the field on tab when selecting an item
-    .bind( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.TAB && $( this ).autocomplete( "instance" ).menu.active ) {
-            event.preventDefault();
-        }
-    })
-    .autocomplete({
-        delay: 500,
-        source: function(request, response) {
-            $.getJSON(contextPath + "/tb-ui/authoring/rest/weblogentries/" + weblogId + "/tagdata",
-            { prefix: extractLast( request.term ) },
-            function(data) {
-                response($.map(data.tagcounts, function (dataValue) {
-                    return {
-                        value: dataValue.name
-                    };
-                }))
-            })
+Vue.component('tag-autocomplete', {
+    props: ['tagsAsString'],
+    template: `
+        <input type="text" cssClass="entryEditTags"
+            v-bind:value="tagsAsString"
+            v-on:input="$emit('input', $event.target.value)"
+            maxlength="255" style="width:60%">
+    `,
+    methods: {
+        split: function(val) {
+            return val.split( / \s*/ );
         },
-        focus: function() {
-            // prevent value inserted on focus
-            return false;
-        },
-        select: function( event, ui ) {
-            var terms = split( this.value );
-            // remove the current input
-            terms.pop();
-            // add the selected item
-            terms.push( ui.item.value );
-            // add placeholder to get the space at the end
-            terms.push( "" );
-            this.value = terms.join( " " );
-            return false;
+        extractLast: function(term) {
+            return this.split( term ).pop();
         }
-    });
+    },
+    mounted: function() {
+        var self = this;
+        $(this.$el).bind( "keydown", function( event ) {
+            // don't navigate away from the field on tab when selecting an item
+            if ( event.keyCode === $.ui.keyCode.TAB && $( this ).autocomplete( "instance" ).menu.active ) {
+                event.preventDefault();
+            }
+        })
+        .autocomplete({
+            delay: 500,
+            source: function(request, response) {
+                $.getJSON(contextPath + "/tb-ui/authoring/rest/weblogentries/" + weblogId + "/tagdata",
+                { prefix: self.extractLast( request.term ) },
+                function(data) {
+                    response($.map(data.tagcounts, function (dataValue) {
+                        return {
+                            value: dataValue.name
+                        };
+                    }))
+                })
+            },
+            focus: function() {
+                // prevent value inserted on focus
+                return false;
+            },
+            select: function( event, ui ) {
+                var terms = self.split( this.value );
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push( ui.item.value );
+                // add placeholder to get the space at the end
+                terms.push( "" );
+                this.value = terms.join( " " );
+                self.$emit('update-tags', this.value);
+                return false;
+            }
+        });
+    }
 });
 
 var vm = new Vue({
@@ -68,7 +77,7 @@ var vm = new Vue({
         urlRoot: contextPath + '/tb-ui/authoring/rest/weblogentries/'
     },
     methods: {
-       getRecentEntries: function(entryType) {
+        getRecentEntries: function(entryType) {
             axios
             .get(this.urlRoot + weblogId + '/recententries/' + entryType)
             .then(response => {
@@ -153,6 +162,9 @@ var vm = new Vue({
         },
         formatDate: function(isoDate) {
             return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
+        },
+        updateTags: function(tagsString) {
+            this.entry.tagsAsString = tagsString;
         },
         updatePublishDate: function(date) {
             this.entry.dateString = date;

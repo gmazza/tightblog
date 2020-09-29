@@ -72,7 +72,7 @@
                 <label for="title"><fmt:message key="entryEdit.entryTitle" /></label>
             </td>
             <td>
-                <input id="title" type="text" v-model="entry.title" maxlength="255" tabindex="1" style="width:60%" autocomplete="off">
+                <input id="title" type="text" v-model="entry.title" maxlength="255" style="width:60%" autocomplete="off">
             </td>
         </tr>
 
@@ -135,8 +135,7 @@
                 <label for="tags"><fmt:message key="generic.tags" /></label>
             </td>
             <td>
-                <input id="tags" type="text" cssClass="entryEditTags" v-model="entry.tagsAsString"
-                    maxlength="255" tabindex="3" style="width:60%">
+                <tag-autocomplete @update-tags="updateTags" v-model="entry.tagsAsString"></tag-autocomplete>
             </td>
         </tr>
 
@@ -163,15 +162,15 @@
             <fmt:message key="entryEdit.content" />
         </h3>
         <div>
-            <textarea id="edit_content" cols="75" rows="25" style="width:100%" v-model="entry.text" tabindex="5"></textarea>
+            <textarea id="edit_content" cols="75" rows="25" style="width:100%" v-model="entry.text"></textarea>
         </div>
         <h3><fmt:message key="entryEdit.summary"/><tags:help key="entryEdit.summary.tooltip"/></h3>
         <div>
-            <textarea id="edit_summary" cols="75" rows="10" style="width:100%" v-model="entry.summary" tabindex="6"></textarea>
+            <textarea id="edit_summary" cols="75" rows="10" style="width:100%" v-model="entry.summary"></textarea>
         </div>
         <h3><fmt:message key="entryEdit.notes"/><tags:help key="entryEdit.notes.tooltip"/></h3>
         <div>
-            <textarea id="edit_notes" cols="75" rows="10" style="width:100%" v-model="entry.notes" tabindex="7"></textarea>
+            <textarea id="edit_notes" cols="75" rows="10" style="width:100%" v-model="entry.notes"></textarea>
         </div>
     </div>
 
