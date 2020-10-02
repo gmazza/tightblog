@@ -62,7 +62,9 @@ var vm = new Vue({
             commentCountIncludingUnapproved: 0,
             category: {}
         },
-        errorObj: {},
+        errorObj: {
+            errors: []
+        },
         entryId: entryIdParam,
         successMessage: null,
         commentCountMsg: null,
@@ -81,7 +83,7 @@ var vm = new Vue({
             axios
             .get(this.urlRoot + weblogId + '/recententries/' + entryType)
             .then(response => {
-                 this.recentEntries[entryType] = response.data;
+                this.recentEntries[entryType] = response.data;
             })
         },
         loadMetadata: function() {
@@ -102,10 +104,10 @@ var vm = new Vue({
             axios
             .get(this.urlRoot + this.entryId)
             .then(response => {
-                 this.entry = response.data;
-                 var commentCount = this.entry.commentCountIncludingUnapproved;
-                 this.commentCountMsg = eval('`' + msg.commentCountTmpl + '`');
-                 this.entry.commentDays = "" + this.entry.commentDays;
+                this.entry = response.data;
+                var commentCount = this.entry.commentCountIncludingUnapproved;
+                this.commentCountMsg = eval('`' + msg.commentCountTmpl + '`');
+                this.entry.commentDays = "" + this.entry.commentDays;
             });
         },
         saveEntry: function(saveType) {
@@ -118,21 +120,23 @@ var vm = new Vue({
             axios
             .post(this.urlRoot + urlStem, this.entry)
             .then(response => {
-                this.entryId = response.data.entryId;
-                this.successMessage = response.data.message;
-                this.errorObj = {};
-                this.loadRecentEntries();
-                this.getEntry();
-                window.scrollTo(0, 0);
+                 this.entryId = response.data.entryId;
+                 this.successMessage = response.data.message;
+                 this.errorObj = {};
+                 this.loadRecentEntries();
+                 this.getEntry();
+                 window.scrollTo(0, 0);
             })
             .catch(error => {
-               this.entry.status = oldStatus;
-               if (error.response.status == 408) {
-                 this.errorObj.errorMessage = eval('`' + msg.sessionTimeoutTmpl + '`');
-                 window.scrollTo(0, 0);
-               } else {
-                 this.commonErrorResponse(error);
-               }
+                this.entry.status = oldStatus;
+                if (error.response.status == 408) {
+                    this.errorObj = {
+                        errors: [ {message: eval('`' + msg.sessionTimeoutTmpl + '`')} ]
+                    };
+                    window.scrollTo(0, 0);
+                } else {
+                    this.commonErrorResponse(error);
+                }
             })
         },
         previewEntry: function() {
@@ -150,7 +154,7 @@ var vm = new Vue({
             axios
             .delete(this.urlRoot + this.entryId)
             .then(response => {
-                    document.location.href=newEntryUrl;
+                document.location.href=newEntryUrl;
             })
             .catch(error => this.commonErrorResponse(error));
         },
@@ -182,8 +186,9 @@ var vm = new Vue({
             }
         }
     },
-    mounted: function() {
-        $( "#accordion" ).accordion({});
+    created: function() {
+        // indicate requests via Ajax calls, so auth probs return 408s vs. login redirects
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         this.loadMetadata();
         this.loadRecentEntries();
         if (this.entryId) {
@@ -191,5 +196,8 @@ var vm = new Vue({
         } else {
             this.loadMetadata();
         }
+    },
+    mounted: function() {
+        $( "#accordion" ).accordion({});
     }
 });
