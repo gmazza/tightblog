@@ -71,7 +71,7 @@ tightblogApp.controller('PageController', ['$http', '$interpolate', '$sce', '$fi
         }
 
         this.commonErrorResponse = function(response) {
-            if (response.status == 408) {
+            if (response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
                self.errorMessage = response.data;

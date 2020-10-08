@@ -56,7 +56,7 @@ tightblogApp.controller('PageController', ['$http', function PageController($htt
           self.resetAddTemplateData();
         },
         function(response) {
-         if (response.status == 408)
+         if (response.status == 401)
            window.location.replace($('#refreshURL').attr('value'));  // return;
          if (response.status == 400) {
            self.errorObj = response.data;

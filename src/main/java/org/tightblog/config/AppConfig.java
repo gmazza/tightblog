@@ -20,12 +20,10 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.tightblog.rendering.cache.LazyExpiringCache;
 
 @Configuration
-@ImportResource({ "classpath:spring-beans.xml", "classpath*:tightblog-custom.xml" })
 public class AppConfig {
 
     @Bean

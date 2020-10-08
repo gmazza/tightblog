@@ -56,7 +56,7 @@ var vm = new Vue({
             }
         },
         commonErrorResponse: function(error, errorMsg) {
-            if (error.response.status == 408) {
+            if (error.response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
                this.errorMessage = errorMsg ? errorMsg : error.response.data.error;

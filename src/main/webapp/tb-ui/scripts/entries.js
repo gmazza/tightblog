@@ -97,7 +97,7 @@ var vm = new Vue({
             return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
         },
         commonErrorResponse: function(error) {
-            if (error.response.status == 408) {
+            if (error.response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
                this.errorMsg = error.response.data;

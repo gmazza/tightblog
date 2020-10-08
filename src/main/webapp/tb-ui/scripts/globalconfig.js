@@ -39,7 +39,7 @@ var vm = new Vue({
           window.scrollTo(0, 0);
       })
       .catch(error => {
-         if (error.response.status == 408) {
+         if (error.response.status == 401) {
            window.location.replace($('#refreshURL').attr('value'));
          } else if (error.response.status == 400) {
            this.errorObj = error.response.data;
@@ -48,7 +48,7 @@ var vm = new Vue({
       })
     },
     commonErrorResponse: function(error, errorMsg) {
-      if (error.response.status == 408) {
+      if (error.response.status == 401) {
          window.location.replace($('#refreshURL').attr('value'));
       } else {
          this.errorMessage = errorMsg ? errorMsg : error.response.data.error;

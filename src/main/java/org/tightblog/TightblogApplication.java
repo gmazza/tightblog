@@ -21,11 +21,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 @SpringBootApplication
-// https://stackoverflow.com/a/32087621
-@EnableWebSecurity
 // https://docs.spring.io/spring/docs/current/spring-framework-reference/integration.html#cache-annotation-enable
 @EnableCaching
 // Search code for @Scheduled annotations for scheduled tasks

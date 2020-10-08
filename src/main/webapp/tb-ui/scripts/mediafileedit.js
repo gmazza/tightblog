@@ -49,7 +49,7 @@ tightblogApp.controller('PageController', ['$http', 'fileUpload', function PageC
                 window.location.replace(mediaViewUrl + '&directoryId=' + directoryId);
             },
             function(response) {
-                if (response.status == 408) {
+                if (response.status == 401) {
                     window.location.replace($('#refreshURL').attr('value'));
                 } else if (response.status == 400) {
                     self.errorObj = response.data;

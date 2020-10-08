@@ -129,7 +129,7 @@ var vm = new Vue({
             })
             .catch(error => {
                 this.entry.status = oldStatus;
-                if (error.response.status == 408) {
+                if (error.response.status == 401) {
                     this.errorObj = {
                         errors: [ {message: eval('`' + msg.sessionTimeoutTmpl + '`')} ]
                     };
@@ -178,7 +178,7 @@ var vm = new Vue({
             this.errorObj = {};
         },
         commonErrorResponse: function(error) {
-            if (error.response.status == 408) {
+            if (error.response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));
             } else {
                this.errorObj = error.response.data;
@@ -187,7 +187,7 @@ var vm = new Vue({
         }
     },
     created: function() {
-        // indicate requests via Ajax calls, so auth probs return 408s vs. login redirects
+        // indicate requests via Ajax calls, so auth probs return 401s vs. login redirects
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         this.loadMetadata();
         this.loadRecentEntries();

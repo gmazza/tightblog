@@ -103,7 +103,7 @@ var vm = new Vue({
             this.errorObj = {};
         },
         commonErrorResponse: function(error) {
-            if (error.response.status == 408) {
+            if (error.response.status == 401) {
                 window.location.replace($('#refreshURL').attr('value'));
             } else {
                 this.errorObj = error.response.data;

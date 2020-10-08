@@ -110,7 +110,7 @@ var vm = new Vue({
             this.loadTags();
         },
         commonErrorResponse: function(error) {
-            if (response.status == 408) {
+            if (response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));
             }  else {
                this.errorObj = error.response.data;
