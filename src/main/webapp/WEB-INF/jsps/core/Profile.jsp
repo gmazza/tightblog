@@ -135,6 +135,6 @@
 <br/>
 
 <div class="control" ng-hide="ctrl.hideButtons">
-    <input class="buttonBox" type="button" value="<fmt:message key='${saveButtonText}'/>" ng-click="ctrl.updateUser()"/>
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.cancel'/>" ng-click="ctrl.cancelChanges()"/>
+    <button type="button" class="buttonBox" ng-click="ctrl.updateUser()"><fmt:message key='${saveButtonText}'/></button>
+    <button type="button" class="buttonBox" ng-click="ctrl.cancelChanges()"><fmt:message key='generic.cancel'/></button>
 </div>

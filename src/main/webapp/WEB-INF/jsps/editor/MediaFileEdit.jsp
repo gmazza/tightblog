@@ -183,8 +183,12 @@
 
 <br />
 <div class="control">
-    <input type="button" value="<fmt:message key='generic.save'/>" ng-click="ctrl.saveMediaFile()"/>
+    <button type="button" ng-click="ctrl.saveMediaFile()">
+        <fmt:message key='generic.save'/>
+    </button>
     <a href="<c:out value='${mediaFileViewUrl}'/>&amp;directoryId={{ctrl.mediaFileData.directory.id}}">
-        <input type="button" value="<fmt:message key='generic.cancel'/>"/>
+        <button type="button">
+            <fmt:message key='generic.cancel'/>
+        </button>
     </a>
 </div>

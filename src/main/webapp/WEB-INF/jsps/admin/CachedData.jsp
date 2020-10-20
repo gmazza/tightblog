@@ -87,21 +87,23 @@
         <td>{{item.cacheRequestCount > 0 ? item.cacheHitRate.toFixed(3) : ''}}</td>
         <td>{{item.incomingRequests > 0 ? ((item.requestsHandledBy304 + item.cacheHitCount) / item.incomingRequests).toFixed(3) : ''}}</td>
         <td class="buttontd">
-            <input v-if="item.maxEntries > 0" type="button" value="<fmt:message key='cachedData.clear'/>" v-on:click="clearCache(item.cacheHandlerId)"/>
+            <button type="button" v-if="item.maxEntries > 0" v-on:click="clearCache(item.cacheHandlerId)">
+                <fmt:message key='cachedData.clear'/>
+            </button>
         </td>
        </tr>
 </tbody>
 </table>
 
 <div class="control clearfix">
-    <input v-on:click="loadCacheData()" type="button" value="<fmt:message key='generic.refresh'/>"/>
+    <button type="button" v-on:click="loadCacheData()"><fmt:message key='generic.refresh'/></button>
 </div>
   
 <div v-if="metadata.weblogList">
     <br><br>
     <fmt:message key="cachedData.prompt.reset"/>:
     <br>
-    <input v-on:click="resetHitCounts()" type="button" value="<fmt:message key='cachedData.button.reset'/>"/>
+    <button type="button" v-on:click="resetHitCounts()"><fmt:message key='cachedData.button.reset'/></button>
     <br><br>
 
     <fmt:message key="cachedData.prompt.index"/>:
@@ -109,7 +111,7 @@
     <select v-model="weblogToReindex" size="1" required>
         <option v-for="value in metadata.weblogList" v-bind:value="value">{{value}}</option>
     </select>
-    <input v-on:click="reindexWeblog()" type="button" value="<fmt:message key='cachedData.button.index'/>"/>
+    <button type="button" v-on:click="reindexWeblog()"><fmt:message key='cachedData.button.index'/></button>
 </div>
 
 </div>

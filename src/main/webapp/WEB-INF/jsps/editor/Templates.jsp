@@ -167,7 +167,11 @@
               </td>
           </tr>
           <tr>
-              <td><input ng-click="myform.$valid && ctrl.addTemplate()" type="button" value="<fmt:message key='templates.add'/>" required></td>
+              <td>
+                <button type="button" ng-click="myform.$valid && ctrl.addTemplate()">
+                  <fmt:message key='templates.add'/>
+                </button>
+              </td>
           </tr>
       </table>
     </form>

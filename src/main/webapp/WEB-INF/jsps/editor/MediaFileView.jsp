@@ -19,8 +19,11 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
-<script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
+<script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
+
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var weblogId = "<c:out value='${actionWeblog.id}'/>";
@@ -32,68 +35,78 @@
     };
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/mediafileview.js'/>"></script>
+<div id="template">
 
-<input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/mediaFileView'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
+<input id="refreshURL" type="hidden" 
+  value="<c:url value='/tb-ui/app/authoring/mediaFileView'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
 <p class="pagetip">
     <fmt:message key="mediaFileView.rootPageTip" />
 </p>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
+    {{successMessage}}
+    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
+<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
+    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
+       <li v-for="item in errorObj.errors">{{item.message}}</li>
     </ul>
 </div>
 
-
-<div class="control">
+<div class="control clearfix">
     <span style="padding-left:7px">
-        <%-- Folder to View combo-box --%>
-        <fmt:message key="mediaFileView.viewFolder" />:
-        <%-- ng-options: http://preview.tinyurl.com/z8okbq8 --%>
-        <select ng-model="ctrl.currentFolderId"
-                ng-change="ctrl.loadMediaFiles()"
-                ng-options="dir.id as dir.name for dir in ctrl.mediaDirectories"
-                size="1" required></select>
+      <input type="checkbox"
+      v-bind:disabled="mediaFiles.length == 0" 
+      v-on:input="toggleCheckboxes($event.target.checked)"
+      title="<fmt:message key='mediaFileView.selectAllLabel'/>"/>
     </span>
+
+    <span style="float:right">
+      <%-- Folder to View combo-box --%>
+      <fmt:message key="mediaFileView.viewFolder" />:
+      <select v-model="currentFolderId"
+              v-on:change="loadMediaFiles()"
+              size="1" required>
+              <option v-for="dir in mediaDirectories" v-bind:value="dir.id">{{dir.name}}</option>
+      </select>
+    </span>
+
 </div>
 
 <%-- ***************************************************************** --%>
 
 <%-- Media file folder contents --%>
 
-<div width="720px" height="500px" ng-cloak>
+<div width="720px" height="500px" v-cloak>
     <ul id = "myMenu">
-        <li ng-if="ctrl.mediaFiles.length == 0" style="text-align: center;list-style-type:none;">
+        <li v-if="mediaFiles.length == 0" style="text-align: center;list-style-type:none;">
            <fmt:message key="mediaFileView.noFiles"/>
         </li>
 
-        <li class="align-images" ng-repeat="mediaFile in ctrl.mediaFiles" id="{{mediaFile.id}}">
+        <li v-if="mediaFiles.length > 0" class="align-images" 
+            v-for="mediaFile in mediaFiles" v-bind:id="mediaFile.id">
             <div class="mediaObject">
                 <c:url var="editUrl" value="/tb-ui/app/authoring/mediaFileEdit">
                     <c:param name="weblogId" value="${actionWeblog.id}" />
                 </c:url>
 
-                <a ng-href="<c:out value='${editUrl}'/>&amp;directoryId={{ctrl.currentFolderId}}&amp;mediaFileId={{mediaFile.id}}">
-                    <img ng-if="mediaFile.imageFile"
-                         ng-src='{{mediaFile.thumbnailURL}}'
-                         alt='{{mediaFile.altText}}'
-                         title='{{mediaFile.name}}'>
+                <a v-bind:href=
+                  "'<c:out value='${editUrl}'/>&amp;directoryId=' + currentFolderId + '&amp;mediaFileId=' + mediaFile.id">
+                    <img v-if="mediaFile.imageFile"
+                         v-bind:src='mediaFile.thumbnailURL'
+                         v-bind:alt='mediaFile.altText'
+                         v-bind:title='mediaFile.name'>
 
-                    <img ng-if="!mediaFile.imageFile" ng-src='<c:out value="/images/page_white.png" />'
-                         alt='{{mediaFile.altText}}'
+                    <img v-if="!mediaFile.imageFile" 
+                         src='<c:out value="/images/page_white.png"/>'
+                         v-bind:alt='mediaFile.altText'
                          style="padding:40px 50px;">
                 </a>
             </div>
@@ -101,13 +114,13 @@
             <div class="mediaObjectInfo">
                 <input type="checkbox"
                        name="idSelections"
-                       ng-model="mediaFile.selected"
-                       value="{{mediaFile.id}}">
+                       v-model="mediaFile.selected"
+                       v-bind:value="mediaFile.id">
 
-                {{mediaFile.name | limitTo: 47}}
+                {{mediaFile.name | str_limit(47) }}
 
                 <span style="float:right">
-                    <input type="image" ng-click="ctrl.copyToClipboard(mediaFile)"
+                    <input type="image" v-on:click="copyToClipboard(mediaFile)"
                         src='<c:url value="/images/copy_to_clipboard.png"/>'
                            alt="Copy URL to clipboard" title="Copy URL to clipboard">
                 </span>
@@ -119,65 +132,54 @@
 <div style="clear:left;"></div>
 
 <div class="control clearfix" style="margin-top: 15px">
-    <span style="padding-left:7px" ng-show="ctrl.mediaFiles.length > 0">
+    <span style="padding-left:7px">
 
-        <input type="button" id="toggleButton"
-           value='<fmt:message key="generic.toggle" />'
-           ng-click="ctrl.onToggle()"
-           />
+        <c:url var="mediaFileAddURL" value="/tb-ui/app/authoring/mediaFileAdd">
+            <c:param name="weblogId" value="${actionWeblog.id}" />
+        </c:url>
+        <a v-bind:href="'${mediaFileAddURL}&directoryId=' + currentFolderId" style='font-weight:bold;'>
+          <button type="button" v-on:click="onToggle()">
+            <img src='<c:url value="/images/image_add.png"/>' border="0" alt="icon"> <fmt:message key="mediaFileView.add"/>
+          </button>
+        </a>
 
-        <input ng-disabled="!ctrl.filesSelected()" type="button"
-           data-toggle="modal" data-target="#deleteFilesModal"
-           value='<fmt:message key="mediaFileView.deleteSelected" />'
-           />
+        <span v-show="mediaFiles.length > 0">
+          <button type="button" v-bind:disabled="filesSelectedCount == 0"
+            v-on:click="showMoveFilesModal()" v-show="mediaDirectories.length > 1">
+            <fmt:message key="mediaFileView.moveSelected" />
+          </button>
 
-        <input ng-disabled="!ctrl.filesSelected()" type="button"
-           value='<fmt:message key="mediaFileView.moveSelected" />'
-           data-toggle="modal" data-target="#moveFilesModal" data-folder-id="{{ctrl.targetFolderId}}"
-           ng-show="ctrl.mediaDirectories.length > 1">
-
-        <select id="moveTargetMenu" size="1" required
-           ng-model="ctrl.targetFolderId"
-           ng-options="dir.id as dir.name for dir in ctrl.mediaDirectories | filter: {id : '!' + ctrl.currentFolderId}"
-           ng-show="ctrl.mediaDirectories.length > 1"></select>
+          <select id="moveTargetMenu" size="1" required
+            v-model="targetFolderId" v-show="mediaDirectories.length > 1">
+            <option v-for="dir in moveToFolders" v-bind:value="dir.id">{{dir.name}}</option>
+          </select>
+      </span>
     </span>
 
     <span style="float:right">
-        <input type="button" value='<fmt:message key="mediaFileView.deleteFolder" />'
-            data-toggle="modal" data-folder-id="{{ctrl.currentFolderId}}" data-target="#deleteFolderModal"
-            ng-show="ctrl.mediaDirectories.length > 1" />
+      <button type="button" v-bind:disabled="filesSelectedCount == 0" v-on:click="showDeleteFilesModal()">
+         <fmt:message key="mediaFileView.deleteSelected" />
+      </button>
+
+      <button type="button" v-on:click="showDeleteFolderModal()" v-show="mediaDirectories.length > 1">
+        <fmt:message key="mediaFileView.deleteFolder" />
+      </button>
     </span>
 </div>
 
 <div class="menu-tr sidebarFade">
     <div class="sidebarInner">
-
-        <br>
-        <b><fmt:message key="mediaFileView.actions" /></b>
-        <br>
-        <br>
-
-        <img src='<c:url value="/images/image_add.png"/>' border="0" alt="icon">
-        <c:url var="mediaFileAddURL" value="/tb-ui/app/authoring/mediaFileAdd">
-            <c:param name="weblogId" value="${actionWeblog.id}" />
-        </c:url>
-        <a href='${mediaFileAddURL}&directoryId={{ctrl.currentFolderId}}' style='font-weight:bold;'>
-            <fmt:message key="mediaFileView.add"/>
-        </a>
-
-        <br><br>
         <div>
             <img src='<c:url value="/images/folder_add.png"/>' border="0" alt="icon">
             <fmt:message key="mediaFileView.addFolder" /><br />
             <div style="padding-left:2em; padding-top:1em">
                 <fmt:message key="generic.name" />:
-                <input type="text" ng-model="ctrl.newFolderName" size="10" maxlength="25"/>
-                <input type="button" value='<fmt:message key="mediaFileView.create" />' ng-click="ctrl.addFolder()"
-                    ng-disabled="ctrl.newFolderName == ''" />
+                <input type="text" v-model="newFolderName" size="10" maxlength="25"/>
+                <button type="button" v-on:click="addFolder()" v-bind:disabled="newFolderName == ''">
+                   <fmt:message key="mediaFileView.create"/>
+                </button>
             </div>
         </div>
-
-        <br><br><br>
     </div>
 </div>
 
@@ -192,11 +194,11 @@
         </button>
       </div>
       <div class="modal-body">
-        <span id="deleteFilesMsg"></span>
+        <span v-html="modalMessage"></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteFiles()"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" v-on:click="deleteFiles()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
@@ -213,11 +215,11 @@
         </button>
       </div>
       <div class="modal-body">
-        <span id="deleteFolderMsg"></span>
+        <span v-html="modalMessage"></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-danger" ng-click="ctrl.deleteFolder()"><fmt:message key='generic.delete'/></button>
+        <button type="button" class="btn btn-danger" v-on:click="deleteFolder()"><fmt:message key='generic.delete'/></button>
       </div>
     </div>
   </div>
@@ -234,12 +236,17 @@
         </button>
       </div>
       <div class="modal-body">
-        <span id="moveFilesMsg"></span>
+        <span v-html="modalMessage"></span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>
-        <button type="button" class="btn btn-warning" ng-click="ctrl.moveFiles()"><fmt:message key='generic.confirm'/></button>
+        <button type="button" class="btn btn-warning" v-on:click="moveFiles()"><fmt:message key='generic.confirm'/></button>
       </div>
     </div>
   </div>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/components/stringutils.js'/>"></script>
+<script src="<c:url value='/tb-ui/scripts/mediafileview.js'/>"></script>

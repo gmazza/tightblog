@@ -101,8 +101,8 @@
 <table style="width:100%">
     <tr>
         <td>
-            <input ng-click="ctrl.saveTemplate()" type="button" value="<fmt:message key='generic.save'/>">
-            <input type="button" value="<fmt:message key='generic.cancel'/>" onclick="window.location='${templatesUrl}'">
+            <button type="button" ng-click="ctrl.saveTemplate()"><fmt:message key='generic.save'/></button>
+            <button type="button" onclick="window.location='${templatesUrl}'"><fmt:message key='generic.cancel'/></button>
         </td>
     </tr>
 </table>

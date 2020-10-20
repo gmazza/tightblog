@@ -56,10 +56,12 @@
 
     <span style="text-align:center;" v-if="pageNum > 0 || tagData.hasMore" v-cloak>
         &laquo;
-        <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
-          v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">            |
-        <input type="button" value="<fmt:message key='weblogEntryQuery.next'/>"
-          v-bind:disabled="!tagData.hasMore" v-on:click="nextPage()">
+        <button type="button" v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
+            <fmt:message key='weblogEntryQuery.prev'/>
+        </button>             |
+        <button type="button" v-bind:disabled="!tagData.hasMore" v-on:click="nextPage()">
+            <fmt:message key='weblogEntryQuery.next'/>
+        </button>
         &raquo;
     </span>
 
@@ -85,7 +87,7 @@
     <tbody>
         <tr v-for="tag in tagData.tags" v-cloak>
             <td class="center" style="vertical-align:middle">
-                  <input type="checkbox" name="idSelections" v-bind:title="'checkbox for ' + tag.name"
+                  <input type="checkbox" v-bind:title="'checkbox for ' + tag.name"
                     v-model="tag.selected" v-bind:value="tag.name" />
             </td>
             <td>{{tag.name}}</td>
@@ -114,7 +116,7 @@
 
 <div class="control" v-if="tagData.tags.length > 0">
   <span style="padding-left:7px">
-    <button v-bind:disabled="!tagsSelected()" data-toggle="modal" data-target="#deleteTagsModal">
+    <button v-bind:disabled="!tagsSelected" data-toggle="modal" data-target="#deleteTagsModal">
         <fmt:message key='generic.deleteSelected'/>
     </button>
   </span>

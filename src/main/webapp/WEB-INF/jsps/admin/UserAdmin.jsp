@@ -51,8 +51,10 @@
 
 <div id="pendingList" v-cloak>
    <span v-for="item in pendingList" style='color:red'>New registration request: {{item.screenName}} ({{item.emailAddress}}):
-   <input v-on:click="approveUser(item.id)" type="button" value="<fmt:message key='userAdmin.accept' />">
-   <input v-on:click="declineUser(item.id)" type="button" value="<fmt:message key='userAdmin.decline' />"><br></span>
+       <button type="button" v-on:click="approveUser(item.id)"><fmt:message key='userAdmin.accept' /></button>
+       <button type="button" v-on:click="declineUser(item.id)"><fmt:message key='userAdmin.decline' /></button>
+       <br>
+   </span>
 </div>
 
 <p class="subtitle"><fmt:message key="userAdmin.subtitle" /></p>
@@ -60,7 +62,9 @@
     <select v-model="userToEdit" size="1">
         <option v-for="(value, key) in userList" v-bind:value="key">{{value}}</option>
     </select>
-    <input v-on:click="loadUser()" type="button" style="margin:4px" value='<fmt:message key="generic.edit" />'/>
+    <button type="button" v-on:click="loadUser()" style="margin:4px">
+        <fmt:message key="generic.edit" />
+    </button>
 </span>
 
 <table class="formtable" v-if="userBeingEdited" v-cloak>
@@ -194,8 +198,8 @@
 <br>
 
 <div class="control" v-show="userBeingEdited" v-cloak>
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" v-on:click="updateUser()"/>
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.cancel'/>" v-on:click="cancelChanges()"/>
+    <button type="button" class="buttonBox" v-on:click="updateUser()"><fmt:message key='generic.save'/></button>
+    <button type="button" class="buttonBox" v-on:click="cancelChanges()"><fmt:message key='generic.cancel'/></button>
 </div>
 
 </div>

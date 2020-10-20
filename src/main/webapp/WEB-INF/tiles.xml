@@ -138,7 +138,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
     </definition>
 
-    <definition name=".mediaFileView" extends=".tiles-tabbedpage" >
+    <definition name=".mediaFileView" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileView.jsp" />
     </definition>
 

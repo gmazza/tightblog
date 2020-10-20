@@ -54,7 +54,7 @@
 <table class="table table-sm table-bordered table-striped">
     <thead class="thead-light">
       <tr>
-          <th width="5%"><input name="control" type="checkbox"
+          <th width="5%"><input type="checkbox"
               v-bind:disabled="items.length == 0" 
               v-on:input="toggleCheckboxes($event.target.checked)"
               title="<fmt:message key='blogroll.selectAllLabel'/>"/></th>
@@ -83,11 +83,12 @@
 </table>
 
 <div class="control clearfix">
-    <input type="button" 
-        value="<fmt:message key='blogroll.addLink'/>" v-on:click="addItem()">
+    <button type="button" v-on:click="addItem()">
+      <fmt:message key='blogroll.addLink'/>
+    </button> 
 
     <span v-if="items.length > 0">
-        <button v-bind:disabled="!itemsSelected()" data-toggle="modal" data-target="#deleteLinksModal">
+        <button v-bind:disabled="!itemsSelected" data-toggle="modal" data-target="#deleteLinksModal">
             <fmt:message key='generic.deleteSelected'/>
         </button>
     </span>

@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <br><br>
-                    <input v-on:click="loadComments()" type="button" value="<fmt:message key='entries.button.query'/>" />
+                    <button type="button" v-on:click="loadComments()"><fmt:message key='entries.button.query'/></button>
                     <br>
                 </div>
             </div>
@@ -143,11 +143,13 @@
         <span v-if="pageNum > 0 || commentData.hasMore" v-cloak>
             <center>
                 &laquo;
-                <input type="button" value="<fmt:message key='weblogEntryQuery.prev'/>"
-                    v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
+                <button type="button" v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
+                    <fmt:message key='weblogEntryQuery.prev'/>
+                </button>
                 |
-                <input type="button" value="<fmt:message key='weblogEntryQuery.next'/>"
-                    v-bind:disabled="!commentData.hasMore" v-on:click="nextPage()">
+                <button type="button" v-bind:disabled="!commentData.hasMore" v-on:click="nextPage()">
+                    <fmt:message key='weblogEntryQuery.next'/>
+                </button>
                 &raquo;
             </center>
         </span>
@@ -180,13 +182,16 @@
         <tbody>
             <tr v-for="comment in commentData.comments">
                 <td>
-                    <input v-if="comment.status == 'SPAM' || comment.status == 'DISAPPROVED' || comment.status == 'PENDING'"
-                        type="button" value="<fmt:message key='comments.approve'/>" v-on:click="approveComment(comment)"/>
-                    <input v-if="comment.status == 'APPROVED'"
-                        type="button" value="<fmt:message key='comments.hide'/>" v-on:click="hideComment(comment)"/>
+                    <button type="button" v-if="comment.status == 'SPAM' || comment.status == 'DISAPPROVED' || comment.status == 'PENDING'"
+                        v-on:click="approveComment(comment)">
+                        <fmt:message key='comments.approve'/>
+                    </button>
+                    <button type="button" v-if="comment.status == 'APPROVED'" v-on:click="hideComment(comment)">
+                        <fmt:message key='comments.hide'/>
+                    </button>
                 </td>
                 <td>
-                    <input type="button" value="<fmt:message key='generic.delete'/>" v-on:click="deleteComment(comment)"/>
+                    <button type="button" v-on:click="deleteComment(comment)"><fmt:message key='generic.delete'/></button>
                 </td>
 
                 <td v-bind:class="commentStatusClass(comment.status)">

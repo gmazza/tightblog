@@ -233,8 +233,8 @@
 <br>
 
 <div class="control">
-    <input class="buttonBox" type="button" value="${saveButtonText}" ng-click="ctrl.updateWeblog()"/>
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.cancel'/>" ng-click="ctrl.cancelChanges()"/>
+    <button type="button" class="buttonBox" ng-click="ctrl.updateWeblog()">${saveButtonText}</button>
+    <button type="button" class="buttonBox" ng-click="ctrl.cancelChanges()"><fmt:message key='generic.cancel'/></button>
 </div>
 
 <br><br>

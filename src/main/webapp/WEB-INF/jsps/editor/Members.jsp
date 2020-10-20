@@ -111,7 +111,7 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
         <br />
 
             <div class="control">
-               <input ng-click="ctrl.updateRoles()" type="button" value="<fmt:message key='generic.save'/>" />
+               <button type="button" ng-click="ctrl.updateRoles()"><fmt:message key='generic.save'/></button>
             </div>
 
             <br>
@@ -140,6 +140,6 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
               <input type="radio" ng-model="ctrl.userToAddRole" value="EDIT_DRAFT" checked />
               <fmt:message key="members.contributor" /><br><br>
 
-              <input ng-click="ctrl.addUserToWeblog()" type="button" value="<fmt:message key='generic.add'/>"/>
+              <button type="button" ng-click="ctrl.addUserToWeblog()"><fmt:message key='generic.add'/></button>
           </div>
       </c:if>

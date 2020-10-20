@@ -1,6 +1,5 @@
 package org.tightblog.bloggerui.controller;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -188,13 +187,13 @@ public class MediaFileController {
         }
     }
 
-    @PutMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/mediadirectories")
+    @PutMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/mediadirectories", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public ResponseEntity<?> addMediaDirectory(@PathVariable String weblogId, @RequestBody TextNode directoryName,
+    public ResponseEntity<?> addMediaDirectory(@PathVariable String weblogId, @RequestBody MediaDirectory mediaDirectory,
                                     Principal p, Locale locale) {
         try {
             Weblog weblog = weblogDao.getOne(weblogId);
-            MediaDirectory newDir = mediaManager.createMediaDirectory(weblog, directoryName.asText().trim());
+            MediaDirectory newDir = mediaManager.createMediaDirectory(weblog, mediaDirectory.getName().trim());
             return SuccessResponse.textMessage(newDir.getId());
         } catch (IllegalArgumentException e) {
             return ValidationErrorResponse.badRequest(messages.getMessage(e.getMessage(), null, locale));

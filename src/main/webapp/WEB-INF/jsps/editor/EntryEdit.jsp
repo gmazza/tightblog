@@ -231,20 +231,20 @@
     <br>
     <div class="control">
         <span style="padding-left:7px">
-            <input type="button" value="<fmt:message key='entryEdit.save'/>" v-on:click="saveEntry('DRAFT')"/>
+            <button type="button" v-on:click="saveEntry('DRAFT')"><fmt:message key='entryEdit.save'/></button>
             <span v-show="entry.id">
-                <input type="button" value="<fmt:message key='entryEdit.fullPreviewMode' />" v-on:click="previewEntry()" />
+                <button type="button" v-on:click="previewEntry()"><fmt:message key='entryEdit.fullPreviewMode'/></button>
             </span>
             <span v-show="metadata.author">
-                <input type="button" value="<fmt:message key='entryEdit.post'/>" v-on:click="saveEntry('PUBLISHED')"/>
+                <button type="button" v-on:click="saveEntry('PUBLISHED')"><fmt:message key='entryEdit.post'/></button>
             </span>
             <span v-show="!metadata.author">
-                <input type="button" value="<fmt:message key='entryEdit.submitForReview'/>" v-on:click="saveEntry('PENDING')"/>
+                <button type="button" v-on:click="saveEntry('PENDING')"><fmt:message key='entryEdit.submitForReview'/></button>
             </span>
         </span>
 
         <span style="float:right" v-show="entry.id">
-            <input type="button" value="<fmt:message key='entryEdit.deleteEntry'/>" v-on:click="showDeleteModal(entry)"/>
+            <button type="button" v-on:click="showDeleteModal(entry)"><fmt:message key='entryEdit.deleteEntry'/></button>
         </span>
     </div>
 </div>

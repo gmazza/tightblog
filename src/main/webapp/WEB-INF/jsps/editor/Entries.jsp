@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     <br />
-                    <input v-on:click="loadEntries()" type="button" value="<fmt:message key='entries.button.query'/>" />
+                    <button type="button" v-on:click="loadEntries()"><fmt:message key='entries.button.query'/></button>
                 </div>
             </div> <!-- sidebarInner -->
         </div>
@@ -135,11 +135,13 @@
     <span v-if="pageNum > 0 || entriesData.hasMore">
         <center>
             &laquo;
-            <input type="button" value="<fmt:message key='entries.prev'/>"
-                v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
+            <button type="button" v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
+                <fmt:message key='entries.prev'/>
+            </button>    
             |
-            <input type="button" value="<fmt:message key='entries.next'/>"
-                v-bind:disabled="!entriesData.hasMore" v-on:click="nextPage()">
+            <button type="button" v-bind:disabled="!entriesData.hasMore" v-on:click="nextPage()">
+                <fmt:message key='entries.next'/>
+            </button>
             &raquo;
         </center>
     </span>

@@ -87,8 +87,9 @@
     </table>
 
     <div class="control clearfix">
-        <input type="button" v-on:click="showAddModal()"
-            value="<fmt:message key='categories.addCategory'/>">
+        <button type="button" v-on:click="showAddModal()">
+          <fmt:message key='categories.addCategory'/>
+        </button>
     </div>
 
 <!-- Add/Edit Category modal -->

@@ -158,7 +158,9 @@
 </table>
 
 <div class="control">
-    <input class="buttonBox" type="button" value="<fmt:message key='generic.save'/>" v-on:click="updateProperties()"/>
+    <button type="button" class="buttonBox" v-on:click="updateProperties()">
+        <fmt:message key='generic.save'/>
+    </button>
 </div>
 
 </div>
