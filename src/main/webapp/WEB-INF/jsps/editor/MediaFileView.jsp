@@ -64,6 +64,7 @@
     <span style="padding-left:7px">
       <input type="checkbox"
       v-bind:disabled="mediaFiles.length == 0" 
+      v-model="allFilesSelected"
       v-on:input="toggleCheckboxes($event.target.checked)"
       title="<fmt:message key='mediaFileView.selectAllLabel'/>"/>
     </span>

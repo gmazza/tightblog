@@ -56,7 +56,7 @@ public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
     @NotBlank
     private String id = Utilities.generateUUID();
     private int hashCode;
-    @NotBlank(message = "{mediaFile.error.view.dirNameEmpty}")
+    @NotBlank(message = "{mediaFile.error.view.dirNameInvalid}")
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", message = "{mediaFile.error.view.dirNameInvalid}")
     String name;
     @JsonIgnore

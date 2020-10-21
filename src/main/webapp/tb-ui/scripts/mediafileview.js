@@ -1,15 +1,14 @@
 var vm = new Vue({
   el: "#template",
   data: {
-    allFilesSelected: false,
     mediaDirectories: [],
     mediaFiles: [],
+    allFilesSelected: false,
     newFolderName: null,
     currentFolderId: null,
     targetFolderId: null,
     successMessage: null,
     modalMessage: null,
-    selectedFiles: [],
     errorObj: {},
   },
   computed: {
@@ -36,6 +35,14 @@ var vm = new Vue({
             }
             this.loadMediaFiles();
           }
+        })
+    },
+    loadMediaFiles: function () {
+      axios.
+        get(contextPath + '/tb-ui/authoring/rest/mediadirectories/' + this.currentFolderId + '/files')
+        .then(response => {
+          this.mediaFiles = response.data;
+          this.allFilesSelected = false;
         })
     },
     getFolderName: function (folderId) {
@@ -67,13 +74,6 @@ var vm = new Vue({
       textarea.select();
       document.execCommand('copy');
       textarea.remove();
-    },
-    loadMediaFiles: function () {
-      axios.
-        get(contextPath + '/tb-ui/authoring/rest/mediadirectories/' + this.currentFolderId + '/files')
-        .then(response => {
-          this.mediaFiles = response.data;
-        })
     },
     toggleCheckboxes: function(checkAll) {
       this.mediaFiles.forEach(file => {
@@ -128,13 +128,14 @@ var vm = new Vue({
     deleteFiles: function () {
       this.messageClear();
       $('#deleteFilesModal').modal('hide');
-      var self = this;
+
+      var filesToDelete = [];
       this.mediaFiles.forEach(mediaFile => {
-        if (mediaFile.selected) self.selectedFiles.push(mediaFile.id);
+        if (mediaFile.selected) filesToDelete.push(mediaFile.id);
       })
 
       axios.post(contextPath + '/tb-ui/authoring/rest/mediafiles/weblog/' + weblogId,
-        this.selectedFiles)
+        filesToDelete)
         .then(response => {
           this.successMessage = response.data;
           this.loadMediaFiles();
@@ -159,13 +160,14 @@ var vm = new Vue({
     moveFiles: function () {
       this.messageClear();
       $('#moveFilesModal').modal('hide');
-      var self = this;
+
+      var filesToMove = [];
       this.mediaFiles.forEach(mediaFile => {
-        if (mediaFile.selected) self.selectedFiles.push(mediaFile.id);
+        if (mediaFile.selected) filesToMove.push(mediaFile.id);
       })
 
       axios.post(contextPath + '/tb-ui/authoring/rest/mediafiles/weblog/' + weblogId +
-        "/todirectory/" + this.targetFolderId, this.selectedFiles)
+        "/todirectory/" + this.targetFolderId, filesToMove)
         .then(response => {
           this.successMessage = response.data;
           this.loadMediaFiles();
