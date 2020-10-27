@@ -33,21 +33,8 @@
 
 <input type="hidden" id="refreshURL" value="<c:url value='/tb-ui/app/admin/userAdmin'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
-    {{successMessage}}
-    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li v-for="item in errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <div id="pendingList" v-cloak>
    <span v-for="item in pendingList" style='color:red'>New registration request: {{item.screenName}} ({{item.emailAddress}}):
@@ -204,4 +191,5 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/useradmin.js'/>"></script>

@@ -40,6 +40,8 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/entries'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
+
 <p class="pagetip">
     <fmt:message key="entries.tip" />
 </p>
@@ -253,5 +255,6 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/entries.js'/>"></script>

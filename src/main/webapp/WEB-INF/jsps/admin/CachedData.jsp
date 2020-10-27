@@ -36,12 +36,8 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/admin/cachedData'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-if="successMessage" v-cloak>
-    {{successMessage}}
-    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
+<error-message-box v-bind:message="errorMessage" @close-box="errorMessage = null"></error-message-box>
 
 <div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorMessage" v-cloak>
     {{errorMessage}}
@@ -116,4 +112,5 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/cacheddata.js'/>"></script>

@@ -130,7 +130,7 @@
     </definition>
 
     <!-- weblog editor pages (and associates) -->
-    <definition name=".mediaFileEdit" extends=".tiles-tabbedpage" >
+    <definition name=".mediaFileEdit" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
     </definition>
 

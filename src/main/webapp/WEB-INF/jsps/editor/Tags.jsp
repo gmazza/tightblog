@@ -32,21 +32,8 @@
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/tags'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
-    {{successMessage}}
-    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li v-for="item in errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <p class="pagetip">
     <fmt:message key="tags.prompt"/>
@@ -170,4 +157,5 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/tags.js'/>"></script>

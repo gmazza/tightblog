@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,6 +66,15 @@ public class GlobalControllerAdvice {
         for (final ConstraintViolation<?> violation : e.getConstraintViolations()) {
             error.getErrors().add(new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
         }
+        return error;
+    }
+
+    // For Media File uploads larger than allowed size.
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseBody
+    public ValidationErrorResponse handleException(final MaxUploadSizeExceededException e) {
+        final ValidationErrorResponse error = new ValidationErrorResponse();
+        error.getErrors().add(new Violation(null, e.getMessage()));
         return error;
     }
 

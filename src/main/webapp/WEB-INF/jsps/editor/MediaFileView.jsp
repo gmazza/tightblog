@@ -44,21 +44,8 @@
     <fmt:message key="mediaFileView.rootPageTip" />
 </p>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
-    {{successMessage}}
-    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li v-for="item in errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <div class="control clearfix">
     <span style="padding-left:7px">
@@ -139,7 +126,7 @@
             <c:param name="weblogId" value="${actionWeblog.id}" />
         </c:url>
         <a v-bind:href="'${mediaFileAddURL}&directoryId=' + currentFolderId" style='font-weight:bold;'>
-          <button type="button" v-on:click="onToggle()">
+          <button type="button">
             <img src='<c:url value="/images/image_add.png"/>' border="0" alt="icon"> <fmt:message key="mediaFileView.add"/>
           </button>
         </a>
@@ -249,5 +236,6 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/stringutils.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/mediafileview.js'/>"></script>

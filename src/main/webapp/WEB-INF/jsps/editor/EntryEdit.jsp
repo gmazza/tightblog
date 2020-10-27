@@ -48,21 +48,8 @@
         <div id="maincontent">
 
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="successMessage" v-cloak>
-    {{successMessage}}
-    <button type="button" class="close" v-on:click="successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors && errorObj.errors.length > 0" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-        <li v-for="item in errorObj.errors" v-html="item.message"></li>
-    </ul>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <div>
     <table class="entryEditTable" cellpadding="0" cellspacing="0" style="width:100%">
@@ -357,5 +344,6 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/entryedit.js'/>"></script>

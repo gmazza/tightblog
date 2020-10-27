@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WebloggerProperties;
@@ -55,7 +56,8 @@ public class FileService {
     private WebloggerPropertiesDao webloggerPropertiesDao;
     private String storageDir;
     private Set<String> allowedMimeTypes;
-    private long maxFileSizeMb;
+    private String maxFileSizeStr;
+    private long maxFileSize;
     private boolean allowUploads;
 
     @Autowired
@@ -63,14 +65,15 @@ public class FileService {
                        @Value("${media.file.showTab}") boolean allowUploads,
                        @Value("${mediafiles.storage.dir}") String storageDir,
                        @Value("#{'${media.file.allowedMimeTypes}'.split(',')}") Set<String> allowedMimeTypes,
-                       @Value("${media.file.maxFileSizeMb:3}") long maxFileSizeMb
+                       @Value("${media.file.maxFileSize:3MB}") String maxFileSizeStr
                        ) {
 
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.allowUploads = allowUploads;
         this.storageDir = storageDir;
         this.allowedMimeTypes = allowedMimeTypes;
-        this.maxFileSizeMb = maxFileSizeMb;
+        this.maxFileSizeStr = maxFileSizeStr;
+        this.maxFileSize = DataSize.parse(this.maxFileSizeStr).toBytes();
 
         if (allowUploads) {
             log.info("Allowed MIME types for media files = {}", ObjectUtils.isEmpty(allowedMimeTypes) ?
@@ -197,10 +200,10 @@ public class FileService {
         }
 
         // third check, does upload exceed max size for file?
-        log.debug("File size = {}, Max allowed = {}MB", fileToTest.getSize(), maxFileSizeMb);
-        if (fileToTest.getSize() > maxFileSizeMb * Utilities.ONE_MB_IN_BYTES) {
+        log.debug("File size = {}, Max allowed = {}", fileToTest.getSize(), maxFileSizeStr);
+        if (fileToTest.getSize() > maxFileSize) {
             if (messages != null) {
-                messages.put("error.upload.filemax", Collections.singletonList(Long.toString(maxFileSizeMb)));
+                messages.put("error.upload.filemax", Collections.singletonList(maxFileSizeStr));
             }
             return false;
         }

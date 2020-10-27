@@ -48,14 +48,7 @@
     </c:otherwise>
 </c:choose>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-show="errorObj.errors" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li v-for="item in errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <p class="subtitle" v-show="entryTitleMsg != ''">
     <span>
@@ -244,5 +237,6 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/comments.js'/>"></script>

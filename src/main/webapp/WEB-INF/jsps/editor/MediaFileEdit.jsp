@@ -19,8 +19,10 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <c:url var="mediaFileViewUrl" value="/tb-ui/app/authoring/mediaFileView">
     <c:param name="weblogId" value="${actionWeblog.id}" />
@@ -34,18 +36,10 @@
     var mediaViewUrl = "<c:out value='${mediaFileViewUrl}'/>";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/mediafileedit.js'/>"></script>
+<div id="template">
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
-
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
+ 
 <c:choose>
     <c:when test="${param.mediaFileId != null}">
         <c:set var="subtitleKey">mediaFileEdit.subtitle</c:set>
@@ -56,9 +50,9 @@
             <c:param name="directoryId" value="${param.directoryId}"/>
             <c:param name="mediaFileId" value="${param.mediaFileId}"/>
         </c:url>
-        <div ng-if="ctrl.mediaFileData.imageFile" class="mediaFileThumbnail">
-            <a ng-href='{{ctrl.mediaFileData.permalink}}' target="_blank">
-                <img align="right" alt="thumbnail" ng-src='{{ctrl.mediaFileData.thumbnailURL}}'
+        <div v-if="mediaFileData.imageFile" class="mediaFileThumbnail">
+            <a v-bind:href='mediaFileData.permalink' target="_blank">
+                <img align="right" alt="thumbnail" v-bind:src='mediaFileData.thumbnailURL'
                      title='<fmt:message key="mediaFileEdit.clickToView" />' />
             </a>
         </div>
@@ -76,10 +70,6 @@
 
     <input id="refreshURL" type="hidden" value="${refreshURL}"/>
 
-    <p class="subtitle">
-        <fmt:message key="${subtitleKey}"/>
-    </p>
-
     <p class="pagetip">
         <fmt:message key="${pageTip}"/>
     </p>
@@ -91,10 +81,19 @@
 
         <tr>
             <td class="entryEditFormLabel">
+                <label for="fileControl"><fmt:message key="mediaFileEdit.fileLocation" /></label>
+            </td>
+            <td>
+                <input id="fileControl" type="file" ref="myMediaFile" size="30" v-on:change="handleFileUpload()" v-bind:required="myMediaFile.id == null"/>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="entryEditFormLabel">
                 <label for="name"><fmt:message key="generic.name" /></label>
             </td>
             <td>
-                <input id="name" type="text" ng-model="ctrl.mediaFileData.name" size="40" maxlength="255"/>
+                <input id="name" type="text" v-model="mediaFileData.name" size="40" maxlength="255" required/>
             </td>
         </tr>
 
@@ -103,7 +102,7 @@
                 <label for="altText"><fmt:message key="mediaFileEdit.altText"/><tags:help key="mediaFileEdit.altText.tooltip"/></label>
             </td>
             <td>
-                <input id="altText" type="text" ng-model="ctrl.mediaFileData.altText" size="80" maxlength="255"/>
+                <input id="altText" type="text" v-model="mediaFileData.altText" size="80" maxlength="255"/>
             </td>
         </tr>
 
@@ -112,7 +111,7 @@
                 <label for="titleText"><fmt:message key="mediaFileEdit.titleText"/><tags:help key="mediaFileEdit.titleText.tooltip"/></label>
             </td>
             <td>
-                <input id="titleText" type="text" ng-model="ctrl.mediaFileData.titleText" size="80" maxlength="255"/>
+                <input id="titleText" type="text" v-model="mediaFileData.titleText" size="80" maxlength="255"/>
             </td>
         </tr>
 
@@ -121,7 +120,7 @@
                 <label for="anchor"><fmt:message key="mediaFileEdit.anchor"/><tags:help key="mediaFileEdit.anchor.tooltip"/></label>
             </td>
             <td>
-                <input id="anchor" type="text" ng-model="ctrl.mediaFileData.anchor" size="80" maxlength="255"/>
+                <input id="anchor" type="text" v-model="mediaFileData.anchor" size="80" maxlength="255"/>
             </td>
         </tr>
 
@@ -130,7 +129,7 @@
                 <label for="notes"><fmt:message key="generic.notes"/></label>
             </td>
             <td>
-                <input id="notes" type="text" ng-model="ctrl.mediaFileData.notes" size="80" maxlength="255"/>
+                <input id="notes" type="text" v-model="mediaFileData.notes" size="80" maxlength="255"/>
             </td>
        </tr>
     <c:if test="${param.mediaFileId != null}">
@@ -139,9 +138,9 @@
                 <fmt:message key="mediaFileEdit.fileInfo" />
             </td>
             <td>
-                <b><fmt:message key="mediaFileEdit.fileType"/></b>: {{ctrl.mediaFileData.contentType}}
-                <b><fmt:message key="mediaFileEdit.fileSize"/></b>: {{ctrl.mediaFileData.length}}
-                <b><fmt:message key="mediaFileEdit.fileDimensions"/></b>: {{ctrl.mediaFileData.width}} x {{ctrl.mediaFileData.height}} pixels
+                <b><fmt:message key="mediaFileEdit.fileType"/></b>: {{mediaFileData.contentType}}
+                <b><fmt:message key="mediaFileEdit.fileSize"/></b>: {{mediaFileData.length}}
+                <b><fmt:message key="mediaFileEdit.fileDimensions"/></b>: {{mediaFileData.width}} x {{mediaFileData.height}} pixels
             </td>
        </tr>
 
@@ -150,7 +149,7 @@
                 <label for="permalink"><fmt:message key="mediaFileEdit.permalink" /></label>
             </td>
             <td>
-                <input id="permalink" type="text" size="80" value='{{ctrl.mediaFileData.permalink}}' readonly />
+                <input id="permalink" type="text" size="80" v-bind:value='mediaFileData.permalink' readonly />
             </td>
        </tr>
 
@@ -159,36 +158,27 @@
                 <label for="directoryId"><fmt:message key="mediaFileEdit.folder" /></label>
             </td>
             <td>
-                <input id="directoryId" type="text" size="30" value='{{ctrl.mediaFileData.directory.name}}' readonly />
+                <input id="directoryId" type="text" size="30" v-bind:value='mediaFileData.directory.name' readonly />
             </td>
        </tr>
     </c:if>
 
-        <tr>
-            <td class="entryEditFormLabel">
-                <label for="fileControl"><fmt:message key="mediaFileEdit.fileLocation" /></label>
-            </td>
-            <td>
-                <c:choose>
-                    <c:when test="${param.mediaFileId != null}">
-                        <input id="fileControl" type="file" file-model="ctrl.myMediaFile" size="30" value=""/>
-                    </c:when>
-                    <c:otherwise>
-                        <input id="fileControl" type="file" file-model="ctrl.myMediaFile" size="30" value="" required/>
-                    </c:otherwise>
-                </c:choose>
-            </td>
-        </tr>
     </table>
 
 <br />
 <div class="control">
-    <button type="button" ng-click="ctrl.saveMediaFile()">
+    <button type="button" v-on:click="saveMediaFile()">
         <fmt:message key='generic.save'/>
     </button>
-    <a href="<c:out value='${mediaFileViewUrl}'/>&amp;directoryId={{ctrl.mediaFileData.directory.id}}">
+    <a v-bind:href="'<c:out value='${mediaFileViewUrl}'/>&amp;directoryId=' + mediaFileData.directory.id">
         <button type="button">
             <fmt:message key='generic.cancel'/>
         </button>
     </a>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
+<script src="<c:url value='/tb-ui/scripts/mediafileedit.js'/>"></script>
+

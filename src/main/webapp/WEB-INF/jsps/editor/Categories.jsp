@@ -38,14 +38,7 @@
 
 <div id="template">
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorObj.errors" v-cloak>
-    <button type="button" class="close" v-on:click="errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-        <li v-for="item in errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <p class="pagetip">
     <fmt:message key="categories.rootPrompt"/>
@@ -144,4 +137,5 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/categories.js'/>"></script>
