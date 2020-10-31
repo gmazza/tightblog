@@ -20,7 +20,6 @@
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 
-<p class="subtitle"><fmt:message key="globalConfig.subtitle" /></p>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
@@ -29,6 +28,8 @@
 <script>
     var contextPath = "${pageContext.request.contextPath}";
 </script>
+
+<p class="subtitle"><fmt:message key="globalConfig.subtitle" /></p>
 
 <div id="template">
 

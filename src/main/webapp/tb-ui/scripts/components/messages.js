@@ -38,5 +38,3 @@ Vue.component('error-list-message-box', {
         </div>
         `
 });
-
-

@@ -175,7 +175,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
     </definition>
 
-    <definition name=".weblogConfig" extends=".tiles-tabbedpage" >
+    <definition name=".weblogConfig" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
     </definition>
 
