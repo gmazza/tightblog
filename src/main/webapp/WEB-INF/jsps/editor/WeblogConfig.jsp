@@ -27,7 +27,8 @@
 <script>
     var contextPath = "${pageContext.request.contextPath}";
     var msg = {
-        deleteWeblogTmpl: '<fmt:message key="weblogConfig.deleteConfirm"/>',
+        deleteDialogTitleTmpl: '<fmt:message key="weblogConfig.deleteConfirm"/>',
+        deleteDialogInstructionTmpl: '<fmt:message key="weblogConfig.deleteInstruction"/>',
         successMessage: '<fmt:message key="weblogConfig.savedChanges"/>'
     };
     // Below populated for weblog update only
@@ -222,36 +223,39 @@
 <br>
 
 <div class="control">
-    <button type="button" class="buttonBox" v-on:click="updateWeblog()">${saveButtonText}</button>
-    <button type="button" class="buttonBox" v-on:click="cancelChanges()"><fmt:message key='generic.cancel'/></button>
+    <span>
+        <button type="button" class="buttonBox" v-on:click="updateWeblog()">${saveButtonText}</button>
+        <button type="button" class="buttonBox" v-on:click="cancelChanges()"><fmt:message key='generic.cancel'/></button>
+    </span>
+
+    <c:if test="${weblogId != null}">
+        <span style="float:right">
+            <button type="button" data-toggle="modal" data-target="#deleteWeblogModal">
+                <fmt:message key="weblogConfig.button.delete"/>
+            </button>
+        </span>
+    </c:if>
 </div>
 
 <br><br>
-
-<div v-if="weblog.id != null">
-    <h2><fmt:message key="weblogConfig.deleteWeblogHeading"/></h2>
-    <p>
-        <span class="warning">
-            <fmt:message key="weblogConfig.deleteWeblogWarning"/>
-        </span>
-    </p>
-    <br>
-    <button data-toggle="modal" data-target="#deleteWeblogModal"><fmt:message key="weblogConfig.button.delete"/></button>
-    <br><br><br>
-</div>
 
 <!-- Delete weblog modal -->
 <div class="modal fade" id="deleteWeblogModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" v-html="deleteWeblogConfirmation"></h5>
+        <h5 class="modal-title" v-html="deleteDialogTitle"></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <span id="confirmDeleteMsg"><fmt:message key="weblogConfig.deleteWeblogWarning"/></span>
+        <span id="confirmDeleteMsg" class="text-danger"><fmt:message key="weblogConfig.deleteWarning"/></span><br>
+        <span id="confirmDeleteMsg" v-html="deleteDialogInstruction"></span>
+        <div>
+          <label for="newTag"><fmt:message key='weblogConfig.handle'/>:</label>
+          <input v-model="deleteHandle" type="text">
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key='generic.cancel'/></button>

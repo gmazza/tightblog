@@ -15,7 +15,9 @@ var vm = new Vue({
         metadata: {
             sharedThemeMap: []
         },
-        deleteWeblogConfirmation: null,
+        deleteDialogTitle: null,
+        deleteDialogInstruction: null,
+        deleteHandle: "",
         successMessage: null,
         errorObj: {}
     },
@@ -33,7 +35,8 @@ var vm = new Vue({
                     this.weblog = response.data;
                     // used in eval below
                     var weblogHandle = this.weblog.handle;
-                    this.deleteWeblogConfirmation = eval('`' + msg.deleteWeblogTmpl + '`');
+                    this.deleteDialogTitle = eval('`' + msg.deleteDialogTitleTmpl + '`');
+                    this.deleteDialogInstruction = eval('`' + msg.deleteDialogInstructionTmpl + '`');
                 }
                 )
         },
@@ -45,9 +48,10 @@ var vm = new Vue({
             axios.post(urlToUse, this.weblog)
                 .then(response => {
                     this.weblog = response.data;
-                    this.successMessage = msg.successMessage;
                     if (!weblogId) {
                         window.location.replace(homeUrl);
+                    } else {
+                        this.successMessage = msg.successMessage;
                     }
                     window.scrollTo(0, 0);
                 })
@@ -63,11 +67,13 @@ var vm = new Vue({
         deleteWeblog: function () {
             $('#deleteWeblogModal').modal('hide');
 
-            axios.delete(contextPath + '/tb-ui/authoring/rest/weblog/' + weblogId)
+            if (weblogId && this.weblog.handle.toUpperCase() === this.deleteHandle.toUpperCase().trim()) {           
+                axios.delete(contextPath + '/tb-ui/authoring/rest/weblog/' + weblogId)
                 .then(response => {
                     window.location.replace(homeUrl);
                 })
                 .catch(error => this.commonErrorResponse(error));
+            }
         },
         cancelChanges: function () {
             this.messageClear();

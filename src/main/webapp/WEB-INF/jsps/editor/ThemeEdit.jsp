@@ -75,7 +75,7 @@ var templatePageUrl = "<c:url value='/tb-ui/app/authoring/templates'/>?weblogId=
             <fmt:message key="themeEdit.previewDescription" />
         </p>
         <p>
-          <span class="warning">
+          <span class="text-danger">
               <fmt:message key="themeEdit.switchWarning" />
           </span>
         </p>

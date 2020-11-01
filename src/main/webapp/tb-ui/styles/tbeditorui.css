@@ -276,11 +276,6 @@ td.spamcomment {
 /* ----------------------------------------------------------------------
 Error and status message styles
 ---------------------------------------------------------------------- */
-.warning {
-    color: #f00;
-    font-size: larger;
-}
-
 div.errorTitle {
     background-color: #ffcccc;
     border: 1px solid #000000;
