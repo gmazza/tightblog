@@ -141,9 +141,6 @@ var vm = new Vue({
         messageClear: function() {
             this.errorObj = {};
         },
-        formatDate: function(isoDate) {
-            return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A');
-        },    
         commonErrorResponse: function(error) {
             if (error.response.status == 401) {
                window.location.replace($('#refreshURL').attr('value'));

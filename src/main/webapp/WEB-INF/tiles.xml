@@ -89,6 +89,7 @@
 
     <definition name=".profile" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Profile.jsp" />
+        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".register" extends=".tiles-simplepage" >
@@ -179,11 +180,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
     </definition>
 
-    <definition name=".themeEdit" extends=".tiles-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/ThemeEdit.jsp" />
-    </definition>
-
-    <definition name=".templates" extends=".tiles-tabbedpage"  >
+    <definition name=".templates" extends=".tiles-vue-tabbedpage"  >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Templates.jsp" />
     </definition>
 

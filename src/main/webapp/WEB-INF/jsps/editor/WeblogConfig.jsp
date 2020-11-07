@@ -29,7 +29,7 @@
     var msg = {
         deleteDialogTitleTmpl: '<fmt:message key="weblogConfig.deleteConfirm"/>',
         deleteDialogInstructionTmpl: '<fmt:message key="weblogConfig.deleteInstruction"/>',
-        successMessage: '<fmt:message key="weblogConfig.savedChanges"/>'
+        successMessage: '<fmt:message key="generic.changes.saved"/>'
     };
     // Below populated for weblog update only
     var weblogId = "<c:out value='${weblogId}'/>";

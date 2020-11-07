@@ -71,7 +71,7 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebarFade {
-    border-radius: 10px 10px 0px 0px;
+    border-radius: 0px 0px 10px 10px;
 }
 
 #maincontent {

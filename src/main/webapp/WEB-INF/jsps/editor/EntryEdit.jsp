@@ -68,22 +68,21 @@
                 <fmt:message key="entryEdit.status" />
             </td>
             <td v-cloak>
-                <fmt:message key="generic.date.toStringFormat" var="dateFormat"/>
                 <span v-show="entry.status == 'PUBLISHED'" style="color:green; font-weight:bold">
                     <fmt:message key="entryEdit.published" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ entry.updateTime | standard_datetime }})
                 </span>
                 <span v-show="entry.status == 'DRAFT'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.draft" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ entry.updateTime | standard_datetime }})
                 </span>
                 <span v-show="entry.status == 'PENDING'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.pending" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ formatDate(entry.updateTime) }})
+                    (<fmt:message key="entryEdit.updateTime" /> {{ entry.updateTime | standard_datetime }})
                 </span>
                 <span v-show="entry.status == 'SCHEDULED'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.scheduled" />
-                    (<fmt:message key="entryEdit.updateTime"/> {{ formatDate(entry.updateTime) }})
+                    (<fmt:message key="entryEdit.updateTime"/> {{ entry.updateTime | standard_datetime }})
                 </span>
                 <span v-show="!entry.status" style="color:red; font-weight:bold">
                     <fmt:message key="entryEdit.unsaved" />
@@ -344,6 +343,7 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/dayjsfilters.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/entryedit.js'/>"></script>

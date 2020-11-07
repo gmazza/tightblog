@@ -121,9 +121,9 @@
 
         <span v-if="commentData.comments.length > 0">
             <div style="float:right;">
-                {{ formatDate(commentData.comments[0].postTime) }}
+                {{ commentData.comments[0].postTime | standard_datetime }}
                 ---
-                {{ formatDate(commentData.comments[commentData.comments.length - 1].postTime) }}
+                {{ commentData.comments[commentData.comments.length - 1].postTime | standard_datetime }}
             </div>
         </span>
         <br><br>
@@ -211,7 +211,7 @@
                                     </div>
                                 </span>
                                 <div class="details">
-                                    <fmt:message key="comments.postTime" />: {{ formatDate(comment.postTime) }}
+                                    <fmt:message key="comments.postTime" />: {{ comment.postTime | standard_datetime }}
                                 </div>
                             </div>
                             <div class="viewdetails bot">
@@ -237,6 +237,7 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/dayjsfilters.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/comments.js'/>"></script>

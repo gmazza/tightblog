@@ -120,11 +120,11 @@
     <span v-if="entriesData.entries.length > 0">
         <div style="float:right;">
             <span v-if="entriesData.entries[0].pubTime != null">
-                {{ formatDate(entriesData.entries[0].pubTime) }}
+                {{ entriesData.entries[0].pubTime | standard_datetime }}
             </span>
             ---
             <span v-if="entriesData.entries[entriesData.entries.length - 1].pubTime != null">
-                {{ formatDate(entriesData.entries[entriesData.entries.length - 1].pubTime) }}
+                {{ entriesData.entries[entriesData.entries.length - 1].pubTime | standard_datetime }}
            </span>
         </div>
     </span>
@@ -186,13 +186,13 @@
 
             <td>
                 <span v-if="entry.pubTime != null">
-                    {{ formatDate(entry.pubTime) }}
+                    {{ entry.pubTime | standard_datetime }}
                 </span>
             </td>
 
             <td>
                 <span v-if="entry.updateTime != null">
-                    {{ formatDate(entry.updateTime) }}
+                    {{ entry.updateTime | standard_datetime }}
                 </span>
             </td>
 
@@ -255,6 +255,7 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/dayjsfilters.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/datepicker.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/entries.js'/>"></script>

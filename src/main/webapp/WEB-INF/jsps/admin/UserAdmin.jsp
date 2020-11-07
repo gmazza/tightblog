@@ -67,13 +67,13 @@
 
   <tr>
       <td class="label"><fmt:message key="userSettings.accountCreateDate" /></td>
-      <td class="field">{{ formatDate(userBeingEdited.dateCreated) }}</td>
+      <td class="field">{{ userBeingEdited.dateCreated | standard_datetime }}</td>
       <td class="description"></td>
   </tr>
 
   <tr>
       <td class="label"><fmt:message key="userSettings.lastLogin" /></td>
-      <td class="field">{{ formatDate(userBeingEdited.lastLogin) }}</td>
+      <td class="field">{{ userBeingEdited.lastLogin | standard_datetime }}</td>
       <td class="description"></td>
   </tr>
 
@@ -191,5 +191,6 @@
 
 </div>
 
+<script src="<c:url value='/tb-ui/scripts/components/dayjsfilters.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
 <script src="<c:url value='/tb-ui/scripts/useradmin.js'/>"></script>

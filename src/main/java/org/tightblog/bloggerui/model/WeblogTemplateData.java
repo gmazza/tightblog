@@ -16,6 +16,7 @@
 package org.tightblog.bloggerui.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.Template;
 
 import java.util.ArrayList;
@@ -28,6 +29,14 @@ public class WeblogTemplateData {
     private List<Template> templates;
     private Map<String, String> availableTemplateRoles = new HashMap<>();
     private Map<String, String> templateRoleDescriptions = new HashMap<>();
+    private List<SharedTheme> themes = new ArrayList<>();
+
+    public List<SharedTheme> getThemes() {
+        if (themes == null) {
+            themes = new ArrayList<>();
+        }
+        return themes;
+    }
 
     public List<Template> getTemplates() {
         if (templates == null) {
