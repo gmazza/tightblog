@@ -98,9 +98,12 @@ var vm = new Vue({
         .catch(error => this.commonErrorResponse(error));
     },
     toggleCheckboxes: function (checkAll) {
-      this.weblogTemplateData.templates.filter(tmpl => tmpl.derivation != 'Default').forEach(tmpl => {
+      this.weblogTemplateData.templates.filter(tmpl => !this.isBuiltIn(tmpl)).forEach(tmpl => {
         Vue.set(tmpl, 'selected', checkAll);
       })
+    },
+    isBuiltIn: function (template) {
+      return template && template.derivation == 'Built-In';
     },
     resetAddTemplateData: function () {
       this.newTemplateName = '';
@@ -118,7 +121,7 @@ var vm = new Vue({
       this.errorObj = {};
     }
   },
-  mounted: function () {
+  created: function () {
     this.loadTemplateData();
     this.resetAddTemplateData();
   }

@@ -113,16 +113,17 @@ public interface Template {
     /**
      * The template derivation provides the background for this template, useful for doing validation
      * during template customization.  Enum values:
-     * SHARED - file-based only, the template came from a shared theme and was not overridden by the user
-     * during template customization.
-     * OVERRIDDEN - A database-stored template that overrides one provided by a shared theme.
-     * SPECIFICBLOG - A database-stored template that does not override a shared template.  It is defined
-     * for a single blog only.
+     * SHARED - file-based only, the template came from a shared theme and has not been overridden 
+     * by the user during template customization.
+     * OVERRIDDEN - A database-stored template defined for a specific blog that overrides one provided 
+     * by a shared theme.
+     * SPECIFICBLOG - A database-stored template defined for a specific blog that does not override a 
+     * shared template.
      */
     enum Derivation {
-        SHARED("Default"),
+        SHARED("Built-In"),
         OVERRIDDEN("Override"),
-        SPECIFICBLOG("Blog-Only");
+        SPECIFICBLOG("Added");
 
         private final String readableName;
 

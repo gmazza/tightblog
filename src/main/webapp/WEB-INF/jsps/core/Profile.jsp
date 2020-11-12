@@ -19,8 +19,10 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
 <script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
 
 <script>
     var contextPath = "${pageContext.request.contextPath}";
@@ -28,40 +30,32 @@
     var userId = "<c:out value='${authenticatedUser.id}'/>";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/profile.js'/>"></script>
+<div id="template">
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.showSuccessMessage" ng-cloak>
+<div id="successMessageDiv" class="alert alert-success" role="alert" v-show="showSuccessMessage" v-cloak>
     <c:choose>
         <c:when test="${authenticatedUser != null}">
             <p><fmt:message key="generic.changes.saved"/></p>
         </c:when>
         <c:otherwise>
-            <div ng-show="ctrl.userBeingEdited.status == 'ENABLED'">
+            <div v-show="userBeingEdited.status == 'ENABLED'">
                 <p><fmt:message key="welcome.accountCreated"/></p>
                 <p><a href="<c:url value='/tb-ui/app/login-redirect'/>">
                     <fmt:message key="welcome.clickHere"/></a>
                     <fmt:message key="welcome.toLoginAndPost"/></p>
             </div>
-            <div ng-show="ctrl.userBeingEdited.status == 'REGISTERED'">
+            <div v-show="userBeingEdited.status == 'REGISTERED'">
                 <p><fmt:message key="welcome.accountCreated"/></p>
                 <p><fmt:message key="welcome.user.account.not.activated"/></p>
             </div>
         </c:otherwise>
     </c:choose>
-    <button type="button" class="close" data-ng-click="ctrl.showSuccessMessage = false" aria-label="Close">
+    <button type="button" class="close" v-on:click="showSuccessMessage = false" aria-label="Close">
        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
 <c:choose>
     <c:when test="${authenticatedUser == null}">
@@ -71,7 +65,7 @@
         <c:set var="saveButtonText">userRegister.button.save</c:set>
         <input type="hidden" id="cancelURL" value="${pageContext.request.contextPath}"/>
         <c:url var="refreshUrl" value="/tb-ui/app/register"/>
-        <div ng-hide="ctrl.profileUserId">
+        <div ng="profileUserId">
             <p><fmt:message key="userRegister.prompt"/></p>
         </div>
     </c:when>
@@ -94,10 +88,10 @@
       <td class="field">
         <c:choose>
             <c:when test="${authenticatedUser == null}">
-                <input id="userName" type="text" size="30" ng-model="ctrl.userBeingEdited.userName" minlength="5" maxlength="25">
+                <input id="userName" type="text" size="30" v-model="userBeingEdited.userName" minlength="5" maxlength="25">
             </c:when>
             <c:otherwise>
-                <input id="userName" type="text" size="30" ng-model="ctrl.userBeingEdited.userName" readonly>
+                <input id="userName" type="text" size="30" v-model="userBeingEdited.userName" readonly>
             </c:otherwise>
         </c:choose>
       </td>
@@ -106,27 +100,27 @@
 
   <tr>
       <td class="label"><label for="screenName"><fmt:message key="userSettings.screenname"/></label></td>
-      <td class="field"><input id="screenName" type="text" size="30" ng-model="ctrl.userBeingEdited.screenName" minlength="3" maxlength="30"></td>
+      <td class="field"><input id="screenName" type="text" size="30" v-model="userBeingEdited.screenName" minlength="3" maxlength="30"></td>
       <td class="description"><fmt:message key="userRegister.tip.screenName"/></td>
   </tr>
 
   <tr>
       <td class="label"><label for="emailAddress"><fmt:message key="userSettings.email" /></label></td>
-      <td class="field"><input id="emailAddress" type="email" size="40" ng-model="ctrl.userBeingEdited.emailAddress" maxlength="40"></td>
+      <td class="field"><input id="emailAddress" type="email" size="40" v-model="userBeingEdited.emailAddress" maxlength="40"></td>
       <td class="description"><fmt:message key="userAdmin.tip.email" /></td>
   </tr>
 
     <tr>
        <td class="label"><label for="passwordText"><fmt:message key="userSettings.password"/></label></td>
         <td class="field">
-            <input id="passwordText" type="password" size="20" ng-model="ctrl.userCredentials.passwordText" minlength="8" maxlength="20">
+            <input id="passwordText" type="password" size="20" v-model="userCredentials.passwordText" minlength="8" maxlength="20">
         </td>
         <td class="description"><fmt:message key="${passwordTipKey}"/></td>
     </tr>
     <tr>
         <td class="label"><label for="passwordConfirm"><fmt:message key="userSettings.passwordConfirm"/></label></td>
         <td class="field">
-            <input id="passwordConfirm" type="password" size="20" ng-model="ctrl.userCredentials.passwordConfirm" minlength="8" maxlength="20">
+            <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20">
         </td>
         <td class="description"><fmt:message key="${passwordConfirmTipKey}"/></td>
     </tr>
@@ -134,7 +128,13 @@
 
 <br/>
 
-<div class="control" ng-hide="ctrl.hideButtons">
-    <button type="button" class="buttonBox" ng-click="ctrl.updateUser()"><fmt:message key='${saveButtonText}'/></button>
-    <button type="button" class="buttonBox" ng-click="ctrl.cancelChanges()"><fmt:message key='generic.cancel'/></button>
+<div class="control" ng-show="!hideButtons">
+    <button type="button" class="buttonBox" v-on:click="updateUser()"><fmt:message key='${saveButtonText}'/></button>
+    <button type="button" class="buttonBox" v-on:click="cancelChanges()"><fmt:message key='generic.cancel'/></button>
 </div>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
+<script src="<c:url value='/tb-ui/scripts/profile.js'/>"></script>
+

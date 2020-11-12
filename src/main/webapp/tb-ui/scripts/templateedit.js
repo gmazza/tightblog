@@ -1,63 +1,57 @@
-tightblogApp.controller('PageController', ['$http', function PageController($http) {
-      var self = this;
-      var templateData = {};
-      var lastSavedName = null;
-      var errorObj = null;
-      var showSuccessMessage = false;
-
-      this.launchPage = function() {
-          window.open(weblogUrl + 'page/' + self.lastSavedName, '_blank');
-      };
-
-      this.loadTemplate = function() {
-          var urlStem;
-          if (templateId) {
-              urlStem = '/tb-ui/authoring/rest/template/' + templateId;
-          } else {
-              urlStem = '/tb-ui/authoring/rest/weblog/' + weblogId + '/templatename/' + templateName + '/';
-          }
-          $http.get(contextPath + urlStem).then(
-          function(response) {
-              self.templateData = response.data;
-              self.lastSavedName = self.templateData.name;
-          });
-      };
-
-      this.saveTemplate = function() {
-          this.messageClear();
-          var urlStem = '/tb-ui/authoring/rest/weblog/' + weblogId + '/templates';
-          var templateToSend = JSON.parse(JSON.stringify(self.templateData));
-
-          $http.post(contextPath + urlStem, JSON.stringify(templateToSend)).then(
-           function(response) {
-              templateId = response.data;
-              self.loadTemplate();
-              self.showSuccessMessage = true;
-           },
-           function(response) {
-             if (response.status == 401)
-               window.location.replace($('#refreshURL').attr('value'));
-             if (response.status == 400) {
-               self.errorObj = response.data;
-             }
-          })
-      };
-
-      this.messageClear = function() {
-          this.showSuccessMessage = false;
-          this.errorObj = null;
-      }
-
-      this.loadTemplate();
-
-  }]);
-
-tightblogApp.directive('templateTabs', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elm, attrs) {
-            var jqueryElm = $(elm[0]);
-            $(jqueryElm).tabs()
-        }
-    };
-})
+var vm = new Vue({
+    el: "#template",
+    data: {
+        templateData: {
+            role: null,
+        },
+        lastSavedName: null,
+        showSuccessMessage: false,
+        errorObj: {},
+        templateLoaded: false
+    },
+    methods: {
+        launchPage: function() {
+            window.open(weblogUrl + 'page/' + this.lastSavedName, '_blank');
+        },
+        loadTemplate: function() {
+            var urlStem;
+            if (templateId) {
+                urlStem = '/tb-ui/authoring/rest/template/' + templateId;
+            } else {
+                urlStem = '/tb-ui/authoring/rest/weblog/' + weblogId + '/templatename/' + templateName + '/';
+            }
+            axios.get(contextPath + urlStem)
+            .then(response => {
+                this.templateData = response.data;
+                this.lastSavedName = this.templateData.name;
+                this.templateLoaded = true;
+            });
+        },
+        saveTemplate: function() {
+            this.messageClear();
+            var urlStem = '/tb-ui/authoring/rest/weblog/' + weblogId + '/templates';
+  
+            axios.post(contextPath + urlStem, this.templateData)
+            .then(response => {
+                templateId = response.data;
+                this.loadTemplate();
+                this.showSuccessMessage = true;
+            })
+            .catch(error => this.commonErrorResponse(error))
+        },
+        messageClear: function () {
+            this.showSuccessMessage = false;
+            this.errorObj = {};
+        },
+        commonErrorResponse: function (error) {
+            if (error.response.status == 401) {
+              window.location.replace($('#refreshURL').attr('value'));
+            } else {
+              this.errorObj = error.response.data;
+            }
+        },
+    },
+    created: function() {
+        this.loadTemplate();
+    }
+});

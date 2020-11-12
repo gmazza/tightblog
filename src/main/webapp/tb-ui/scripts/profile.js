@@ -1,80 +1,75 @@
-tightblogApp.controller('PageController', ['$http',
-    function PageController($http) {
-        var self = this;
-        this.userBeingEdited = {
-        };
-        this.userCredentials = {};
-        this.errorObj = {};
-        this.hideButtons = false;
-
-        this.loadMetadata = function() {
-            $http.get(contextPath + '/tb-ui/register/rest/useradminmetadata').then(
-            function(response) {
-                self.metadata = response.data;
-              },
-              self.commonErrorResponse
-            )
-        };
-
-        this.loadUser = function() {
-            $http.get(contextPath + '/tb-ui/authoring/rest/userprofile/' + userId).then(
-              function(response) {
-                 self.userBeingEdited = response.data;
-                 self.userCredentials = {};
-              }
-            )
-        }
-
-        this.updateUser = function() {
+var vm = new Vue({
+    el: "#template",
+    data: {
+        metadata: {},
+        userBeingEdited: {},
+        userCredentials: {},
+        errorObj: {},
+        hideButtons: false,
+        showSuccessMessage: false
+    },
+    methods: {
+        loadMetadata: function () {
+            axios.get(contextPath + '/tb-ui/register/rest/useradminmetadata')
+                .then(response => {
+                    this.metadata = response.data;
+                })
+                .catch(error => this.commonErrorResponse(error))
+        },
+        loadUser: function () {
+            axios.get(contextPath + '/tb-ui/authoring/rest/userprofile/' + userId)
+                .then(response => {
+                    this.userBeingEdited = response.data;
+                    this.userCredentials = {};
+                })
+        },
+        updateUser: function () {
             this.messageClear();
             var userData = {};
             userData.user = this.userBeingEdited;
             userData.credentials = this.userCredentials;
             var urlToUse = contextPath + (userId ? '/tb-ui/authoring/rest/userprofile/' + userId
-              : '/tb-ui/register/rest/registeruser');
+                : '/tb-ui/register/rest/registeruser');
 
-            $http.post(urlToUse, JSON.stringify(userData)).then(
-              function(response) {
-                  self.userBeingEdited = response.data.user;
-                  if (!userId) {
-                     self.hideButtons = true;
-                     userId = self.userBeingEdited.id;
-                  }
-                  self.userCredentials = {};
-                  self.showSuccessMessage = true;
-              },
-              function(response) {
-                if (response.status == 400) {
-                   self.errorObj = response.data;
-                } else {
-                   self.commonErrorResponse(response);
-                }
-              })
-        }
-
-        this.cancelChanges = function() {
+            axios.post(urlToUse, userData)
+                .then(response => {
+                    this.userBeingEdited = response.data.user;
+                    if (!userId) {
+                        this.hideButtons = true;
+                        userId = self.userBeingEdited.id;
+                    }
+                    this.userCredentials = {};
+                    this.showSuccessMessage = true;
+                })
+                .catch(error => {
+                    if (error.response.status == 400) {
+                        this.errorObj = error.response.data;
+                    } else {
+                        this.commonErrorResponse(error);
+                    }
+                })
+        },
+        cancelChanges: function () {
             this.messageClear();
             this.userBeingEdited = null;
             this.credentials = {};
-        }
-
-        this.commonErrorResponse = function(response) {
-            if (response.status == 401) {
-               window.location.replace($('#refreshURL').attr('value'));
-            } else {
-               self.errorMessage = response.data;
-            }
-        }
-
-        this.messageClear = function() {
+        },
+        messageClear: function () {
             this.errorObj = {};
             this.showSuccessMessage = false;
+        },
+        commonErrorResponse: function (error) {
+            if (error.response.status == 401) {
+                window.location.replace($('#refreshURL').attr('value'));
+            } else {
+                this.errorObj = error.response.data;
+            }
         }
-
-        this.messageClear();
+    },
+    created: function () {
         this.loadMetadata();
         if (userId) {
             this.loadUser();
         }
-    }]
-);
+    }
+});

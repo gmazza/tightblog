@@ -135,7 +135,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
     </definition>
 
-    <definition name=".mediaFileAdd" extends=".tiles-tabbedpage" >
+    <definition name=".mediaFileAdd" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
     </definition>
 
@@ -172,7 +172,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Blogroll.jsp" />
     </definition>
 
-    <definition name=".createWeblog" extends=".tiles-tabbedpage" >
+    <definition name=".createWeblog" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
     </definition>
 
@@ -184,7 +184,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Templates.jsp" />
     </definition>
 
-    <definition name=".templateEdit" extends=".tiles-tabbedpage"  >
+    <definition name=".templateEdit" extends=".tiles-vue-tabbedpage"  >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/TemplateEdit.jsp" />
     </definition>
 

@@ -75,8 +75,8 @@ public class ThemeTemplateResolver extends AbstractConfigurableTemplateResolver 
                 template = theme.getTemplateByName(sharedThemeParts[1]);
             }
         } else if (resourceId.length() == 36) {
-            // weblog-only templates in database are indexed by 36 char UUIDs
-            // 36 requirement blocks most DB calls for static resources in Thymeleaf folder, e.g.,
+            // Additional templates (not part of theme) added by blogger are indexed by 36 char UUIDs
+            // in DB; 36 requirement blocks most DB calls for static resources in Thymeleaf folder, e.g.,
             // "fragments", these are resolved and cached subsequently by Thymeleaf.
             // Below method would return null anyway for any 36 char non-UUIDs
             template = weblogTemplateDao.findById(resourceId).orElse(null);

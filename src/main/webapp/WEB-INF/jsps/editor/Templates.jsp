@@ -82,7 +82,7 @@
           <fmt:message key="templates.description" />
         </th>
         <th width="8%">
-          <fmt:message key="templates.source" />
+          <fmt:message key="templates.source" /> <tags:help key="templates.source.tooltip"/>
         </th>
         <th width="13%">
           <fmt:message key="generic.lastModified" />
@@ -95,7 +95,7 @@
     <tbody v-cloak>
       <tr v-for="tpl in weblogTemplateData.templates">
         <td class="center" style="vertical-align:middle">
-          <span v-if="tpl.derivation != 'Default'">
+          <span v-if="!isBuiltIn(tpl)">
             <input type="checkbox" name="idSelections" v-model="tpl.selected" v-bind:value="tpl.id" />
           </span>
         </td>
@@ -104,11 +104,9 @@
           <c:url var="edit" value="/tb-ui/app/authoring/templateEdit">
             <c:param name="weblogId" value="${actionWeblog.id}" />
           </c:url>
-          <span v-if="tpl.derivation != 'Default'">
-            <a v-bind:href="'${edit}&templateId=' + tpl.id">{{tpl.name}}</a>
-          </span>
-          <span v-if="tpl.derivation == 'Default'">
-            <a v-bind:href="'${edit}&templateName=' + tpl.name">{{tpl.name}}</a>
+          <span>
+            <a v-if="isBuiltIn(tpl)" v-bind:href="'${edit}&templateName=' + tpl.name">{{tpl.name}}</a>
+            <a v-else v-bind:href="'${edit}&templateId=' + tpl.id">{{tpl.name}}</a>
           </span>
         </td>
 

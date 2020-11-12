@@ -297,7 +297,7 @@ public class PageController extends AbstractController {
         if (rendererOutput == null) {
             newContent = true;
 
-            // use default template if not yet earlier determined
+            // use built-in template if not yet earlier determined
             if (incomingRequest.getTemplate() == null) {
                 incomingRequest.setTemplate(
                         themeManager.getWeblogTheme(incomingRequest.getWeblog()).getTemplateByRole(Role.WEBLOG));
