@@ -113,14 +113,14 @@
     <tr>
        <td class="label"><label for="passwordText"><fmt:message key="userSettings.password"/></label></td>
         <td class="field">
-            <input id="passwordText" type="password" size="20" v-model="userCredentials.passwordText" minlength="8" maxlength="20">
+            <input id="passwordText" type="password" size="20" v-model="userCredentials.passwordText" minlength="8" maxlength="20" autocomplete="new-password">
         </td>
         <td class="description"><fmt:message key="${passwordTipKey}"/></td>
     </tr>
     <tr>
         <td class="label"><label for="passwordConfirm"><fmt:message key="userSettings.passwordConfirm"/></label></td>
         <td class="field">
-            <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20">
+            <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20" autocomplete="new-password">
         </td>
         <td class="description"><fmt:message key="${passwordConfirmTipKey}"/></td>
     </tr>
@@ -128,7 +128,7 @@
 
 <br/>
 
-<div class="control" ng-show="!hideButtons">
+<div class="control" v-show="!hideButtons">
     <button type="button" class="buttonBox" v-on:click="updateUser()"><fmt:message key='${saveButtonText}'/></button>
     <button type="button" class="buttonBox" v-on:click="cancelChanges()"><fmt:message key='generic.cancel'/></button>
 </div>

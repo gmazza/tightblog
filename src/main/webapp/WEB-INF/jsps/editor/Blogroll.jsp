@@ -71,8 +71,8 @@
                 <fmt:message key="generic.edit" />
             </button>
         </td>
-    </tr>
-  </tbody>
+      </tr>
+    </tbody>
 </table>
 
 <div class="control clearfix">

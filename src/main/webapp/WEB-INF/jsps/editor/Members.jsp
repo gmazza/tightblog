@@ -19,16 +19,17 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
-<script src='<c:url value="/tb-ui/scripts/jquery-2.2.3.min.js" />'></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
+<script src="/tb-ui/scripts/jquery-2.2.3.min.js"></script>
 
 <script>
 var contextPath = "${pageContext.request.contextPath}";
 var weblogId = "<c:out value='${actionWeblog.id}'/>";
 </script>
 
-<script src="<c:url value='/tb-ui/scripts/commonangular.js'/>"></script>
-<script src="<c:url value='/tb-ui/scripts/members.js'/>"></script>
+<div id="template">
 
 <input id="refreshURL" type="hidden" value="<c:url value='/tb-ui/app/authoring/members'/>?weblogId=<c:out value='${param.weblogId}'/>"/>
 
@@ -39,9 +40,9 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
         <div class="menu-tl">
             <div class="sidebarBody">
             <div class="sidebarInner">
-            <h3>
+            <h4>
                 <fmt:message key="members.roleDefinitionsTitle" />
-            </h3>
+            </h4>
             <hr size="1" noshade="noshade" />
             <fmt:message key="members.roleDefinitions" />
 		    <br />
@@ -52,21 +53,8 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
     </div>
 </div>
 
-<div id="successMessageDiv" class="alert alert-success" role="alert" ng-show="ctrl.successMessage" ng-cloak>
-    {{ctrl.successMessage}}
-    <button type="button" class="close" data-ng-click="ctrl.successMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" ng-show="ctrl.errorObj.errors" ng-cloak>
-    <button type="button" class="close" data-ng-click="ctrl.errorObj.errors = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-       <li ng-repeat="item in ctrl.errorObj.errors">{{item.message}}</li>
-    </ul>
-</div>
+<success-message-box v-bind:message="successMessage" @close-box="successMessage=null"></success-message-box>
+<error-list-message-box v-bind:in-error-obj="errorObj" @close-box="errorObj.errors=null"></error-list-message-box>
 
     <table class="table table-bordered table-hover">
         <thead class="thead-light">
@@ -78,29 +66,29 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
              <th scope="col" width="20%"><fmt:message key="members.remove" /></th>
           </tr>
         </thead>
-        <tbody ng-cloak>
-            <tr ng-repeat="role in ctrl.roles" id="{{role.user.id}}" ng-class="{pending_member: role.pending}">
+        <tbody v-cloak>
+            <tr v-for="role in roles" v-bind:id="role.user.id" v-bind:class="{pending_member: role.pending}">
                 <td>
                   <img src='<c:url value="/images/user.png"/>' border="0" alt="icon" />
                   {{role.user.userName}}
                 </td>
                 <td>
-                  <input type="radio" ng-model="role.weblogRole" value='OWNER'
+                  <input type="radio" v-model="role.weblogRole" value='OWNER'
                         <c:if test="${!userIsAdmin}">disabled</c:if>
                   >
                 </td>
                 <td>
-                  <input type="radio" ng-model="role.weblogRole" value='POST'
+                  <input type="radio" v-model="role.weblogRole" value='POST'
                         <c:if test="${!userIsAdmin}">disabled</c:if>
                   >
                 </td>
                 <td>
-                  <input type="radio" ng-model="role.weblogRole" value='EDIT_DRAFT'
+                  <input type="radio" v-model="role.weblogRole" value='EDIT_DRAFT'
                         <c:if test="${!userIsAdmin}">disabled</c:if>
                   >
                 </td>
                 <td>
-                  <input type="radio" ng-model="role.weblogRole" value='NOBLOGNEEDED'
+                  <input type="radio" v-model="role.weblogRole" value='NOBLOGNEEDED'
                         <c:if test="${!userIsAdmin}">disabled</c:if>
                   >
                 </td>
@@ -108,38 +96,40 @@ var weblogId = "<c:out value='${actionWeblog.id}'/>";
        </tbody>
     </table>
     <c:if test="${userIsAdmin}">
-        <br />
+        <br>
+          <div class="control">
+              <button type="button" v-on:click="updateRoles()"><fmt:message key='generic.save'/></button>
+          </div>
 
-            <div class="control">
-               <button type="button" ng-click="ctrl.updateRoles()"><fmt:message key='generic.save'/></button>
-            </div>
-
-            <br>
-            <br>
-
-          <div ng-hide="ctrl.userToAdd" ng-cloak>
+          <div v-if="!userToAdd" v-cloak>
                <fmt:message key="members.nobodyToAdd" />
           </div>
 
-          <div ng-show="ctrl.userToAdd" ng-cloak>
-
+          <div v-else v-cloak class="menu-tr sidebarFade">
+            <div class="sidebarInner">
               <p><fmt:message key="members.addMemberPrompt" /></p>
 
-              <select ng-model="ctrl.userToAdd" size="1" required>
-                <option ng-repeat="(key, value) in ctrl.potentialMembers" value="{{key}}">{{value}}</option>
+              <select v-model="userToAdd" size="1" required>
+                <option v-for="(value, key) in potentialMembers" v-bind:value="key">{{value}}</option>
               </select>
 
               <fmt:message key="members.roles" />:
 
-              <input type="radio" ng-model="ctrl.userToAddRole" value="OWNER"  />
+              <input type="radio" v-model="userToAddRole" value="OWNER"  />
               <fmt:message key="members.owner" />
 
-              <input type="radio" ng-model="ctrl.userToAddRole" value="POST" />
+              <input type="radio" v-model="userToAddRole" value="POST" />
               <fmt:message key="members.publisher" />
 
-              <input type="radio" ng-model="ctrl.userToAddRole" value="EDIT_DRAFT" checked />
+              <input type="radio" v-model="userToAddRole" value="EDIT_DRAFT" checked />
               <fmt:message key="members.contributor" /><br><br>
 
-              <button type="button" ng-click="ctrl.addUserToWeblog()"><fmt:message key='generic.add'/></button>
+              <button type="button" v-on:click="addUserToWeblog()"><fmt:message key='generic.add'/></button>
+            </div>
           </div>
       </c:if>
+
+</div>
+
+<script src="<c:url value='/tb-ui/scripts/components/messages.js'/>"></script>
+<script src="<c:url value='/tb-ui/scripts/members.js'/>"></script>

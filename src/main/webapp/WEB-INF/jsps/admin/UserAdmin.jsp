@@ -46,12 +46,9 @@
 
 <p class="subtitle"><fmt:message key="userAdmin.subtitle" /></p>
 <span id="userEdit" v-cloak>
-    <select v-model="userToEdit" size="1">
+    <select v-model="userToEdit" size="1" v-on:change="loadUser()">
         <option v-for="(value, key) in userList" v-bind:value="key">{{value}}</option>
     </select>
-    <button type="button" v-on:click="loadUser()" style="margin:4px">
-        <fmt:message key="generic.edit" />
-    </button>
 </span>
 
 <table class="formtable" v-if="userBeingEdited" v-cloak>
@@ -98,7 +95,7 @@
   <tr v-if="userBeingEdited.status == 'ENABLED'">
       <td class="label"><label for="passwordConfirm"><fmt:message key="userSettings.passwordConfirm" /></label></td>
       <td class="field">
-      <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20"></td>
+      <input id="passwordConfirm" type="password" size="20" v-model="userCredentials.passwordConfirm" minlength="8" maxlength="20" autocomplete="new-password"></td>
       <td class="description"><fmt:message key="userAdmin.tip.passwordConfirm" /></td>
   </tr>
 

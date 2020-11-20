@@ -35,7 +35,7 @@ var vm = new Vue({
                 this.userList = response.data;
                 if (!this.userToEdit && Object.keys(this.userList).length > 0) {
                     for (first in this.userList) {
-                        this.userToEdit = first;
+ //                       this.userToEdit = first;
                         break;
                     }
                     }
@@ -60,11 +60,20 @@ var vm = new Vue({
         },
         loadUser: function() {
             this.messageClear();
+
+            if (!this.userToEdit) {
+                return;
+            }
+
             axios
             .get(this.urlRoot + 'user/' + this.userToEdit)
             .then(response => {
                  this.userBeingEdited = response.data.user;
-                 this.userCredentials = response.data.credentials;
+                 if (response.data.hasOwnProperty('credentials')) {
+                    this.userCredentials = response.data.credentials;
+                 } else {
+                    this.userCredentials = null;
+                 }
             });
 
             axios
@@ -107,7 +116,7 @@ var vm = new Vue({
             }
         }
     },
-    mounted: function() {
+    created: function() {
         this.loadMetadata();
         this.getPendingRegistrations();
         this.loadUserList();

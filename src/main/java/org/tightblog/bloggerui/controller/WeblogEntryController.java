@@ -422,16 +422,26 @@ public class WeblogEntryController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
-    public void deleteWeblogEntry(@PathVariable String id, Principal p) {
+    public ResponseEntity<?> deleteWeblogEntry(@PathVariable String id, Principal p, Locale locale) {
         log.info("Call to remove entry {}", id);
-        WeblogEntry itemToRemove = weblogEntryDao.getOne(id);
 
-        // remove from search index
-        if (itemToRemove.isPublished()) {
-            luceneIndexer.updateIndex(itemToRemove, true);
+        User user = userDao.findEnabledByUserName(p.getName());
+        WeblogEntry entry = weblogEntryDao.getOne(id);
+
+        WeblogRole necessaryRole = (PubStatus.PENDING.equals(entry.getStatus()) ||
+                PubStatus.DRAFT.equals(entry.getStatus())) ? WeblogRole.EDIT_DRAFT : WeblogRole.POST;
+
+        if (entry.getWeblog() != null && userManager.checkWeblogRole(user, entry.getWeblog(), necessaryRole)) {
+            // remove from search index
+            if (entry.isPublished()) {
+                luceneIndexer.updateIndex(entry, true);
+            }
+            weblogEntryManager.removeWeblogEntry(entry);
+            dp.updateLastSitewideChange();
+
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(403).body(messages.getMessage("error.title.403", null, locale));
         }
-        weblogEntryManager.removeWeblogEntry(itemToRemove);
-        dp.updateLastSitewideChange();
     }
 }

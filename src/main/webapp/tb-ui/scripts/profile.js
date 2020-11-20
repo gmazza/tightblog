@@ -36,18 +36,12 @@ var vm = new Vue({
                     this.userBeingEdited = response.data.user;
                     if (!userId) {
                         this.hideButtons = true;
-                        userId = self.userBeingEdited.id;
+                        userId = this.userBeingEdited.id;
                     }
                     this.userCredentials = {};
                     this.showSuccessMessage = true;
                 })
-                .catch(error => {
-                    if (error.response.status == 400) {
-                        this.errorObj = error.response.data;
-                    } else {
-                        this.commonErrorResponse(error);
-                    }
-                })
+                .catch(error => this.commonErrorResponse(error));
         },
         cancelChanges: function () {
             this.messageClear();

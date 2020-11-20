@@ -94,6 +94,7 @@
 
     <definition name=".register" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Profile.jsp" />
+        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".unsubscribed" extends=".tiles-no-nav-page" >
@@ -188,7 +189,7 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/TemplateEdit.jsp" />
     </definition>
 
-    <definition name=".members" extends=".tiles-tabbedpage" >
+    <definition name=".members" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Members.jsp" />
     </definition>
 
