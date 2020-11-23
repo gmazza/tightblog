@@ -1,53 +1,58 @@
-$(function() {
-    $('#resignWeblogModal').on('show.bs.modal', function(e) {
-        //get data-id attribute of the clicked element
-        var weblogName = $(e.relatedTarget).attr('data-weblog-name');
-        var userRoleId = $(e.relatedTarget).attr('data-userrole-id');
-
-        // populate delete modal with tag-specific information
-        var modal = $(this)
-        var tmpl = eval('`' + msg.confirmResignationTmpl + '`')
-        modal.find('#resignWeblogMsg').html(tmpl);
-        modal.find('button[id="resignButton"]').attr("data-userrole-id", userRoleId);
-    });
-});
-
-tightblogApp.controller('PageController', ['$http', '$interpolate', '$sce',
-        function PageController($http, $interpolate, $sce) {
-    var self = this;
-
-    this.toggleEmails = function(role) {
-        $http.post(contextPath + '/tb-ui/authoring/rest/weblogrole/' + role.id + '/emails/' + role.emailComments).then(
-          function(response) {
-          },
-          self.commonErrorResponse
-        )
-    }
-
-    this.getUnapprovedCommentsString = function(commentCount) {
-        return $sce.trustAsHtml($interpolate(msg.unapprovedCommentsTmpl)
-                                   ({unapprovedCommentCount:commentCount}));
-    }
-
-    this.resignWeblog = function(obj) {
-        $('#resignWeblogModal').modal('hide');
-
-        // https://stackoverflow.com/a/18030442/1207540
-        var userRoleId = obj.target.getAttribute("data-userrole-id");
-
-        $http.post(contextPath + '/tb-ui/authoring/rest/weblogrole/' + userRoleId + '/detach').then(
-          function(response) {
-             self.loadItems();
-          },
-          self.commonErrorResponse
-        )
-    }
-
-    this.loadItems = function() {
-      $http.get(contextPath + '/tb-ui/authoring/rest/loggedinuser/weblogs').then(function(response) {
-        self.roles = response.data;
+var vm = new Vue({
+  el: "#template",
+  data: {
+    roles: [],
+    confirmResignationText: null,
+    roleIdToResign: null,
+    successMessage: null,
+    errorObj: {}
+  },
+  methods: {
+    toggleEmails: function(role) {
+      axios.post(contextPath + '/tb-ui/authoring/rest/weblogrole/' + role.id + '/emails/' + role.emailComments)
+      .catch(error => self.commonErrorResponse(error));
+    },
+    getRoleText: function(weblogRole) {
+      if (weblogRole == 'POST') {
+        return 'PUBLISHER';
+      } else if (weblogRole == 'EDIT_DRAFT') {
+        return 'CONTRIBUTOR';
+      }; // else 'OWNER'
+      return weblogRole;
+    },
+    getUnapprovedCommentsString: function(unapprovedCommentCount) {
+      return eval('`' + msg.unapprovedCommentsTmpl + '`')
+    },
+    showResignWeblog: function(role) {
+      this.roleIdToResign = role.id;
+      var weblogName = role.weblog.name;
+      this.confirmResignationText = eval('`' + msg.confirmResignationTmpl + '`');
+      $('#resignWeblogModal').modal('show');
+    },
+    resignWeblog: function() {
+      $('#resignWeblogModal').modal('hide');
+      axios.post(contextPath + '/tb-ui/authoring/rest/weblogrole/' + this.roleIdToResign + '/detach')
+      .then(response => {
+        this.successMessage = 'to fill in...';
+        this.listBlogs();
+      })
+      .catch(error => this.commonErrorResponse(error))
+    },
+    listBlogs: function() {
+      axios.get(contextPath + '/tb-ui/authoring/rest/loggedinuser/weblogs')
+      .then(response => {
+        this.roles = response.data;
       });
-    };
-
-    this.loadItems();
-  }]);
+    },
+    commonErrorResponse: function (error) {
+      if (error.response.status == 401) {
+        window.location.replace($('#refreshURL').attr('value'));
+      } else {
+        this.errorObj = error.response.data;
+      }
+    }
+  },
+  created: function () {
+    this.listBlogs();
+  }
+});

@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.tightblog.security.CsrfSecurityRequestMatcher;
 import org.tightblog.security.CustomAuthenticationSuccessHandler;
 import org.tightblog.security.CustomWebAuthenticationDetailsSource;
 import org.tightblog.security.MultiFactorAuthenticationProvider;
@@ -88,6 +89,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
             .csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher())
                 .and()
             // if unauthorized, go to delegatingEntryPoint to determine login-redirect or 401 status code.
             .exceptionHandling().authenticationEntryPoint(delegatingEntryPoint());
@@ -111,6 +113,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CsrfSecurityRequestMatcher csrfSecurityRequestMatcher() {
+        return new CsrfSecurityRequestMatcher();
     }
 
 }

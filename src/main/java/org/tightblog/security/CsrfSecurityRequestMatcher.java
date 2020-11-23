@@ -17,7 +17,6 @@ package org.tightblog.security;
 
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;
@@ -26,7 +25,6 @@ import java.util.regex.Pattern;
  * Turn off CSRF checking for Comment Posting, as no login auth needed for it.
  * See http://blogs.sourceallies.com/2014/04/customizing-csrf-protection-in-spring-security/
  */
-@Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
     private static Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
     private static RegexRequestMatcher unprotectedMatcher = new RegexRequestMatcher(".*/entrycomment/.*", null);
