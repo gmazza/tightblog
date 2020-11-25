@@ -11,7 +11,7 @@ Screen shots for the TightBlog UI are [here](https://github.com/gmazza/tightblog
 of a TightBlog-powered blog.  TightBlog ships with three blog themes, for which bloggers may use directly, modify them per-blog, or create their own themes from scratch.
 
 The table below shows the streamlining TightBlog has gone through in its first three releases since forking.  Eliminating
-little-used functionality while switching to Gradle, Spring Boot, Spring REST API, AngularJS, etc. has made the code
+little-used functionality while switching to Gradle, Spring Boot, Spring REST API, Vue.js, etc. has made the code
 significantly easier to work with and a much more reliable starting point for forking and adding your own enhancements.  
 
 |Product|Released|Database Tables|Java Source Files (non-test)|JSP Files|Lines Of Code (including tests)|

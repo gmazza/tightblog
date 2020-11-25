@@ -24,18 +24,13 @@
         "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 <tiles-definitions>
 
-    <definition name=".tiles-tabbedpage" template="/WEB-INF/jsps/tiles/tiles-tabbedpage.jsp">
+    <definition name=".tiles-vue-tabbedpage" template="/WEB-INF/jsps/tiles/tiles-tabbedpage.jsp">
         <put-attribute name="bannerStatus" value="/WEB-INF/jsps/tiles/bannerStatus.jsp" />
         <put-attribute name="head"         value="/WEB-INF/jsps/tiles/head.jsp" />
         <put-attribute name="sidebarType"  value="nosidebar" />
         <put-attribute name="menu"         value="/WEB-INF/jsps/tiles/menu.jsp" />
         <put-attribute name="content"      value="${content}" />
         <put-attribute name="footer"       value="/WEB-INF/jsps/tiles/footer.jsp" />
-        <put-attribute name="useAngularHeader" value="true" />
-    </definition>
-
-    <definition name=".tiles-vue-tabbedpage" extends=".tiles-tabbedpage">
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".tiles-vue-manualpage" template="/WEB-INF/jsps/tiles/tiles-manualpage.jsp" 
@@ -47,7 +42,6 @@
         <put-attribute name="head"         value="/WEB-INF/jsps/tiles/head.jsp" />
         <put-attribute name="content"      value="${content}" />
         <put-attribute name="footer"       value="/WEB-INF/jsps/tiles/footer.jsp" />
-        <put-attribute name="useAngularHeader" value="true" />
     </definition>
 
     <definition name=".tiles-no-nav-page" template="/WEB-INF/jsps/tiles/tiles-no-nav-page.jsp">
@@ -84,17 +78,14 @@
     <!-- core pages (and associates) -->
     <definition name=".login" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Login.jsp" />
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".profile" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Profile.jsp" />
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".register" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Profile.jsp" />
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <definition name=".unsubscribed" extends=".tiles-no-nav-page" >
@@ -109,14 +100,12 @@
 
     <definition name=".mainMenu" extends=".tiles-simplepage" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/MainMenu.jsp" />
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <!-- setup page -->
     <definition name=".install" extends=".tiles-no-nav-page" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Install.jsp" />
         <put-attribute name="titleRight" value="installer.bannerTitleRight"/>
-        <put-attribute name="useAngularHeader" value="false" />
     </definition>
 
     <!-- global admin pages (and associates) -->
@@ -155,7 +144,6 @@
 
     <definition name=".entries" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Entries.jsp" />
-        <put-attribute name="useAngularHeader" value="true"/>
     </definition>
 
     <definition name=".comments" extends=".tiles-vue-tabbedpage" >
