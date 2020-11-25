@@ -25,9 +25,7 @@
         <title>TightBlog: <fmt:message key="${pageTitleKey}"/></title>
         <tiles:insertAttribute name="head" />
     </head>
-    <c:set var="useAngular"><tiles:getAsString name="useAngularHeader"/></c:set>
-    <body <c:if test="${useAngular == 'true'}">
-                    id='ngapp-div' ng-app='tightblogApp' ng-controller='PageController as ctrl' </c:if>>
+    <body>
         <div id="banner">
             <tiles:insertAttribute name="bannerStatus" />
         </div>

@@ -19,10 +19,7 @@
   are also under Apache License.
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<!--script-- src="https://cdn.jsdelivr.net/npm/vue"></!--script-->
-<script src="<c:url value='/tb-ui/scripts/jquery-2.2.3.min.js'/>"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
 
 <script>

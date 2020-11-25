@@ -11,4 +11,8 @@ You can override it with your own file via WEB-INF/tiles-def.xml
 <link rel="stylesheet" media="all" href="<c:url value='/tb-ui/styles/tbeditorui.css'/>" />
 <link rel="stylesheet" media="all" href="<c:url value='/tb-ui/theme/colors.css'/>" />
 
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+
 <sec:csrfMetaTags />

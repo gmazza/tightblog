@@ -2,7 +2,7 @@
 
 a.tagLink {
     padding: 0px 5px 0px 20px;
-    background: url('icons/tag_blue.png') left center no-repeat;
+    background: url([(${url.getThemeResourceURL('icons/tag_blue.png')})]) left no-repeat;
     font-weight: normal;
 }
 
