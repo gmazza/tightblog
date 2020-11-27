@@ -142,7 +142,6 @@ public class CommentController {
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id,  'POST')")
     public void deleteComment(@PathVariable String id, Principal p) {
-
         WeblogEntryComment itemToRemove = weblogEntryCommentDao.getOne(id);
         weblogEntryManager.removeComment(itemToRemove);
         luceneIndexer.updateIndex(itemToRemove.getWeblogEntry(), false);

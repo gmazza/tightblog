@@ -31,11 +31,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DeviceType;
 import org.tightblog.TestUtils;
 import org.tightblog.WebloggerTest;
-import org.tightblog.config.DynamicProperties;
-import org.tightblog.config.WebConfig;
 import org.tightblog.domain.Template;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.model.URLModel;
 import org.tightblog.dao.UserDao;
 import org.tightblog.service.WeblogEntryManager;
@@ -67,7 +64,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,7 +84,6 @@ public class PageControllerTest {
     private Weblog weblog;
     private SharedTheme sharedTheme;
     private WeblogTheme mockWeblogTheme;
-    private DynamicProperties dp;
     private Principal mockPrincipal;
     private WeblogEntryListGenerator mockWELG;
     private WeblogTemplate weblogTemplate;
@@ -126,15 +121,9 @@ public class PageControllerTest {
 
         mockThemeManager = mock(ThemeManager.class);
         sharedTheme = new SharedTheme();
-        sharedTheme.setSiteWide(false);
         when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
         mockWeblogTheme = mock(WeblogTheme.class);
         when(mockThemeManager.getWeblogTheme(weblog)).thenReturn(mockWeblogTheme);
-
-        dp = new DynamicProperties();
-        dp.setLastSitewideChange(Instant.now().minus(2, ChronoUnit.DAYS));
-
-        Function<WeblogPageRequest, SiteModel> siteModelFactory = new WebConfig().siteModelFactory();
 
         PageModel mockPageModel = mock(PageModel.class);
         mockWELG = mock(WeblogEntryListGenerator.class);
@@ -142,7 +131,7 @@ public class PageControllerTest {
 
         controller = new PageController(mockWD, mockCache, mockWM, mockWEM,
                 mockRenderer, mockThemeManager, mockPageModel,
-                siteModelFactory, mockUD, dp);
+                mockUD);
 
         mockApplicationContext = mock(ApplicationContext.class);
         when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet());
@@ -166,8 +155,6 @@ public class PageControllerTest {
 
     @Test
     public void testReceive304NotModifiedContent() {
-        sharedTheme.setSiteWide(true);
-
         // date header more recent than last change, so should return 304
         when(mockRequest.getDateHeader(any())).thenReturn(Instant.now().toEpochMilli());
 
@@ -459,8 +446,6 @@ public class PageControllerTest {
         when(mockRenderer.render(any(), any())).thenReturn(cachedContent);
 
         when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
-        // testing that sitewide themes get the "site" & (page) "model" added to the rendering map.
-        sharedTheme.setSiteWide(true);
         when(mockWeblogTheme.getTemplateByName("my-custom-page")).thenReturn(sharedTemplate);
 
         WeblogEntryComment comment = new WeblogEntryComment();
@@ -472,17 +457,14 @@ public class PageControllerTest {
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         assertTrue(results.containsKey("model"));
         assertTrue(results.containsKey("url"));
-        assertTrue(results.containsKey("site"));
         WeblogPageRequest wpr = (WeblogPageRequest) results.get("model");
         assertEquals(comment, wpr.getCommentForm());
         verify(mockWM, never()).incrementHitCount(weblog);
 
         Mockito.clearInvocations(mockRenderer, mockWM);
-        // testing (1) that non-sitewide themes just get "model" added to the rendering map.
-        // (2) new comment form is generated if first request didn't provide one
-        // (3) increment hit count not called for component types lacking incrementHitCounts property
+        // testing new comment form is generated if first request didn't provide one
+        // testing increment hit count not called for component types lacking incrementHitCounts property
         when(mockRequest.getAttribute("commentForm")).thenReturn(null);
-        sharedTheme.setSiteWide(false);
 
         cachedContent = new CachedContent(Role.JAVASCRIPT);
         cachedContent.setContent("mytest1".getBytes(StandardCharsets.UTF_8));
@@ -494,7 +476,6 @@ public class PageControllerTest {
         results = stringObjectMapCaptor.getValue();
         assertTrue(results.containsKey("model"));
         assertTrue(results.containsKey("url"));
-        assertFalse(results.containsKey("site"));
         wpr = (WeblogPageRequest) results.get("model");
         assertNotEquals(comment, wpr.getCommentForm());
         verify(mockWM, never()).incrementHitCount(weblog);
@@ -516,7 +497,6 @@ public class PageControllerTest {
         when(wpr.getWeblogHandle()).thenReturn("bobsblog");
         when(wpr.getWeblogEntryAnchor()).thenReturn("neatoentry");
         when(wpr.getDeviceType()).thenReturn(DeviceType.TABLET);
-        when(wpr.isSiteWide()).thenReturn(false);
         when(wpr.getAuthenticatedUser()).thenReturn("bob");
 
         String test1 = controller.generateKey(wpr);
@@ -530,19 +510,15 @@ public class PageControllerTest {
         when(wpr.getTag()).thenReturn("taxes");
         when(wpr.getQueryString()).thenReturn("a=foo&b=123");
         when(wpr.getPageNum()).thenReturn(5);
-        when(wpr.isSiteWide()).thenReturn(true);
-
-        Instant testTime = Instant.now();
-        dp.setLastSitewideChange(testTime);
 
         test1 = controller.generateKey(wpr);
         assertEquals("bobsblog/date/20171006/cat/finance/tag/" +
-                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE/lastUpdate=" + testTime.toEpochMilli(), test1);
+                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE", test1);
 
         when(wpr.getCustomPageName()).thenReturn("mytemplate");
         test1 = controller.generateKey(wpr);
         assertEquals("bobsblog/page/mytemplate/date/20171006/cat/finance/tag/" +
-                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE/lastUpdate=" + testTime.toEpochMilli(), test1);
+                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE", test1);
     }
 
     @Test

@@ -17,14 +17,10 @@ package org.tightblog.rendering.model;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tightblog.config.DynamicProperties;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.Weblog;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -34,7 +30,6 @@ public class FeedModelTest {
 
     private WeblogEntryListGenerator mockWeblogEntryListGenerator;
     private FeedModel feedModel;
-    private DynamicProperties dp;
     private WeblogEntryManager mockWeblogEntryManager;
     private URLService mockURLService;
 
@@ -43,9 +38,8 @@ public class FeedModelTest {
         mockWeblogEntryManager = mock(WeblogEntryManager.class);
         mockWeblogEntryListGenerator = mock(WeblogEntryListGenerator.class);
         mockURLService = mock(URLService.class);
-        dp = new DynamicProperties();
         feedModel = new FeedModel(mockWeblogEntryListGenerator, mockWeblogEntryManager, mockURLService,
-                dp, "1.1", 20);
+                "1.1", 20);
     }
 
     @Test
@@ -59,10 +53,6 @@ public class FeedModelTest {
 
     @Test
     public void testPassThroughMethods() {
-        Instant testInstant = Instant.now().minus(1, ChronoUnit.DAYS);
-        dp.setLastSitewideChange(testInstant);
-        assertEquals(testInstant, feedModel.getLastSitewideChange());
-
         when(mockWeblogEntryManager.processBlogText(Weblog.EditFormat.COMMONMARK, "testText"))
                 .thenReturn("processedTestText");
         assertEquals("processedTestText", feedModel.render(Weblog.EditFormat.COMMONMARK, "testText"));

@@ -45,7 +45,6 @@ public class WeblogRequest {
     // attributes populated by processors where appropriate
     protected Weblog weblog;
     private User blogger;
-    private boolean siteWide;
 
     public WeblogRequest() {
     }
@@ -103,14 +102,6 @@ public class WeblogRequest {
 
     public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
-    }
-
-    public boolean isSiteWide() {
-        return siteWide;
-    }
-
-    public void setSiteWide(boolean siteWide) {
-        this.siteWide = siteWide;
     }
 
 }

@@ -116,11 +116,8 @@ public class FeedController extends AbstractController {
 
         weblogFeedCache.incrementIncomingRequests();
 
-        // Is this the site-wide weblog? If so, make a combined feed using all blogs...
-        feedRequest.setSiteWide(themeManager.getSharedTheme(weblog.getTheme()).isSiteWide());
-
         // determine the lastModified date for this content
-        Instant objectLastChanged = (feedRequest.isSiteWide()) ? dp.getLastSitewideChange() : weblog.getLastModified();
+        Instant objectLastChanged = weblog.getLastModified();
 
         // DB stores last modified in millis, browser if-modified-since in seconds, so need to truncate millis from the former.
         long inDb = objectLastChanged.truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
@@ -132,7 +129,7 @@ public class FeedController extends AbstractController {
         }
 
         // check cache before manually generating
-        String cacheKey = generateKey(feedRequest, feedRequest.isSiteWide());
+        String cacheKey = generateKey(feedRequest);
         CachedContent rendererOutput = weblogFeedCache.get(cacheKey, objectLastChanged);
 
         boolean newContent = false;
@@ -177,7 +174,7 @@ public class FeedController extends AbstractController {
      * foo/cat/technology
      * foo/tag/travel
      */
-    String generateKey(WeblogFeedRequest feedRequest, boolean isSiteWide) {
+    String generateKey(WeblogFeedRequest feedRequest) {
         StringBuilder key = new StringBuilder();
         key.append(feedRequest.getWeblogHandle());
 
@@ -189,12 +186,6 @@ public class FeedController extends AbstractController {
 
         if (feedRequest.getPageNum() > 0) {
             key.append("/page=").append(feedRequest.getPageNum());
-        }
-
-        // site wide feeds must be aware of the last update date of any weblog
-        // as they get refreshed whenever any of blogs do.
-        if (isSiteWide) {
-            key.append("/lastUpdate=").append(dp.getLastSitewideChange().toEpochMilli());
         }
 
         return key.toString();

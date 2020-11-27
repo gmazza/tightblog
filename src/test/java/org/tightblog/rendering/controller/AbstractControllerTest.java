@@ -17,11 +17,8 @@ package org.tightblog.rendering.controller;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
-import org.tightblog.config.DynamicProperties;
-import org.tightblog.config.WebConfig;
 import org.tightblog.rendering.model.Model;
 import org.tightblog.rendering.model.PageModel;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.model.URLModel;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.dao.UserDao;
@@ -33,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,11 +55,9 @@ public class AbstractControllerTest {
         initData.put("parsedRequest", req);
         UserDao mockUD = mock(UserDao.class);
         WeblogDao mockWD = mock(WeblogDao.class);
-        DynamicProperties dp = new DynamicProperties();
-        Function<WeblogPageRequest, SiteModel> siteModelFactory = new WebConfig().siteModelFactory();
         PageController processor = new PageController(mockWD, null, null,
                 null, null, null, null,
-                siteModelFactory, mockUD, dp);
+                mockUD);
         processor.setApplicationContext(mockContext);
         Map<String, Object> modelMap = processor.getModelMap("testBean", initData);
         assertEquals(mockURLModel, modelMap.get("url"));

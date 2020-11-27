@@ -58,6 +58,9 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     private int limit;
     private SearchResultsModel searchModel;
 
+    // not yet implemented
+    private boolean searchAllBlogs;
+
     public WeblogSearchRequest(String weblogHandle, Principal principal, SearchResultsModel searchModel) {
         super(weblogHandle, principal, searchModel);
         this.searchModel = searchModel;
@@ -77,6 +80,10 @@ public class WeblogSearchRequest extends WeblogPageRequest {
 
     public int getLimit() {
         return limit;
+    }
+
+    public boolean isSearchAllBlogs() {
+        return searchAllBlogs;
     }
 
     public int getResultCount() {
@@ -116,7 +123,7 @@ public class WeblogSearchRequest extends WeblogPageRequest {
                 SearchTask searchTask = new SearchTask(searchModel.getLuceneIndexer());
                 searchTask.setTerm(searchPhrase);
 
-                if (!searchModel.getThemeManager().getSharedTheme(weblog.getTheme()).isSiteWide()) {
+                if (!searchAllBlogs) {
                     searchTask.setWeblogHandle(getWeblogHandle());
                 }
 

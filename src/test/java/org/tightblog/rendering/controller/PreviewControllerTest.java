@@ -25,11 +25,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.tightblog.config.WebConfig;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.model.URLModel;
-import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.SharedTemplate;
@@ -41,7 +39,6 @@ import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WeblogTheme;
 import org.tightblog.rendering.cache.CachedContent;
 import org.tightblog.rendering.model.Model;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 import org.tightblog.dao.WeblogDao;
 
@@ -50,10 +47,8 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,7 +64,6 @@ public class PreviewControllerTest {
 
     private PreviewController controller;
     private Weblog weblog;
-    private SharedTheme sharedTheme;
 
     private WeblogEntryManager mockWEM;
     private UserManager mockUM;
@@ -107,14 +101,11 @@ public class PreviewControllerTest {
 
             mockTheme = mock(WeblogTheme.class);
             when(mockThemeManager.getWeblogTheme(weblog)).thenReturn(mockTheme);
-            sharedTheme = new SharedTheme();
-            sharedTheme.setSiteWide(false);
+            SharedTheme sharedTheme = new SharedTheme();
             when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
 
-            Function<WeblogPageRequest, SiteModel> siteModelFactory = new WebConfig().siteModelFactory();
-
             controller = new PreviewController(mockWD, mockRenderer, mockThemeManager, mockUM, mock(PageModel.class),
-                    mockWEM, siteModelFactory);
+                    mockWEM);
 
             mockApplicationContext = mock(ApplicationContext.class);
             when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet());
@@ -163,7 +154,7 @@ public class PreviewControllerTest {
         // Weblog template retrieved for a weblog entry if no permalink template
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(null);
         Mockito.clearInvocations(mockRenderer);
-        ResponseEntity<Resource> result = controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
         verify(mockRenderer).render(templateCaptor.capture(), any());
         results = templateCaptor.getValue();
         assertEquals(weblogTemplate.getName(), results.getName());
@@ -171,7 +162,7 @@ public class PreviewControllerTest {
 
         // not found returned if no weblog entry for given anchor
         when(mockWEM.getWeblogEntryByAnchor(weblog, ENTRY_ANCHOR)).thenReturn(null);
-        result = controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        ResponseEntity<Resource> result = controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -186,25 +177,13 @@ public class PreviewControllerTest {
         SharedTemplate sharedTemplate = new SharedTemplate();
         sharedTemplate.setRole(Template.Role.CUSTOM_EXTERNAL);
 
-        // testing that sitewide themes get the "site" & (page) "model" added to the rendering map.
-        sharedTheme.setSiteWide(true);
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(sharedTemplate);
-        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
 
-        // set up captors on thymeleafRenderer.render()
+        // testing that themes get "model" added to the rendering map.
+        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
         verify(mockRenderer).render(eq(sharedTemplate), stringObjectMapCaptor.capture());
+
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         assertTrue(results.containsKey("model"));
-        assertTrue(results.containsKey("site"));
-
-        Mockito.clearInvocations(mockRenderer);
-        // testing that non-sitewide themes just get "model" added to the rendering map.
-        sharedTheme.setSiteWide(false);
-        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
-        verify(mockRenderer).render(eq(sharedTemplate), stringObjectMapCaptor.capture());
-
-        results = stringObjectMapCaptor.getValue();
-        assertTrue(results.containsKey("model"));
-        assertFalse(results.containsKey("site"));
     }
 }

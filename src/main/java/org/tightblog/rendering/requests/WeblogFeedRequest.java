@@ -59,7 +59,7 @@ public final class WeblogFeedRequest extends WeblogRequest {
     public WeblogEntryListGenerator.WeblogEntryListData getWeblogEntriesPager() {
         return feedModel.getWeblogEntryListGenerator().getChronoPager(weblog,
                 null, categoryName, tag, pageNum, feedModel.getNumEntriesPerPage(),
-                isSiteWide());
+                false);
     }
 
     public String getTransformedText(WeblogEntry entry) {
@@ -71,12 +71,10 @@ public final class WeblogFeedRequest extends WeblogRequest {
     }
 
     /**
-     * Supplies the "updated" element of the Atom feed, either last updated date of the
-     * blog or (for the site weblog) the entire site.
+     * Supplies the "updated" element of the Atom feed, using the last updated date of the blog
      */
     public String getLastUpdated() {
-        return formatIsoOffsetDateTime(isSiteWide() ?
-                feedModel.getLastSitewideChange() : weblog.getLastModified());
+        return formatIsoOffsetDateTime(weblog.getLastModified());
     }
 
     public String formatIsoOffsetDateTime(Temporal dt) {

@@ -59,8 +59,6 @@ public class FeedControllerTest {
 
     private FeedController feedProcessor;
     private Weblog weblog;
-    private SharedTheme sharedTheme;
-    private DynamicProperties dp;
 
     private HttpServletRequest mockRequest;
     private HttpServletResponse mockResponse;
@@ -75,12 +73,12 @@ public class FeedControllerTest {
         when(mockWR.findByHandleAndVisibleTrue(TestUtils.BLOG_HANDLE)).thenReturn(weblog);
 
         ThemeManager mockThemeManager = mock(ThemeManager.class);
-        sharedTheme = new SharedTheme();
+        SharedTheme sharedTheme = new SharedTheme();
         when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
 
         mockCache = mock(LazyExpiringCache.class);
         mockThymeleafRenderer = mock(ThymeleafRenderer.class);
-        dp = new DynamicProperties();
+        DynamicProperties dp = new DynamicProperties();
 
         feedProcessor = new FeedController(mockWR, mockCache, mockThymeleafRenderer, mockThemeManager,
                 mock(FeedModel.class), dp);
@@ -105,9 +103,8 @@ public class FeedControllerTest {
 
     @Test
     public void testReceive304NotModifiedContent() {
-        sharedTheme.setSiteWide(true);
         Instant now = Instant.now();
-        dp.setLastSitewideChange(now.minus(2, ChronoUnit.DAYS));
+        weblog.setLastModified(now.minus(2, ChronoUnit.DAYS));
 
         // date header more recent than last change, so should return 304
         when(mockRequest.getDateHeader(any())).thenReturn(now.toEpochMilli());
@@ -188,19 +185,15 @@ public class FeedControllerTest {
         when(request.getCategoryName()).thenReturn("sports");
         when(request.getPageNum()).thenReturn(14);
 
-        String test1 = feedProcessor.generateKey(request, false);
+        String test1 = feedProcessor.generateKey(request);
         assertEquals("bobsblog/cat/sports/page=14", test1);
 
         // entry & tag test, site-wide
         when(request.getCategoryName()).thenReturn(null);
         when(request.getTag()).thenReturn("skiing");
-        when(request.isSiteWide()).thenReturn(true);
         when(request.getPageNum()).thenReturn(0);
 
-        Instant testTime = Instant.now();
-        dp.setLastSitewideChange(testTime);
-
-        test1 = feedProcessor.generateKey(request, true);
-        assertEquals("bobsblog/tag/skiing/lastUpdate=" + testTime.toEpochMilli(), test1);
+        test1 = feedProcessor.generateKey(request);
+        assertEquals("bobsblog/tag/skiing", test1);
     }
 }

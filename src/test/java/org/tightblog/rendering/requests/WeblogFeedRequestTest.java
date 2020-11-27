@@ -100,23 +100,15 @@ public class WeblogFeedRequestTest {
     }
 
     @Test
-    public void testSiteWideCheck() {
+    public void testWeblogLastUpdatedRead() {
         WeblogFeedRequest feedRequest = new WeblogFeedRequest(mockFeedModel);
         feedRequest.setWeblog(weblog);
 
         Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
-        Instant threeDaysAgo = twoDaysAgo.minus(1, ChronoUnit.DAYS);
         weblog.setLastModified(twoDaysAgo);
-        when(mockFeedModel.getLastSitewideChange()).thenReturn(threeDaysAgo);
 
-        feedRequest.setSiteWide(true);
         String test = feedRequest.getLastUpdated();
-        assertEquals("last sitewide change not captured for a sitewide feed",
-                feedRequest.formatIsoOffsetDateTime(threeDaysAgo), test);
-
-        feedRequest.setSiteWide(false);
-        test = feedRequest.getLastUpdated();
-        assertEquals("weblog last updated not used for a non-sitewide feed",
+        assertEquals("weblog last updated not read for a feed",
                 feedRequest.formatIsoOffsetDateTime(twoDaysAgo), test);
     }
 

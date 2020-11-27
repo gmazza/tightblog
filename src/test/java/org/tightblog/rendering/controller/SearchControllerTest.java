@@ -35,16 +35,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
-import org.tightblog.config.WebConfig;
 import org.tightblog.dao.WeblogEntryDao;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.Model;
 import org.tightblog.rendering.model.SearchResultsModel;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.model.URLModel;
-import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.service.ThemeManager;
@@ -70,7 +67,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -87,7 +83,6 @@ public class SearchControllerTest {
     private WeblogTheme mockWeblogTheme;
     private ThemeManager mockThemeManager;
     private ThymeleafRenderer mockRenderer;
-    private SharedTheme sharedTheme;
     private ApplicationContext mockApplicationContext;
     private Principal mockPrincipal;
     private LuceneIndexer mockLuceneIndexer;
@@ -116,14 +111,11 @@ public class SearchControllerTest {
         when(mockRenderer.render(any(), any()))
                 .thenReturn(new CachedContent(Template.Role.WEBLOG));
 
-        sharedTheme = new SharedTheme();
-        sharedTheme.setSiteWide(false);
+        SharedTheme sharedTheme = new SharedTheme();
         mockWeblogTheme = mock(WeblogTheme.class);
         mockThemeManager = mock(ThemeManager.class);
         when(mockThemeManager.getWeblogTheme(any())).thenReturn(mockWeblogTheme);
         when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
-
-        Function<WeblogPageRequest, SiteModel> siteModelFactory = new WebConfig().siteModelFactory();
 
         mockApplicationContext = mock(ApplicationContext.class);
         // return empty model map in getModelMap()
@@ -143,8 +135,7 @@ public class SearchControllerTest {
         when(mockSearchResultsModel.getWeblogEntryDao()).thenReturn(mockWeblogEntryDao);
         when(mockSearchResultsModel.getThemeManager()).thenReturn(mockThemeManager);
 
-        controller = new SearchController(mockWD, mockRenderer, mockThemeManager, mockSearchResultsModel,
-                siteModelFactory);
+        controller = new SearchController(mockWD, mockRenderer, mockThemeManager, mockSearchResultsModel);
         controller.setApplicationContext(mockApplicationContext);
 
         searchResultsTemplate = new WeblogTemplate();
@@ -179,7 +170,7 @@ public class SearchControllerTest {
     }
 
     @Test
-    public void test404OnMissingWeblog() throws IOException {
+    public void test404OnMissingWeblog() {
         when(mockWD.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
         ResponseEntity<Resource> result = controller.getSearchResults("myblog", "foo", null,
                 0, mockPrincipal, null);
@@ -231,17 +222,8 @@ public class SearchControllerTest {
         verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         assertTrue(results.containsKey("model"));
-        assertFalse(results.containsKey("site"));
 
-        // try a site-wide theme
-        sharedTheme.setSiteWide(true);
         Mockito.clearInvocations(mockRenderer);
-        result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal, null);
-        verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
-        results = stringObjectMapCaptor.getValue();
-        assertTrue(results.containsKey("model"));
-        assertTrue(results.containsKey("site"));
 
         // test 404 if exception during rendering
         doThrow(new IllegalArgumentException("Expected exception during testing")).when(mockRenderer).render(any(), any());

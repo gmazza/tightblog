@@ -30,8 +30,6 @@ import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.Weblog;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 
-import java.time.Instant;
-
 /**
  * Model which provides services needed to render a feed.
  */
@@ -42,19 +40,17 @@ public class FeedModel {
     private WeblogEntryListGenerator weblogEntryListGenerator;
     private WeblogEntryManager weblogEntryManager;
     private URLService urlService;
-    private DynamicProperties dp;
     private int numEntriesPerPage;
     private String systemVersion;
 
     @Autowired
     FeedModel(WeblogEntryListGenerator weblogEntryListGenerator, WeblogEntryManager weblogEntryManager,
                     URLService urlService,
-                    DynamicProperties dp, @Value("${weblogger.version:Unknown}") String systemVersion,
+                    @Value("${weblogger.version:Unknown}") String systemVersion,
                     @Value("${site.feed.numEntries:20}") int numEntriesPerPage) {
         this.weblogEntryListGenerator = weblogEntryListGenerator;
         this.weblogEntryManager = weblogEntryManager;
         this.urlService = urlService;
-        this.dp = dp;
         this.systemVersion = systemVersion;
         this.numEntriesPerPage = numEntriesPerPage;
     }
@@ -65,10 +61,6 @@ public class FeedModel {
 
     public WeblogEntryListGenerator getWeblogEntryListGenerator() {
         return weblogEntryListGenerator;
-    }
-
-    public Instant getLastSitewideChange() {
-        return dp.getLastSitewideChange();
     }
 
     /**
