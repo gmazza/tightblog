@@ -31,12 +31,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.tightblog.domain.WeblogTheme;
 import org.tightblog.rendering.model.SearchResultsModel;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;
-import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 import org.tightblog.rendering.cache.CachedContent;
 import org.slf4j.Logger;
@@ -50,7 +48,6 @@ import org.tightblog.util.Utilities;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Handles search queries for weblogs.
@@ -67,18 +64,15 @@ public class SearchController extends AbstractController {
     private ThymeleafRenderer thymeleafRenderer;
     private ThemeManager themeManager;
     private SearchResultsModel searchResultsModel;
-    private Function<WeblogPageRequest, SiteModel> siteModelFactory;
 
     @Autowired
     SearchController(WeblogDao weblogDao,
                      @Qualifier("blogRenderer") ThymeleafRenderer thymeleafRenderer, ThemeManager themeManager,
-                     SearchResultsModel searchResultsModel,
-                     Function<WeblogPageRequest, SiteModel> siteModelFactory) {
+                     SearchResultsModel searchResultsModel) {
         this.weblogDao = weblogDao;
         this.thymeleafRenderer = thymeleafRenderer;
         this.themeManager = themeManager;
         this.searchResultsModel = searchResultsModel;
-        this.siteModelFactory = siteModelFactory;
     }
 
     @GetMapping(path = "/{weblogHandle}")
@@ -125,10 +119,6 @@ public class SearchController extends AbstractController {
 
         Map<String, Object> model = getModelMap("pageModelSet", initData);
 
-        // Load special models for site-wide blog
-        if (themeManager.getSharedTheme(weblog.getTheme()).isSiteWide()) {
-            model.put("site", siteModelFactory.apply(searchRequest));
-        }
         model.put("model", searchRequest);
 
         // render content

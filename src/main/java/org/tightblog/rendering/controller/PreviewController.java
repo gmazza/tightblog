@@ -31,7 +31,6 @@ import org.springframework.mobile.device.Device;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.tightblog.rendering.model.PageModel;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.ThemeManager;
@@ -54,7 +53,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Shows preview of a blog entry prior to publishing.
@@ -75,19 +73,17 @@ public class PreviewController extends AbstractController {
     protected UserManager userManager;
     private WeblogEntryManager weblogEntryManager;
     private PageModel pageModel;
-    private Function<WeblogPageRequest, SiteModel> siteModelFactory;
 
     @Autowired
     PreviewController(WeblogDao weblogDao, @Qualifier("blogRenderer") ThymeleafRenderer thymeleafRenderer,
                       ThemeManager themeManager, UserManager userManager, PageModel pageModel,
-                      WeblogEntryManager weblogEntryManager, Function<WeblogPageRequest, SiteModel> siteModelFactory) {
+                      WeblogEntryManager weblogEntryManager) {
         this.weblogDao = weblogDao;
         this.thymeleafRenderer = thymeleafRenderer;
         this.themeManager = themeManager;
         this.userManager = userManager;
         this.pageModel = pageModel;
         this.weblogEntryManager = weblogEntryManager;
-        this.siteModelFactory = siteModelFactory;
     }
 
     @GetMapping(path = "/{weblogHandle}/entry/{anchor}")
@@ -140,11 +136,6 @@ public class PreviewController extends AbstractController {
         // Load models for page previewing
         Map<String, Object> model = getModelMap("pageModelSet", initData);
         model.put("model", incomingRequest);
-
-        // Load special models for site-wide blog
-        if (themeManager.getSharedTheme(weblog.getTheme()).isSiteWide()) {
-            model.put("site", siteModelFactory.apply(incomingRequest));
-        }
 
         CachedContent rendererOutput = thymeleafRenderer.render(incomingRequest.getTemplate(), model);
         return ResponseEntity.ok()

@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.rendering.model.PageModel;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.dao.UserDao;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.WeblogManager;
@@ -65,7 +64,6 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Rendering processor that provides access to weblog pages.
@@ -93,18 +91,15 @@ public class PageController extends AbstractController {
     private WeblogManager weblogManager;
     private WeblogEntryManager weblogEntryManager;
     private ThymeleafRenderer thymeleafRenderer;
-    protected ThemeManager themeManager;
+    private ThemeManager themeManager;
     private PageModel pageModel;
-    private Function<WeblogPageRequest, SiteModel> siteModelFactory;
-    private DynamicProperties dp;
 
     @Autowired
     PageController(WeblogDao weblogDao, LazyExpiringCache weblogPageCache,
                    WeblogManager weblogManager, WeblogEntryManager weblogEntryManager,
                    @Qualifier("blogRenderer") ThymeleafRenderer thymeleafRenderer,
                    ThemeManager themeManager, PageModel pageModel,
-                   Function<WeblogPageRequest, SiteModel> siteModelFactory,
-                   UserDao userDao, DynamicProperties dp) {
+                   UserDao userDao) {
         this.userDao = userDao;
         this.weblogDao = weblogDao;
         this.weblogPageCache = weblogPageCache;
@@ -113,8 +108,6 @@ public class PageController extends AbstractController {
         this.thymeleafRenderer = thymeleafRenderer;
         this.themeManager = themeManager;
         this.pageModel = pageModel;
-        this.siteModelFactory = siteModelFactory;
-        this.dp = dp;
     }
 
     /**
@@ -261,10 +254,7 @@ public class PageController extends AbstractController {
             }
         }
 
-        // is this the site-wide weblog?
-        incomingRequest.setSiteWide(themeManager.getSharedTheme(incomingRequest.getWeblog().getTheme()).isSiteWide());
-        Instant objectLastChanged = (incomingRequest.isSiteWide()) ?
-                dp.getLastSitewideChange() : incomingRequest.getWeblog().getLastModified();
+        Instant objectLastChanged = incomingRequest.getWeblog().getLastModified();
 
         // Respond with 304 Not Modified if it is not modified.
         // DB stores last modified in millis, browser if-modified-since in seconds, so need to truncate millis from the former.
@@ -320,11 +310,6 @@ public class PageController extends AbstractController {
 
             Map<String, Object> model = getModelMap("pageModelSet", initData);
             model.put("model", incomingRequest);
-
-            // Load special models for site-wide blog
-            if (incomingRequest.isSiteWide()) {
-                model.put("site", siteModelFactory.apply(incomingRequest));
-            }
 
             try {
                 // render content
@@ -404,11 +389,6 @@ public class PageController extends AbstractController {
 
         key.append("/deviceType=").append(request.getDeviceType().toString());
 
-        // site wide feeds must be aware of the last update date of any weblog
-        // as they get refreshed whenever any of blogs do.
-        if (request.isSiteWide()) {
-            key.append("/lastUpdate=").append(dp.getLastSitewideChange().toEpochMilli());
-        }
         return key.toString();
     }
 

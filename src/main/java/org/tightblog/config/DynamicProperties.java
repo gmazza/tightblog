@@ -40,8 +40,7 @@ public class DynamicProperties {
 
     /**
      * Indicates the latest time that any blog incurred a change.
-     * Primarily useful for caching of any site-wide (cross-blog) data
-     * to indicate when that data may need refreshing.
+     * Presently populated but unused.
      */
     private Instant lastSitewideChange = Instant.now();
 

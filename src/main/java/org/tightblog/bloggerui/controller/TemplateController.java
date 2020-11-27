@@ -28,9 +28,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.bloggerui.model.WeblogTemplateData;
-import org.tightblog.dao.UserDao;
-import org.tightblog.domain.GlobalRole;
-import org.tightblog.domain.User;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.SharedTheme;
@@ -72,25 +69,22 @@ public class TemplateController {
     private WeblogManager weblogManager;
     private ThemeManager themeManager;
     private MessageSource messages;
-    private UserDao userDao;
 
     @Autowired
     public TemplateController(WeblogDao weblogDao, WeblogTemplateDao weblogTemplateDao,
                               UserManager userManager, WeblogManager weblogManager,
-                              ThemeManager themeManager, UserDao userDao, MessageSource messages) {
+                              ThemeManager themeManager, MessageSource messages) {
         this.weblogDao = weblogDao;
         this.weblogTemplateDao = weblogTemplateDao;
         this.userManager = userManager;
         this.weblogManager = weblogManager;
         this.themeManager = themeManager;
-        this.userDao = userDao;
         this.messages = messages;
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/templates")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public WeblogTemplateData getWeblogTemplates(@PathVariable String id, Principal p, Locale locale) {
-        User user = userDao.findEnabledByUserName(p.getName());
 
         Weblog weblog = weblogDao.getOne(id);
         WeblogTheme theme = new WeblogTheme(weblogTemplateDao, weblog, themeManager.getSharedTheme(weblog.getTheme()));
@@ -111,11 +105,7 @@ public class TemplateController {
         availableRoles.forEach(role -> wtd.getTemplateRoleDescriptions().put(role.getName(),
                 messages.getMessage(role.getDescriptionProperty(), null, locale)));
 
-        wtd.getThemes().addAll(themeManager.getEnabledSharedThemesList().stream()
-                // Remove sitewide theme options for non-admins, if desired admin can create a sitewide blog
-                // and assign a non-admin user ownership of it on the members page.
-                .filter(stheme -> !stheme.isSiteWide() || user.hasEffectiveGlobalRole(GlobalRole.ADMIN))
-                .collect(Collectors.toList()));
+        wtd.getThemes().addAll(themeManager.getEnabledSharedThemesList());
 
         return wtd;
     }

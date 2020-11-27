@@ -41,8 +41,6 @@ public class SharedTheme {
     // the preview image path is relative from the shared theme's base folder
     private String previewImagePath;
 
-    // Site-wide blogs provide aggregated data from all weblogs to this weblog
-    private Boolean siteWide = false;
     private Instant lastModified;
 
     private Set<SharedTemplate> templates = new HashSet<>();
@@ -93,14 +91,6 @@ public class SharedTheme {
 
     public void setPreviewImagePath(String previewImagePath) {
         this.previewImagePath = previewImagePath;
-    }
-
-    public Boolean isSiteWide() {
-        return siteWide;
-    }
-
-    public void setSiteWide(Boolean siteWide) {
-        this.siteWide = siteWide;
     }
 
     public Set<SharedTemplate> getTemplates() {
@@ -164,8 +154,7 @@ public class SharedTheme {
     }
 
     public String toString() {
-        return String.format("SharedTheme: id=%s, name=%s, isSiteWide=%s, # templates=%d", id, name, isSiteWide(),
-                templatesByName.size());
+        return String.format("SharedTheme: id=%s, name=%s, # templates=%d", id, name, templatesByName.size());
     }
 
 }

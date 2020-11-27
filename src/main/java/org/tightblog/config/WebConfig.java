@@ -35,17 +35,14 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.tightblog.rendering.model.Model;
-import org.tightblog.rendering.model.SiteModel;
 import org.tightblog.rendering.model.URLModel;
 import org.tightblog.rendering.model.UtilitiesModel;
-import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.service.ThemeTemplateResolver;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -140,17 +137,6 @@ public class WebConfig implements WebMvcConfigurer {
         ThymeleafRenderer tr = new ThymeleafRenderer();
         tr.setTemplateEngine(blogTemplateEngine);
         return tr;
-    }
-
-    @Bean
-    public Function<WeblogPageRequest, SiteModel> siteModelFactory() {
-        return this::siteModel;
-    }
-
-    @Bean
-    @Scope("prototype")
-    public SiteModel siteModel(WeblogPageRequest wpr) {
-        return new SiteModel(wpr);
     }
 
     @Bean
