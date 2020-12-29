@@ -52,10 +52,11 @@ public class ParsedMenu {
     }
 
     /**
-     * A parsed "tab" from an xml defined menu config.
+     * A parsed "tab" from a defined menu config.
      */
     public static class ParsedTab {
         private String titleKey;
+        private String actionPath;
         private GlobalRole globalRole;
         private WeblogRole weblogRole;
         private String enabledProperty;
@@ -71,6 +72,14 @@ public class ParsedMenu {
 
         public void setTitleKey(String titleKey) {
             this.titleKey = titleKey;
+        }
+
+        public String getActionPath() {
+            return actionPath;
+        }
+
+        public void setActionPath(String actionPath) {
+            this.actionPath = actionPath;
         }
 
         public GlobalRole getGlobalRole() {
@@ -118,6 +127,7 @@ public class ParsedMenu {
         private GlobalRole globalRole;
         private WeblogRole weblogRole;
         private String enabledProperty;
+        private boolean vueTab;
 
         public String getTitleKey() {
             return titleKey;
@@ -175,5 +185,12 @@ public class ParsedMenu {
             this.enabledProperty = enabledProperty;
         }
 
+        public boolean isVueTab() {
+            return vueTab;
+        }
+
+        public void setVueTab(boolean vueTab) {
+            this.vueTab = vueTab;
+        }
     }
 }

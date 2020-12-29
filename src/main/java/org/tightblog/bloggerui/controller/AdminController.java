@@ -31,8 +31,10 @@ import java.util.Set;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.bloggerui.model.GlobalConfigMetadata;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
@@ -94,20 +96,18 @@ public class AdminController {
     }
 
     @PostMapping(value = "/cache/{cacheName}/clear")
-    public ResponseEntity<String> emptyOneCache(@PathVariable String cacheName, Locale locale) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void emptyOneCache(@PathVariable String cacheName) {
         Optional<LazyExpiringCache> maybeCache = cacheSet.stream()
                 .filter(c -> c.getCacheHandlerId().equalsIgnoreCase(cacheName)).findFirst();
         maybeCache.ifPresent(LazyExpiringCache::invalidateAll);
-        return SuccessResponse.textMessage(messages.getMessage("cachedData.message.cache.cleared",
-                new Object[] {cacheName}, locale));
     }
 
     @PostMapping(value = "/resethitcount")
-    public ResponseEntity<String> resetHitCount(Locale locale) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetHitCount() {
         weblogDao.resetDailyHitCounts();
         log.info("daily hit counts manually reset by administrator");
-        return SuccessResponse.textMessage(
-                messages.getMessage("cachedData.message.reset", null, locale));
     }
 
     @GetMapping(value = "/visibleWeblogHandles")
@@ -121,15 +121,13 @@ public class AdminController {
     }
 
     @PostMapping(value = "/weblog/{handle}/rebuildindex")
-    public ResponseEntity<?> rebuildIndex(@PathVariable String handle, Locale locale) {
+    public ResponseEntity<?> rebuildIndex(@PathVariable String handle) {
         Weblog weblog = weblogDao.findByHandle(handle);
         if (weblog != null) {
             luceneIndexer.updateIndex(weblog, false);
-            return SuccessResponse.textMessage(
-                    messages.getMessage("cachedData.message.indexed", new Object[]{handle}, locale));
+            return ResponseEntity.noContent().build();
         } else {
-            return ValidationErrorResponse.badRequest(
-                    messages.getMessage("generic.weblog.not.found", new Object[]{handle}, locale));
+            return ResponseEntity.notFound().build();
         }
     }
 

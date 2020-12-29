@@ -9,7 +9,7 @@ You can override it with your own file via WEB-INF/tiles-def.xml
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 
 <link rel="stylesheet" media="all" href="<c:url value='/tb-ui/styles/tbeditorui.css'/>" />
-<link rel="stylesheet" media="all" href="<c:url value='/tb-ui/theme/colors.css'/>" />
+<link rel="stylesheet" media="all" href="<c:url value='/tb-ui/styles/colors.css'/>" />
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>

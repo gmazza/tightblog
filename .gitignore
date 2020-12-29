@@ -7,3 +7,10 @@ build/*
 target/*
 copy.sh
 
+/out/
+*.log
+
+src/main/webapp/tb-ui2/
+
+### Editor directories and files ###
+.vscode

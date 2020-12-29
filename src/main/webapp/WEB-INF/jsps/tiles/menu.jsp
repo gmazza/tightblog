@@ -54,11 +54,22 @@
             <c:forEach var="tabItem" items="${selectedTab.items}" varStatus="stat">
                 <c:if test="${!stat.first}">|</c:if>
                 <c:set var="actionUrl">
-                    <c:url value='${tabItem.actionPath}${tabItem.action}'>
-                        <c:if test="${actionWeblog != null}">
-                            <c:param name='weblogId' value='${actionWeblog.id}'/>
-                        </c:if>
-                    </c:url>
+                    <c:choose>
+                        <c:when test="false">
+                            <c:url value='${tabItem.actionPath}'>
+                                <c:if test="${actionWeblog != null}">
+                                    <c:param name='weblogId' value='${actionWeblog.id}'/>
+                                </c:if>
+                            </c:url>
+                        </c:when>
+                        <c:otherwise>
+                            <c:url value='${tabItem.actionPath}${tabItem.action}'>
+                                <c:if test="${actionWeblog != null}">
+                                    <c:param name='weblogId' value='${actionWeblog.id}'/>
+                                </c:if>
+                            </c:url>
+                        </c:otherwise>
+                    </c:choose>
                 </c:set>
                 <a href="${actionUrl}"
                     <c:choose>

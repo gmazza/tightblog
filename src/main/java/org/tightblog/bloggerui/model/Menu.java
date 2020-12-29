@@ -45,6 +45,7 @@ public class Menu {
     public static class MenuTab {
         private String key;
         private boolean selected;
+        private String actionPath;
         private List<MenuTabItem> items = new ArrayList<>();
 
         public void addItem(MenuTabItem item) {
@@ -74,6 +75,14 @@ public class Menu {
         public void setItems(List<MenuTabItem> items) {
             this.items = items;
         }
+
+        public String getActionPath() {
+            return actionPath;
+        }
+
+        public void setActionPath(String actionPath) {
+            this.actionPath = actionPath;
+        }
     }
 
     public static class MenuTabItem {
@@ -82,6 +91,7 @@ public class Menu {
         private String actionPath;
         private boolean selected;
         private boolean hasWeblogId;
+        private boolean vueTab;
 
         public String getKey() {
             return key;
@@ -113,6 +123,14 @@ public class Menu {
 
         public void setSelected(boolean selected) {
             this.selected = selected;
+        }
+
+        public boolean isVueTab() {
+            return vueTab;
+        }
+
+        public void setVueTab(boolean vueTab) {
+            this.vueTab = vueTab;
         }
 
         public boolean getHasWeblogId() {

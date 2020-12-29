@@ -21,10 +21,6 @@
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 <script>
     var contextPath = "${pageContext.request.contextPath}";
-    var msg = {
-        confirmLabel: '<fmt:message key="generic.confirm"/>',
-        cancelLabel: '<fmt:message key="generic.cancel"/>',
-    };
 </script>
 
 <div id="template">
@@ -33,13 +29,6 @@
 
 <success-message-box v-bind:message="successMessage" @close-box="successMessage = null"></success-message-box>
 <error-message-box v-bind:message="errorMessage" @close-box="errorMessage = null"></error-message-box>
-
-<div id="errorMessageDiv" class="alert alert-danger" role="alert" v-if="errorMessage" v-cloak>
-    {{errorMessage}}
-    <button type="button" class="close" v-on:click="errorMessage = null" aria-label="Close">
-       <span aria-hidden="true">&times;</span>
-    </button>
-</div>
 
 <p class="subtitle">
     <fmt:message key="cachedData.subtitle" />
@@ -89,7 +78,7 @@
 <div class="control clearfix">
     <button type="button" v-on:click="loadCacheData()"><fmt:message key='generic.refresh'/></button>
 </div>
-  
+
 <div v-if="metadata.weblogList">
     <br><br>
     <fmt:message key="cachedData.prompt.reset"/>:
