@@ -116,7 +116,7 @@ public abstract class WebloggerTest {
         testUser.setUserName(userName.toLowerCase());
         testUser.setGlobalRole(GlobalRole.BLOGGER);
         testUser.setScreenName(userName);
-        testUser.setEmailAddress("TestUser@dev.null");
+        testUser.setEmailAddress(userName + "@dev.null");
         testUser.setDateCreated(Instant.now());
         testUser.setStatus(UserStatus.ENABLED);
         userDao.saveAndFlush(testUser);

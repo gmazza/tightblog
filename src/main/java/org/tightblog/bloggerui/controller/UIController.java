@@ -181,9 +181,7 @@ public class UIController {
     }
 
     @RequestMapping(value = "/scanCode")
-    public ModelAndView scanAuthenticatorSecret(Principal principal, HttpServletRequest request,
-                                                HttpServletResponse response) {
-
+    public ModelAndView scanAuthenticatorSecret(Principal principal) {
         User user = userDao.findEnabledByUserName(principal.getName());
         String qrCode = userManager.generateMFAQRUrl(user);
         Map<String, Object> myMap = new HashMap<>();

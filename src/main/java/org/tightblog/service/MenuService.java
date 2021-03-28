@@ -157,6 +157,7 @@ public final class MenuService {
             // all checks passed, tab should be included
             MenuTab tab = new MenuTab();
             tab.setKey(configTab.getTitleKey());
+            tab.setActionPath(configTab.getActionPath());
 
             // setup tab items
             boolean selectable = true;
@@ -186,7 +187,8 @@ public final class MenuService {
                 MenuTabItem newTabItem = new MenuTabItem();
                 newTabItem.setKey(tabItem.getTitleKey());
                 newTabItem.setAction(tabItem.getAction());
-                newTabItem.setActionPath(tabItem.getActionPath());
+                newTabItem.setVueTab(tabItem.isVueTab());
+                newTabItem.setActionPath(tabItem.getActionPath() != null ? tabItem.getActionPath() : tab.getActionPath());
 
                 // is this the selected item? Only one can be selected so skip the rest
                 if (selectable && currentAction != null && isSelected(currentAction, tabItem)) {

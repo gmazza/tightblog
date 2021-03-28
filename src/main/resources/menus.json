@@ -3,22 +3,24 @@
     "id": "admin",
     "tabs": [ {
       "titleKey": "tabbedmenu.admin",
+      "actionPath": "/tb-ui/app/admin/",
       "globalRole": "ADMIN",
       "weblogRole": "NOBLOGNEEDED",
       "tabItems": [
         {
           "action": "globalConfig",
-          "actionPath": "/tb-ui/app/admin/",
           "titleKey": "globalConfig.title"
         },
         {
           "action": "userAdmin",
-          "actionPath": "/tb-ui/app/admin/",
+          "actionPath": "/tb-ui2/index.html#/admin/",
+          "vueTab": true,
           "titleKey": "userAdmin.title"
         },
         {
           "action": "cachedData",
-          "actionPath": "/tb-ui/app/admin/",
+          "actionPath": "/tb-ui2/index.html#/admin/",
+          "vueTab": true,
           "titleKey": "cachedData.title"
         }
       ]
@@ -30,12 +32,12 @@
     "tabs": [
       {
         "titleKey": "tabbedmenu.weblog",
+        "actionPath": "/tb-ui/app/authoring/",
         "globalRole": "BLOGGER",
         "weblogRole": "EDIT_DRAFT",
         "tabItems": [
           {
             "action": "entryAdd",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "entryAdd.title",
             "weblogRole": "EDIT_DRAFT",
             "subActions": [
@@ -44,37 +46,31 @@
           },
           {
             "action": "entries",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "entries.title",
             "weblogRole": "POST"
           },
           {
             "action": "comments",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "comments.title",
             "weblogRole": "POST"
           },
           {
             "action": "categories",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "categories.title",
             "weblogRole": "POST"
           },
           {
             "action": "tags",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "generic.tags",
             "weblogRole": "POST"
           },
           {
             "action": "blogroll",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "blogroll.title",
             "weblogRole": "OWNER"
           },
           {
             "action": "mediaFileView",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "mediaFileView.title",
             "enabledProperty": "media.file.showTab",
             "weblogRole": "POST",
@@ -87,17 +83,16 @@
       },
       {
         "titleKey": "tabbedmenu.website",
+        "actionPath": "/tb-ui/app/authoring/",
         "globalRole": "BLOGGER",
         "weblogRole": "OWNER",
         "tabItems": [
           {
             "action": "weblogConfig",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "weblogConfig.title"
           },
           {
             "action": "templates",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "templates.title",
             "enabledProperty": "themes.customtheme.allowed",
             "subActions": [
@@ -107,7 +102,6 @@
           },
           {
             "action": "members",
-            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "members.title"
           }
         ]

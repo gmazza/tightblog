@@ -58,6 +58,8 @@ public interface UserDao extends JpaRepository<User, String> {
 
     User findByScreenName(String screenName);
 
+    User findByEmailAddress(String emailAddress);
+
     default User findByIdOrNull(String id) {
         return findById(id).orElse(null);
     }

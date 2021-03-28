@@ -15,9 +15,10 @@ plugins {
 	id "com.github.spotbugs" version "4.5.0"
 	// ./gradlew dependencyUpdates
 	id "com.github.ben-manes.versions" version "0.33.0"
+	id 'com.github.node-gradle.node' version '2.2.4'
+	id 'war'
 }
 
-apply plugin: 'war'
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'org.springframework.boot'
@@ -112,6 +113,7 @@ task integrationTest(type: Test) {
 
 check.dependsOn integrationTest
 
+
 checkstyle {
 	toolVersion = "8.9"
 	config = resources.text.fromFile("$rootProject.projectDir/etc/buildconfig/checkstyle.xml", 'UTF-8')
@@ -122,6 +124,7 @@ checkstyle {
 spotbugs {
 	excludeFilter = file("$rootProject.projectDir/etc/buildconfig/spotbugsExcludes.xml")
 }
+
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
@@ -162,3 +165,38 @@ dependencies {
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
+
+def uiDir = 'src/client'
+
+node {
+	version = '14.15.1'
+	npmVersion = '6.14.9'
+	download = true
+	// distBaseUrl = Custom artifactory location here for node/npm.
+}
+
+task npmInstallBloggerUI(type: NpmTask) {
+	args = ['install']
+	execOverrides {
+		it.workingDir = uiDir
+	}
+}
+
+task npmBuildBloggerUI(type: NpmTask) {
+	dependsOn npmInstallBloggerUI
+	args = ['run','build']
+	execOverrides {
+		it.workingDir = uiDir
+	}
+}
+
+task copyUi(type: Copy) {
+	dependsOn npmBuildBloggerUI
+	into "src/main/webapp"
+
+	into("tb-ui2") {
+		from "${uiDir}/dist"
+	}
+}
+
+bootWar.dependsOn copyUi

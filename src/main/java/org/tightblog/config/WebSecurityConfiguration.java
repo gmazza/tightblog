@@ -71,6 +71,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // UI Calls
                 // .antMatchers("/images/**", "/scripts/**", "/styles/**").permitAll()
                 .antMatchers("/tb-ui/app/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/tb-ui2/index.html").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/app/authoring/**", "/tb-ui/app/profile", "/tb-ui/app/home")
                     .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")

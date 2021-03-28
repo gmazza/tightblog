@@ -1,0 +1,69 @@
+{
+  "cachedData": {
+    "explanation": "Incoming requests are first checked with the client's If Modified Since header to see if the client's cached version (if present) is the most recent, if so a 304 Not Modified is returned to the client instead of the requested data.  Otherwise the relevant cache is checked and if found used unless it needs refreshing.  If still no success, TightBlog will regenerate the item, send it to the client and cache it for subsequent use.  Note media objects aren't cached but their 304 stats are still collected.",
+    "subtitle": "Monitor/Refresh cached data",
+    "maxEntries": "Cache Max Size",
+    "currentSize": "Current Size (estimate)",
+    "incoming": "Incoming Requests",
+    "handledBy304": "Handled By 304/Not Modified",
+    "cacheHits": "Handled By Cache",
+    "cacheMisses": "Cache Misses",
+    "304Efficiency": "304 Efficiency",
+    "cacheEfficiency": "Cache Efficiency",
+    "totalEfficiency": "304 & Cache Efficiency",
+    "clear": "Clear Cache",
+    "promptReset": "Reset daily hit count for all weblogs (usually handled by default scheduled task)",
+    "buttonReset": "Reset Hit Count",
+    "promptIndex": "Rebuild the index for a specific weblog (not normally necessary, indexes are maintained and kept current by default)",
+    "buttonIndex": "Rebuild Search Index",
+    "cacheCleared": "Cache {name} cleared.",
+    "indexingStarted": "Successfully scheduled search index rebuild for weblog {handle}",
+    "hitCountReset": "Successfully reset all weblog hit counts to zero in the database.  Clear the Weblog Page cache if desired to immediately update the pages."
+  },
+  "userAdmin" : {
+    "subtitle": "Select user to edit",
+    "accept": "accept",
+    "decline": "decline",
+    "tip" : {
+      "screenName": "User's screen name (with no HTML).",
+      "email": "Valid email address needed for automated notification.",
+      "password": "User's password.  Fill in only if you are changing it.  Between 8 and 20 characters, with at least one uppercase, one lowercase, one number and one special character (any of @#$%^&+=).",
+      "passwordConfirm": "Re-type password, again only if changing.",
+      "globalRole": "Lone difference between BLOGGER and BLOGCREATOR is that the latter can create new blogs. ADMIN provides full TightBlog control (the rights you have).",
+      "mfaSecret": "The Multifactor Authentication (MFA) secret is used with a smartphone authenticator app.  If true, can be erased if the user wishes to re-register with the authenticator app upon next login (has a new smartphone, for example).",
+      "userStatus" : "Only enabled users are able to log in."
+    },
+    "userStatus": "Account Status",
+    "globalRole": "Global Role",
+    "hasMfaSecret": "Has MFA Secret?",
+    "mfaSecret" : {
+      "erase": "Erase"
+    },
+    "userMemberOf": "User is a member of the following weblog(s)", 
+    "pending": "Pending",
+    "manage": "Manage",
+    "editEntries" : "Edit Entries"
+  },
+  "userSettings": {
+    "username" : "Username",
+    "tip": {
+      "username" : "Usernames can't be changed."
+    },
+    "accountCreateDate": "Account Created",
+    "lastLogin": "Last Login",
+    "screenname": "Screen Name",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm" : "Password (Confirm)"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "name": "Name",
+    "refresh": "Refresh",
+    "role": "Role",
+    "edit": "Edit",
+    "weblog": "Weblog",
+    "save": "Save"
+  }
+}

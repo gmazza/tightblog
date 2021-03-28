@@ -22,13 +22,14 @@ package org.tightblog.bloggerui.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.bloggerui.model.SuccessResponse;
-import org.tightblog.bloggerui.model.UserAdminMetadata;
+import org.tightblog.bloggerui.model.StaticProperties;
 import org.tightblog.bloggerui.model.UserData;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.service.EmailService;
@@ -46,7 +47,6 @@ import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.util.Utilities;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -65,7 +65,6 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -92,7 +91,8 @@ public class UserController {
     private WebloggerPropertiesDao webloggerPropertiesDao;
     private WeblogEntryCommentDao weblogEntryCommentDao;
     private URLService urlService;
-    private UserAdminMetadata userAdminMetadata = new UserAdminMetadata();
+    private Environment environment;
+    private StaticProperties staticProperties;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -103,7 +103,8 @@ public class UserController {
                           EmailService emailService, UserDao userDao,
                           UserCredentialsDao userCredentialsDao, URLService urlService,
                           WeblogEntryCommentDao weblogEntryCommentDao,
-                          WebloggerPropertiesDao webloggerPropertiesDao) {
+                          WebloggerPropertiesDao webloggerPropertiesDao,
+                          Environment environment) {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
@@ -114,16 +115,13 @@ public class UserController {
         this.urlService = urlService;
         this.emailService = emailService;
         this.messages = messageSource;
+        this.environment = environment;
     }
 
     @PostConstruct
     public void init() {
-        userAdminMetadata.getUserStatuses().putAll(Arrays.stream(UserStatus.values())
-                .collect(Utilities.toLinkedHashMap(UserStatus::name, UserStatus::name)));
-
-        userAdminMetadata.getGlobalRoles().putAll(Arrays.stream(GlobalRole.values())
-                .filter(r -> r != GlobalRole.NOAUTHNEEDED)
-                .collect(Utilities.toLinkedHashMap(GlobalRole::name, GlobalRole::name)));
+        staticProperties = new StaticProperties();
+        staticProperties.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
     }
 
     @GetMapping(value = "/tb-ui/admin/rest/useradmin/userlist")
@@ -423,6 +421,12 @@ public class UserController {
                     null, locale)));
         }
 
+        User testHasEmail = userDao.findByEmailAddress(data.getUser().getEmailAddress());
+        if (testHasEmail != null && !testHasEmail.getId().equals(data.getUser().getId())) {
+            errors.add(new Violation(messages.getMessage("error.add.user.emailAddressInUse",
+                    null, locale)));
+        }
+
         if (currentUser != null) {
             UserStatus currentStatus = currentUser.getStatus();
             if (currentStatus != data.getUser().getStatus()) {
@@ -542,8 +546,13 @@ public class UserController {
     }
 
     @GetMapping(value = "/tb-ui/register/rest/useradminmetadata")
-    public UserAdminMetadata getUserAdminMetadata() {
-        return userAdminMetadata;
+    public StaticProperties getStaticProperties() {
+        return staticProperties;
+    }
+
+    @GetMapping(value = "/tb-ui/authoring/rest/server/staticproperties")
+    public StaticProperties getStaticProperties2() {
+        return staticProperties;
     }
 
 }
