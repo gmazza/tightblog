@@ -15,16 +15,24 @@
  */
 package org.tightblog.bloggerui.model;
 
+import org.tightblog.domain.GlobalRole;
+import org.tightblog.domain.UserStatus;
+import org.tightblog.util.Utilities;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserAdminMetadata {
+public class StaticProperties {
+    private boolean mfaEnabled;
     private Map<String, String> userStatuses;
     private Map<String, String> globalRoles;
 
     public Map<String, String> getUserStatuses() {
         if (userStatuses == null) {
             userStatuses = new HashMap<>();
+            userStatuses.putAll(Arrays.stream(UserStatus.values())
+                    .collect(Utilities.toLinkedHashMap(UserStatus::name, UserStatus::name)));
         }
         return userStatuses;
     }
@@ -32,7 +40,18 @@ public class UserAdminMetadata {
     public Map<String, String> getGlobalRoles() {
         if (globalRoles == null) {
             globalRoles = new HashMap<>();
+            globalRoles.putAll(Arrays.stream(GlobalRole.values())
+                    .filter(r -> r != GlobalRole.NOAUTHNEEDED)
+                    .collect(Utilities.toLinkedHashMap(GlobalRole::name, GlobalRole::name)));
         }
         return globalRoles;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabled;
+    }
+
+    public void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
     }
 }

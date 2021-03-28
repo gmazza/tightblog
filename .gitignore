@@ -6,9 +6,16 @@
 build/*
 target/*
 copy.sh
+local-certs.js
 
 /out/
 *.log
+
+tightblog_data/*
+
+
+etc/sqlgen/.gradle/*
+etc/sqlgen/build/*
 
 src/main/webapp/tb-ui2/
 

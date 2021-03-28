@@ -1,0 +1,9 @@
+// rename file to local-certs.js, updating path below for links to your key
+// key can be generated as here: https://letsencrypt.org/docs/certificates-for-localhost/
+
+const fs = require('fs')
+
+module.exports = {
+	key: fs.readFileSync('/Users/gmazza/opensource/certs/abc.key').toString(),
+	cert: fs.readFileSync('/Users/gmazza/opensource/certs/abc.crt').toString()
+}

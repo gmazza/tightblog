@@ -13,36 +13,13 @@
         },
         {
           "action": "userAdmin",
-          "titleKey": "userAdmin.title"
-        },
-        {
-          "action": "cachedData",
-          "titleKey": "cachedData.title"
-        }
-      ]
-    }
-    ]
-  },
-  {
-    "id": "adminvue",
-    "tabs": [ {
-      "titleKey": "tabbedmenu.adminvue",
-      "actionPath": "/tb-ui2/index.html#/admin/",
-      "globalRole": "ADMIN",
-      "weblogRole": "NOBLOGNEEDED",
-      "tabItems": [
-        {
-          "action": "globalConfig",
-          "vueTab": true,
-          "titleKey": "globalConfig.title"
-        },
-        {
-          "action": "userAdmin",
+          "actionPath": "/tb-ui2/index.html#/admin/",
           "vueTab": true,
           "titleKey": "userAdmin.title"
         },
         {
           "action": "cachedData",
+          "actionPath": "/tb-ui2/index.html#/admin/",
           "vueTab": true,
           "titleKey": "cachedData.title"
         }

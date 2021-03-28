@@ -67,11 +67,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 // API Calls
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui2/#/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 // UI Calls
                 // .antMatchers("/images/**", "/scripts/**", "/styles/**").permitAll()
                 .antMatchers("/tb-ui/app/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/tb-ui2/index.html").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/app/authoring/**", "/tb-ui/app/profile", "/tb-ui/app/home")
                     .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")

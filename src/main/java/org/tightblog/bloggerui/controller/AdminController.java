@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.bloggerui.model.GlobalConfigMetadata;
 import org.tightblog.bloggerui.model.SuccessResponse;
-import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.Weblog;
@@ -76,10 +76,12 @@ public class AdminController {
     private WeblogDao weblogDao;
     private WebloggerPropertiesDao webloggerPropertiesDao;
     private MessageSource messages;
+    private boolean searchEnabled;
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
+                           @Value("${search.enabled:false}") boolean searchEnabled,
                            MessageSource messages,
                            WebloggerPropertiesDao webloggerPropertiesDao) {
         this.cacheSet = cacheSet;
@@ -88,6 +90,7 @@ public class AdminController {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.messages = messages;
+        this.searchEnabled = searchEnabled;
     }
 
     @GetMapping(value = "/caches")
@@ -118,6 +121,11 @@ public class AdminController {
             weblogHandles.add(weblog.getHandle());
         }
         return weblogHandles;
+    }
+
+    @GetMapping(value = "/searchenabled")
+    public boolean getSearchEnabled() {
+        return searchEnabled;
     }
 
     @PostMapping(value = "/weblog/{handle}/rebuildindex")
