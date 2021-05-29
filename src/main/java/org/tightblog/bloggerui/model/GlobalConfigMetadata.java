@@ -69,7 +69,6 @@ public class GlobalConfigMetadata {
         return spamOptions;
     }
 
-
     public boolean isShowMediaFileTab() {
         return showMediaFileTab;
     }

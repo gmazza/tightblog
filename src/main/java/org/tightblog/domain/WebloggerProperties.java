@@ -33,7 +33,7 @@ public class WebloggerProperties {
     private int maxFileUploadsSizeMb;
 
     // temporary non-persisted fields used for form entry & retrieving associated data
-    public String mainBlogId;
+    private String mainBlogId;
 
     @Id
     public String getId() {
