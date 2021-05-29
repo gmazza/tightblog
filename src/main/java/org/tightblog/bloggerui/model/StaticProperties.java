@@ -25,6 +25,7 @@ import java.util.Map;
 
 public class StaticProperties {
     private boolean mfaEnabled;
+
     private Map<String, String> userStatuses;
     private Map<String, String> globalRoles;
 
@@ -54,4 +55,5 @@ public class StaticProperties {
     public void setMfaEnabled(boolean mfaEnabled) {
         this.mfaEnabled = mfaEnabled;
     }
+
 }

@@ -56,6 +56,43 @@
     "password": "Password",
     "passwordConfirm" : "Password (Confirm)"
   },
+  "globalConfig": {
+    "subtitle" : "Set site-wide configuration settings.",
+    "prompt" : "The settings here apply for all weblogs and can be adjusted at any time, taking effect immediately. Good to review these settings prior to creating your first blog, which can be done by selecting My Blogs from the top menu bar.  See each blog's Weblog Settings tab for blog-specific configuration.  Additional global configuration is available from your instance's application-tbcustom.properties file, however those changes require an application restart to take effect.",
+    "siteSettings" : "Site Settings",
+    "frontpageWeblogHandle" : "Weblog to serve as frontpage blog",    "requiredRegistrationProcess" : "Registration process for new users",
+    "newUsersCreateBlogs" : "New users may create weblogs by default?",
+    "weblogSettings" : "Weblog Settings",
+    "htmlWhitelistLevel" : "Allowed HTML in blog entries",
+    "allowCustomTheme" : "Allow Custom Themes?",
+    "maxMediaFileAllocationMb" : "Max Media File Allocation (MB)",
+    "defaultAnalyticsTrackingCode" : "Default web analytics tracking code",
+    "allowAnalyticsCodeOverride" : "Allow individual blogs to override above code?",
+    "commentSettings" : "Comment Settings",
+    "enableComments" : "Allow weblog comments?",
+    "commentHtmlWhitelistLevel" : "Allowed HTML in comments",
+    "spamPolicy" : "What to do with comments identified as spam?",
+    "emailComments" : "Allow email notification of comments?",
+    "ignoreUrls" : "Comment spam filter",
+    "none" : "None specified",
+    "tip" : {
+      "frontpageWeblogHandle" : "The default weblog shown at the application's base URL.  Will automatically be set to the first weblog created but can be later changed here.",
+      "requiredRegistrationProcess" : "For best security, disable when everyone you want to have an account has one.",
+      "newUsersCreateBlogs" : "Whether new users may create their own blogs or will instead rely on others creating blogs and assigning them to users via the blog's Members tab.  Can be overridden per account on the User Admin tab.",
+      "htmlWhitelistLevel" : "Limit blog entries to only certain HTML tags to help prevent bloggers from doing anything bad to their readers with forms, JavaScript, etc.  Any disallowed elements will be stripped out from the text.  Largely unnecessary if you limit blogging accounts to people you fully trust (as you should).  Note: Affects only blog entry text, if restricting here you will probably also wish to disallow theme template customization for fuller protection.",
+      "allowCustomTheme" : "Whether bloggers may switch their themes and/or customize their theme templates.",
+      "maxMediaFileAllocationMb" : "Upload space allowed for media files (images, MP3s, etc.)  The application property file offers additional options for specifying allowable media file types as well as hiding the media file tab to disallow all uploads.",
+      "defaultAnalyticsTrackingCode" : "Google Analytics or similar traffic determining code placed in the HTML header of all blogs.",
+      "allowAnalyticsCodeOverride" : "If checked, allows an individual blogger to use his own tracking code in place of any code specified above.",
+      "commentHtmlWhitelistLevel" : "HTML tags used by commenters outside the specified approved list will be stripped out.",
+      "spamPolicy" : "TightBlog includes a configurable spam-checker for incoming comments.  When a comment is evaluated to be spam, how should it to be handled differently from a non-spam comment?  Option chosen here will mark the most permissive handling of spam (individual blogs may configure a more stringent handling.)",
+      "emailComments" : "For non-moderated comments, sends an email to the weblog's members whenever a new comment is added. Also provides blog commenters a checkbox option to receive emails when subsequent comments occur for the entry.",
+      "ignoreUrls" : "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
+    }
+  },
+  "product": {
+    "nameVersion": "TightBlog {version}"
+  },
   "common": {
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -64,6 +101,7 @@
     "role": "Role",
     "edit": "Edit",
     "weblog": "Weblog",
-    "save": "Save"
+    "save": "Save",
+    "changesSaved": "Changes saved"
   }
 }

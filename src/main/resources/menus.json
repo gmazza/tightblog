@@ -1,33 +1,5 @@
 [
   {
-    "id": "admin",
-    "tabs": [ {
-      "titleKey": "tabbedmenu.admin",
-      "actionPath": "/tb-ui/app/admin/",
-      "globalRole": "ADMIN",
-      "weblogRole": "NOBLOGNEEDED",
-      "tabItems": [
-        {
-          "action": "globalConfig",
-          "titleKey": "globalConfig.title"
-        },
-        {
-          "action": "userAdmin",
-          "actionPath": "/tb-ui2/index.html#/admin/",
-          "vueTab": true,
-          "titleKey": "userAdmin.title"
-        },
-        {
-          "action": "cachedData",
-          "actionPath": "/tb-ui2/index.html#/admin/",
-          "vueTab": true,
-          "titleKey": "cachedData.title"
-        }
-      ]
-    }
-    ]
-  },
-  {
     "id": "editor",
     "tabs": [
       {

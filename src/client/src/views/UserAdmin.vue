@@ -303,7 +303,6 @@ export default {
       urlRoot: "/tb-ui/admin/rest/useradmin/",
       entriesUrl: "/tb-ui/app/authoring/entries",
       weblogConfigUrl: "/tb-ui/app/authoring/weblogConfig",
-      mfaEnabled: true,
       pendingList: {},
       userList: {},
       userToEdit: null,

@@ -21,6 +21,12 @@ module.exports = {
     //    port: 8181,
     //    host: 'localhost.politicopro.com',
     https: httpsConfig,
+    // https://stackoverflow.com/q/62944640/1207540
+    headers: {
+      "Access-Control-Allow-Origin" : "*",
+      "Access-Control-Allow-Headers": "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+    },
     // https://github.com/chimurai/http-proxy-middleware#tldr
     proxy: {
       "/tb-ui": {

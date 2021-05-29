@@ -47,7 +47,7 @@
                 </c:if>
 
                 <c:if test="${userIsAdmin}">
-                    <a href="<c:url value='/tb-ui/app/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
+                    <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
                 </c:if>
 
                 <c:choose>

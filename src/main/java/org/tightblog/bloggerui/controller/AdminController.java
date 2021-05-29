@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.bloggerui.model.GlobalConfigMetadata;
-import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.Weblog;
@@ -77,12 +77,13 @@ public class AdminController {
     private WebloggerPropertiesDao webloggerPropertiesDao;
     private MessageSource messages;
     private boolean searchEnabled;
+    private Environment environment;
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
                            @Value("${search.enabled:false}") boolean searchEnabled,
-                           MessageSource messages,
+                           MessageSource messages, Environment environment,
                            WebloggerPropertiesDao webloggerPropertiesDao) {
         this.cacheSet = cacheSet;
         this.luceneIndexer = luceneIndexer;
@@ -91,6 +92,7 @@ public class AdminController {
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.messages = messages;
         this.searchEnabled = searchEnabled;
+        this.environment = environment;
     }
 
     @GetMapping(value = "/caches")
@@ -141,14 +143,19 @@ public class AdminController {
 
     @GetMapping(value = "/webloggerproperties")
     public WebloggerProperties getWebloggerProperties() {
-        return webloggerPropertiesDao.findOrNull();
+        WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
+        if (wp.getMainBlog() != null) {
+            wp.setMainBlogId(wp.getMainBlog().getId());
+        }
+        return wp;
     }
 
     @PostMapping(value = "/webloggerproperties")
-    public ResponseEntity<String> updateProperties(@Valid @RequestBody WebloggerProperties properties, Locale locale) {
+    public void updateProperties(@Valid @RequestBody WebloggerProperties properties, Locale locale) {
+        Weblog mainBlog = Optional.ofNullable(properties.getMainBlogId()).map(weblogDao::findByIdOrNull).orElse(null);
+        properties.setMainBlog(mainBlog);
         webloggerPropertiesDao.saveAndFlush(properties);
         commentValidator.refreshGlobalBlacklist();
-        return SuccessResponse.textMessage(messages.getMessage("generic.changes.saved", null, locale));
     }
 
     @GetMapping(value = "/globalconfigmetadata")
@@ -184,6 +191,8 @@ public class AdminController {
         gcm.getSpamOptions().putAll(Arrays.stream(WebloggerProperties.SpamPolicy.values())
                 .collect(Utilities.toLinkedHashMap(WebloggerProperties.SpamPolicy::name,
                         e -> messages.getMessage(e.getLabel(), null, null))));
+
+        gcm.setShowMediaFileTab(environment.getProperty("media.file.showTab", Boolean.class, true));
 
         return gcm;
     }
