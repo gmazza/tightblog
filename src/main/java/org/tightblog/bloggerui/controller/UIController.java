@@ -211,21 +211,11 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @RequestMapping(value = "/admin/cachedData")
-    public ModelAndView cachedData(Principal principal) {
-        return getAdminPage(principal, "cachedData", null);
-    }
-
     @RequestMapping(value = "/admin/globalConfig")
     public ModelAndView globalConfig(Principal principal) {
         Map<String, Object> myMap = new HashMap<>();
         myMap.put("showMediaFileTab", showMediaFileTab);
         return getAdminPage(principal, "globalConfig", myMap);
-    }
-
-    @RequestMapping(value = "/admin/userAdmin")
-    public ModelAndView userAdmin(Principal principal) {
-        return getAdminPage(principal, "userAdmin", null);
     }
 
     @RequestMapping(value = "/profile")

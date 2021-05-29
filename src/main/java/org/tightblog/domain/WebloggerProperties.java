@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "weblogger_properties")
@@ -30,6 +31,9 @@ public class WebloggerProperties {
     private boolean usersCommentNotifications;
     private String globalSpamFilter;
     private int maxFileUploadsSizeMb;
+
+    // temporary non-persisted fields used for form entry & retrieving associated data
+    private String mainBlogId;
 
     @Id
     public String getId() {
@@ -171,6 +175,15 @@ public class WebloggerProperties {
 
     public void setMaxFileUploadsSizeMb(int maxFileUploadsSizeMb) {
         this.maxFileUploadsSizeMb = maxFileUploadsSizeMb;
+    }
+
+    @Transient
+    public String getMainBlogId() {
+        return mainBlogId;
+    }
+
+    public void setMainBlogId(String mainBlogId) {
+        this.mainBlogId = mainBlogId;
     }
 
     public enum RegistrationPolicy {

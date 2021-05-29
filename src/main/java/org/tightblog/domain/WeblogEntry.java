@@ -116,7 +116,6 @@ public class WeblogEntry implements WeblogOwned {
     private WeblogEntryCommentDao weblogEntryCommentDao;
     private int hours;
     private int minutes;
-
     private String dateString;
     private String editUrl;
     private String commentsUrl;

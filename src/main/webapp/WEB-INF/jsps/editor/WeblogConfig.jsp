@@ -197,7 +197,7 @@
     </tr>
 
     <tr v-show="weblog.allowComments != 'NONE'">
-        <td class="label"><fmt:message key="globalConfig.spamPolicy"/></td>
+        <td class="label"><fmt:message key="weblogConfig.spamPolicy"/></td>
         <td class="field">
             <select v-model="weblog.spamPolicy" size="1">
                 <option v-for="(value, key) in metadata.spamOptions" v-bind:value="key">{{value}}</option>
@@ -207,7 +207,7 @@
     </tr>
 
     <tr v-show="weblog.allowComments != 'NONE'">
-        <td class="label"><fmt:message key="globalConfig.ignoreUrls"/></td>
+        <td class="label"><fmt:message key="weblogConfig.ignoreUrls"/></td>
         <td class="field"><textarea v-model="weblog.blacklist" rows="7" cols="70"></textarea></td>
         <td class="description"><fmt:message key="weblogConfig.tip.ignoreUrls"/></td>
     </tr>

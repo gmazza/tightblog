@@ -25,6 +25,7 @@ public class GlobalConfigMetadata {
     private Map<String, String> commentOptions;
     private Map<String, String> commentHtmlLevels;
     private Map<String, String> spamOptions;
+    private boolean showMediaFileTab;
 
     public Map<String, String> getWeblogList() {
         if (weblogList == null) {
@@ -66,5 +67,13 @@ public class GlobalConfigMetadata {
             spamOptions = new LinkedHashMap<>();
         }
         return spamOptions;
+    }
+
+    public boolean isShowMediaFileTab() {
+        return showMediaFileTab;
+    }
+
+    public void setShowMediaFileTab(boolean showMediaFileTab) {
+        this.showMediaFileTab = showMediaFileTab;
     }
 }
