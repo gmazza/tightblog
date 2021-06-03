@@ -20,14 +20,14 @@
 -->
 <template>
   <div style="text-align: left; padding: 20px">
-    <SuccessMessageBox
+    <AppSuccessMessageBox
       :message="successMessage"
       @close-box="successMessage = null"
-    ></SuccessMessageBox>
-    <ErrorListMessageBox
+    ></AppSuccessMessageBox>
+    <AppErrorListMessageBox
       :in-error-obj="errorObj"
       @close-box="errorObj.errors = null"
-    ></ErrorListMessageBox>
+    ></AppErrorListMessageBox>
 
     <div id="pendingList" v-cloak>
       <span v-for="item in pendingList" style="color:red" :key="item.id"
@@ -290,14 +290,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 
-import SuccessMessageBox from "@/components/SuccessMessageBox";
-import ErrorListMessageBox from "@/components/ErrorListMessageBox";
-
 export default {
-  components: {
-    SuccessMessageBox,
-    ErrorListMessageBox
-  },
   data() {
     return {
       urlRoot: "/tb-ui/admin/rest/useradmin/",

@@ -1,14 +1,3 @@
-<script>
-export default {
-  props: {
-    inErrorObj: {
-      type: Object,
-      default: () => ({})
-    }
-  }
-};
-</script>
-
 <template>
   <div
     id="errorMessageDiv"
@@ -34,3 +23,14 @@ export default {
     </ul>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    inErrorObj: {
+      type: Object,
+      default: () => ({})
+    }
+  }
+};
+</script>

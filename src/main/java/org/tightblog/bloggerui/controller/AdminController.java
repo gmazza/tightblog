@@ -70,14 +70,14 @@ public class AdminController {
 
     private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
-    private Set<LazyExpiringCache> cacheSet;
-    private LuceneIndexer luceneIndexer;
-    private CommentSpamChecker commentValidator;
-    private WeblogDao weblogDao;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private MessageSource messages;
-    private boolean searchEnabled;
-    private Environment environment;
+    private final Set<LazyExpiringCache> cacheSet;
+    private final LuceneIndexer luceneIndexer;
+    private final CommentSpamChecker commentValidator;
+    private final WeblogDao weblogDao;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final MessageSource messages;
+    private final boolean searchEnabled;
+    private final Environment environment;
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
@@ -151,7 +151,7 @@ public class AdminController {
     }
 
     @PostMapping(value = "/webloggerproperties")
-    public void updateProperties(@Valid @RequestBody WebloggerProperties properties, Locale locale) {
+    public void updateProperties(@Valid @RequestBody WebloggerProperties properties) {
         Weblog mainBlog = Optional.ofNullable(properties.getMainBlogId()).map(weblogDao::findByIdOrNull).orElse(null);
         properties.setMainBlog(mainBlog);
         webloggerPropertiesDao.saveAndFlush(properties);

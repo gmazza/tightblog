@@ -1,14 +1,3 @@
-<script>
-export default {
-  props: {
-    message: {
-      type: String,
-      default: ""
-    }
-  }
-};
-</script>
-
 <template>
   <div
     id="errorMessageDiv"
@@ -28,3 +17,14 @@ export default {
     </button>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    message: {
+      type: String,
+      default: ""
+    }
+  }
+};
+</script>

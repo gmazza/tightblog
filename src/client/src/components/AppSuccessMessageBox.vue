@@ -1,15 +1,3 @@
-<script>
-export default {
-  //   https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components
-  props: {
-    message: {
-      type: String,
-      default: ""
-    }
-  }
-};
-</script>
-
 <template>
   <div
     id="successMessageDiv"
@@ -29,3 +17,15 @@ export default {
     </button>
   </div>
 </template>
+
+<script>
+export default {
+  //   https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components
+  props: {
+    message: {
+      type: String,
+      default: ""
+    }
+  }
+};
+</script>
