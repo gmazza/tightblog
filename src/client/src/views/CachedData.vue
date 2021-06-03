@@ -20,11 +20,11 @@
 -->
 <template>
   <div style="text-align: left; padding: 20px">
-    <SuccessMessageBox
+    <AppSuccessMessageBox
       :message="successMessage"
       @close-box="successMessage = null"
     />
-    <ErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
+    <AppErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
 
     <p class="subtitle">{{ $t("cachedData.subtitle") }}</p>
 
@@ -128,14 +128,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 
-import SuccessMessageBox from "@/components/SuccessMessageBox";
-import ErrorMessageBox from "@/components/ErrorMessageBox";
-
 export default {
-  components: {
-    SuccessMessageBox,
-    ErrorMessageBox
-  },
   data() {
     return {
       urlRoot: "/tb-ui/admin/rest/server/",
