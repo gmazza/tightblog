@@ -60,7 +60,8 @@
     "subtitle" : "Set site-wide configuration settings.",
     "prompt" : "The settings here apply for all weblogs and can be adjusted at any time, taking effect immediately. Good to review these settings prior to creating your first blog, which can be done by selecting My Blogs from the top menu bar.  See each blog's Weblog Settings tab for blog-specific configuration.  Additional global configuration is available from your instance's application-tbcustom.properties file, however those changes require an application restart to take effect.",
     "siteSettings" : "Site Settings",
-    "frontpageWeblogHandle" : "Weblog to serve as frontpage blog",    "requiredRegistrationProcess" : "Registration process for new users",
+    "frontpageWeblogHandle" : "Weblog to serve as frontpage blog",    
+    "requiredRegistrationProcess" : "Registration process for new users",
     "newUsersCreateBlogs" : "New users may create weblogs by default?",
     "weblogSettings" : "Weblog Settings",
     "htmlWhitelistLevel" : "Allowed HTML in blog entries",
@@ -92,6 +93,17 @@
   },
   "product": {
     "nameVersion": "TightBlog {version}"
+  },
+  "navigationBar" : {
+    "loggedInAs" : "logged in as { screenName }",
+    "activeBlog" : "editing weblog",
+    "homePage" : "Home",
+    "globalAdmin" : "Global Admin",
+    "blogList" : "My Blogs",
+    "viewProfile" : "Profile",
+    "logout" : "Logout",
+    "login" : "Login",
+    "register" : "Register"
   },
   "common": {
     "cancel": "Cancel",

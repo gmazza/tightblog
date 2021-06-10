@@ -160,33 +160,40 @@ export default {
     };
   },
   computed: {
-    ...mapState("globalConfig", {
-      storeWebloggerProps: state => state.items,
-      metadata: state => state.metadata
+    ...mapState("dynamicConfig", {
+      storeDynamicConfig: state => state.items,
+    }),
+    ...mapState("startupConfig", {
+      storeStartupConfig: state => state.startupConfig
     })
   },
   methods: {
     ...mapActions({
-      loadGlobalConfig: "globalConfig/loadGlobalConfig",
-      saveGlobalConfig: "globalConfig/saveGlobalConfig",
-      loadMetadata: "globalConfig/loadMetadata"
+      loadDynamicConfig: "dynamicConfig/loadDynamicConfig",
+      saveDynamicConfig: "dynamicConfig/saveDynamicConfig",
+      loadStartupConfig: "startupConfig/loadStartupConfig",
+      loadLookupValues: "startupConfig/loadLookupValues"
     }),
     loadWebloggerProperties: function() {
-      this.loadGlobalConfig().then(
+      this.loadDynamicConfig().then(
         () => {
           this.webloggerProps = this.storeWebloggerProps;
         },
         error => this.commonErrorResponse(error, null)
       );
     },
-    loadGlobalMetadata: function() {
-      this.loadMetadata().then(
+    loadMetadata: function() {
+      this.loadStartupConfig().then(
+        () => {},
+        error => this.commonErrorResponse(error, null)
+      );
+      this.loadLookupValues().then(
         () => {},
         error => this.commonErrorResponse(error, null)
       );
     },
     updateProperties: function() {
-      this.saveGlobalConfig(this.webloggerProps).then(
+      this.saveDynamicConfig(this.webloggerProps).then(
         () => {
           this.webloggerProps = this.storeWebloggerProps;
           this.errorObj = {};
@@ -212,7 +219,7 @@ export default {
     }
   },
   mounted: function() {
-    this.loadGlobalMetadata();
+    this.loadMetadata();
     this.loadWebloggerProperties();
   }
 }

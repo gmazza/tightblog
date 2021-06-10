@@ -1,16 +1,18 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import caches from "./modules/caches";
-import globalConfig from "./modules/globalConfig";
-import staticProperties from "./modules/staticProperties";
+import dynamicConfig from "./modules/dynamicConfig";
+import startupConfig from "./modules/startupConfig";
+//import sessionConfig from "./modules/sessionConfig";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
     caches,
-    globalConfig,
-    staticProperties
+    startupConfig,
+    dynamicConfig
+//    sessionConfig
   },
   state: {},
   mutations: {},

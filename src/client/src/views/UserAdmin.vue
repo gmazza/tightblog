@@ -307,17 +307,17 @@ export default {
     };
   },
   computed: {
-    ...mapState("staticProperties", {
-      metadata: state => state.items
+    ...mapState("lookupValues", {
+      metadata: state => state.lookupValues
     })
   },
   methods: {
     ...mapActions({
-      loadStaticProperties: "staticProperties/loadStaticProperties"
+      loadLookupValues: "lookupValues/loadLookupValues"
     }),
-    loadStaticProps: function() {
+    loadLookupVals: function() {
       // https://stackoverflow.com/a/49284879
-      this.loadStaticProperties().then(
+      this.loadLookupValues().then(
         () => {},
         error => this.commonErrorResponse(error, null)
       );
@@ -420,7 +420,7 @@ export default {
     }
   },
   created: function() {
-    this.loadStaticProps();
+    this.loadLookupVals();
     this.getPendingRegistrations();
     this.loadUserList();
   }

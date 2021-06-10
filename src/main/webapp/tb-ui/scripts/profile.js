@@ -10,7 +10,7 @@ var vm = new Vue({
     },
     methods: {
         loadMetadata: function () {
-            axios.get(contextPath + '/tb-ui/register/rest/useradminmetadata')
+        axios.get(contextPath + '/tb-ui/register/rest/staticproperties')
                 .then(response => {
                     this.metadata = response.data;
                 })
