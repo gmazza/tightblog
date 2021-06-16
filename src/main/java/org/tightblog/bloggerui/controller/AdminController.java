@@ -62,7 +62,7 @@ import javax.validation.Valid;
 @RequestMapping(path = "/tb-ui/admin/rest/server")
 public class AdminController {
 
-    private final static Logger log = LoggerFactory.getLogger(AdminController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdminController.class);
 
     private final Set<LazyExpiringCache> cacheSet;
     private final LuceneIndexer luceneIndexer;
@@ -101,7 +101,7 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetHitCount() {
         weblogDao.resetDailyHitCounts();
-        log.info("daily hit counts manually reset by administrator");
+        LOG.info("daily hit counts manually reset by administrator");
     }
 
     @GetMapping(value = "/visibleWeblogHandles")
