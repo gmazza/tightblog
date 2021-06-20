@@ -22,6 +22,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.tightblog.bloggerui.model.StartupConfiguration;
 import org.tightblog.bloggerui.model.LookupValues;
 import org.tightblog.service.EmailService;
@@ -95,12 +96,6 @@ public class UIController {
 
     @Value("${mfa.enabled:true}")
     private boolean mfaEnabled;
-
-    @Value("${weblogger.version}")
-    private String tightblogVersion;
-
-    @Value("${weblogger.revision}")
-    private String tightblogRevision;
 
     @Value("${media.file.showTab}")
     boolean showMediaFileTab;
@@ -365,32 +360,11 @@ public class UIController {
         return tightblogModelAndView(actionName, map, user, null);
     }
 
-    @GetMapping(value = "/sessioninfo")
+    @GetMapping(value = "/authoring/sessioninfo")
+    @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
         User user = userDao.findEnabledByUserName(principal.getName());
         return getSessionInfo(user, null);
-    }
-
-    @GetMapping(value = "/lookupvalues")
-    public LookupValues getLookupValues() {
-        return lookupValues;
-    }
-
-    @GetMapping(value = "/startupconfig")
-    public StartupConfiguration getStartupConfig() {
-        StartupConfiguration gcm = new StartupConfiguration();
-        gcm.setShowMediaFileTab(environment.getProperty("media.file.showTab", Boolean.class, true));
-        gcm.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
-        return gcm;
-    }
-
-    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
-        if (map == null) {
-            map = new HashMap<>();
-        }
-        map.putAll(getSessionInfo(user, weblog));
-        map.put("pageTitleKey", actionName + ".title");
-        return new ModelAndView("." + actionName, map);
     }
 
     private Map<String, Object> getSessionInfo(User user, Weblog weblog) {
@@ -401,11 +375,39 @@ public class UIController {
             map.put("actionWeblogURL", urlService.getWeblogURL(weblog));
         }
         map.put("userIsAdmin", user != null && GlobalRole.ADMIN.equals(user.getGlobalRole()));
+
+        // TODO: remove below (in favor of /startupconfig) once Vue conversion complete
         map.put("mfaEnabled", mfaEnabled);
-        map.put("tightblogVersion", tightblogVersion);
-        map.put("tightblogRevision", tightblogRevision);
+        map.put("tightblogVersion", environment.getRequiredProperty("weblogger.version"));
+        map.put("tightblogRevision", environment.getRequiredProperty("weblogger.revision"));
         map.put("registrationPolicy", webloggerPropertiesDao.findOrNull().getRegistrationPolicy());
         return map;
+    }
+
+    @GetMapping(value = "/authoring/lookupvalues")
+    @ResponseBody
+    public LookupValues getLookupValues() {
+        return lookupValues;
+    }
+
+    @GetMapping(value = "/authoring/startupconfig")
+    @ResponseBody
+    public StartupConfiguration getStartupConfig() {
+        StartupConfiguration gcm = new StartupConfiguration();
+        gcm.setShowMediaFileTab(environment.getProperty("media.file.showTab", Boolean.class, true));
+        gcm.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
+        gcm.setTightblogVersion(environment.getRequiredProperty("weblogger.version"));
+        gcm.setTightblogRevision(environment.getRequiredProperty("weblogger.revision"));
+        return gcm;
+    }
+
+    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.putAll(getSessionInfo(user, weblog));
+        map.put("pageTitleKey", actionName + ".title");
+        return new ModelAndView("." + actionName, map);
     }
 
     private Menu getMenu(User user, String actionName, WeblogRole requiredRole) {

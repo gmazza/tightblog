@@ -18,6 +18,8 @@ package org.tightblog.bloggerui.model;
 public class StartupConfiguration {
     private boolean showMediaFileTab;
     private boolean mfaEnabled;
+    private String tightblogVersion;
+    private String tightblogRevision;
 
     public boolean isMfaEnabled() {
         return mfaEnabled;
@@ -33,5 +35,21 @@ public class StartupConfiguration {
 
     public void setShowMediaFileTab(boolean showMediaFileTab) {
         this.showMediaFileTab = showMediaFileTab;
+    }
+
+    public String getTightblogVersion() {
+        return tightblogVersion;
+    }
+
+    public void setTightblogVersion(String tightblogVersion) {
+        this.tightblogVersion = tightblogVersion;
+    }
+
+    public String getTightblogRevision() {
+        return tightblogRevision;
+    }
+
+    public void setTightblogRevision(String tightblogRevision) {
+        this.tightblogRevision = tightblogRevision;
     }
 }

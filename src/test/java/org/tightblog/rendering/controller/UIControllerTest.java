@@ -71,8 +71,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-public class PageControllerTest {
-    private static Logger log = LoggerFactory.getLogger(PageControllerTest.class);
+public class UIControllerTest {
+    private static Logger log = LoggerFactory.getLogger(UIControllerTest.class);
 
     private static final String TEST_BLOG_HANDLE = TestUtils.BLOG_HANDLE;
     private static final String TEST_ENTRY_ANCHOR = TestUtils.ENTRY_ANCHOR;

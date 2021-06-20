@@ -19,7 +19,7 @@ export default {
     loadLookupValues({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-          .get("/tb-ui/app/lookupvalues")
+          .get("/tb-ui/app/authoring/lookupvalues")
           .then(response => {
             commit("setLookupValues", response.data);
             resolve();
@@ -30,7 +30,7 @@ export default {
     loadStartupConfig({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-        .get('/tb-ui/app/startupconfig')
+        .get('/tb-ui/app/authoring/startupconfig')
         .then(response => {
           commit("setStartupConfig", response.data);
           resolve();

@@ -167,7 +167,7 @@
         <td class="field">
           <select id="userStatus" v-model="userBeingEdited.status" size="1">
             <option
-              v-for="(value, key) in metadata.userStatuses"
+              v-for="(value, key) in lookupVals.userStatuses"
               :value="key"
               :key="key"
               >{{ value }}</option
@@ -184,7 +184,7 @@
         <td class="field">
           <select id="globalRole" v-model="userBeingEdited.globalRole" size="1">
             <option
-              v-for="(value, key) in metadata.globalRoles"
+              v-for="(value, key) in lookupVals.globalRoles"
               :value="key"
               :key="key"
               >{{ value }}</option
@@ -194,7 +194,7 @@
         <td class="description">{{ $t("userAdmin.tip.globalRole") }}</td>
       </tr>
 
-      <tr v-if="metadata.mfaEnabled && userCredentials">
+      <tr v-if="lookupVals.mfaEnabled && userCredentials">
         <td class="label">
           <label for="hasMfaSecret">{{ $t("userAdmin.hasMfaSecret") }}</label>
         </td>
@@ -307,13 +307,13 @@ export default {
     };
   },
   computed: {
-    ...mapState("lookupValues", {
-      metadata: state => state.lookupValues
+    ...mapState("startupConfig", {
+      lookupVals: state => state.lookupValues
     })
   },
   methods: {
     ...mapActions({
-      loadLookupValues: "lookupValues/loadLookupValues"
+      loadLookupValues: "startupConfig/loadLookupValues"
     }),
     loadLookupVals: function() {
       // https://stackoverflow.com/a/49284879

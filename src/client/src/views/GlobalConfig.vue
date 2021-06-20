@@ -27,7 +27,7 @@
 
     <p>{{ $t("globalConfig.prompt") }}</p>
 
-    <table class="formtable">
+    <table v-if="webloggerProps != null" class="formtable">
 
         <tr>
             <td colspan="3"><h2>{{ $t("globalConfig.siteSettings") }}</h2></td>
@@ -36,7 +36,7 @@
             <td class="label">{{ $t("globalConfig.frontpageWeblogHandle") }}</td>
             <td class="field">
                 <select v-model="webloggerProps.mainBlogId" size="1">
-                    <option v-for="(value, key) in metadata.weblogList" :key="key" :value="key">{{value}}</option>
+                    <option v-for="(value, key) in weblogList" :key="key" :value="key">{{value}}</option>
                     <option value="">{{ $t("globalConfig.none") }}</option>
                 </select>
             </td>
@@ -46,7 +46,7 @@
             <td class="label">{{ $t("globalConfig.requiredRegistrationProcess") }}</td>
             <td class="field">
                 <select v-model="webloggerProps.registrationPolicy" size="1" required>
-                    <option v-for="(value, key) in metadata.registrationOptions" :key="key" :value="key">{{value}}</option>
+                    <option v-for="(value, key) in lookupVals.registrationOptions" :key="key" :value="key">{{value}}</option>
                 </select>
             </td>
             <td class="description">{{ $t("globalConfig.tip.requiredRegistrationProcess") }}</td>
@@ -66,7 +66,7 @@
                   <td class="label">{{ $t("globalConfig.htmlWhitelistLevel") }}</td>
                   <td class="field">
                       <select v-model="webloggerProps.blogHtmlPolicy" size="1" required>
-                          <option v-for="(value, key) in metadata.blogHtmlLevels" :key="key" :value="key">{{value}}</option>
+                          <option v-for="(value, key) in lookupVals.blogHtmlLevels" :key="key" :value="key">{{value}}</option>
                       </select>
                   </td>
                   <td class="description">{{ $t("globalConfig.tip.htmlWhitelistLevel") }}</td>
@@ -76,7 +76,7 @@
                 <td class="field"><input type="checkbox" v-model="webloggerProps.usersCustomizeThemes"></td>
                 <td class="description">{{ $t("globalConfig.tip.allowCustomTheme") }}</td>
             </tr>
-            <tr v-if="metadata.showMediaFileTab">
+            <tr v-if="startupConfig.showMediaFileTab">
                 <td class="label">{{ $t("globalConfig.maxMediaFileAllocationMb") }}</td>
                 <td class="field"><input type="number" v-model="webloggerProps.maxFileUploadsSizeMb" size='35'></td>
                 <td class="description">{{ $t("globalConfig.tip.maxMediaFileAllocationMb") }}</td>
@@ -101,7 +101,7 @@
                 <td class="label">{{ $t("globalConfig.enableComments") }}</td>
                 <td class="field">
                     <select v-model="webloggerProps.commentPolicy" size="1" required>
-                        <option v-for="(value, key) in metadata.commentOptions" :key="key" :value="key">{{value}}</option>
+                        <option v-for="(value, key) in lookupVals.commentOptions" :key="key" :value="key">{{value}}</option>
                     </select>
                 </td>
                 <td class="description"></td>
@@ -110,7 +110,7 @@
                 <td class="label">{{ $t("globalConfig.commentHtmlWhitelistLevel") }}</td>
                 <td class="field">
                     <select v-model="webloggerProps.commentHtmlPolicy" size="1" required>
-                        <option v-for="(value, key) in metadata.commentHtmlLevels" :key="key" :value="key">{{value}}</option>
+                        <option v-for="(value, key) in lookupVals.commentHtmlLevels" :key="key" :value="key">{{value}}</option>
                     </select>
                 </td>
                 <td class="description">{{ $t("globalConfig.tip.commentHtmlWhitelistLevel") }}</td>
@@ -119,7 +119,7 @@
                 <td class="label">{{ $t("globalConfig.spamPolicy") }}</td>
                 <td class="field">
                     <select v-model="webloggerProps.spamPolicy" size="1" required>
-                        <option v-for="(value, key) in metadata.spamOptions" :key="key" :value="key">{{value}}</option>
+                        <option v-for="(value, key) in lookupVals.spamOptions" :key="key" :value="key">{{value}}</option>
                     </select>
                 </td>
                 <td class="description">{{ $t("globalConfig.tip.spamPolicy") }}</td>
@@ -148,36 +148,42 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
     return {
       urlRoot: "/tb-ui/admin/rest/server/",
       successMessage: null,
-      webloggerProps: {},
+      webloggerProps: null,
       errorMessage: null
     };
   },
   computed: {
     ...mapState("dynamicConfig", {
-      storeDynamicConfig: state => state.items,
+      webloggerProperties: state => state.webloggerProperties,
+      weblogList: state => state.weblogList
     }),
     ...mapState("startupConfig", {
-      storeStartupConfig: state => state.startupConfig
+      startupConfig: state => state.startupConfig,
+      lookupVals: state => state.lookupValues
     })
   },
   methods: {
     ...mapActions({
-      loadDynamicConfig: "dynamicConfig/loadDynamicConfig",
-      saveDynamicConfig: "dynamicConfig/saveDynamicConfig",
+      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
+      saveWebloggerProperties: "dynamicConfig/saveWebloggerProperties",
+      loadWeblogList: "dynamicConfig/loadWeblogList",
       loadStartupConfig: "startupConfig/loadStartupConfig",
       loadLookupValues: "startupConfig/loadLookupValues"
     }),
-    loadWebloggerProperties: function() {
-      this.loadDynamicConfig().then(
+    ...mapGetters("dynamicConfig", {
+      getWebloggerProperties: "getWebloggerProperties"
+    }),
+    loadWebloggerProps: function() {
+      this.loadWebloggerProperties().then(
         () => {
-          this.webloggerProps = this.storeWebloggerProps;
+          this.webloggerProps = this.getWebloggerProperties();
         },
         error => this.commonErrorResponse(error, null)
       );
@@ -193,9 +199,9 @@ export default {
       );
     },
     updateProperties: function() {
-      this.saveDynamicConfig(this.webloggerProps).then(
+      this.saveWebloggerProperties(this.webloggerProps).then(
         () => {
-          this.webloggerProps = this.storeWebloggerProps;
+          this.webloggerProps = this.getWebloggerProperties();
           this.errorObj = {};
           this.successMessage = this.$t("common.changesSaved");
           window.scrollTo(0, 0);
@@ -219,8 +225,10 @@ export default {
     }
   },
   mounted: function() {
-    this.loadMetadata();
-    this.loadWebloggerProperties();
+    this.loadStartupConfig();
+    this.loadWeblogList();
+    this.loadLookupValues();
+    this.loadWebloggerProps();
   }
 }
 </script>

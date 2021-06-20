@@ -114,6 +114,16 @@ public class AdminController {
         return weblogHandles;
     }
 
+    @GetMapping(value = "/webloglist")
+    public Map<String, String> getWeblogList() {
+        List<Weblog> weblogs = weblogDao.findByVisibleTrueOrderByHandle(Pageable.unpaged());
+
+        Map<String, String> weblogIdToHandleMap = new HashMap<>();
+        weblogs.forEach(w -> weblogIdToHandleMap.put(w.getId(), w.getHandle()));
+
+        return weblogIdToHandleMap;
+    }
+
     @GetMapping(value = "/searchenabled")
     public boolean getSearchEnabled() {
         return searchEnabled;
@@ -146,15 +156,4 @@ public class AdminController {
         webloggerPropertiesDao.saveAndFlush(properties);
         commentValidator.refreshGlobalBlacklist();
     }
-
-    @GetMapping(value = "/weblogmap")
-    public Map<String, String> getWeblogIdToHandleMap() {
-        Page<Weblog> weblogs = weblogDao.findAll(Pageable.unpaged());
-
-        Map<String, String> weblogIdToHandleMap = new HashMap<>();
-        weblogs.forEach(w -> weblogIdToHandleMap.put(w.getId(), w.getHandle()));
-
-        return weblogIdToHandleMap;
-    }
-
 }

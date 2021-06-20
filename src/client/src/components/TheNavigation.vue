@@ -2,52 +2,38 @@
   <div>
     <div class="bannerStatusBox">
 
-    <table class="bannerStatusBox" cellpadding="0" cellspacing="0">
+    <table v-if="sessionInfo != null" class="bannerStatusBox" cellpadding="0" cellspacing="0">
         <tr>
             <td class="bannerLeft">
-
-                <fmt:message key="product.name.version">
-                    <fmt:param value="${tightblogVersion}" />:
-                </fmt:message>
-
-                <c:if test="${authenticatedUser != null}">
-                    <fmt:message key="mainPage.loggedInAs" /> <c:out value="${authenticatedUser.screenName}"/>
-                </c:if>
-
-                <c:if test="${actionWeblog != null}">
-                    - <fmt:message key="mainPage.currentWebsite" />
-                    <b><a href='<c:out value="${actionWeblogURL}" />'>
-                            <c:out value="${actionWeblog.handle}" />
-                    </a></b>
-                </c:if>
-
+                <span>{{ $t("product.nameVersion", { tightblogVersion: startupConfig.tightblogVersion }) }}</span>:
+                
+                <span v-if="sessionInfo.authenticatedUser != null">
+                  {{ $t("navigationBar.loggedInAs", { screenName: sessionInfo.screenName }) }}
+                
+                  <span v-if="sessionInfo.actionWeblog != null"><b>{{ - $t("navigationBar.activeBlog")}}</b>
+                    <a :href="sessionInfo.actionWeblogURL">{{ sessionInfo.actionWeblog.handle }}</a>
+                  </span>
+                </span>
             </td>
 
             <td class="bannerRight">
 
-                <c:if test="${authenticatedUser == null}">
-                   <a href="<c:url value='/'/>"><fmt:message key="navigationBar.homePage" /></a> |
-                </c:if>
+                <span v-if="sessionInfo.authenticatedUser != null">
+                    <router-link v-if="sessionInfo.userIsAdmin" to="/admin/globalConfig">{{ $t("navigationBar.globalAdmin") }}</router-link>
+                    <a href="../../tb-ui/app/home">{{ $t("navigationBar.blogList") }}</a> |
+                    <a href="../../tb-ui/app/profile">{{ $t("navigationBar.viewProfile") }}</a> |
+                    <a href="../../tb-ui/app/logout">{{ $t("navigationBar.logout") }}</a>
+                </span>
 
-                <c:if test="${userIsAdmin}">
-                    <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
-                </c:if>
+                <span v-else>
+                    <a href="../..">{{ $t("navigationBar.homePage") }}</a> |
+                    <a href="../../tb-ui/app/login-redirect">{{ $t("navigationBar.login") }}</a>
 
-                <c:choose>
-                    <c:when test="${authenticatedUser != null}">
-                       <a href="<c:url value='/tb-ui/app/home'/>"><fmt:message key="mainMenu.title" /></a> |
-                       <a href="<c:url value='/tb-ui/app/profile'/>"><fmt:message key="mainMenu.editProfile" /></a> |
-                       <a href="<c:url value='/tb-ui/app/logout'/>"><fmt:message key="navigationBar.logout"/></a>
-                    </c:when>
+                    <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
+                      | <a href="../../tb-ui/app/register">{{ $t("navigationBar.register") }}</a>
+                    </span>
 
-                    <c:otherwise>
-                        <a href="<c:url value='/tb-ui/app/login-redirect'/>"><fmt:message key="navigationBar.login"/></a>
-
-                        <c:if test="${registrationPolicy != 'DISABLED'}">
-                            | <a href="<c:url value='/tb-ui/app/register'/>"><fmt:message key="navigationBar.register"/></a>
-                        </c:if>
-                    </c:otherwise>
-                </c:choose>
+                </span>
 
             </td>
         </tr>
@@ -67,40 +53,27 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
-  data() {
+  data: function () {
+    return {
+    }
   },
   computed: {
-    ...mapState("globalConfig", {
-      storeWebloggerProps: state => state.items,
-      metadata: state => state.metadata
+    ...mapState("startupConfig", {
+      startupConfig: state => state.startupConfig
+    }),
+    ...mapState("sessionInfo", {
+      sessionInfo: state => state.items
     })
   },
   methods: {
     ...mapActions({
-      loadMetadata: "globalConfig/loadMetadata"
-    }),
-    loadGlobalMetadata: function() {
-      this.loadMetadata().then(
-        () => {},
-        error => this.commonErrorResponse(error, null)
-      );
-    },
-    commonErrorResponse: function(error, errorMsg) {
-      if (errorMsg) {
-        this.errorMessage = errorMsg;
-      } else if (error && error.response && error.response.status == 401) {
-        console.log("Redirecting...");
-        window.location.href = "/tb-ui/app/login";
-      } else if (error && error.response) {
-        this.errorMessage = error.response.data.error;
-      } else if (error) {
-        this.errorMessage = error;
-      } else {
-        this.errorMessage = "System error.";
-      }
-    }
+      loadStartupConfig: "startupConfig/loadStartupConfig",
+      loadSessionInfo: "sessionInfo/loadSessionInfo"
+    })
   },
   mounted: function() {
+    this.loadStartupConfig;
+    this.loadSessionInfo;
   }
 }
 </script>
