@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
+import TheNavigation from '@/components/TheNavigation'
 import i18n from "./i18n";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -27,6 +28,8 @@ requireComponent.keys().forEach(function (fileName) {
   )
   Vue.component(baseComponentName, baseComponentConfig)
 })
+
+Vue.component(TheNavigation);
 
 Vue.config.devtools = true;
 

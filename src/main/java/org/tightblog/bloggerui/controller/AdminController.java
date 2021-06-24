@@ -21,23 +21,19 @@
 package org.tightblog.bloggerui.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.tightblog.bloggerui.model.GlobalConfigMetadata;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.Weblog;
@@ -45,8 +41,6 @@ import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.rendering.cache.LazyExpiringCache;
 import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.util.HTMLSanitizer;
-import org.tightblog.util.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,31 +62,26 @@ import javax.validation.Valid;
 @RequestMapping(path = "/tb-ui/admin/rest/server")
 public class AdminController {
 
-    private static Logger log = LoggerFactory.getLogger(AdminController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdminController.class);
 
     private final Set<LazyExpiringCache> cacheSet;
     private final LuceneIndexer luceneIndexer;
     private final CommentSpamChecker commentValidator;
     private final WeblogDao weblogDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
-    private final MessageSource messages;
     private final boolean searchEnabled;
-    private final Environment environment;
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
                            @Value("${search.enabled:false}") boolean searchEnabled,
-                           MessageSource messages, Environment environment,
                            WebloggerPropertiesDao webloggerPropertiesDao) {
         this.cacheSet = cacheSet;
         this.luceneIndexer = luceneIndexer;
         this.commentValidator = commentValidator;
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
-        this.messages = messages;
         this.searchEnabled = searchEnabled;
-        this.environment = environment;
     }
 
     @GetMapping(value = "/caches")
@@ -112,7 +101,7 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetHitCount() {
         weblogDao.resetDailyHitCounts();
-        log.info("daily hit counts manually reset by administrator");
+        LOG.info("daily hit counts manually reset by administrator");
     }
 
     @GetMapping(value = "/visibleWeblogHandles")
@@ -123,6 +112,16 @@ public class AdminController {
             weblogHandles.add(weblog.getHandle());
         }
         return weblogHandles;
+    }
+
+    @GetMapping(value = "/webloglist")
+    public Map<String, String> getWeblogList() {
+        List<Weblog> weblogs = weblogDao.findByVisibleTrueOrderByHandle(Pageable.unpaged());
+
+        Map<String, String> weblogIdToHandleMap = new HashMap<>();
+        weblogs.forEach(w -> weblogIdToHandleMap.put(w.getId(), w.getHandle()));
+
+        return weblogIdToHandleMap;
     }
 
     @GetMapping(value = "/searchenabled")
@@ -156,44 +155,5 @@ public class AdminController {
         properties.setMainBlog(mainBlog);
         webloggerPropertiesDao.saveAndFlush(properties);
         commentValidator.refreshGlobalBlacklist();
-    }
-
-    @GetMapping(value = "/globalconfigmetadata")
-    public GlobalConfigMetadata getGlobalConfigMetadata() {
-
-        GlobalConfigMetadata gcm = new GlobalConfigMetadata();
-
-        Page<Weblog> weblogs = weblogDao.findAll(Pageable.unpaged());
-
-        gcm.getWeblogList().putAll(weblogs.stream()
-                        .sorted(Comparator.comparing(Weblog::getHandle))
-                        .collect(Utilities.toLinkedHashMap(Weblog::getId, Weblog::getHandle)));
-
-        gcm.getRegistrationOptions().putAll(Arrays.stream(WebloggerProperties.RegistrationPolicy.values())
-                .collect(Utilities.toLinkedHashMap(WebloggerProperties.RegistrationPolicy::name,
-                    e -> messages.getMessage(e.getDescription(), null, null))));
-
-        gcm.getBlogHtmlLevels().putAll(Arrays.stream(HTMLSanitizer.Level.values())
-                .filter(r -> !r.equals(HTMLSanitizer.Level.NONE))
-                .collect(Utilities.toLinkedHashMap(HTMLSanitizer.Level::name,
-                    e -> messages.getMessage(e.getDescription(), null, null))));
-
-        gcm.getCommentHtmlLevels().putAll(Arrays.stream(HTMLSanitizer.Level.values())
-                .filter(r -> !r.equals(HTMLSanitizer.Level.NONE))
-                .filter(r -> r.getSanitizingLevel() < HTMLSanitizer.Level.BASIC_IMAGES.getSanitizingLevel())
-                .collect(Utilities.toLinkedHashMap(HTMLSanitizer.Level::name,
-                    e -> messages.getMessage(e.getDescription(), null, null))));
-
-        gcm.getCommentOptions().putAll(Arrays.stream(WebloggerProperties.CommentPolicy.values())
-                .collect(Utilities.toLinkedHashMap(WebloggerProperties.CommentPolicy::name,
-                    e -> messages.getMessage(e.getLabel(), null, null))));
-
-        gcm.getSpamOptions().putAll(Arrays.stream(WebloggerProperties.SpamPolicy.values())
-                .collect(Utilities.toLinkedHashMap(WebloggerProperties.SpamPolicy::name,
-                        e -> messages.getMessage(e.getLabel(), null, null))));
-
-        gcm.setShowMediaFileTab(environment.getProperty("media.file.showTab", Boolean.class, true));
-
-        return gcm;
     }
 }

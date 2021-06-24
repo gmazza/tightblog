@@ -42,22 +42,18 @@
 
             <td class="bannerRight">
 
-                <c:if test="${authenticatedUser == null}">
-                   <a href="<c:url value='/'/>"><fmt:message key="navigationBar.homePage" /></a> |
-                </c:if>
-
-                <c:if test="${userIsAdmin}">
-                    <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
-                </c:if>
-
                 <c:choose>
                     <c:when test="${authenticatedUser != null}">
+                       <c:if test="${userIsAdmin}">
+                          <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
+                       </c:if>
                        <a href="<c:url value='/tb-ui/app/home'/>"><fmt:message key="mainMenu.title" /></a> |
                        <a href="<c:url value='/tb-ui/app/profile'/>"><fmt:message key="mainMenu.editProfile" /></a> |
                        <a href="<c:url value='/tb-ui/app/logout'/>"><fmt:message key="navigationBar.logout"/></a>
                     </c:when>
 
                     <c:otherwise>
+                        <a href="<c:url value='/'/>"><fmt:message key="navigationBar.homePage" /></a> |
                         <a href="<c:url value='/tb-ui/app/login-redirect'/>"><fmt:message key="navigationBar.login"/></a>
 
                         <c:if test="${registrationPolicy != 'DISABLED'}">

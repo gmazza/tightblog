@@ -201,8 +201,9 @@ public class InstallerController {
             log.info("TightBlog Weblogger (Version: {}, Revision {}) startup successful",
                 environment.getProperty("weblogger.version", "Unknown"),
                 environment.getProperty("weblogger.revision", "Unknown"));
-            String redirectPath = request.getContextPath();
-            response.sendRedirect(redirectPath);
+
+            // get-default-blog endpoint handles first user registration
+            response.sendRedirect("/tb-ui/app/get-default-blog");
             return null;
         } catch (Exception e) {
             log.error("Exception", e);

@@ -60,7 +60,8 @@
     "subtitle" : "Set site-wide configuration settings.",
     "prompt" : "The settings here apply for all weblogs and can be adjusted at any time, taking effect immediately. Good to review these settings prior to creating your first blog, which can be done by selecting My Blogs from the top menu bar.  See each blog's Weblog Settings tab for blog-specific configuration.  Additional global configuration is available from your instance's application-tbcustom.properties file, however those changes require an application restart to take effect.",
     "siteSettings" : "Site Settings",
-    "frontpageWeblogHandle" : "Weblog to serve as frontpage blog",    "requiredRegistrationProcess" : "Registration process for new users",
+    "frontpageWeblogHandle" : "Weblog to serve as frontpage blog",    
+    "requiredRegistrationProcess" : "Registration process for new users",
     "newUsersCreateBlogs" : "New users may create weblogs by default?",
     "weblogSettings" : "Weblog Settings",
     "htmlWhitelistLevel" : "Allowed HTML in blog entries",
@@ -75,6 +76,29 @@
     "emailComments" : "Allow email notification of comments?",
     "ignoreUrls" : "Comment spam filter",
     "none" : "None specified",
+    "registration" : {
+      "approvalRequired" : "Register, verify email, and admin approval",
+      "disabled" : "Disabled -- No new accounts allowed"
+    },
+    "htmlsanitizer" : {
+      "none" : "None (Remove all HTML)",
+      "limited" : "Limited (bold, italic, underline and line/paragraph breaks)",
+      "basic" : "Basic (Clickable links and line formatting -- pre, code, cite, etc.)",
+      "basicimages" : "Basic plus image tags",
+      "relaxed": "Relaxed (Allows tables, headings, divs)",
+      "relaxediframes": "Relaxed plus iframes (Social media widgets, videos, scripting potential)",
+      "off" : "Sanitizing turned off (Allows scripts, forms, everything.)"
+    },
+    "commentmod" : {
+      "nonAuthMustModerate" : "Yes, moderate all comments except from logged in users.",
+      "nonPubMustModerate" : "Yes, moderate all comments except from blog's publishers."
+    },
+    "spam" : {
+      "skipCheck" : "Skip spam check (all comments handled the same)",
+      "markAsSpam" : "Mark as spam on comment review page",
+      "noEmailNotification" : "Mark as spam and send no moderation emails",
+      "autoDelete" : "Automatically delete with no notifications sent"
+    },
     "tip" : {
       "frontpageWeblogHandle" : "The default weblog shown at the application's base URL.  Will automatically be set to the first weblog created but can be later changed here.",
       "requiredRegistrationProcess" : "For best security, disable when everyone you want to have an account has one.",
@@ -93,6 +117,17 @@
   "product": {
     "nameVersion": "TightBlog {version}"
   },
+  "navigationBar" : {
+    "loggedInAs" : "logged in as {screenName}",
+    "activeBlog" : "editing weblog",
+    "homePage" : "Home",
+    "globalAdmin" : "Global Admin",
+    "blogList" : "My Blogs",
+    "viewProfile" : "Profile",
+    "logout" : "Logout",
+    "login" : "Login",
+    "register" : "Register"
+  },
   "common": {
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -102,6 +137,7 @@
     "edit": "Edit",
     "weblog": "Weblog",
     "save": "Save",
-    "changesSaved": "Changes saved"
+    "changesSaved": "Changes saved",
+    "no": "No"
   }
 }

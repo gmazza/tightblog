@@ -18,8 +18,13 @@ package org.tightblog.bloggerui.controller;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.tightblog.bloggerui.model.StartupConfiguration;
+import org.tightblog.bloggerui.model.LookupValues;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
@@ -55,22 +60,25 @@ import java.util.Map;
 @RequestMapping(path = "/tb-ui/app")
 public class UIController {
 
-    private WeblogDao weblogDao;
-    private UserManager userManager;
-    private UserDao userDao;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private WeblogEntryManager weblogEntryManager;
-    private EmailService emailService;
-    private MenuService menuHelper;
-    private MessageSource messages;
-    private URLService urlService;
+    private final WeblogDao weblogDao;
+    private final UserManager userManager;
+    private final UserDao userDao;
+    private final UserWeblogRoleDao userWeblogRoleDao;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final WeblogEntryManager weblogEntryManager;
+    private final EmailService emailService;
+    private final MenuService menuHelper;
+    private final MessageSource messages;
+    private final URLService urlService;
+    private final LookupValues lookupValues;
+    private final Environment environment;
 
     @Autowired
     public UIController(WeblogDao weblogDao, UserManager userManager, UserDao userDao,
                         WeblogEntryManager weblogEntryManager, UserWeblogRoleDao userWeblogRoleDao,
                         EmailService emailService, MenuService menuHelper, MessageSource messages,
-                        WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService) {
+                        WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService,
+                        Environment environment) {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
@@ -81,16 +89,13 @@ public class UIController {
         this.emailService = emailService;
         this.menuHelper = menuHelper;
         this.messages = messages;
+        this.environment = environment;
+
+        this.lookupValues = new LookupValues();
     }
 
     @Value("${mfa.enabled:true}")
     private boolean mfaEnabled;
-
-    @Value("${weblogger.version}")
-    private String tightblogVersion;
-
-    @Value("${weblogger.revision}")
-    private String tightblogRevision;
 
     @Value("${media.file.showTab}")
     boolean showMediaFileTab;
@@ -209,13 +214,6 @@ public class UIController {
 
         String redirect = request.getContextPath() + path;
         response.sendRedirect(redirect);
-    }
-
-    @RequestMapping(value = "/admin/globalConfig")
-    public ModelAndView globalConfig(Principal principal) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("showMediaFileTab", showMediaFileTab);
-        return getAdminPage(principal, "globalConfig", myMap);
     }
 
     @RequestMapping(value = "/profile")
@@ -357,33 +355,58 @@ public class UIController {
         return tightblogModelAndView("mainMenu", myMap, principal);
     }
 
-    private ModelAndView getAdminPage(Principal principal, String actionName, Map<String, Object> propertyMap) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        Map<String, Object> myMap = (propertyMap == null) ? new HashMap<>() : propertyMap;
-        myMap.put("menu", getMenu(user, actionName, WeblogRole.NOBLOGNEEDED));
-        return tightblogModelAndView(actionName, myMap, user, null);
-    }
-
     private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, Principal principal) {
         User user = userDao.findEnabledByUserName(principal.getName());
         return tightblogModelAndView(actionName, map, user, null);
     }
 
-    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
-        if (map == null) {
-            map = new HashMap<>();
-        }
+    @GetMapping(value = "/authoring/sessioninfo")
+    @ResponseBody
+    public Map<String, Object> getSessionInfo(Principal principal) {
+        User user = userDao.findEnabledByUserName(principal.getName());
+        return getSessionInfo(user, null);
+    }
+
+    private Map<String, Object> getSessionInfo(User user, Weblog weblog) {
+        Map<String, Object> map = new HashMap<>();
         map.put("authenticatedUser", user);
         map.put("actionWeblog", weblog);
         if (weblog != null) {
             map.put("actionWeblogURL", urlService.getWeblogURL(weblog));
         }
         map.put("userIsAdmin", user != null && GlobalRole.ADMIN.equals(user.getGlobalRole()));
-        map.put("pageTitleKey", actionName + ".title");
+
+        // TODO: remove below (in favor of /startupconfig) once Vue conversion complete
         map.put("mfaEnabled", mfaEnabled);
-        map.put("tightblogVersion", tightblogVersion);
-        map.put("tightblogRevision", tightblogRevision);
+        map.put("tightblogVersion", environment.getRequiredProperty("weblogger.version"));
+        map.put("tightblogRevision", environment.getRequiredProperty("weblogger.revision"));
         map.put("registrationPolicy", webloggerPropertiesDao.findOrNull().getRegistrationPolicy());
+        return map;
+    }
+
+    @GetMapping(value = "/authoring/lookupvalues")
+    @ResponseBody
+    public LookupValues getLookupValues() {
+        return lookupValues;
+    }
+
+    @GetMapping(value = "/authoring/startupconfig")
+    @ResponseBody
+    public StartupConfiguration getStartupConfig() {
+        StartupConfiguration gcm = new StartupConfiguration();
+        gcm.setShowMediaFileTab(environment.getProperty("media.file.showTab", Boolean.class, true));
+        gcm.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
+        gcm.setTightblogVersion(environment.getRequiredProperty("weblogger.version"));
+        gcm.setTightblogRevision(environment.getRequiredProperty("weblogger.revision"));
+        return gcm;
+    }
+
+    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.putAll(getSessionInfo(user, weblog));
+        map.put("pageTitleKey", actionName + ".title");
         return new ModelAndView("." + actionName, map);
     }
 

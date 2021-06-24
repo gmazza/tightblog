@@ -22,14 +22,12 @@ package org.tightblog.bloggerui.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
-import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.bloggerui.model.SuccessResponse;
-import org.tightblog.bloggerui.model.StaticProperties;
 import org.tightblog.bloggerui.model.UserData;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.service.EmailService;
@@ -81,18 +79,16 @@ public class UserController {
     private static final Pattern PWD_PATTERN =
             Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
 
-    private WeblogDao weblogDao;
-    private UserManager userManager;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private UserDao userDao;
-    private UserCredentialsDao userCredentialsDao;
-    private EmailService emailService;
-    private MessageSource messages;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private URLService urlService;
-    private Environment environment;
-    private StaticProperties staticProperties;
+    private final WeblogDao weblogDao;
+    private final UserManager userManager;
+    private final UserWeblogRoleDao userWeblogRoleDao;
+    private final UserDao userDao;
+    private final UserCredentialsDao userCredentialsDao;
+    private final EmailService emailService;
+    private final MessageSource messages;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final URLService urlService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -103,8 +99,7 @@ public class UserController {
                           EmailService emailService, UserDao userDao,
                           UserCredentialsDao userCredentialsDao, URLService urlService,
                           WeblogEntryCommentDao weblogEntryCommentDao,
-                          WebloggerPropertiesDao webloggerPropertiesDao,
-                          Environment environment) {
+                          WebloggerPropertiesDao webloggerPropertiesDao) {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
@@ -115,13 +110,10 @@ public class UserController {
         this.urlService = urlService;
         this.emailService = emailService;
         this.messages = messageSource;
-        this.environment = environment;
     }
 
     @PostConstruct
     public void init() {
-        staticProperties = new StaticProperties();
-        staticProperties.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
     }
 
     @GetMapping(value = "/tb-ui/admin/rest/useradmin/userlist")
@@ -543,16 +535,6 @@ public class UserController {
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
-    }
-
-    @GetMapping(value = "/tb-ui/register/rest/useradminmetadata")
-    public StaticProperties getStaticProperties() {
-        return staticProperties;
-    }
-
-    @GetMapping(value = "/tb-ui/authoring/rest/server/staticproperties")
-    public StaticProperties getStaticProperties2() {
-        return staticProperties;
     }
 
 }

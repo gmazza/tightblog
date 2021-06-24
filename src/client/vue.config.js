@@ -21,6 +21,7 @@ module.exports = {
     //    port: 8181,
     //    host: 'localhost.politicopro.com',
     https: httpsConfig,
+    host: 'localhost',
     // https://stackoverflow.com/q/62944640/1207540
     headers: {
       "Access-Control-Allow-Origin" : "*",
