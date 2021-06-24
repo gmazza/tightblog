@@ -4,7 +4,8 @@ export default {
   namespaced: true,
   state: {
     webloggerProperties: {},
-    weblogList: {}
+    weblogList: {},
+    userList: {}
   },
   getters: {
     getWebloggerProperties: state => {
@@ -13,6 +14,9 @@ export default {
     getWeblogList: state => {
       return state.weblogList;
     },
+    getUserList: state => {
+      return state.userList;
+    },
   },
   mutations: {
     setWebloggerProperties(state, webloggerProperties) {
@@ -20,6 +24,9 @@ export default {
     },
     setWeblogList(state, weblogList) {
       state.weblogList = weblogList;
+    },
+    setUserList(state, userList) {
+      state.userList = userList;
     }
   },
   actions: {
@@ -51,6 +58,17 @@ export default {
         .get('/tb-ui/admin/rest/server/webloglist')
         .then(response => {
           commit("setWeblogList", response.data);
+          resolve();
+        })
+        .catch(error => reject(error));
+      });
+    },
+    loadUserList({ commit }) {
+      return new Promise((resolve, reject) => {
+        axios
+        .get('/tb-ui/admin/rest/useradmin/userlist')
+        .then(response => {
+          commit("setUserList", response.data);
           resolve();
         })
         .catch(error => reject(error));

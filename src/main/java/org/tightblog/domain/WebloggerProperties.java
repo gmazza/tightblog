@@ -202,9 +202,9 @@ public class WebloggerProperties {
     }
 
     public enum CommentPolicy {
-        NONE(0, "generic.no"),
-        MODERATE_NONPUB(1, "globalConfig.nonPubMustModerate"),
-        MODERATE_NONAUTH(2, "globalConfig.nonAuthMustModerate");
+        NONE(0, "common.no"),
+        MODERATE_NONPUB(1, "globalConfig.commentmod.nonPubMustModerate"),
+        MODERATE_NONAUTH(2, "globalConfig.commentmod.nonAuthMustModerate");
 
         private String label;
 

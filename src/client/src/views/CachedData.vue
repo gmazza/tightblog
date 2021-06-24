@@ -19,120 +19,122 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
-    <AppSuccessMessageBox
-      :message="successMessage"
-      @close-box="successMessage = null"
-    />
-    <AppErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
+  <div>
+    <AppAdminNav/>
+    <div style="text-align: left; padding: 20px">
+      <AppSuccessMessageBox
+        :message="successMessage"
+        @close-box="successMessage = null"
+      />
+      <AppErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
 
-    <p class="subtitle">{{ $t("cachedData.subtitle") }}</p>
+      <p class="subtitle">{{ $t("cachedData.subtitle") }}</p>
 
-    <p>{{ $t("cachedData.explanation") }}</p>
+      <p>{{ $t("cachedData.explanation") }}</p>
 
-    <!-- needed? -->
-    <br style="clear:left" />
+      <!-- needed? -->
+      <br style="clear:left" />
 
-    <table class="table table-sm table-bordered table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th style="width:10%">{{ $t("common.name") }}</th>
-          <th style="width:9%">{{ $t("cachedData.maxEntries") }}</th>
-          <th style="width:9%">{{ $t("cachedData.currentSize") }}</th>
-          <th style="width:9%">{{ $t("cachedData.incoming") }}</th>
-          <th style="width:9%">{{ $t("cachedData.handledBy304") }}</th>
-          <th style="width:9%">{{ $t("cachedData.cacheHits") }}</th>
-          <th style="width:9%">{{ $t("cachedData.cacheMisses") }}</th>
-          <th style="width:9%">{{ $t("cachedData.304Efficiency") }}</th>
-          <th style="width:9%">{{ $t("cachedData.cacheEfficiency") }}</th>
-          <th style="width:9%">{{ $t("cachedData.totalEfficiency") }}</th>
-          <th style="width:9%"></th>
-        </tr>
-      </thead>
-      <tbody id="tableBody" v-cloak>
-        <tr v-for="item in cacheData" :key="item.cacheHandlerId">
-          <td>{{ item.cacheHandlerId }}</td>
-          <td>{{ item.maxEntries }}</td>
-          <td>{{ item.estimatedSize }}</td>
-          <td>{{ item.incomingRequests }}</td>
-          <td>{{ item.requestsHandledBy304 }}</td>
-          <td>{{ item.cacheHitCount }}</td>
-          <td>{{ item.cacheMissCount }}</td>
-          <td>
-            {{
-              item.incomingRequests > 0
-                ? (item.requestsHandledBy304 / item.incomingRequests).toFixed(3)
-                : ""
-            }}
-          </td>
-          <td>
-            {{ item.cacheRequestCount > 0 ? item.cacheHitRate.toFixed(3) : "" }}
-          </td>
-          <td>
-            {{
-              item.incomingRequests > 0
-                ? (
-                    (item.requestsHandledBy304 + item.cacheHitCount) /
-                    item.incomingRequests
-                  ).toFixed(3)
-                : ""
-            }}
-          </td>
-          <td class="buttontd">
-            <button
-              type="button"
-              v-if="item.maxEntries > 0"
-              v-on:click="clearCache(item.cacheHandlerId)"
-            >
-              {{ $t("cachedData.clear") }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <table class="table table-sm table-bordered table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th style="width:10%">{{ $t("common.name") }}</th>
+            <th style="width:9%">{{ $t("cachedData.maxEntries") }}</th>
+            <th style="width:9%">{{ $t("cachedData.currentSize") }}</th>
+            <th style="width:9%">{{ $t("cachedData.incoming") }}</th>
+            <th style="width:9%">{{ $t("cachedData.handledBy304") }}</th>
+            <th style="width:9%">{{ $t("cachedData.cacheHits") }}</th>
+            <th style="width:9%">{{ $t("cachedData.cacheMisses") }}</th>
+            <th style="width:9%">{{ $t("cachedData.304Efficiency") }}</th>
+            <th style="width:9%">{{ $t("cachedData.cacheEfficiency") }}</th>
+            <th style="width:9%">{{ $t("cachedData.totalEfficiency") }}</th>
+            <th style="width:9%"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" v-cloak>
+          <tr v-for="item in cacheData" :key="item.cacheHandlerId">
+            <td>{{ item.cacheHandlerId }}</td>
+            <td>{{ item.maxEntries }}</td>
+            <td>{{ item.estimatedSize }}</td>
+            <td>{{ item.incomingRequests }}</td>
+            <td>{{ item.requestsHandledBy304 }}</td>
+            <td>{{ item.cacheHitCount }}</td>
+            <td>{{ item.cacheMissCount }}</td>
+            <td>
+              {{
+                item.incomingRequests > 0
+                  ? (item.requestsHandledBy304 / item.incomingRequests).toFixed(3)
+                  : ""
+              }}
+            </td>
+            <td>
+              {{ item.cacheRequestCount > 0 ? item.cacheHitRate.toFixed(3) : "" }}
+            </td>
+            <td>
+              {{
+                item.incomingRequests > 0
+                  ? (
+                      (item.requestsHandledBy304 + item.cacheHitCount) /
+                      item.incomingRequests
+                    ).toFixed(3)
+                  : ""
+              }}
+            </td>
+            <td class="buttontd">
+              <button
+                type="button"
+                v-if="item.maxEntries > 0"
+                v-on:click="clearCache(item.cacheHandlerId)"
+              >
+                {{ $t("cachedData.clear") }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="control clearfix">
-      <button type="button" v-on:click="loadCacheData()">
-        {{ $t("common.refresh") }}
-      </button>
-    </div>
-
-    <div v-if="metadata.weblogList">
-      <br /><br />
-      {{ $t("cachedData.promptReset") }}:
-      <br />
-      <button type="button" v-on:click="resetHitCounts()">
-        {{ $t("cachedData.buttonReset") }}
-      </button>
-      <br /><br />
-
-      <div v-if="searchEnabled" class="abcd">
-        {{ $t("cachedData.promptIndex") }}:
-        <br />
-        <select v-model="weblogToReindex" size="1" required>
-          <option
-            v-for="value in metadata.weblogList"
-            :value="value"
-            :key="value"
-            >{{ value }}</option
-          >
-        </select>
-        <button type="button" v-on:click="reindexWeblog()">
-          {{ $t("cachedData.buttonIndex") }}
+      <div class="control clearfix">
+        <button type="button" v-on:click="loadCacheData()">
+          {{ $t("common.refresh") }}
         </button>
       </div>
+
+      <div v-if="weblogList">
+        <br /><br />
+        {{ $t("cachedData.promptReset") }}:
+        <br />
+        <button type="button" v-on:click="resetHitCounts()">
+          {{ $t("cachedData.buttonReset") }}
+        </button>
+        <br /><br />
+
+        <div v-if="searchEnabled" class="abcd">
+          {{ $t("cachedData.promptIndex") }}:
+          <br />
+          <select v-model="weblogToReindex" size="1" required>
+            <option
+              v-for="value in weblogList"
+              :value="value"
+              :key="value"
+              >{{ value }}</option
+            >
+          </select>
+          <button type="button" v-on:click="reindexWeblog()">
+            {{ $t("cachedData.buttonIndex") }}
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+  </div>  
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 
 export default {
-  data() {
+  data() {    
     return {
       urlRoot: "/tb-ui/admin/rest/server/",
-      metadata: { weblogList: [] },
       weblogToReindex: null,
       successMessage: null,
       errorMessage: null,
@@ -142,23 +144,20 @@ export default {
   computed: {
     ...mapState("caches", {
       cacheData: state => state.items
-    })
+    }),
+    ...mapState("dynamicConfig", {
+      weblogList: state => state.weblogList
+    }),
   },
   methods: {
     ...mapActions({
       loadCaches: "caches/loadCaches",
-      clearCacheEntry: "caches/clearCacheEntry"
+      clearCacheEntry: "caches/clearCacheEntry",
+      loadWeblogList: "dynamicConfig/loadWeblogList"
     }),
     messageClear: function() {
       this.successMessage = null;
       this.errorObj = {};
-    },
-    loadCacheData: function() {
-      // https://stackoverflow.com/a/49284879
-      this.loadCaches().then(
-        () => {},
-        error => this.commonErrorResponse(error, null)
-      );
     },
     clearCache: function(cacheItem) {
       this.messageClear();
@@ -180,19 +179,6 @@ export default {
           this.searchEnabled = response.data;
         })
         .catch(error => this.commonErrorResponse(error, null));
-    },
-    loadWeblogList: function() {
-      this.axios
-        .get(this.urlRoot + "visibleWeblogHandles")
-        .then(response => {
-          this.metadata.weblogList = response.data;
-          if (this.metadata.weblogList && this.metadata.weblogList.length > 0) {
-            this.weblogToReindex = this.metadata.weblogList[0];
-          }
-        })
-        .catch(error =>
-          this.commonErrorResponse(error, "Weblog list cannot be retrieved.")
-        );
     },
     resetHitCounts: function() {
       this.axios
@@ -234,7 +220,7 @@ export default {
   mounted() {
     this.getSearchEnabled();
     this.loadWeblogList();
-    this.loadCacheData();
+    this.loadCaches();
   }
 };
 </script>

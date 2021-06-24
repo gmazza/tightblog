@@ -76,6 +76,29 @@
     "emailComments" : "Allow email notification of comments?",
     "ignoreUrls" : "Comment spam filter",
     "none" : "None specified",
+    "registration" : {
+      "approvalRequired" : "Register, verify email, and admin approval",
+      "disabled" : "Disabled -- No new accounts allowed"
+    },
+    "htmlsanitizer" : {
+      "none" : "None (Remove all HTML)",
+      "limited" : "Limited (bold, italic, underline and line/paragraph breaks)",
+      "basic" : "Basic (Clickable links and line formatting -- pre, code, cite, etc.)",
+      "basicimages" : "Basic plus image tags",
+      "relaxed": "Relaxed (Allows tables, headings, divs)",
+      "relaxediframes": "Relaxed plus iframes (Social media widgets, videos, scripting potential)",
+      "off" : "Sanitizing turned off (Allows scripts, forms, everything.)"
+    },
+    "commentmod" : {
+      "nonAuthMustModerate" : "Yes, moderate all comments except from logged in users.",
+      "nonPubMustModerate" : "Yes, moderate all comments except from blog's publishers."
+    },
+    "spam" : {
+      "skipCheck" : "Skip spam check (all comments handled the same)",
+      "markAsSpam" : "Mark as spam on comment review page",
+      "noEmailNotification" : "Mark as spam and send no moderation emails",
+      "autoDelete" : "Automatically delete with no notifications sent"
+    },
     "tip" : {
       "frontpageWeblogHandle" : "The default weblog shown at the application's base URL.  Will automatically be set to the first weblog created but can be later changed here.",
       "requiredRegistrationProcess" : "For best security, disable when everyone you want to have an account has one.",
@@ -95,7 +118,7 @@
     "nameVersion": "TightBlog {version}"
   },
   "navigationBar" : {
-    "loggedInAs" : "logged in as { screenName }",
+    "loggedInAs" : "logged in as {screenName}",
     "activeBlog" : "editing weblog",
     "homePage" : "Home",
     "globalAdmin" : "Global Admin",
@@ -114,6 +137,7 @@
     "edit": "Edit",
     "weblog": "Weblog",
     "save": "Save",
-    "changesSaved": "Changes saved"
+    "changesSaved": "Changes saved",
+    "no": "No"
   }
 }
