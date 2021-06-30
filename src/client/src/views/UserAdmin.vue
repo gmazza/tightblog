@@ -57,7 +57,7 @@
 
       <table class="formtable" v-if="userBeingEdited" v-cloak>
         <tr>
-          <td class="label">{{ $t("userSettings.username") }}</td>
+          <td class="label">{{ $t("userEdit.username") }}</td>
           <td class="field">
             <input
               type="text"
@@ -69,12 +69,12 @@
             />
           </td>
           <td class="description">
-            {{ $t("userSettings.tip.username") }}
+            {{ $t("userEdit.tip.username") }}
           </td>
         </tr>
 
         <tr>
-          <td class="label">{{ $t("userSettings.accountCreateDate") }}</td>
+          <td class="label">{{ $t("userEdit.accountCreateDate") }}</td>
           <td class="field">
             {{ userBeingEdited.dateCreated | standard_datetime }}
           </td>
@@ -82,7 +82,7 @@
         </tr>
 
         <tr>
-          <td class="label">{{ $t("userSettings.lastLogin") }}</td>
+          <td class="label">{{ $t("userEdit.lastLogin") }}</td>
           <td class="field">
             {{ userBeingEdited.lastLogin | standard_datetime }}
           </td>
@@ -91,7 +91,7 @@
 
         <tr>
           <td class="label">
-            <label for="screenName">{{ $t("userSettings.screenname") }}</label>
+            <label for="screenName">{{ $t("userEdit.screenname") }}</label>
           </td>
           <td class="field">
             <input
@@ -109,7 +109,7 @@
 
         <tr>
           <td class="label">
-            <label for="emailAddress">{{ $t("userSettings.email") }}</label>
+            <label for="emailAddress">{{ $t("userEdit.email") }}</label>
           </td>
           <td class="field">
             <input
@@ -121,12 +121,12 @@
               required
             />
           </td>
-          <td class="description">{{ $t("userAdmin.tip.email") }}</td>
+          <td class="description">{{ $t("userEdit.tip.email") }}</td>
         </tr>
 
         <tr v-if="userBeingEdited.status == 'ENABLED'">
           <td class="label">
-            <label for="passwordText">{{ $t("userSettings.password") }}</label>
+            <label for="passwordText">{{ $t("userEdit.password") }}</label>
           </td>
           <td class="field">
             <input
@@ -144,7 +144,7 @@
         <tr v-if="userBeingEdited.status == 'ENABLED'">
           <td class="label">
             <label for="passwordConfirm">{{
-              $t("userSettings.passwordConfirm")
+              $t("userEdit.passwordConfirm")
             }}</label>
           </td>
           <td class="field">
@@ -381,8 +381,7 @@ export default {
           this.userCredentials = response.data.credentials;
           this.loadUserList();
           this.getPendingRegistrations();
-          this.successMessage =
-            "User [" + this.userBeingEdited.screenName + "] updated.";
+          this.successMessage = this.$t("userAdmin.userUpdated", { screenName: this.userBeingEdited.screenName });
         })
         .catch(error => this.commonErrorResponse(error, null));
     },

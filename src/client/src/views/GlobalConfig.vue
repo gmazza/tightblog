@@ -156,7 +156,6 @@ import { mapState, mapActions, mapGetters } from "vuex";
 export default {
   data() {
     return {
-      urlRoot: "/tb-ui/admin/rest/server/",
       successMessage: null,
       webloggerProps: null,
       errorMessage: null

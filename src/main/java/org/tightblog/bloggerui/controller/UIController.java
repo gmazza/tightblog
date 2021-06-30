@@ -216,16 +216,6 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @RequestMapping(value = "/profile")
-    public ModelAndView profile(Principal principal) {
-        return tightblogModelAndView("profile", null, principal);
-    }
-
-    @RequestMapping(value = "/register")
-    public ModelAndView register() {
-        return tightblogModelAndView("register", null, null, null);
-    }
-
     @RequestMapping(value = "/createWeblog")
     public ModelAndView createWeblog(Principal principal) {
         Map<String, Object> myMap = new HashMap<>();
@@ -360,11 +350,15 @@ public class UIController {
         return tightblogModelAndView(actionName, map, user, null);
     }
 
-    @GetMapping(value = "/authoring/sessioninfo")
+    @GetMapping(value = "/any/sessioninfo")
     @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        return getSessionInfo(user, null);
+        if (principal != null) {
+            User user = userDao.findEnabledByUserName(principal.getName());
+            return getSessionInfo(user, null);
+        } else {
+            return new HashMap<>();
+        }
     }
 
     private Map<String, Object> getSessionInfo(User user, Weblog weblog) {

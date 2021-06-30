@@ -48,7 +48,7 @@
                           <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"><fmt:message key="mainMenu.globalAdmin" /></a> |
                        </c:if>
                        <a href="<c:url value='/tb-ui/app/home'/>"><fmt:message key="mainMenu.title" /></a> |
-                       <a href="<c:url value='/tb-ui/app/profile'/>"><fmt:message key="mainMenu.editProfile" /></a> |
+                       <a href="<c:url value='/tb-ui2/index.html#/app/profile'/>"><fmt:message key="mainMenu.editProfile" /></a> |
                        <a href="<c:url value='/tb-ui/app/logout'/>"><fmt:message key="navigationBar.logout"/></a>
                     </c:when>
 
@@ -57,7 +57,7 @@
                         <a href="<c:url value='/tb-ui/app/login-redirect'/>"><fmt:message key="navigationBar.login"/></a>
 
                         <c:if test="${registrationPolicy != 'DISABLED'}">
-                            | <a href="<c:url value='/tb-ui/app/register'/>"><fmt:message key="navigationBar.register"/></a>
+                            | <a href="<c:url value='/tb-ui2/index.html#/app/register'/>"><fmt:message key="navigationBar.register" /></a>
                         </c:if>
                     </c:otherwise>
                 </c:choose>

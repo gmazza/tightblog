@@ -18,9 +18,9 @@
             <td class="bannerRight">
 
                 <span v-if="sessionInfo.authenticatedUser != null">
-                    <router-link v-if="sessionInfo.userIsAdmin" to="/admin/globalConfig">{{ $t("navigationBar.globalAdmin") }}</router-link> |
+                    <router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{ $t("navigationBar.globalAdmin") }}</router-link> |
                     <a href="../../tb-ui/app/home">{{ $t("navigationBar.blogList") }}</a> |
-                    <a href="../../tb-ui/app/profile">{{ $t("navigationBar.viewProfile") }}</a> |
+                    <router-link :to="{ name: 'profile' }">{{ $t("navigationBar.viewProfile") }}</router-link> |
                     <a href="../../tb-ui/app/logout">{{ $t("navigationBar.logout") }}</a>
                 </span>
 
@@ -32,6 +32,9 @@
                       | <a href="../../tb-ui/app/register">{{ $t("navigationBar.register") }}</a>
                     </span>
 
+                    <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
+                      | <router-link to="{ name: 'register' }">{{ $t("navigationBar.register") }} new</router-link>
+                    </span>
                 </span>
 
             </td>
