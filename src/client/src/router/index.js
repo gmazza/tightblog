@@ -5,6 +5,18 @@ Vue.use(VueRouter);
 
 const routes = [
   {
+    path: "/app/profile",
+    name: "profile",
+    component: () =>
+      import(/* webpackChunkName: "useredit" */ "../views/UserEdit")
+  },
+  {
+    path: "/app/register",
+    name: "register",
+    component: () =>
+      import(/* webpackChunkName: "useredit" */ "../views/UserEdit")
+  },
+  {
     path: "/",
     alias: "/admin/globalConfig",
     name: "globalConfig",

@@ -26,7 +26,6 @@
     "decline": "decline",
     "tip" : {
       "screenName": "User's screen name (with no HTML).",
-      "email": "Valid email address needed for automated notification.",
       "password": "User's password.  Fill in only if you are changing it.  Between 8 and 20 characters, with at least one uppercase, one lowercase, one number and one special character (any of @#$%^&+=).",
       "passwordConfirm": "Re-type password, again only if changing.",
       "globalRole": "Lone difference between BLOGGER and BLOGCREATOR is that the latter can create new blogs. ADMIN provides full TightBlog control (the rights you have).",
@@ -39,22 +38,40 @@
     "mfaSecret" : {
       "erase": "Erase"
     },
+    "userUpdated" : "User [{screenName}] updated.",
     "userMemberOf": "User is a member of the following weblog(s)", 
     "pending": "Pending",
     "manage": "Manage",
     "editEntries" : "Edit Entries"
   },
-  "userSettings": {
+  "userEdit": {
     "username" : "Username",
+    "accountCreated" : "Your new user account has been created.",
+    "userCanLogIn" : "You may now login.",
+    "userNotActivated" : "In order to login to the system, your email address must first be verified by clicking the link that has been sent to you.",
     "tip": {
-      "username" : "Usernames can't be changed."
+      "username" : "Usernames can't be changed on existing accounts.",
+      "password" : "Account password, leave blank if not changing.",
+      "email": "Valid email address needed for automated notifications.",
+      "screenname" : "Your desired screen name (with no HTML). This is what will be displayed in your weblog and on weblog entries that you write."
     },
+    "title" : "Your Profile",
+    "subtitle" : "Edit your user information and select save when done.",
     "accountCreateDate": "Account Created",
     "lastLogin": "Last Login",
     "screenname": "Screen Name",
     "email": "Email",
     "password": "Password",
     "passwordConfirm" : "Password (Confirm)"
+  },
+  "userAdd" : {
+    "tip": {
+      "username" : "A short one-word username for logging into your account. Limited to simple alphanumeric characters (a-z and 0-9). Cannot be changed once account is created.",
+      "password" : "Between 8 and 20 characters, with at least one uppercase, one lowercase, one number and one special character."
+    },
+    "title" : "New User Registration",
+    "saveButton" : "Sign Up",
+    "subtitle" : "Welcome! Before you can get started, you need to create a new user account. Please complete this form to request your new account (all fields are required.)"
   },
   "globalConfig": {
     "subtitle" : "Set site-wide configuration settings.",
