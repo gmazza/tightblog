@@ -1,12 +1,9 @@
 <template>
-    <div>
-        <nav id="nav">
-            <a href="../../tb-ui/app/home">My Blogs</a>
-            <router-link :to="{ name: 'globalConfig' }">Test1</router-link>
-            <router-link :to="{ name: 'userAdmin' }">Test2</router-link>
-            <router-link :to="{ name: 'cachedData' }">Cached Data</router-link>
-        </nav>
-    </div>
+  <div>
+    <nav id="nav">
+      <router-link :to="{ name: 'weblogConfig' }">Weblog Settings</router-link>
+    </nav>
+  </div>
 </template>
 
 <style scoped>

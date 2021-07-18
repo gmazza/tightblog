@@ -33,7 +33,7 @@ export default {
     loadWebloggerProperties({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-        .get('/tb-ui/admin/rest/server/webloggerproperties')
+        .get('/tb-ui/app/any/webloggerproperties')
         .then(response => {
           commit("setWebloggerProperties", response.data);
           resolve();

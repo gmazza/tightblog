@@ -4,7 +4,7 @@
     <table v-if="sessionInfo != null" class="bannerStatusBox" cellpadding="0" cellspacing="0">
         <tr>
             <td class="bannerLeft">
-                <span>{{ $t("product.nameVersion", { version: startupConfig.tightblogVersion }) }}</span>:
+                <span>{{ $t("navigationBar.productVersion", { version: startupConfig.tightblogVersion }) }}</span>:
                 
                 <span v-if="sessionInfo.authenticatedUser != null">
                   {{ $t("navigationBar.loggedInAs", { screenName: sessionInfo.authenticatedUser.screenName }) }}
@@ -27,10 +27,6 @@
                 <span v-else>
                     <a href="../..">{{ $t("navigationBar.homePage") }}</a> |
                     <a href="../../tb-ui/app/login-redirect">{{ $t("navigationBar.login") }}</a>
-
-                    <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
-                      | <a href="../../tb-ui/app/register">{{ $t("navigationBar.register") }}</a>
-                    </span>
 
                     <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
                       | <router-link to="{ name: 'register' }">{{ $t("navigationBar.register") }} new</router-link>

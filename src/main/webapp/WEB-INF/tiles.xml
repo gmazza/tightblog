@@ -100,11 +100,6 @@
         <put-attribute name="titleRight" value="installer.bannerTitleRight"/>
     </definition>
 
-    <!-- global admin pages (and associates) -->
-    <definition name=".globalConfig" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/admin/GlobalConfig.jsp" />
-    </definition>
-
     <!-- weblog editor pages (and associates) -->
     <definition name=".mediaFileEdit" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
@@ -144,14 +139,6 @@
 
     <definition name=".blogroll" extends=".tiles-vue-tabbedpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/Blogroll.jsp" />
-    </definition>
-
-    <definition name=".createWeblog" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
-    </definition>
-
-    <definition name=".weblogConfig" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/WeblogConfig.jsp" />
     </definition>
 
     <definition name=".templates" extends=".tiles-vue-tabbedpage"  >

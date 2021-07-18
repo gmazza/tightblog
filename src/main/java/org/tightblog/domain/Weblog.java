@@ -100,8 +100,8 @@ public class Weblog implements WeblogOwned {
     private String absoluteURL;
 
     public enum EditFormat {
-        HTML("weblogConfig.editFormat.html"),
-        COMMONMARK("weblogConfig.editFormat.commonMark");
+        HTML("weblogConfig.editFormatType.html"),
+        COMMONMARK("weblogConfig.editFormatType.commonMark");
 
         private String descriptionKey;
 

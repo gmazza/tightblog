@@ -25,28 +25,33 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.tightblog.bloggerui.model.StartupConfiguration;
 import org.tightblog.bloggerui.model.LookupValues;
-import org.tightblog.service.EmailService;
-import org.tightblog.service.URLService;
-import org.tightblog.service.UserManager;
-import org.tightblog.service.WeblogEntryManager;
+import org.tightblog.config.DynamicProperties;
 import org.tightblog.domain.GlobalRole;
+import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
+import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.bloggerui.model.Menu;
-import org.tightblog.service.MenuService;
 import org.tightblog.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.tightblog.service.EmailService;
+import org.tightblog.service.MenuService;
+import org.tightblog.service.ThemeManager;
+import org.tightblog.service.URLService;
+import org.tightblog.service.UserManager;
+import org.tightblog.service.WeblogEntryManager;
+import org.tightblog.util.Utilities;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,13 +77,15 @@ public class UIController {
     private final URLService urlService;
     private final LookupValues lookupValues;
     private final Environment environment;
+    private final DynamicProperties dynamicProperties;
+    private ThemeManager themeManager;
 
     @Autowired
     public UIController(WeblogDao weblogDao, UserManager userManager, UserDao userDao,
                         WeblogEntryManager weblogEntryManager, UserWeblogRoleDao userWeblogRoleDao,
                         EmailService emailService, MenuService menuHelper, MessageSource messages,
                         WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService,
-                        Environment environment) {
+                        Environment environment, ThemeManager themeManager, DynamicProperties dynamicProperties) {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
@@ -90,6 +97,8 @@ public class UIController {
         this.menuHelper = menuHelper;
         this.messages = messages;
         this.environment = environment;
+        this.themeManager = themeManager;
+        this.dynamicProperties = dynamicProperties;
 
         this.lookupValues = new LookupValues();
     }
@@ -214,25 +223,6 @@ public class UIController {
 
         String redirect = request.getContextPath() + path;
         response.sendRedirect(redirect);
-    }
-
-    @RequestMapping(value = "/createWeblog")
-    public ModelAndView createWeblog(Principal principal) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("globalCommentPolicy", webloggerPropertiesDao.findOrNull().getCommentPolicy());
-        return tightblogModelAndView("createWeblog", myMap, principal);
-    }
-
-    @RequestMapping(value = "/authoring/weblogConfig")
-    public ModelAndView weblogConfig(Principal principal, @RequestParam String weblogId) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("globalCommentPolicy", webloggerPropertiesDao.findOrNull().getCommentPolicy());
-        return getBlogOwnerPage(principal, myMap, weblogId, "weblogConfig");
-    }
-
-    @RequestMapping(value = "/authoring/themeEdit")
-    public ModelAndView themeEdit(Principal principal, @RequestParam String weblogId) {
-        return getBlogOwnerPage(principal, null, weblogId, "themeEdit");
     }
 
     @RequestMapping(value = "/authoring/templates")
@@ -361,6 +351,16 @@ public class UIController {
         }
     }
 
+    @GetMapping(value = "/any/webloggerproperties")
+    @ResponseBody
+    public WebloggerProperties getWebloggerProperties() {
+        WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
+        if (wp.getMainBlog() != null) {
+            wp.setMainBlogId(wp.getMainBlog().getId());
+        }
+        return wp;
+    }
+
     private Map<String, Object> getSessionInfo(User user, Weblog weblog) {
         Map<String, Object> map = new HashMap<>();
         map.put("authenticatedUser", user);
@@ -381,6 +381,11 @@ public class UIController {
     @GetMapping(value = "/authoring/lookupvalues")
     @ResponseBody
     public LookupValues getLookupValues() {
+        if (lookupValues.getSharedThemeMap().isEmpty()) {
+            lookupValues.getSharedThemeMap().putAll(themeManager.getEnabledSharedThemesList().stream()
+                    .collect(Utilities.toLinkedHashMap(SharedTheme::getId, st -> st)));
+        }
+
         return lookupValues;
     }
 
@@ -392,6 +397,8 @@ public class UIController {
         gcm.setMfaEnabled(environment.getProperty("mfa.enabled", Boolean.class, false));
         gcm.setTightblogVersion(environment.getRequiredProperty("weblogger.version"));
         gcm.setTightblogRevision(environment.getRequiredProperty("weblogger.revision"));
+        gcm.setSearchEnabled(environment.getProperty("search.enabled", Boolean.class, false));
+        gcm.setAbsoluteSiteURL(dynamicProperties.getAbsoluteUrl());
         return gcm;
     }
 

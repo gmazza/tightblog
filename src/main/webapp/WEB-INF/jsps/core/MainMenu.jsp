@@ -110,8 +110,8 @@ var msg= {
                       </c:if>
 
                       <img src='<c:url value="/images/cog.png"/>' />
-                      <c:url var="manageWeblog" value="/tb-ui/app/authoring/weblogConfig"/>
-                      <a v-bind:href="'${manageWeblog}?weblogId=' + role.weblog.id"><fmt:message key="mainMenu.manage" /></a>
+                      <c:url var="manageWeblog" value="/tb-ui2/index.html#/authoring/weblogConfig"/>
+                      <a v-bind:href="'${manageWeblog}/' + role.weblog.id"><fmt:message key="mainMenu.manage" /></a>
                       <br>
                   </span>
 
@@ -125,7 +125,7 @@ var msg= {
     </div>
 
     <c:if test="${authenticatedUser.hasEffectiveGlobalRole('BLOGCREATOR')}">
-        <form method="link" action="<c:url value='/tb-ui/app/createWeblog'/>">
+        <form method="link" action="<c:url value='/tb-ui2/index.html#/app/createWeblog'/>">
           <div class="control clearfix">
              <input type="submit" value="<fmt:message key='mainMenu.createWeblog'/>">
           </div>

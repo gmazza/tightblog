@@ -20,6 +20,8 @@ public class StartupConfiguration {
     private boolean mfaEnabled;
     private String tightblogVersion;
     private String tightblogRevision;
+    private boolean searchEnabled;
+    private String absoluteSiteURL;
 
     public boolean isMfaEnabled() {
         return mfaEnabled;
@@ -51,5 +53,21 @@ public class StartupConfiguration {
 
     public void setTightblogRevision(String tightblogRevision) {
         this.tightblogRevision = tightblogRevision;
+    }
+
+    public boolean isSearchEnabled() {
+        return searchEnabled;
+    }
+
+    public void setSearchEnabled(boolean searchEnabled) {
+        this.searchEnabled = searchEnabled;
+    }
+
+    public String getAbsoluteSiteURL() {
+        return absoluteSiteURL;
+    }
+
+    public void setAbsoluteSiteURL(String absoluteSiteURL) {
+        this.absoluteSiteURL = absoluteSiteURL;
     }
 }
