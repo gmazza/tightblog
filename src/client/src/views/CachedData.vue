@@ -20,13 +20,16 @@
 -->
 <template>
   <div>
-    <AppAdminNav/>
+    <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
         :message="successMessage"
         @close-box="successMessage = null"
       />
-      <AppErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
+      <AppErrorMessageBox
+        :message="errorMessage"
+        @close-box="errorMessage = null"
+      />
 
       <p class="subtitle">{{ $t("cachedData.subtitle") }}</p>
 
@@ -63,12 +66,16 @@
             <td>
               {{
                 item.incomingRequests > 0
-                  ? (item.requestsHandledBy304 / item.incomingRequests).toFixed(3)
+                  ? (item.requestsHandledBy304 / item.incomingRequests).toFixed(
+                      3
+                    )
                   : ""
               }}
             </td>
             <td>
-              {{ item.cacheRequestCount > 0 ? item.cacheHitRate.toFixed(3) : "" }}
+              {{
+                item.cacheRequestCount > 0 ? item.cacheHitRate.toFixed(3) : ""
+              }}
             </td>
             <td>
               {{
@@ -94,7 +101,7 @@
       </table>
 
       <div class="control clearfix">
-        <button type="button" v-on:click="loadCacheData()">
+        <button type="button" v-on:click="loadCaches()">
           {{ $t("common.refresh") }}
         </button>
       </div>
@@ -108,16 +115,13 @@
         </button>
         <br /><br />
 
-        <div v-if="searchEnabled" class="abcd">
+        <div v-if="startupConfig.searchEnabled">
           {{ $t("cachedData.promptIndex") }}:
           <br />
           <select v-model="weblogToReindex" size="1" required>
-            <option
-              v-for="value in weblogList"
-              :value="value"
-              :key="value"
-              >{{ value }}</option
-            >
+            <option v-for="value in weblogList" :value="value" :key="value">{{
+              value
+            }}</option>
           </select>
           <button type="button" v-on:click="reindexWeblog()">
             {{ $t("cachedData.buttonIndex") }}
@@ -125,35 +129,38 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 
 export default {
-  data() {    
+  data() {
     return {
       urlRoot: "/tb-ui/admin/rest/server/",
       weblogToReindex: null,
       successMessage: null,
       errorMessage: null,
-      searchEnabled: false
     };
   },
   computed: {
     ...mapState("caches", {
-      cacheData: state => state.items
+      cacheData: (state) => state.items,
     }),
     ...mapState("dynamicConfig", {
-      weblogList: state => state.weblogList
+      weblogList: (state) => state.weblogList,
+    }),
+    ...mapState("startupConfig", {
+      startupConfig: (state) => state.startupConfig,
     }),
   },
   methods: {
     ...mapActions({
       loadCaches: "caches/loadCaches",
       clearCacheEntry: "caches/clearCacheEntry",
-      loadWeblogList: "dynamicConfig/loadWeblogList"
+      loadStartupConfig: "startupConfig/loadStartupConfig",
+      loadWeblogList: "dynamicConfig/loadWeblogList",
     }),
     messageClear: function() {
       this.successMessage = null;
@@ -162,29 +169,19 @@ export default {
     clearCache: function(cacheItem) {
       this.messageClear();
 
-      this.clearCacheEntry(cacheItem).then(
-        () => {
-          this.successMessage = this.$t("cachedData.cacheCleared", {
-            name: cacheItem
-          });
-          this.loadCacheData();
-        },
-        error => this.commonErrorResponse(error, null)
-      );
-    },
-    getSearchEnabled: function() {
-      this.axios
-        .get(this.urlRoot + "searchenabled")
-        .then(response => {
-          this.searchEnabled = response.data;
-        })
-        .catch(error => this.commonErrorResponse(error, null));
+      this.clearCacheEntry(cacheItem)
+        .then(
+          (this.successMessage = this.$t("cachedData.cacheCleared", {
+            name: cacheItem,
+          }))
+        )
+        .catch((error) => this.commonErrorResponse(error, null));
     },
     resetHitCounts: function() {
       this.axios
         .post(this.urlRoot + "resethitcount")
         .then((this.successMessage = this.$t("cachedData.hitCountReset")))
-        .catch(error => this.commonErrorResponse(error, null));
+        .catch((error) => this.commonErrorResponse(error, null));
     },
     reindexWeblog: function() {
       if (this.weblogToReindex) {
@@ -196,10 +193,10 @@ export default {
           )
           .then(
             (this.successMessage = this.$t("cachedData.indexingStarted", {
-              handle
+              handle,
             }))
           )
-          .catch(error => this.commonErrorResponse(error, null));
+          .catch((error) => this.commonErrorResponse(error, null));
       }
     },
     commonErrorResponse: function(error, errorMsg) {
@@ -215,12 +212,12 @@ export default {
       } else {
         this.errorMessage = "System error.";
       }
-    }
+    },
   },
   mounted() {
-    this.getSearchEnabled();
+    this.loadStartupConfig();
     this.loadWeblogList();
     this.loadCaches();
-  }
+  },
 };
 </script>

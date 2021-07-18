@@ -12,9 +12,7 @@
             "action": "entryAdd",
             "titleKey": "entryAdd.title",
             "weblogRole": "EDIT_DRAFT",
-            "subActions": [
-              "entryEdit"
-            ]
+            "subActions": ["entryEdit"]
           },
           {
             "action": "entries",
@@ -46,34 +44,30 @@
             "titleKey": "mediaFileView.title",
             "enabledProperty": "media.file.showTab",
             "weblogRole": "POST",
-            "subActions": [
-              "mediaFileAdd",
-              "mediaFileEdit"
-            ]
+            "subActions": ["mediaFileAdd", "mediaFileEdit"]
           }
         ]
       },
       {
         "titleKey": "tabbedmenu.website",
-        "actionPath": "/tb-ui/app/authoring/",
         "globalRole": "BLOGGER",
         "weblogRole": "OWNER",
         "tabItems": [
           {
             "action": "weblogConfig",
+            "actionPath": "/tb-ui2/index.html#/authoring/",
             "titleKey": "weblogConfig.title"
           },
           {
             "action": "templates",
+            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "templates.title",
             "enabledProperty": "themes.customtheme.allowed",
-            "subActions": [
-              "templateEdit",
-              "themeEdit"
-            ]
+            "subActions": ["templateEdit"]
           },
           {
             "action": "members",
+            "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "members.title"
           }
         ]

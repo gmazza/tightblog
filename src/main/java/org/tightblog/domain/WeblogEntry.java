@@ -58,14 +58,14 @@ public class WeblogEntry implements WeblogOwned {
     public enum PubStatus { DRAFT, PUBLISHED, PENDING, SCHEDULED }
 
     public enum CommentDayOption {
-        UNLIMITED(-1, "entryEdit.unlimitedCommentDays"),
-        ZERO(0, "entryEdit.days0"),
-        THREE(3, "entryEdit.days3"),
-        SEVEN(7, "entryEdit.days7"),
-        FOURTEEN(14, "entryEdit.days14"),
-        THIRTY(30, "entryEdit.days30"),
-        NINETY(90, "entryEdit.days90"),
-        ONEYEAR(365, "entryEdit.days365");
+        UNLIMITED(-1, "weblogConfig.commentperiod.unlimited"),
+        ZERO(0, "weblogConfig.commentperiod.days0"),
+        THREE(3, "weblogConfig.commentperiod.days3"),
+        SEVEN(7, "weblogConfig.commentperiod.days7"),
+        FOURTEEN(14, "weblogConfig.commentperiod.days14"),
+        THIRTY(30, "weblogConfig.commentperiod.days30"),
+        NINETY(90, "weblogConfig.commentperiod.days90"),
+        ONEYEAR(365, "weblogConfig.commentperiod.days365");
 
         int days;
 
@@ -76,7 +76,7 @@ public class WeblogEntry implements WeblogOwned {
             this.descriptionKey = descriptionKey;
         }
 
-        public int getDays() {
+        public Integer getDays() {
             return days;
         }
 

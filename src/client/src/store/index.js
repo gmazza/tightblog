@@ -14,6 +14,7 @@ export default new Vuex.Store({
     dynamicConfig,
     sessionInfo
   },
+  strict: process.env.NODE_ENV !== 'production',
   state: {},
   mutations: {},
   actions: {}

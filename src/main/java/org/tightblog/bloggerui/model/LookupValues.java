@@ -16,24 +16,38 @@
 package org.tightblog.bloggerui.model;
 
 import org.tightblog.domain.GlobalRole;
+import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.UserStatus;
+import org.tightblog.domain.Weblog;
+import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.util.HTMLSanitizer;
 import org.tightblog.util.Utilities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class LookupValues {
     private Map<String, String> userStatuses;
     private Map<String, String> globalRoles;
     private Map<String, String> registrationOptions;
     private Map<String, String> blogHtmlLevels;
-    private Map<String, String> commentOptions;
+    private List<EnumAsObj> commentOptionList;
     private Map<String, String> commentHtmlLevels;
-    private Map<String, String> spamOptions;
+    private List<EnumAsObj> spamOptionList;
+
+    private Map<String, SharedTheme> sharedThemeMap;
+    private Map<String, String> editFormats;
+    private Map<String, String> locales;
+    private Map<String, String> timezones;
+    private Map<Integer, String> commentDayOptions;
 
     public Map<String, String> getUserStatuses() {
         if (userStatuses == null) {
@@ -75,14 +89,18 @@ public class LookupValues {
         return blogHtmlLevels;
     }
 
-    public Map<String, String> getCommentOptions() {
-        if (commentOptions == null) {
-            commentOptions = new LinkedHashMap<>();
-            commentOptions.putAll(Arrays.stream(WebloggerProperties.CommentPolicy.values())
-                    .collect(Utilities.toLinkedHashMap(WebloggerProperties.CommentPolicy::name,
-                            WebloggerProperties.CommentPolicy::getLabel)));
+    public List<EnumAsObj> getCommentOptionList() {
+        if (commentOptionList == null) {
+            commentOptionList = new ArrayList<>();
+            for (WebloggerProperties.CommentPolicy policy : WebloggerProperties.CommentPolicy.values()) {
+                EnumAsObj eao = new EnumAsObj();
+                eao.setConstant(policy.name());
+                eao.setLabel(policy.getLabel());
+                eao.setLevel(policy.getLevel());
+                commentOptionList.add(eao);
+            }
         }
-        return commentOptions;
+        return commentOptionList;
     }
 
     public Map<String, String> getCommentHtmlLevels() {
@@ -97,13 +115,93 @@ public class LookupValues {
         return commentHtmlLevels;
     }
 
-    public Map<String, String> getSpamOptions() {
-        if (spamOptions == null) {
-            spamOptions = new LinkedHashMap<>();
-            spamOptions.putAll(Arrays.stream(WebloggerProperties.SpamPolicy.values())
-                    .collect(Utilities.toLinkedHashMap(WebloggerProperties.SpamPolicy::name,
-                            WebloggerProperties.SpamPolicy::getLabel)));
+    public List<EnumAsObj> getSpamOptionList() {
+        if (spamOptionList == null) {
+            spamOptionList = new ArrayList<>();
+            for (WebloggerProperties.SpamPolicy policy : WebloggerProperties.SpamPolicy.values()) {
+                EnumAsObj eao = new EnumAsObj();
+                eao.setConstant(policy.name());
+                eao.setLabel(policy.getLabel());
+                eao.setLevel(policy.getLevel());
+                spamOptionList.add(eao);
+            }
         }
-        return spamOptions;
+        return spamOptionList;
+    }
+
+    public Map<String, SharedTheme> getSharedThemeMap() {
+        if (sharedThemeMap == null) {
+            sharedThemeMap = new LinkedHashMap<>();
+        }
+        return sharedThemeMap;
+    }
+
+    public Map<String, String> getEditFormats() {
+        if (editFormats == null) {
+            editFormats = new LinkedHashMap<>();
+            editFormats.putAll(Arrays.stream(Weblog.EditFormat.values())
+                    .collect(Utilities.toLinkedHashMap(Weblog.EditFormat::name, Weblog.EditFormat::getDescriptionKey)));
+        }
+        return editFormats;
+    }
+
+    public Map<Integer, String> getCommentDayOptions() {
+        if (commentDayOptions == null) {
+            commentDayOptions = new LinkedHashMap<>();
+            commentDayOptions.putAll(Arrays.stream(WeblogEntry.CommentDayOption.values())
+                    .collect(Utilities.toLinkedHashMap(WeblogEntry.CommentDayOption::getDays,
+                            WeblogEntry.CommentDayOption::getDescriptionKey)));
+        }
+        return commentDayOptions;
+    }
+
+    public Map<String, String> getLocales() {
+        if (locales == null) {
+            locales = new LinkedHashMap<>();
+            locales.putAll(Arrays.stream(Locale.getAvailableLocales())
+                    .sorted(Comparator.comparing(Locale::getDisplayName))
+                    .collect(Utilities.toLinkedHashMap(Locale::toString, Locale::getDisplayName)));
+        }
+        return locales;
+    }
+
+    public Map<String, String> getTimezones() {
+        if (timezones == null) {
+            timezones = new LinkedHashMap<>();
+            timezones.putAll(Arrays.stream(TimeZone.getAvailableIDs())
+                    .sorted(Comparator.comparing(tz -> tz))
+                    .collect(Utilities.toLinkedHashMap(tz -> tz, tz -> tz)));
+        }
+        return timezones;
+    }
+
+    public static class EnumAsObj {
+        private String constant;
+        private String label;
+        private int level;
+
+        public String getConstant() {
+            return constant;
+        }
+
+        public void setConstant(String constant) {
+            this.constant = constant;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
     }
 }

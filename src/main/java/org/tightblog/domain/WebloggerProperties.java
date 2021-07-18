@@ -182,6 +182,16 @@ public class WebloggerProperties {
         return mainBlogId;
     }
 
+    @Transient
+    public int getCommentPolicyLevel() {
+       return commentPolicy.getLevel();
+    }
+
+    @Transient
+    public int getSpamPolicyLevel() {
+        return spamPolicy.getLevel();
+    }
+
     public void setMainBlogId(String mainBlogId) {
         this.mainBlogId = mainBlogId;
     }

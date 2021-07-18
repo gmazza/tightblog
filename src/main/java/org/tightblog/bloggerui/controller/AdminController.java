@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,19 +67,16 @@ public class AdminController {
     private final CommentSpamChecker commentValidator;
     private final WeblogDao weblogDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
-    private final boolean searchEnabled;
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
-                           @Value("${search.enabled:false}") boolean searchEnabled,
                            WebloggerPropertiesDao webloggerPropertiesDao) {
         this.cacheSet = cacheSet;
         this.luceneIndexer = luceneIndexer;
         this.commentValidator = commentValidator;
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
-        this.searchEnabled = searchEnabled;
     }
 
     @GetMapping(value = "/caches")
@@ -123,11 +119,6 @@ public class AdminController {
         return weblogIdToHandleMap;
     }
 
-    @GetMapping(value = "/searchenabled")
-    public boolean getSearchEnabled() {
-        return searchEnabled;
-    }
-
     @PostMapping(value = "/weblog/{handle}/rebuildindex")
     public ResponseEntity<?> rebuildIndex(@PathVariable String handle) {
         Weblog weblog = weblogDao.findByHandle(handle);
@@ -137,15 +128,6 @@ public class AdminController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping(value = "/webloggerproperties")
-    public WebloggerProperties getWebloggerProperties() {
-        WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
-        if (wp.getMainBlog() != null) {
-            wp.setMainBlogId(wp.getMainBlog().getId());
-        }
-        return wp;
     }
 
     @PostMapping(value = "/webloggerproperties")
