@@ -8,7 +8,7 @@ const routes = [
     path: "/app/profile",
     name: "profile",
     component: () =>
-      import(/* webpackChunkName: "useredit" */ "../views/UserEdit"),
+      import(/* webpackChunkName: "useredit" */ "../views/UserEdit")
   },
   {
     path: "/app/register",

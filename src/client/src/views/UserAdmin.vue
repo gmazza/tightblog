@@ -381,7 +381,7 @@ export default {
           this.userCredentials = response.data.credentials;
           this.loadUserList();
           this.getPendingRegistrations();
-        this.successMessage = this.$t("userAdmin.userUpdated", { screenName: this.userBeingEdited.screenName });
+          this.successMessage = this.$t("userAdmin.userUpdated", { screenName: this.userBeingEdited.screenName });
         })
         .catch(error => this.commonErrorResponse(error, null));
     },
