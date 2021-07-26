@@ -328,11 +328,6 @@ public class UIController {
         }
     }
 
-    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, Principal principal) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        return tightblogModelAndView(actionName, map, user, null);
-    }
-
     @GetMapping(value = "/any/sessioninfo")
     @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
