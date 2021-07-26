@@ -90,7 +90,6 @@ public class Menu {
         private String action;
         private String actionPath;
         private boolean selected;
-        private boolean hasWeblogId;
         private boolean vueTab;
 
         public String getKey() {
@@ -131,14 +130,6 @@ public class Menu {
 
         public void setVueTab(boolean vueTab) {
             this.vueTab = vueTab;
-        }
-
-        public boolean getHasWeblogId() {
-            return hasWeblogId;
-        }
-
-        public void setHasWeblogId(boolean hasWeblogId) {
-            this.hasWeblogId = hasWeblogId;
         }
 
     }

@@ -1,48 +1,48 @@
-import Vue from "vue";
-import App from "./App.vue";
-import router from "./router";
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
 import TheNavigation from '@/components/TheNavigation'
-import i18n from "./i18n";
-import axios from "axios";
-import dayjs from "dayjs";
-import VueAxios from "vue-axios";
-import store from "./store";
+import i18n from './i18n'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import VueAxios from 'vue-axios'
+import store from './store'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-Vue.use(VueAxios, axios);
+Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 
-Vue.filter("standard_datetime", function(isoDate) {
-  if (!isoDate) return "";
-  return dayjs(isoDate).format("DD MMM YYYY h:mm:ss A");
-});
+Vue.filter('standard_datetime', function (isoDate) {
+  if (!isoDate) return ''
+  return dayjs(isoDate).format('DD MMM YYYY h:mm:ss A')
+})
 
 // Make all components starting with "App" global
 // https://vuejs.org/v2/style-guide/index.html#Base-component-names-strongly-recommended
-const requireComponent = require.context("./components", true, /App[A-Z]\w+\.(vue|js)$/)
+const requireComponent = require.context('./components', true, /App[A-Z]\w+\.(vue|js)$/)
 requireComponent.keys().forEach(function (fileName) {
   let baseComponentConfig = requireComponent(fileName)
   baseComponentConfig = baseComponentConfig.default || baseComponentConfig
   const baseComponentName = baseComponentConfig.name || (
-      fileName
-          .replace(/^.+\//, '')
-          .replace(/\.\w+$/, '')
+    fileName
+      .replace(/^.+\//, '')
+      .replace(/\.\w+$/, '')
   )
   Vue.component(baseComponentName, baseComponentConfig)
 })
 
-Vue.component(TheNavigation);
+Vue.component(TheNavigation)
 
-Vue.config.devtools = true;
+Vue.config.devtools = true
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
 
 new Vue({
   router,
   i18n,
   store,
   render: h => h(App)
-}).$mount("#app");
+}).$mount('#app')

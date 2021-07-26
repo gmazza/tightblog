@@ -276,87 +276,87 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from "vuex";
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 export default {
-  data() {
+  data () {
     return {
       successMessage: null,
       webloggerProps: null,
-      errorMessage: null,
-    };
+      errorMessage: null
+    }
   },
   computed: {
-    ...mapState("dynamicConfig", {
-      weblogList: (state) => state.weblogList,
+    ...mapState('dynamicConfig', {
+      weblogList: (state) => state.weblogList
     }),
-    ...mapState("startupConfig", {
+    ...mapState('startupConfig', {
       startupConfig: (state) => state.startupConfig,
-      lookupVals: (state) => state.lookupValues,
-    }),
+      lookupVals: (state) => state.lookupValues
+    })
   },
   methods: {
     ...mapActions({
-      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
-      saveWebloggerProperties: "dynamicConfig/saveWebloggerProperties",
-      loadWeblogList: "dynamicConfig/loadWeblogList",
-      loadStartupConfig: "startupConfig/loadStartupConfig",
-      loadLookupValues: "startupConfig/loadLookupValues",
+      loadWebloggerProperties: 'dynamicConfig/loadWebloggerProperties',
+      saveWebloggerProperties: 'dynamicConfig/saveWebloggerProperties',
+      loadWeblogList: 'dynamicConfig/loadWeblogList',
+      loadStartupConfig: 'startupConfig/loadStartupConfig',
+      loadLookupValues: 'startupConfig/loadLookupValues'
     }),
-    ...mapGetters("dynamicConfig", {
-      getWebloggerProperties: "getWebloggerProperties",
+    ...mapGetters('dynamicConfig', {
+      getWebloggerProperties: 'getWebloggerProperties'
     }),
-    loadWebloggerProps: function() {
+    loadWebloggerProps: function () {
       this.loadWebloggerProperties().then(
         () => {
           this.webloggerProps = JSON.parse(
             JSON.stringify(this.getWebloggerProperties())
-          );
+          )
         },
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
     },
-    loadMetadata: function() {
+    loadMetadata: function () {
       this.loadStartupConfig().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
       this.loadLookupValues().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
     },
-    updateProperties: function() {
+    updateProperties: function () {
       this.saveWebloggerProperties(this.webloggerProps).then(
         () => {
-          this.webloggerProps = this.getWebloggerProperties();
-          this.errorObj = {};
-          this.successMessage = this.$t("common.changesSaved");
-          window.scrollTo(0, 0);
+          this.webloggerProps = this.getWebloggerProperties()
+          this.errorObj = {}
+          this.successMessage = this.$t('common.changesSaved')
+          window.scrollTo(0, 0)
         },
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
     },
-    commonErrorResponse: function(error, errorMsg) {
+    commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {
-        this.errorMessage = errorMsg;
-      } else if (error && error.response && error.response.status == 401) {
-        console.log("Redirecting...");
-        window.location.href = "/tb-ui/app/login";
+        this.errorMessage = errorMsg
+      } else if (error && error.response && error.response.status === 401) {
+        console.log('Redirecting...')
+        window.location.href = '/tb-ui/app/login'
       } else if (error && error.response) {
-        this.errorMessage = error.response.data.error;
+        this.errorMessage = error.response.data.error
       } else if (error) {
-        this.errorMessage = error;
+        this.errorMessage = error
       } else {
-        this.errorMessage = "System error.";
+        this.errorMessage = 'System error.'
       }
-    },
+    }
   },
-  created: function() {
-    this.loadStartupConfig();
-    this.loadWeblogList();
-    this.loadLookupValues();
-    this.loadWebloggerProps();
-  },
-};
+  created: function () {
+    this.loadStartupConfig()
+    this.loadWeblogList()
+    this.loadLookupValues()
+    this.loadWebloggerProps()
+  }
+}
 </script>

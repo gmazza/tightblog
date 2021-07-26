@@ -6,20 +6,20 @@
 </template>
 
 <script>
-import TheNavigation from "@/components/TheNavigation";
+import TheNavigation from '@/components/TheNavigation'
 
 export default {
   components: {
     TheNavigation
   },
-  created() {
-    const locale = localStorage.getItem("locale");
+  created () {
+    const locale = localStorage.getItem('locale')
 
     if (locale) {
-      this.$i18n.locale = locale;
+      this.$i18n.locale = locale
     }
   }
-};
+}
 </script>
 
 <style>

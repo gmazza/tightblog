@@ -95,7 +95,8 @@ public class RequestMappingFilter implements Filter {
         String weblogRequestData = null;
 
         // remove all training slashes from URI
-        String servlet = TRAILING_SLASHES.matcher(request.getRequestURI()).replaceAll("");
+        String requestURI = request.getRequestURI();
+        String servlet = TRAILING_SLASHES.matcher(requestURI).replaceAll("");
         LOG.debug("evaluating [{}]", servlet);
 
         // figure out potential weblog handle

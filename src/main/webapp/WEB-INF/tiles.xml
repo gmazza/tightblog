@@ -90,10 +90,6 @@
         <put-attribute name="titleRight" value="scanCode.header.title"/>
     </definition>
 
-    <definition name=".mainMenu" extends=".tiles-simplepage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/core/MainMenu.jsp" />
-    </definition>
-
     <!-- setup page -->
     <definition name=".install" extends=".tiles-no-nav-page" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Install.jsp" />

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios'
 
 export default {
   namespaced: true,
@@ -9,70 +9,70 @@ export default {
   },
   getters: {
     getWebloggerProperties: state => {
-      return state.webloggerProperties;
+      return state.webloggerProperties
     },
     getWeblogList: state => {
-      return state.weblogList;
+      return state.weblogList
     },
     getUserList: state => {
-      return state.userList;
-    },
+      return state.userList
+    }
   },
   mutations: {
-    setWebloggerProperties(state, webloggerProperties) {
-      state.webloggerProperties = webloggerProperties;
+    setWebloggerProperties (state, webloggerProperties) {
+      state.webloggerProperties = webloggerProperties
     },
-    setWeblogList(state, weblogList) {
-      state.weblogList = weblogList;
+    setWeblogList (state, weblogList) {
+      state.weblogList = weblogList
     },
-    setUserList(state, userList) {
-      state.userList = userList;
+    setUserList (state, userList) {
+      state.userList = userList
     }
   },
   actions: {
-    loadWebloggerProperties({ commit }) {
+    loadWebloggerProperties ({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-        .get('/tb-ui/app/any/webloggerproperties')
-        .then(response => {
-          commit("setWebloggerProperties", response.data);
-          resolve();
-        })
-        .catch(error => reject(error));
-      });
+          .get('/tb-ui/app/any/webloggerproperties')
+          .then(response => {
+            commit('setWebloggerProperties', response.data)
+            resolve()
+          })
+          .catch(error => reject(error))
+      })
     },
-    saveWebloggerProperties({ dispatch }, webloggerProps) {
+    saveWebloggerProperties ({ dispatch }, webloggerProps) {
       return new Promise((resolve, reject) => {
         axios
-        .post('/tb-ui/admin/rest/server/webloggerproperties', webloggerProps)
-        .then(() => {
-          resolve();
-          dispatch("loadWebloggerProperties");
-        })
-        .catch(error => reject(error));
-      });
+          .post('/tb-ui/admin/rest/server/webloggerproperties', webloggerProps)
+          .then(() => {
+            resolve()
+            dispatch('loadWebloggerProperties')
+          })
+          .catch(error => reject(error))
+      })
     },
-    loadWeblogList({ commit }) {
+    loadWeblogList ({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-        .get('/tb-ui/admin/rest/server/webloglist')
-        .then(response => {
-          commit("setWeblogList", response.data);
-          resolve();
-        })
-        .catch(error => reject(error));
-      });
+          .get('/tb-ui/admin/rest/server/webloglist')
+          .then(response => {
+            commit('setWeblogList', response.data)
+            resolve()
+          })
+          .catch(error => reject(error))
+      })
     },
-    loadUserList({ commit }) {
+    loadUserList ({ commit }) {
       return new Promise((resolve, reject) => {
         axios
-        .get('/tb-ui/admin/rest/useradmin/userlist')
-        .then(response => {
-          commit("setUserList", response.data);
-          resolve();
-        })
-        .catch(error => reject(error));
-      });
+          .get('/tb-ui/admin/rest/useradmin/userlist')
+          .then(response => {
+            commit('setUserList', response.data)
+            resolve()
+          })
+          .catch(error => reject(error))
+      })
     }
   }
-};
+}

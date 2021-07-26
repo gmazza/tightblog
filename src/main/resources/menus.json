@@ -54,16 +54,17 @@
         "weblogRole": "OWNER",
         "tabItems": [
           {
-            "action": "weblogConfig",
-            "actionPath": "/tb-ui2/index.html#/authoring/",
-            "titleKey": "weblogConfig.title"
-          },
-          {
             "action": "templates",
             "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "templates.title",
             "enabledProperty": "themes.customtheme.allowed",
             "subActions": ["templateEdit"]
+          },
+          {
+            "action": "weblogConfig",
+            "actionPath": "/tb-ui2/index.html#/authoring/",
+            "titleKey": "weblogConfig.title",
+            "vueTab": true
           },
           {
             "action": "members",
