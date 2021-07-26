@@ -57,6 +57,7 @@ public class ParsedMenu {
     public static class ParsedTab {
         private String titleKey;
         private String actionPath;
+        private boolean vueTab;
         private GlobalRole globalRole;
         private WeblogRole weblogRole;
         private String enabledProperty;
@@ -114,6 +115,13 @@ public class ParsedMenu {
             this.tabItems = tabItems;
         }
 
+        public boolean isVueTab() {
+            return vueTab;
+        }
+
+        public void setVueTab(boolean vueTab) {
+            this.vueTab = vueTab;
+        }
     }
 
     /**

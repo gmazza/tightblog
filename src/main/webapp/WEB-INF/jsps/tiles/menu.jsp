@@ -55,12 +55,8 @@
                 <c:if test="${!stat.first}">|</c:if>
                 <c:set var="actionUrl">
                     <c:choose>
-                        <c:when test="false">
-                            <c:url value='${tabItem.actionPath}'>
-                                <c:if test="${actionWeblog != null}">
-                                    <c:param name='weblogId' value='${actionWeblog.id}'/>
-                                </c:if>
-                            </c:url>
+                        <c:when test="${tabItem.vueTab == true}">
+                            <c:url value='${tabItem.actionPath}${tabItem.action}/${actionWeblog.id}'/>
                         </c:when>
                         <c:otherwise>
                             <c:url value='${tabItem.actionPath}${tabItem.action}'>

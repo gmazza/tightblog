@@ -23,10 +23,14 @@
   "common": {
     "cancel": "Cancel",
     "changesSaved": "Changes saved",
+    "comments" : "Comments",
     "confirm": "Confirm",
     "delete": "Delete",
+    "description" : "Description",
     "edit": "Edit",
+    "entries" : "Entries",
     "name": "Name",
+    "newEntry" : "New Entry",
     "no": "No",
     "refresh": "Refresh",
     "role": "Role",
@@ -91,6 +95,20 @@
       "ignoreUrls": "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
     }
   },
+  "myBlogs" : {
+    "title" : "My Blogs",
+    "noblogs" : "No blogs currently defined for your account.",
+    "weblogLink" : "Link",
+    "emailComments" : "Email Comments?",
+    "todaysHits" : "Today's hitcount",
+    "theme" : "Theme",
+    "settings" : "Settings",
+    "resign" : "Resign",
+    "confirmResignationTitle" : "Confirm Resignation",
+    "createWeblog" : "Add a new weblog",
+    "confirmResignation" : "Are you sure you wish to leave weblog <b>{weblogName}</b>?",
+    "haveUnapprovedComments" : "{count} needing review"
+  },
   "navigationBar": {
     "productVersion": "TightBlog {version}",
     "loggedInAs": "logged in as {screenName}",
@@ -147,7 +165,7 @@
       "email": "Valid email address needed for automated notifications.",
       "screenname": "Your desired screen name (with no HTML). This is what will be displayed in your weblog and on weblog entries that you write."
     },
-    "title": "Your Profile",
+    "title": "Profile",
     "subtitle": "Edit your user information and select save when done.",
     "accountCreateDate": "Account Created",
     "lastLogin": "Last Login",

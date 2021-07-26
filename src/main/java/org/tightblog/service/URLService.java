@@ -138,11 +138,8 @@ public class URLService {
     /**
      * Get a url to weblog config page.
      */
-    public String getWeblogConfigURL(String weblogHandle) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/app/authoring/weblogConfig";
-        Map<String, String> params = new HashMap<>();
-        params.put("weblogId", weblogHandle);
-        return url + Utilities.getQueryString(params);
+    public String getWeblogConfigURL(String weblogId) {
+        return dp.getAbsoluteUrl() + "/tb-ui2/index.html#/authoring/weblogConfig/" + weblogId;
     }
 
     /**

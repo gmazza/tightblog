@@ -78,104 +78,104 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex'
 
 export default {
   data: function () {
-    return  {
+    return {
       userBeingEdited: {},
       userCredentials: {},
       hideButtons: false,
-      urlRoot: "/tb-ui/admin/rest/useradmin/",
+      urlRoot: '/tb-ui/admin/rest/useradmin/',
       successMessage: null,
       errorObj: {}
     }
   },
   computed: {
-    ...mapState("sessionInfo", {
+    ...mapState('sessionInfo', {
       sessionInfo: state => state.items
     }),
     varText: function () {
       if (this.sessionInfo.authenticatedUser == null) {
         return {
-          usernameTipKey: "userAdd.tip.username",
-          passwordTipKey: "userAdd.tip.password",
-          saveButtonText: "userAdd.saveButton",
-          pageTitleKey: "userAdd.title",
-          subtitleKey: "userAdd.subtitle"
+          usernameTipKey: 'userAdd.tip.username',
+          passwordTipKey: 'userAdd.tip.password',
+          saveButtonText: 'userAdd.saveButton',
+          pageTitleKey: 'userAdd.title',
+          subtitleKey: 'userAdd.subtitle'
         }
       } else {
         return {
-          usernameTipKey: "userEdit.tip.username",
-          passwordTipKey: "userEdit.tip.password",
-          saveButtonText: "common.save",
-          pageTitleKey: "userEdit.title",
-          subtitleKey: "userEdit.subtitle"
+          usernameTipKey: 'userEdit.tip.username',
+          passwordTipKey: 'userEdit.tip.password',
+          saveButtonText: 'common.save',
+          pageTitleKey: 'userEdit.title',
+          subtitleKey: 'userEdit.subtitle'
         }
       }
     }
   },
   methods: {
     ...mapActions({
-      loadSessionInfo: "sessionInfo/loadSessionInfo"
+      loadSessionInfo: 'sessionInfo/loadSessionInfo'
     }),
     loadUser: function (userId) {
-      this.axios.get("/tb-ui/authoring/rest/userprofile/" + userId)
+      this.axios.get('/tb-ui/authoring/rest/userprofile/' + userId)
         .then(response => {
-          this.userBeingEdited = response.data;
-          this.userCredentials = {};
-      })
+          this.userBeingEdited = response.data
+          this.userCredentials = {}
+        })
     },
     updateUser: function () {
-      this.messageClear();
-      var userData = {};
-      userData.user = this.userBeingEdited;
-      userData.credentials = this.userCredentials;
-      var urlToUse = (this.sessionInfo.authenticatedUser ? "/tb-ui/authoring/rest/userprofile/" + this.sessionInfo.authenticatedUser.id
-          : "/tb-ui/register/rest/registeruser");
+      this.messageClear()
+      var userData = {}
+      userData.user = this.userBeingEdited
+      userData.credentials = this.userCredentials
+      var urlToUse = (this.sessionInfo.authenticatedUser ? '/tb-ui/authoring/rest/userprofile/' + this.sessionInfo.authenticatedUser.id
+        : '/tb-ui/register/rest/registeruser')
 
       this.axios
         .post(urlToUse, userData)
         .then(response => {
-          this.userBeingEdited = response.data.user;
+          this.userBeingEdited = response.data.user
           if (!this.sessionInfo.authenticatedUser) {
             // user registration, hide the save/cancel buttons now
-            this.hideButtons = true;
-            if (this.userBeingEdited.status == "ENABLED") {
-              this.successMessage = this.$t("userEdit.userCanLogIn");
-            } else if (this.userBeingEdited.status == "REGISTERED") {
-              this.successMessage = this.$t("userEdit.userNotActivated");
+            this.hideButtons = true
+            if (this.userBeingEdited.status === 'ENABLED') {
+              this.successMessage = this.$t('userEdit.userCanLogIn')
+            } else if (this.userBeingEdited.status === 'REGISTERED') {
+              this.successMessage = this.$t('userEdit.userNotActivated')
             }
           } else {
             // user profile update
-            this.successMessage = this.$t("common.changesSaved");
+            this.successMessage = this.$t('common.changesSaved')
           }
-          this.userCredentials = {};
+          this.userCredentials = {}
         })
-        .catch(error => this.commonErrorResponse(error));
+        .catch(error => this.commonErrorResponse(error))
     },
-    cancelChanges: function() {
-      this.messageClear();
-      this.userBeingEdited = null;
-      this.credentials = {};
+    cancelChanges: function () {
+      this.messageClear()
+      this.userBeingEdited = null
+      this.credentials = {}
     },
-    messageClear: function() {
-      this.errorObj = {};
-      this.showSuccessMessage = false;
+    messageClear: function () {
+      this.errorObj = {}
+      this.showSuccessMessage = false
     },
-    commonErrorResponse: function(error) {
-      if (error.response.status == 401) {
-        window.location.href = "/tb-ui/app/login";
+    commonErrorResponse: function (error) {
+      if (error.response.status === 401) {
+        window.location.href = '/tb-ui/app/login'
       } else {
-        this.errorObj = error.response.data;
+        this.errorObj = error.response.data
       }
     }
   },
-  mounted: function() {
-    this.loadSessionInfo();
+  mounted: function () {
+    this.loadSessionInfo()
     if (this.sessionInfo.authenticatedUser != null) {
-      this.loadUser(this.sessionInfo.authenticatedUser.id);
+      this.loadUser(this.sessionInfo.authenticatedUser.id)
     }
   }
-};
+}
 </script>

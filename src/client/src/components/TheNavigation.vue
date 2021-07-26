@@ -5,10 +5,10 @@
         <tr>
             <td class="bannerLeft">
                 <span>{{ $t("navigationBar.productVersion", { version: startupConfig.tightblogVersion }) }}</span>:
-                
+
                 <span v-if="sessionInfo.authenticatedUser != null">
                   {{ $t("navigationBar.loggedInAs", { screenName: sessionInfo.authenticatedUser.screenName }) }}
-                
+
                   <span v-if="sessionInfo.actionWeblog != null"><b>{{ - $t("navigationBar.activeBlog")}}</b>
                     <a :href="sessionInfo.actionWeblogURL">{{ sessionInfo.actionWeblog.handle }}</a>
                   </span>
@@ -19,7 +19,7 @@
 
                 <span v-if="sessionInfo.authenticatedUser != null">
                     <router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{ $t("navigationBar.globalAdmin") }}</router-link> |
-                    <a href="../../tb-ui/app/home">{{ $t("navigationBar.blogList") }}</a> |
+                    <router-link :to="{ name: 'myBlogs' }">{{ $t("navigationBar.blogList") }}</router-link> |
                     <router-link :to="{ name: 'profile' }">{{ $t("navigationBar.viewProfile") }}</router-link> |
                     <a href="../../tb-ui/app/logout">{{ $t("navigationBar.logout") }}</a>
                 </span>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex'
 
 export default {
   data: function () {
@@ -49,26 +49,25 @@ export default {
     }
   },
   computed: {
-    ...mapState("startupConfig", {
+    ...mapState('startupConfig', {
       startupConfig: state => state.startupConfig
     }),
-    ...mapState("sessionInfo", {
+    ...mapState('sessionInfo', {
       sessionInfo: state => state.items
     })
   },
   methods: {
     ...mapActions({
-      loadStartupConfig: "startupConfig/loadStartupConfig",
-      loadSessionInfo: "sessionInfo/loadSessionInfo"
+      loadStartupConfig: 'startupConfig/loadStartupConfig',
+      loadSessionInfo: 'sessionInfo/loadSessionInfo'
     })
   },
-  mounted: function() {
-    this.loadStartupConfig();
-    this.loadSessionInfo();
+  mounted: function () {
+    this.loadStartupConfig()
+    this.loadSessionInfo()
   }
 }
 </script>
-
 
 <style scoped>
 #banner {

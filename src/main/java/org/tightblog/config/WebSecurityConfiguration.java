@@ -72,7 +72,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // .antMatchers("/images/**", "/scripts/**", "/styles/**").permitAll()
                 .antMatchers("/tb-ui/app/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui2/index.html").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui/app/authoring/**", "/tb-ui/app/profile", "/tb-ui/app/home")
+                .antMatchers("/tb-ui/app/authoring/**", "/tb-ui/app/profile", "/tb-ui2/#/app/myBlogs")
                     .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
                 .antMatchers("/tb-ui/app/login-redirect")

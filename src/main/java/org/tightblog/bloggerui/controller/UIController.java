@@ -78,7 +78,7 @@ public class UIController {
     private final LookupValues lookupValues;
     private final Environment environment;
     private final DynamicProperties dynamicProperties;
-    private ThemeManager themeManager;
+    private final ThemeManager themeManager;
 
     @Autowired
     public UIController(WeblogDao weblogDao, UserManager userManager, UserDao userDao,
@@ -172,7 +172,7 @@ public class UIController {
 
         if (principal == null) {
             // trigger call to login page
-            response.sendRedirect(request.getContextPath() + "/tb-ui/app/home");
+            response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
         } else {
             User user = userDao.findEnabledByUserName(principal.getName());
 
@@ -180,15 +180,15 @@ public class UIController {
                             role -> GlobalRole.MISSING_MFA_SECRET.name().equals(role.getAuthority()))) {
                 response.sendRedirect(request.getContextPath() + "/tb-ui/app/scanCode");
             } else if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui/app/home");
+                response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
             } else {
                 List<UserWeblogRole> roles = userWeblogRoleDao.findByUser(user);
 
                 if (roles.size() > 0) {
-                    response.sendRedirect(request.getContextPath() + "/tb-ui/app/home");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.
-                    response.sendRedirect(request.getContextPath() + "/tb-ui/app/admin/globalConfig");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui2/#/admin/globalConfig");
                 }
             }
         }
@@ -328,18 +328,6 @@ public class UIController {
         }
     }
 
-    @RequestMapping(value = "/home")
-    public ModelAndView home(Principal principal) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("usersCustomizeThemes", webloggerPropertiesDao.findOrNull().isUsersCustomizeThemes());
-        return tightblogModelAndView("mainMenu", myMap, principal);
-    }
-
-    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, Principal principal) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        return tightblogModelAndView(actionName, map, user, null);
-    }
-
     @GetMapping(value = "/any/sessioninfo")
     @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
@@ -369,6 +357,7 @@ public class UIController {
             map.put("actionWeblogURL", urlService.getWeblogURL(weblog));
         }
         map.put("userIsAdmin", user != null && GlobalRole.ADMIN.equals(user.getGlobalRole()));
+        map.put("userCanCreateBlogs", user != null && user.hasEffectiveGlobalRole(GlobalRole.BLOGCREATOR));
 
         // TODO: remove below (in favor of /startupconfig) once Vue conversion complete
         map.put("mfaEnabled", mfaEnabled);
