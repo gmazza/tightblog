@@ -20,7 +20,7 @@
 -->
 <template>
   <div>
-    <AppAdminNav/>
+    <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
         :message="successMessage"
@@ -184,7 +184,11 @@
             <label for="globalRole">{{ $t("userAdmin.globalRole") }}</label>
           </td>
           <td class="field">
-            <select id="globalRole" v-model="userBeingEdited.globalRole" size="1">
+            <select
+              id="globalRole"
+              v-model="userBeingEdited.globalRole"
+              size="1"
+            >
               <option
                 v-for="(value, key) in lookupVals.globalRoles"
                 :value="key"
@@ -238,7 +242,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="weblogRole in userBlogList" v-bind:key="weblogRole.handle">
+            <tr
+              v-for="weblogRole in userBlogList"
+              v-bind:key="weblogRole.handle"
+            >
               <td>
                 <a v-bind:href="weblogRole.weblog.absoluteURL">
                   {{ weblogRole.weblog.name }} [{{ weblogRole.weblog.handle }}]
@@ -291,14 +298,14 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from "vuex";
 
 export default {
-  data () {
+  data() {
     return {
-      urlRoot: '/tb-ui/admin/rest/useradmin/',
-      entriesUrl: '/tb-ui/app/authoring/entries',
-      weblogConfigUrl: '/tb-ui/app/authoring/weblogConfig',
+      urlRoot: "/tb-ui/admin/rest/useradmin/",
+      entriesUrl: "/tb-ui/app/authoring/entries",
+      weblogConfigUrl: "/tb-ui/app/authoring/weblogConfig",
       pendingList: {},
       userToEdit: null,
       userBeingEdited: null,
@@ -306,113 +313,114 @@ export default {
       userBlogList: {},
       successMessage: null,
       errorObj: {}
-    }
+    };
   },
   computed: {
-    ...mapState('startupConfig', {
+    ...mapState("startupConfig", {
       lookupVals: state => state.lookupValues
     }),
-    ...mapState('dynamicConfig', {
+    ...mapState("dynamicConfig", {
       userList: state => state.userList
     })
   },
   methods: {
     ...mapActions({
-      loadLookupValues: 'startupConfig/loadLookupValues',
-      loadUserList: 'dynamicConfig/loadUserList'
+      loadLookupValues: "startupConfig/loadLookupValues",
+      loadUserList: "dynamicConfig/loadUserList"
     }),
-    getPendingRegistrations: function () {
-      this.axios.get(this.urlRoot + 'registrationapproval').then(response => {
-        this.pendingList = response.data
-      })
+    getPendingRegistrations: function() {
+      this.axios.get(this.urlRoot + "registrationapproval").then(response => {
+        this.pendingList = response.data;
+      });
     },
-    approveUser: function (userId) {
-      this.processRegistration(userId, 'approve')
+    approveUser: function(userId) {
+      this.processRegistration(userId, "approve");
     },
-    declineUser: function (userId) {
-      this.processRegistration(userId, 'reject')
+    declineUser: function(userId) {
+      this.processRegistration(userId, "reject");
     },
-    processRegistration: function (userId, command) {
-      this.messageClear()
+    processRegistration: function(userId, command) {
+      this.messageClear();
       this.axios
-        .post(this.urlRoot + 'registrationapproval/' + userId + '/' + command)
+        .post(this.urlRoot + "registrationapproval/" + userId + "/" + command)
         .then(() => {
-          this.getPendingRegistrations()
-          this.loadUserList()
+          this.getPendingRegistrations();
+          this.loadUserList();
         })
-        .catch(error => this.commonErrorResponse(error, null))
+        .catch(error => this.commonErrorResponse(error, null));
     },
-    loadUser: function () {
-      this.messageClear()
+    loadUser: function() {
+      this.messageClear();
 
       if (!this.userToEdit) {
-        return
+        return;
       }
 
       this.axios
-        .get(this.urlRoot + 'user/' + this.userToEdit)
+        .get(this.urlRoot + "user/" + this.userToEdit)
         .then(response => {
-          this.userBeingEdited = response.data.user
+          this.userBeingEdited = response.data.user;
           if (
-            Object.prototype.hasOwnProperty.call(response.data, 'credentials')
+            Object.prototype.hasOwnProperty.call(response.data, "credentials")
           ) {
-            this.userCredentials = response.data.credentials
+            this.userCredentials = response.data.credentials;
           } else {
-            this.userCredentials = null
+            this.userCredentials = null;
           }
-        })
+        });
 
       this.axios
-        .get(this.urlRoot + 'user/' + this.userToEdit + '/weblogs')
+        .get(this.urlRoot + "user/" + this.userToEdit + "/weblogs")
         .then(response => {
-          this.userBlogList = response.data
-        })
+          this.userBlogList = response.data;
+        });
     },
-    updateUser: function () {
-      this.messageClear()
-      var userData = {}
-      userData.user = this.userBeingEdited
-      userData.credentials = this.userCredentials
+    updateUser: function() {
+      this.messageClear();
+      var userData = {};
+      userData.user = this.userBeingEdited;
+      userData.credentials = this.userCredentials;
 
       this.axios
-        .put(this.urlRoot + 'user/' + this.userBeingEdited.id, userData)
+        .put(this.urlRoot + "user/" + this.userBeingEdited.id, userData)
         .then(response => {
-          this.userBeingEdited = response.data.user
-          this.userCredentials = response.data.credentials
-          this.loadUserList()
-          this.getPendingRegistrations()
-          this.successMessage = this.$t('userAdmin.userUpdated', { screenName: this.userBeingEdited.screenName })
+          this.userBeingEdited = response.data.user;
+          this.userCredentials = response.data.credentials;
+          this.loadUserList();
+          this.getPendingRegistrations();
+          this.successMessage = this.$t("userAdmin.userUpdated", {
+            screenName: this.userBeingEdited.screenName
+          });
         })
-        .catch(error => this.commonErrorResponse(error, null))
+        .catch(error => this.commonErrorResponse(error, null));
     },
-    cancelChanges: function () {
-      this.messageClear()
-      this.userBeingEdited = null
-      this.userCredentials = null
+    cancelChanges: function() {
+      this.messageClear();
+      this.userBeingEdited = null;
+      this.userCredentials = null;
     },
-    messageClear: function () {
-      this.successMessage = null
-      this.errorObj = {}
+    messageClear: function() {
+      this.successMessage = null;
+      this.errorObj = {};
     },
-    commonErrorResponse: function (error, errorMsg) {
+    commonErrorResponse: function(error, errorMsg) {
       if (errorMsg) {
-        this.errorObj[0] = errorMsg
+        this.errorObj[0] = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
-        console.log('Redirecting...')
-        window.location.href = '/tb-ui/app/login'
+        window.location.href = "/tb-ui/app/login";
       } else if (error && error.response) {
-        this.errorObj = error.response.data
+        this.errorObj = error.response.data;
       } else if (error) {
-        this.errorObj[0] = error
+        this.errorObj[0] = error;
       } else {
-        this.errorObj[0] = 'System error.'
+        this.errorObj[0] = "System error.";
       }
     }
   },
-  created: function () {
-    this.loadLookupValues()
-    this.getPendingRegistrations()
-    this.loadUserList()
+  created: function() {
+    this.loadLookupValues();
+    this.getPendingRegistrations();
+    this.loadUserList();
   }
-}
+};
 </script>

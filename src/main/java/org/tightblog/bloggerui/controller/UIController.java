@@ -235,11 +235,6 @@ public class UIController {
         return getBlogOwnerPage(principal, null, weblogId, "members");
     }
 
-    @RequestMapping(value = "/authoring/blogroll")
-    public ModelAndView blogroll(Principal principal, @RequestParam String weblogId) {
-        return getBlogOwnerPage(principal, null, weblogId, "blogroll");
-    }
-
     @RequestMapping(value = "/authoring/categories")
     public ModelAndView categories(Principal principal, @RequestParam String weblogId) {
         return getBlogPublisherPage(principal, weblogId, "categories");

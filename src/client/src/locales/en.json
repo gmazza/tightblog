@@ -1,4 +1,16 @@
 {
+  "blogroll": {
+    "title": "Blogroll",
+    "rootPrompt": "The links kept here are available for a blogroll section in your blog.",
+    "linkLabel": "Link Label",
+    "checkboxTitle": "Checkbox for {itemName}",
+    "urlHeader": "URL (click to test in new window)",
+    "addLink": "Add Link",
+    "editLink": "Edit Link",
+    "selectAllLabel": "Select all blogroll items",
+    "requiredFields": "The label and URL fields are required",
+    "deleteWarning": "Remove selected links from blogroll?"
+  },
   "cachedData": {
     "explanation": "Incoming requests are first checked with the client's If Modified Since header to see if the client's cached version (if present) is the most recent, if so a 304 Not Modified is returned to the client instead of the requested data.  Otherwise the relevant cache is checked and if found used unless it needs refreshing.  If still no success, TightBlog will regenerate the item, send it to the client and cache it for subsequent use.  Note media objects aren't cached but their 304 stats are still collected.",
     "subtitle": "Monitor/Refresh cached data",
@@ -23,19 +35,22 @@
   "common": {
     "cancel": "Cancel",
     "changesSaved": "Changes saved",
-    "comments" : "Comments",
+    "comments": "Comments",
     "confirm": "Confirm",
+    "confirmDelete": "Confirm Delete",
     "delete": "Delete",
-    "description" : "Description",
+    "deleteSelected": "Delete selected",
+    "description": "Description",
     "edit": "Edit",
-    "entries" : "Entries",
+    "entries": "Entries",
     "name": "Name",
-    "newEntry" : "New Entry",
+    "newEntry": "New Entry",
     "no": "No",
     "refresh": "Refresh",
     "role": "Role",
     "save": "Save",
-    "weblog": "Weblog"
+    "weblog": "Weblog",
+    "url": "URL"
   },
   "globalConfig": {
     "subtitle": "Set site-wide configuration settings.",
@@ -95,19 +110,19 @@
       "ignoreUrls": "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
     }
   },
-  "myBlogs" : {
-    "title" : "My Blogs",
-    "noblogs" : "No blogs currently defined for your account.",
-    "weblogLink" : "Link",
-    "emailComments" : "Email Comments?",
-    "todaysHits" : "Today's hitcount",
-    "theme" : "Theme",
-    "settings" : "Settings",
-    "resign" : "Resign",
-    "confirmResignationTitle" : "Confirm Resignation",
-    "createWeblog" : "Add a new weblog",
-    "confirmResignation" : "Are you sure you wish to leave weblog <b>{weblogName}</b>?",
-    "haveUnapprovedComments" : "{count} needing review"
+  "myBlogs": {
+    "title": "My Blogs",
+    "noblogs": "No blogs currently defined for your account.",
+    "weblogLink": "Link",
+    "emailComments": "Email Comments?",
+    "todaysHits": "Today's hitcount",
+    "theme": "Theme",
+    "settings": "Settings",
+    "resign": "Resign",
+    "confirmResignationTitle": "Confirm Resignation",
+    "createWeblog": "Add a new weblog",
+    "confirmResignation": "Are you sure you wish to leave weblog <b>{weblogName}</b>?",
+    "haveUnapprovedComments": "{count} needing review"
   },
   "navigationBar": {
     "productVersion": "TightBlog {version}",
@@ -119,7 +134,9 @@
     "viewProfile": "Profile",
     "logout": "Logout",
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "createEdit": "Create & Edit",
+    "preferences": "Preferences"
   },
   "userAdd": {
     "tip": {

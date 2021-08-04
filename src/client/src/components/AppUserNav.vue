@@ -2,6 +2,7 @@
   <div>
     <nav id="nav">
       <router-link :to="{ name: 'weblogConfig' }">Weblog Settings</router-link>
+      <router-link :to="{ name: 'blogroll' }">Blogroll</router-link>
     </nav>
   </div>
 </template>

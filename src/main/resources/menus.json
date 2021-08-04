@@ -36,8 +36,10 @@
           },
           {
             "action": "blogroll",
+            "actionPath": "/tb-ui2/index.html#/authoring/",
             "titleKey": "blogroll.title",
-            "weblogRole": "OWNER"
+            "weblogRole": "OWNER",
+            "vueTab": true
           },
           {
             "action": "mediaFileView",
