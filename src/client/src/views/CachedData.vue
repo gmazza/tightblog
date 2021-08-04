@@ -133,91 +133,91 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from "vuex";
 
 export default {
-  data () {
+  data() {
     return {
-      urlRoot: '/tb-ui/admin/rest/server/',
+      urlRoot: "/tb-ui/admin/rest/server/",
       weblogToReindex: null,
       successMessage: null,
       errorMessage: null
-    }
+    };
   },
   computed: {
-    ...mapState('caches', {
-      cacheData: (state) => state.items
+    ...mapState("caches", {
+      cacheData: state => state.items
     }),
-    ...mapState('dynamicConfig', {
-      weblogList: (state) => state.weblogList
+    ...mapState("dynamicConfig", {
+      weblogList: state => state.weblogList
     }),
-    ...mapState('startupConfig', {
-      startupConfig: (state) => state.startupConfig
+    ...mapState("startupConfig", {
+      startupConfig: state => state.startupConfig
     })
   },
   methods: {
     ...mapActions({
-      loadCaches: 'caches/loadCaches',
-      clearCacheEntry: 'caches/clearCacheEntry',
-      loadStartupConfig: 'startupConfig/loadStartupConfig',
-      loadWeblogList: 'dynamicConfig/loadWeblogList'
+      loadCaches: "caches/loadCaches",
+      clearCacheEntry: "caches/clearCacheEntry",
+      loadStartupConfig: "startupConfig/loadStartupConfig",
+      loadWeblogList: "dynamicConfig/loadWeblogList"
     }),
-    messageClear: function () {
-      this.successMessage = null
-      this.errorObj = {}
+    messageClear: function() {
+      this.successMessage = null;
+      this.errorObj = {};
     },
-    clearCache: function (cacheItem) {
-      this.messageClear()
+    clearCache: function(cacheItem) {
+      this.messageClear();
 
       this.clearCacheEntry(cacheItem)
         .then(
-          (this.successMessage = this.$t('cachedData.cacheCleared', {
+          (this.successMessage = this.$t("cachedData.cacheCleared", {
             name: cacheItem
           }))
         )
-        .catch((error) => this.commonErrorResponse(error, null))
+        .catch(error => this.commonErrorResponse(error, null));
     },
-    resetHitCounts: function () {
+    resetHitCounts: function() {
       this.axios
-        .post(this.urlRoot + 'resethitcount')
-        .then((this.successMessage = this.$t('cachedData.hitCountReset')))
-        .catch((error) => this.commonErrorResponse(error, null))
+        .post(this.urlRoot + "resethitcount")
+        .then((this.successMessage = this.$t("cachedData.hitCountReset")))
+        .catch(error => this.commonErrorResponse(error, null));
     },
-    reindexWeblog: function () {
+    reindexWeblog: function() {
       if (this.weblogToReindex) {
-        var handle = this.weblogToReindex
-        this.messageClear()
+        var handle = this.weblogToReindex;
+        this.messageClear();
         this.axios
           .post(
-            this.urlRoot + 'weblog/' + this.weblogToReindex + '/rebuildindex'
+            this.urlRoot + "weblog/" + this.weblogToReindex + "/rebuildindex"
           )
           .then(
-            (this.successMessage = this.$t('cachedData.indexingStarted', {
+            (this.successMessage = this.$t("cachedData.indexingStarted", {
               handle
             }))
           )
-          .catch((error) => this.commonErrorResponse(error, null))
+          .catch(error => this.commonErrorResponse(error, null));
       }
     },
-    commonErrorResponse: function (error, errorMsg) {
+    commonErrorResponse: function(error, errorMsg) {
       if (errorMsg) {
-        this.errorMessage = errorMsg
+        this.errorMessage = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
-        console.log('Redirecting...')
-        window.location.href = '/tb-ui/app/login'
+        console.log("Redirecting...");
+        window.location.href = "/tb-ui/app/login";
       } else if (error && error.response) {
-        this.errorMessage = error.response.data.error
+        this.errorMessage = error.response.data.error;
       } else if (error) {
-        this.errorMessage = error
+        this.errorMessage = error;
       } else {
-        this.errorMessage = 'System error.'
+        this.errorMessage = "System error.";
       }
     }
   },
-  mounted () {
-    this.loadStartupConfig()
-    this.loadWeblogList()
-    this.loadCaches()
+  mounted() {
+    this.loadStartupConfig();
+    this.loadWeblogList();
+    this.loadCaches();
   }
-}
+};
 </script>

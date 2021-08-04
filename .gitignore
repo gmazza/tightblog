@@ -21,3 +21,4 @@ src/main/webapp/tb-ui2/
 
 ### Editor directories and files ###
 .vscode
+node_modules
