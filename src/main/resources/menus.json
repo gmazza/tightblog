@@ -25,21 +25,9 @@
             "weblogRole": "POST"
           },
           {
-            "action": "categories",
-            "titleKey": "categories.title",
-            "weblogRole": "POST"
-          },
-          {
             "action": "tags",
             "titleKey": "generic.tags",
             "weblogRole": "POST"
-          },
-          {
-            "action": "blogroll",
-            "actionPath": "/tb-ui2/index.html#/authoring/",
-            "titleKey": "blogroll.title",
-            "weblogRole": "OWNER",
-            "vueTab": true
           },
           {
             "action": "mediaFileView",

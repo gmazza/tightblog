@@ -37,6 +37,13 @@ const routes = [
     props: true,
   },
   {
+    path: "/app/categories/:weblogId",
+    name: "categories",
+    component: () =>
+      import(/* webpackChunkName: "categories" */ "../views/Categories"),
+    props: true,
+  },
+  {
     path: "/authoring/weblogConfig/:weblogId",
     name: "weblogConfig",
     component: () =>

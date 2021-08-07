@@ -3,6 +3,7 @@
     <nav id="nav">
       <router-link :to="{ name: 'weblogConfig' }">Weblog Settings</router-link>
       <router-link :to="{ name: 'blogroll' }">Blogroll</router-link>
+      <router-link :to="{ name: 'categories' }">Categories</router-link>
     </nav>
   </div>
 </template>
