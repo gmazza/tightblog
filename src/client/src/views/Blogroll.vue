@@ -7,6 +7,7 @@
         @close-box="errorObj.errors = null"
       ></AppErrorListMessageBox>
     </div>
+    <h1>{{ $t("blogroll.title") }}</h1>
     <p class="pagetip">{{ $t("blogroll.rootPrompt") }}</p>
 
     <table class="table table-sm table-bordered table-striped">
@@ -49,7 +50,7 @@
           </td>
           <td>{{ item.description }}</td>
           <td class="buttontd">
-            <button class="btn btn-warning" v-on:click="showUpsertDialog(item)">
+            <button class="btn btn-warning" v-on:click="showUpsertModal(item)">
               {{ $t("common.edit") }}
             </button>
           </td>
@@ -58,7 +59,7 @@
     </table>
 
     <div class="control clearfix">
-      <button type="button" v-on:click="showUpsertDialog(null)">
+      <button type="button" v-on:click="showUpsertModal(null)">
         {{ $t("blogroll.addLink") }}
       </button>
 
@@ -137,7 +138,6 @@ export default {
       items: [],
       itemToEdit: {},
       editModalTitle: "",
-      showEditModal: false,
       checkAll: false,
       errorObj: {},
     };
@@ -190,7 +190,7 @@ export default {
           }
         });
     },
-    showUpsertDialog: function (item) {
+    showUpsertModal: function (item) {
       this.messageClear();
       this.itemToEdit = {};
       if (item != null) {

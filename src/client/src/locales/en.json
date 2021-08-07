@@ -32,8 +32,23 @@
     "indexingStarted": "Successfully scheduled search index rebuild for weblog {handle}",
     "hitCountReset": "Successfully reset all weblog hit counts to zero in the database.  Clear the Weblog Page cache if desired to immediately update the pages."
   },
+  "categories": {
+    "title": "Categories",
+    "rootPrompt": "Categories are one way to organize your weblog entries and allow your readers to subscribe to category-specific newsfeeds. At least one is required.  If you do not wish to divide your blog entries by categories, just delete all but one category and remove category labels from your blog templates.  Deleting a category does not delete its blog entries, as part of deletion you will be requested to select another category to move any of its blog entries under.",
+    "column": {
+      "count": "Blog Entries",
+      "firstEntry": "First Entry",
+      "lastEntry": "Last Entry"
+    },
+    "addCategory": "Add Category",
+    "errorDuplicateName": "Category name already in use, please choose another.",
+    "deleteMoveToWhere": "Move any blog entries in this category to:",
+    "updateCategory": "Rename Category",
+    "deleteCategory": "Delete Category <b>{categoryName}</b>"
+  },
   "common": {
     "cancel": "Cancel",
+    "category": "Category",
     "changesSaved": "Changes saved",
     "comments": "Comments",
     "confirm": "Confirm",
@@ -47,6 +62,7 @@
     "newEntry": "New Entry",
     "no": "No",
     "refresh": "Refresh",
+    "rename": "Rename",
     "role": "Role",
     "save": "Save",
     "weblog": "Weblog",
