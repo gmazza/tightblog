@@ -279,11 +279,6 @@ public class UIController {
         return getBlogPublisherPage(principal, weblogId, "comments");
     }
 
-    @RequestMapping(value = "/authoring/tags")
-    public ModelAndView tags(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, weblogId, "tags");
-    }
-
     private ModelAndView getBlogOwnerPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
         return getBlogPage(principal, map, weblogId, actionName, WeblogRole.OWNER);
     }

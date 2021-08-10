@@ -33,7 +33,7 @@
         @close-box="errorObj.errors = null"
       ></AppErrorListMessageBox>
 
-      <h1 v-if="!weblogId">{{ $t(varText.pageTitleKey) }}</h1>
+      <h2 v-if="!weblogId">{{ $t(varText.pageTitleKey) }}</h2>
       <p class="subtitle">{{ $t(varText.subtitleKey) }}</p>
       <table class="formtable">
         <tbody>

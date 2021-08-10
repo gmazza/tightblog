@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div style="text-align: left; padding: 20px">
     <AppUserNav />
-    <div style="text-align: left; padding: 20px">
+    <div>
       <AppErrorListMessageBox
         :in-error-obj="errorObj"
         @close-box="errorObj.errors = null"
       ></AppErrorListMessageBox>
     </div>
-    <h1>{{ $t("blogroll.title") }}</h1>
+    <h2>{{ $t("blogroll.title") }}</h2>
     <p class="pagetip">{{ $t("blogroll.rootPrompt") }}</p>
 
     <table class="table table-sm table-bordered table-striped">
