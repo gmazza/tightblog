@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="text-align: left; padding: 20px">
     <AppUserNav />
     <div style="text-align: left; padding: 20px">
       <AppErrorListMessageBox
@@ -7,18 +7,16 @@
         @close-box="errorObj.errors = null"
       ></AppErrorListMessageBox>
     </div>
-    <h1>{{ $t("categories.title") }}</h1>
+    <h2>{{ $t("categories.title") }}</h2>
     <p class="pagetip">{{ $t("categories.rootPrompt") }}</p>
 
     <table class="table table-sm table-bordered table-striped">
       <thead class="thead-light">
         <tr>
           <th width="20%">{{ $t("common.category") }}</th>
-          <th width="20%">{{ $t("categories.column.count") }}</th>
-          <th width="20%">
-            {{ $t("categories.column.firstEntry") }}
-          </th>
-          <th width="20%">{{ $t("categories.column.lastEntry") }}</th>
+          <th width="20%">{{ $t("common.column.numEntries") }}</th>
+          <th width="20%">{{ $t("common.column.firstEntry") }}</th>
+          <th width="20%">{{ $t("common.column.lastEntry") }}</th>
           <th width="10%">{{ $t("common.rename") }}</th>
           <th width="10%">{{ $t("common.delete") }}</th>
         </tr>

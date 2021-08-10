@@ -35,11 +35,6 @@
   "categories": {
     "title": "Categories",
     "rootPrompt": "Categories are one way to organize your weblog entries and allow your readers to subscribe to category-specific newsfeeds. At least one is required.  If you do not wish to divide your blog entries by categories, just delete all but one category and remove category labels from your blog templates.  Deleting a category does not delete its blog entries, as part of deletion you will be requested to select another category to move any of its blog entries under.",
-    "column": {
-      "count": "Blog Entries",
-      "firstEntry": "First Entry",
-      "lastEntry": "Last Entry"
-    },
     "addCategory": "Add Category",
     "errorDuplicateName": "Category name already in use, please choose another.",
     "deleteMoveToWhere": "Move any blog entries in this category to:",
@@ -47,10 +42,16 @@
     "deleteCategory": "Delete Category <b>{categoryName}</b>"
   },
   "common": {
+    "add": "Add",
     "cancel": "Cancel",
     "category": "Category",
     "changesSaved": "Changes saved",
     "comments": "Comments",
+    "column": {
+      "numEntries": "Blog Entries",
+      "firstEntry": "First Entry",
+      "lastEntry": "Last Entry"
+    },
     "confirm": "Confirm",
     "confirmDelete": "Confirm Delete",
     "delete": "Delete",
@@ -60,11 +61,14 @@
     "entries": "Entries",
     "name": "Name",
     "newEntry": "New Entry",
+    "nextPage": "Next Page",
     "no": "No",
+    "previousPage": "Previous Page",
     "refresh": "Refresh",
     "rename": "Rename",
     "role": "Role",
     "save": "Save",
+    "selectAll": "Select All",
     "weblog": "Weblog",
     "url": "URL"
   },
@@ -153,6 +157,18 @@
     "register": "Register",
     "createEdit": "Create & Edit",
     "preferences": "Preferences"
+  },
+  "tags": {
+    "title": "Tags",
+    "prompt": "Here are the tags currently in use within your blog entries.  On this page you can remove specified tags from all entries, add tags to each entry already having a given tag, and replace a tag with a new or already existing tag.",
+    "columnTag": "Tag",
+    "columnView": "View Articles",
+    "confirmDelete": "Confirm: remove selected tags from blog entries having them?",
+    "replaceTitle": "Replace <b>{tagName}</b>",
+    "addTitle": "Add tag to entries already having <b>{tagName}</b>",
+    "noneFound": "No tags presently attached to any blog entry.",
+    "replace": "Replace",
+    "viewPublished": "View Published"
   },
   "userAdd": {
     "tip": {

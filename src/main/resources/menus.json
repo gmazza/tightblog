@@ -25,11 +25,6 @@
             "weblogRole": "POST"
           },
           {
-            "action": "tags",
-            "titleKey": "generic.tags",
-            "weblogRole": "POST"
-          },
-          {
             "action": "mediaFileView",
             "titleKey": "mediaFileView.title",
             "enabledProperty": "media.file.showTab",
