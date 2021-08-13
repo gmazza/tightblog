@@ -133,7 +133,7 @@ public class WeblogEntryController {
     }
 
     // number of entries to show per page
-    private static final int ITEMS_PER_PAGE = 30;
+    private static final int ITEMS_PER_PAGE = 20;
 
     @GetMapping(value = "/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'EDIT_DRAFT')")
