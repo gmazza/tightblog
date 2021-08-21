@@ -55,7 +55,22 @@ import java.util.stream.Collectors;
 @Table(name = "weblog_entry")
 public class WeblogEntry implements WeblogOwned {
 
-    public enum PubStatus { DRAFT, PUBLISHED, PENDING, SCHEDULED }
+    public enum PubStatus {
+        DRAFT("entries.label.draftOnly"),
+        PUBLISHED("entries.label.publishedOnly"),
+        PENDING("entries.label.pendingOnly"),
+        SCHEDULED("entries.label.scheduledOnly");
+
+        private final String filterMessageConstant;
+
+        PubStatus(String filterMessageConstant) {
+            this.filterMessageConstant = filterMessageConstant;
+        }
+
+        public String getFilterMessageConstant() {
+            return filterMessageConstant;
+        }
+    }
 
     public enum CommentDayOption {
         UNLIMITED(-1, "weblogConfig.commentperiod.unlimited"),

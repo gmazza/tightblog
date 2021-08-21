@@ -30,7 +30,7 @@ import org.tightblog.bloggerui.model.TagAutocompleteData;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.bloggerui.model.WeblogEntryData;
 import org.tightblog.bloggerui.model.WeblogEntrySaveResponse;
-import org.tightblog.bloggerui.model.WeblogEntrySearchFields;
+import org.tightblog.bloggerui.model.WeblogCategoryData;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
@@ -84,27 +84,27 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/tb-ui/authoring/rest/weblogentries")
 public class WeblogEntryController {
 
-    private static Logger log = LoggerFactory.getLogger(WeblogEntryController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryController.class);
 
-    private static DateTimeFormatter pubDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy");
+    private static final DateTimeFormatter PUB_DATE_FORMAT = DateTimeFormatter.ofPattern("M/d/yyyy");
 
-    private WeblogDao weblogDao;
-    private WeblogEntryDao weblogEntryDao;
-    private WeblogCategoryDao weblogCategoryDao;
-    private UserDao userDao;
-    private UserManager userManager;
-    private WeblogManager weblogManager;
-    private WeblogEntryManager weblogEntryManager;
-    private LuceneIndexer luceneIndexer;
-    private URLService urlService;
-    private EmailService emailService;
-    private MessageSource messages;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private DynamicProperties dp;
+    private final WeblogDao weblogDao;
+    private final WeblogEntryDao weblogEntryDao;
+    private final WeblogCategoryDao weblogCategoryDao;
+    private final UserDao userDao;
+    private final UserManager userManager;
+    private final WeblogManager weblogManager;
+    private final WeblogEntryManager weblogEntryManager;
+    private final LuceneIndexer luceneIndexer;
+    private final URLService urlService;
+    private final EmailService emailService;
+    private final MessageSource messages;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final DynamicProperties dp;
 
     // Max Tag options to display for autocomplete
-    private int maxAutocompleteTags;
+    private final int maxAutocompleteTags;
 
     @Autowired
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
@@ -147,12 +147,12 @@ public class WeblogEntryController {
         entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
 
         if (entry.getPubTime() != null) {
-            log.debug("entry pubtime is {}", entry.getPubTime());
+            LOG.debug("entry pubtime is {}", entry.getPubTime());
             ZonedDateTime zdt = entry.getPubTime().atZone(entry.getWeblog().getZoneId());
             entry.setHours(zdt.getHour());
             entry.setMinutes(zdt.getMinute());
             entry.setCreator(null);
-            entry.setDateString(pubDateFormat.format(zdt.toLocalDate()));
+            entry.setDateString(PUB_DATE_FORMAT.format(zdt.toLocalDate()));
         }
 
         return entry;
@@ -207,30 +207,17 @@ public class WeblogEntryController {
         return entries;
     }
 
-    @GetMapping(value = "/{weblogId}/searchfields")
+    @GetMapping(value = "/{weblogId}/categorydata")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public WeblogEntrySearchFields getWeblogEntrySearchFields(@PathVariable String weblogId, Principal p, Locale locale) {
+    public WeblogCategoryData getWeblogCategoryData(@PathVariable String weblogId, Principal p) {
 
         Weblog weblog = weblogDao.getOne(weblogId);
 
         // categories
-        WeblogEntrySearchFields fields = new WeblogEntrySearchFields();
-        fields.getCategories().put("", "(Any)");
-        weblog.getWeblogCategories().forEach(cat -> fields.getCategories().put(cat.getName(), cat.getName()));
+        WeblogCategoryData wcd = new WeblogCategoryData();
+        weblog.getWeblogCategories().forEach(cat -> wcd.getCategories().put(cat.getName(), cat.getName()));
 
-        // sort by options
-        fields.getSortByOptions().put(WeblogEntrySearchCriteria.SortBy.PUBLICATION_TIME.name(),
-                messages.getMessage("entries.label.pubTime", null, locale));
-        fields.getSortByOptions().put(WeblogEntrySearchCriteria.SortBy.UPDATE_TIME.name(),
-                messages.getMessage("entries.label.updateTime", null, locale));
-
-        // status options
-        fields.getStatusOptions().put("", messages.getMessage("entries.label.allEntries", null, locale));
-        fields.getStatusOptions().put("DRAFT", messages.getMessage("entries.label.draftOnly", null, locale));
-        fields.getStatusOptions().put("PUBLISHED", messages.getMessage("entries.label.publishedOnly", null, locale));
-        fields.getStatusOptions().put("PENDING", messages.getMessage("entries.label.pendingOnly", null, locale));
-        fields.getStatusOptions().put("SCHEDULED", messages.getMessage("entries.label.scheduledOnly", null, locale));
-        return fields;
+        return wcd;
     }
 
     @GetMapping(value = "/{id}/tagdata")
@@ -343,7 +330,7 @@ public class WeblogEntryController {
 
             if (!StringUtils.isEmpty(entry.getEnclosureUrl())) {
                 // Fetch MediaCast resource
-                log.debug("Checking MediaCast attributes");
+                LOG.debug("Checking MediaCast attributes");
                 AtomEnclosure enclosure;
 
                 try {
@@ -409,13 +396,13 @@ public class WeblogEntryController {
         String dateString = entry.getDateString();
         if (!StringUtils.isEmpty(dateString)) {
             try {
-                LocalDate newDate = LocalDate.parse(dateString, pubDateFormat);
+                LocalDate newDate = LocalDate.parse(dateString, PUB_DATE_FORMAT);
 
                 // Now handle the time from the hour, minute and second combos
                 pubtime = newDate.atTime(entry.getHours(), entry.getMinutes())
                         .atZone(entry.getWeblog().getZoneId()).toInstant();
             } catch (Exception e) {
-                log.error("Error calculating pubtime", e);
+                LOG.error("Error calculating pubtime", e);
             }
         }
         return pubtime;
@@ -423,7 +410,7 @@ public class WeblogEntryController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteWeblogEntry(@PathVariable String id, Principal p, Locale locale) {
-        log.info("Call to remove entry {}", id);
+        LOG.info("Call to remove entry {}", id);
 
         User user = userDao.findEnabledByUserName(p.getName());
         WeblogEntry entry = weblogEntryDao.getOne(id);

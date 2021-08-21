@@ -16,11 +16,9 @@
 package org.tightblog.bloggerui.controller;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -53,10 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -67,21 +62,20 @@ public class CommentController {
     // number of comments to show per page
     private static final int ITEMS_PER_PAGE = 30;
 
-    private WeblogDao weblogDao;
-    private WeblogEntryDao weblogEntryDao;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private WeblogEntryManager weblogEntryManager;
-    private LuceneIndexer luceneIndexer;
-    private URLService urlService;
-    private EmailService emailService;
-    private MessageSource messages;
-    private DynamicProperties dp;
+    private final WeblogDao weblogDao;
+    private final WeblogEntryDao weblogEntryDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final WeblogEntryManager weblogEntryManager;
+    private final LuceneIndexer luceneIndexer;
+    private final URLService urlService;
+    private final EmailService emailService;
+    private final DynamicProperties dp;
 
     @Autowired
     public CommentController(WeblogDao weblogDao, WeblogEntryManager weblogEntryManager, DynamicProperties dp,
                              LuceneIndexer luceneIndexer, URLService urlService, EmailService emailService,
-                             MessageSource messages, WebloggerPropertiesDao webloggerPropertiesDao,
+                             WebloggerPropertiesDao webloggerPropertiesDao,
                              WeblogEntryDao weblogEntryDao,
                              WeblogEntryCommentDao weblogEntryCommentDao) {
         this.weblogDao = weblogDao;
@@ -92,20 +86,7 @@ public class CommentController {
         this.luceneIndexer = luceneIndexer;
         this.urlService = urlService;
         this.emailService = emailService;
-        this.messages = messages;
         this.dp = dp;
-    }
-
-    @GetMapping(value = "/searchfields")
-    public Map<String, String> getCommentSearchFields(Locale locale) {
-
-        Map<String, String> statusOptions = new LinkedHashMap<>();
-        statusOptions.put("", messages.getMessage("generic.all", null, locale));
-        statusOptions.put("PENDING", messages.getMessage("comments.onlyPending", null, locale));
-        statusOptions.put("APPROVED", messages.getMessage("comments.onlyApproved", null, locale));
-        statusOptions.put("DISAPPROVED", messages.getMessage("comments.onlyDisapproved", null, locale));
-        statusOptions.put("SPAM", messages.getMessage("comments.onlySpam", null, locale));
-        return statusOptions;
     }
 
     @PostMapping(value = "/{weblogId}/page/{page}")

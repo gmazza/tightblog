@@ -200,14 +200,14 @@ public class WebloggerProperties {
         APPROVAL_REQUIRED("globalConfig.registration.approvalRequired"),
         DISABLED("globalConfig.registration.disabled");
 
-        private String description;
+        private String label;
 
-        RegistrationPolicy(String description) {
-            this.description = description;
+        RegistrationPolicy(String label) {
+            this.label = label;
         }
 
-        public String getDescription() {
-            return description;
+        public String getLabel() {
+            return label;
         }
     }
 

@@ -42,16 +42,32 @@ public class WeblogEntryComment implements WeblogOwned {
 
     public enum ApprovalStatus {
         // Comment missing required fields like name or email.  Not serialized to database.
-        INVALID,
+        INVALID(false, null),
         // Comment identified as spam, either deleted or subject to moderation depending on blog config.
-        SPAM,
+        SPAM(true, "comments.onlySpam"),
         // Comment not identified as spam, subject to moderation.
-        PENDING,
+        PENDING(true, "comments.onlyPending"),
         // Comment approved and visible (published)
-        APPROVED,
+        APPROVED(true, "comments.onlyApproved"),
         // Approved comment subsequently disapproved and not viewable on blog.  No email notification
         // sent to commenter if re-approved.
-        DISAPPROVED
+        DISAPPROVED(true, "comments.onlyDisapproved");
+
+        private final boolean selectable;
+        private final String messageConstant;
+
+        ApprovalStatus(boolean selectable, String messageConstant) {
+            this.selectable = selectable;
+            this.messageConstant = messageConstant;
+        }
+
+        public boolean isSelectable() {
+            return selectable;
+        }
+
+        public String getMessageConstant() {
+            return messageConstant;
+        }
     }
 
     public enum SpamCheckResult {

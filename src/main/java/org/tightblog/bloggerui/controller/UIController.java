@@ -269,11 +269,6 @@ public class UIController {
         return getBlogContributorPage(principal, myMap, weblogId, "entryEdit");
     }
 
-    @RequestMapping(value = "/authoring/comments")
-    public ModelAndView comments(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, weblogId, "comments");
-    }
-
     private ModelAndView getBlogOwnerPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
         return getBlogPage(principal, map, weblogId, actionName, WeblogRole.OWNER);
     }
