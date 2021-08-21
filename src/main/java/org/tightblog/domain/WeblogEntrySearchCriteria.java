@@ -23,7 +23,18 @@ public class WeblogEntrySearchCriteria {
 
     public enum SortOrder { ASCENDING, DESCENDING }
 
-    public enum SortBy { PUBLICATION_TIME, UPDATE_TIME }
+    public enum SortBy { PUBLICATION_TIME("entries.label.pubTime"), UPDATE_TIME("entries.label.updateTime");
+
+        private final String label;
+
+        SortBy(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+    }
 
     // Weblog or null to get for all weblogs.
     private Weblog weblog;

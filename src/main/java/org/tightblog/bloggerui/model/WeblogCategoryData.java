@@ -18,10 +18,8 @@ package org.tightblog.bloggerui.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class WeblogEntrySearchFields {
+public class WeblogCategoryData {
     private Map<String, String> categories;
-    private Map<String, String> sortByOptions;
-    private Map<String, String> statusOptions;
 
     // getters needed for JSON serialization: http://stackoverflow.com/a/35822500
     public Map<String, String> getCategories() {
@@ -31,17 +29,4 @@ public class WeblogEntrySearchFields {
         return categories;
     }
 
-    public Map<String, String> getSortByOptions() {
-        if (sortByOptions == null) {
-            sortByOptions = new LinkedHashMap<>();
-        }
-        return sortByOptions;
-    }
-
-    public Map<String, String> getStatusOptions() {
-        if (statusOptions == null) {
-            statusOptions = new LinkedHashMap<>();
-        }
-        return statusOptions;
-    }
 }

@@ -93,20 +93,16 @@
             <!-- Show Entries and Comments links for users above EDIT_DRAFT role -->
             <span v-if="role.weblogRole != 'EDIT_DRAFT'">
               <img src="@/assets/table_multiple.png" />
-              <a
-                v-bind:href="
-                  '/tb-ui/app/authoring/entries?weblogId=' + role.weblog.id
-                "
-                >{{ $t("common.entries") }}</a
+              <router-link
+                :to="{ name: 'entries', params: { weblogId: role.weblog.id } }"
+                >Entries</router-link
               >
               <br />
 
               <img src="@/assets/page_white_edit.png" />
-              <a
-                v-bind:href="
-                  '/tb-ui/app/authoring/comments?weblogId=' + role.weblog.id
-                "
-                >{{ $t("common.comments") }}</a
+              <router-link
+                :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
+                >Comments</router-link
               >
               <span v-if="role.weblog.unapprovedComments > 0">
                 ({{ $t("weblogConfig.deleteConfirm", { count:
@@ -130,11 +126,12 @@
               </span>
 
               <img src="@/assets/cog.png" />
-              <a
-                v-bind:href="
-                  '/tb-ui2/index.html#/authoring/weblogConfig/' + role.weblog.id
-                "
-                >{{ $t("myBlogs.settings") }}</a
+              <router-link
+                :to="{
+                  name: 'weblogConfig',
+                  params: { weblogId: role.weblog.id },
+                }"
+                >Weblog Settings</router-link
               >
               <br />
             </span>
@@ -165,20 +162,20 @@
 import { mapState, mapActions } from "vuex";
 
 export default {
-  data: function() {
+  data: function () {
     return {
       roles: [],
-      errorObj: {}
+      errorObj: {},
     };
   },
   computed: {
     ...mapState("sessionInfo", {
-      sessionInfo: state => state.items,
-      userWeblogRoles: state => state.userWeblogRoles
+      sessionInfo: (state) => state.items,
+      userWeblogRoles: (state) => state.userWeblogRoles,
     }),
     ...mapState("dynamicConfig", {
-      webloggerProps: state => state.webloggerProperties
-    })
+      webloggerProps: (state) => state.webloggerProperties,
+    }),
   },
   methods: {
     ...mapActions({
@@ -186,12 +183,12 @@ export default {
       loadUserWeblogRoles: "sessionInfo/loadUserWeblogRoles",
       setReceiveCommentsForWeblog: "sessionInfo/setReceiveCommentsForWeblog",
       detachUserFromWeblog: "sessionInfo/detachUserFromWeblog",
-      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties"
+      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
     }),
-    createWeblog: function() {
+    createWeblog: function () {
       this.$router.push({ name: "createWeblog" });
     },
-    getRoleText: function(weblogRole) {
+    getRoleText: function (weblogRole) {
       if (weblogRole === "POST") {
         return "PUBLISHER";
       } else if (weblogRole === "EDIT_DRAFT") {
@@ -199,37 +196,37 @@ export default {
       } // else 'OWNER'
       return weblogRole;
     },
-    resignWeblog: function(role) {
+    resignWeblog: function (role) {
       // https://bootstrap-vue.org/docs/components/modal#message-box-advanced-usage
       const h = this.$createElement;
       const messageVNode = h("div", {
         domProps: {
           innerHTML: this.$t("myBlogs.confirmResignation", {
-            weblogName: role.weblog.name
-          })
-        }
+            weblogName: role.weblog.name,
+          }),
+        },
       });
       this.$bvModal
         .msgBoxConfirm([messageVNode], {
           title: this.$t("myBlogs.confirmResignationTitle"),
           okTitle: this.$t("common.confirm"),
-          centered: true
+          centered: true,
         })
-        .then(value => {
+        .then((value) => {
           if (value) {
             this.detachUserFromWeblog(role.id);
           }
         });
     },
-    commonErrorResponse: function(error) {
+    commonErrorResponse: function (error) {
       if (error.response.status === 401) {
         this.$router.push({ name: "myBlogs" });
       } else {
         this.errorObj = error.response.data;
       }
-    }
+    },
   },
-  created: function() {
+  created: function () {
     if (this.webloggerProps === undefined || this.webloggerProps.length === 0) {
       this.loadWebloggerProperties();
     }
@@ -242,6 +239,6 @@ export default {
     ) {
       this.loadUserWeblogRoles();
     }
-  }
+  },
 };
 </script>

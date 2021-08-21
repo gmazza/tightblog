@@ -51,6 +51,13 @@ const routes = [
     props: true,
   },
   {
+    path: "/app/comments/:weblogId",
+    name: "comments",
+    component: () =>
+      import(/* webpackChunkName: "comments" */ "../views/Comments"),
+    props: true,
+  },
+  {
     path: "/app/tags/:weblogId",
     name: "tags",
     component: () => import(/* webpackChunkName: "tags" */ "../views/Tags"),

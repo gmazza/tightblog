@@ -48,8 +48,11 @@
                   size="1"
                   required
                 >
+                  <option value="">
+                    {{ $t("entries.label.allCategories") }}
+                  </option>
                   <option
-                    v-for="(value, key) in lookupFields.categories"
+                    v-for="(value, key) in categoryData.categories"
                     :value="key"
                     :key="key"
                   >
@@ -96,11 +99,11 @@
                     required
                   >
                     <option
-                      v-for="(value, key) in lookupFields.statusOptions"
+                      v-for="(value, key) in lookupVals.entryStatusOptions"
                       :value="key"
                       :key="key"
                     >
-                      {{ value }}
+                      {{ $t(value) }}
                     </option>
                   </select>
                 </div>
@@ -112,7 +115,7 @@
                 </label>
                 <div>
                   <div
-                    v-for="(value, key) in lookupFields.sortByOptions"
+                    v-for="(value, key) in lookupVals.dateSortByOptions"
                     :key="key"
                   >
                     <input
@@ -120,7 +123,7 @@
                       name="sortBy"
                       v-model="searchParams.sortBy"
                       v-bind:value="key"
-                    />{{ value }}<br />
+                    />{{ $t(value) }}<br />
                   </div>
                 </div>
               </div>
@@ -294,6 +297,8 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
+
 export default {
   props: {
     weblogId: {
@@ -303,7 +308,7 @@ export default {
   },
   data() {
     return {
-      lookupFields: {},
+      categoryData: {},
       searchParams: {
         categoryName: "",
         sortBy: "PUBLICATION_TIME",
@@ -317,7 +322,15 @@ export default {
       urlRoot: "/tb-ui/authoring/rest/weblogentries/",
     };
   },
+  computed: {
+    ...mapState("startupConfig", {
+      lookupVals: (state) => state.lookupValues,
+    }),
+  },
   methods: {
+    ...mapActions({
+      loadLookupValues: "startupConfig/loadLookupValues",
+    }),
     loadEntries: function () {
       const queryParams = { ...this.searchParams };
 
@@ -380,11 +393,11 @@ export default {
           }
         });
     },
-    loadLookupFields: function () {
+    loadCategoryData: function () {
       this.axios
-        .get(this.urlRoot + this.weblogId + "/searchfields")
+        .get(this.urlRoot + this.weblogId + "/categorydata")
         .then((response) => {
-          this.lookupFields = response.data;
+          this.categoryData = response.data;
         })
         .catch((error) => this.commonErrorResponse(error));
     },
@@ -414,7 +427,8 @@ export default {
     },
   },
   mounted: function () {
-    this.loadLookupFields();
+    this.loadLookupValues();
+    this.loadCategoryData();
     this.loadEntries();
   },
 };

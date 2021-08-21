@@ -20,6 +20,9 @@ import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
+import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
+import org.tightblog.domain.WeblogEntrySearchCriteria.SortBy;
 import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.util.HTMLSanitizer;
 import org.tightblog.util.Utilities;
@@ -33,14 +36,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 public class LookupValues {
     private Map<String, String> userStatuses;
     private Map<String, String> globalRoles;
     private Map<String, String> registrationOptions;
     private Map<String, String> blogHtmlLevels;
+    private Map<String, String> dateSortByOptions;
+    private Map<String, String> entryStatusOptions;
     private List<EnumAsObj> commentOptionList;
     private Map<String, String> commentHtmlLevels;
+    private Map<String, String> commentApprovalStatuses;
     private List<EnumAsObj> spamOptionList;
 
     private Map<String, SharedTheme> sharedThemeMap;
@@ -58,6 +65,25 @@ public class LookupValues {
         return userStatuses;
     }
 
+    public Map<String, String> getDateSortByOptions() {
+        if (dateSortByOptions == null) {
+            dateSortByOptions = new HashMap<>();
+            dateSortByOptions.putAll(Arrays.stream(SortBy.values())
+                    .collect(Utilities.toLinkedHashMap(SortBy::name, SortBy::getLabel)));
+        }
+        return dateSortByOptions;
+    }
+
+    public Map<String, String> getEntryStatusOptions() {
+        if (entryStatusOptions == null) {
+            entryStatusOptions = new HashMap<>();
+            entryStatusOptions.put("", "entries.label.allEntries");
+            entryStatusOptions.putAll(Arrays.stream(WeblogEntry.PubStatus.values())
+                .collect(Utilities.toLinkedHashMap(PubStatus::name, PubStatus::getFilterMessageConstant)));
+        }
+        return entryStatusOptions;
+    }
+
     public Map<String, String> getGlobalRoles() {
         if (globalRoles == null) {
             globalRoles = new HashMap<>();
@@ -73,7 +99,7 @@ public class LookupValues {
             registrationOptions = new LinkedHashMap<>();
             registrationOptions.putAll(Arrays.stream(WebloggerProperties.RegistrationPolicy.values())
                     .collect(Utilities.toLinkedHashMap(WebloggerProperties.RegistrationPolicy::name,
-                            WebloggerProperties.RegistrationPolicy::getDescription)));
+                            WebloggerProperties.RegistrationPolicy::getLabel)));
         }
         return registrationOptions;
     }
@@ -113,6 +139,18 @@ public class LookupValues {
                             HTMLSanitizer.Level::getDescription)));
         }
         return commentHtmlLevels;
+    }
+
+    public Map<String, String> getCommentApprovalStatuses() {
+        if (commentApprovalStatuses ==  null) {
+            commentApprovalStatuses = new LinkedHashMap<>();
+            commentApprovalStatuses.put("", "common.all");
+            for (ApprovalStatus status :
+                    Arrays.stream(ApprovalStatus.values()).filter(ApprovalStatus::isSelectable).collect(Collectors.toList())) {
+                commentApprovalStatuses.put(status.name(), status.getMessageConstant());
+            }
+        }
+        return commentApprovalStatuses;
     }
 
     public List<EnumAsObj> getSpamOptionList() {
