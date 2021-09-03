@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.tightblog.rendering.service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
@@ -29,8 +29,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,11 +40,11 @@ public class WeblogListGeneratorTest {
 
     private WeblogListGenerator weblogListGenerator;
     private List<Weblog> weblogList;
-    private Instant now = Instant.now();
-    private Instant twoDaysAgo = now.minus(2, ChronoUnit.DAYS);
+    private final Instant now = Instant.now();
+    private final Instant twoDaysAgo = now.minus(2, ChronoUnit.DAYS);
     private WeblogDao mockWeblogDao;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         mockWeblogDao = mock(WeblogDao.class);
         weblogListGenerator = new WeblogListGenerator(mockWeblogDao);

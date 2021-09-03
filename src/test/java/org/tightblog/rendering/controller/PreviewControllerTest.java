@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.tightblog.rendering.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -28,14 +29,12 @@ import org.springframework.http.ResponseEntity;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.model.URLModel;
-import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.SharedTemplate;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WeblogTheme;
 import org.tightblog.rendering.cache.CachedContent;
 import org.tightblog.rendering.model.Model;
@@ -48,8 +47,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,35 +58,31 @@ import static org.mockito.Mockito.when;
 
 public class PreviewControllerTest {
 
-    private static final String BLOG_HANDLE = "myblog";
     private static final String ENTRY_ANCHOR = "entry-anchor";
 
     private PreviewController controller;
     private Weblog weblog;
 
     private WeblogEntryManager mockWEM;
-    private UserManager mockUM;
-    private WeblogDao mockWD;
+    private WeblogDao mockWeblogDao;
     private ThymeleafRenderer mockRenderer;
     private WeblogTheme mockTheme;
     private ApplicationContext mockApplicationContext;
     private Principal mockPrincipal;
+    private AutoCloseable mockCloseable;
 
     @Captor
     ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
 
-    @Before
+    @BeforeEach
     public void initializeMocks() {
         try {
             mockPrincipal = mock(Principal.class);
             when(mockPrincipal.getName()).thenReturn("bob");
 
-            mockWD = mock(WeblogDao.class);
+            mockWeblogDao = mock(WeblogDao.class);
             weblog = new Weblog();
-            when(mockWD.findByHandleAndVisibleTrue(BLOG_HANDLE)).thenReturn(weblog);
-
-            mockUM = mock(UserManager.class);
-            when(mockUM.checkWeblogRole("bob", weblog, WeblogRole.EDIT_DRAFT)).thenReturn(true);
+            when(mockWeblogDao.findByIdOrNull(weblog.getId())).thenReturn(weblog);
 
             mockRenderer = mock(ThymeleafRenderer.class);
             CachedContent cachedContent = new CachedContent(Template.Role.JAVASCRIPT);
@@ -104,31 +99,29 @@ public class PreviewControllerTest {
             SharedTheme sharedTheme = new SharedTheme();
             when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
 
-            controller = new PreviewController(mockWD, mockRenderer, mockThemeManager, mockUM, mock(PageModel.class),
+            controller = new PreviewController(mockWeblogDao, mockRenderer, mockThemeManager, mock(PageModel.class),
                     mockWEM);
 
             mockApplicationContext = mock(ApplicationContext.class);
-            when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet());
+            when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet<>());
             controller.setApplicationContext(mockApplicationContext);
 
-            MockitoAnnotations.initMocks(this);
+            mockCloseable = MockitoAnnotations.openMocks(this);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    @Test
-    public void test404OnMissingWeblog() throws IOException {
-        when(mockWD.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
-        ResponseEntity<Resource> result = controller.getEntryPreview("myblog", "myanchor", mockPrincipal, null);
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    @AfterEach
+    public void closeMocks() throws Exception {
+        mockCloseable.close();
     }
 
     @Test
-    public void test403WithUnauthorizedUser() throws IOException {
-        when(mockUM.checkWeblogRole("bob", weblog, WeblogRole.EDIT_DRAFT)).thenReturn(false);
-        ResponseEntity<Resource> result = controller.getEntryPreview("myblog", "myanchor", mockPrincipal, null);
-        assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+    public void test404OnMissingWeblog() throws IOException {
+        when(mockWeblogDao.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
+        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), "myanchor", mockPrincipal, null);
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test
@@ -144,7 +137,7 @@ public class PreviewControllerTest {
         permalinkTemplate.setRole(Template.Role.PERMALINK);
         permalinkTemplate.setName("mypermalinktemplate");
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(permalinkTemplate);
-        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
         ArgumentCaptor<Template> templateCaptor = ArgumentCaptor.forClass(Template.class);
         verify(mockRenderer).render(templateCaptor.capture(), any());
         Template results = templateCaptor.getValue();
@@ -154,7 +147,7 @@ public class PreviewControllerTest {
         // Weblog template retrieved for a weblog entry if no permalink template
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(null);
         Mockito.clearInvocations(mockRenderer);
-        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
         verify(mockRenderer).render(templateCaptor.capture(), any());
         results = templateCaptor.getValue();
         assertEquals(weblogTemplate.getName(), results.getName());
@@ -162,7 +155,7 @@ public class PreviewControllerTest {
 
         // not found returned if no weblog entry for given anchor
         when(mockWEM.getWeblogEntryByAnchor(weblog, ENTRY_ANCHOR)).thenReturn(null);
-        ResponseEntity<Resource> result = controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -180,7 +173,7 @@ public class PreviewControllerTest {
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(sharedTemplate);
 
         // testing that themes get "model" added to the rendering map.
-        controller.getEntryPreview(BLOG_HANDLE, ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
         verify(mockRenderer).render(eq(sharedTemplate), stringObjectMapCaptor.capture());
 
         Map<String, Object> results = stringObjectMapCaptor.getValue();

@@ -65,7 +65,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -152,32 +151,6 @@ public class UserController {
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
-    }
-
-    @GetMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/potentialmembers")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public Map<String, String> getPotentialNewBlogMembers(@PathVariable String weblogId, Principal p) {
-
-        Weblog weblog = weblogDao.getOne(weblogId);
-        // member list excludes inactive accounts
-        List<User> potentialUsers = userDao.findByStatusEnabled();
-
-        // filter out people already members
-        ListIterator<User> potentialIter = potentialUsers.listIterator();
-        List<UserWeblogRole> currentUserList = userWeblogRoleDao.findByWeblog(weblog);
-        while (potentialIter.hasNext() && !currentUserList.isEmpty()) {
-            User su = potentialIter.next();
-            ListIterator<UserWeblogRole> alreadyIter = currentUserList.listIterator();
-            while (alreadyIter.hasNext()) {
-                UserWeblogRole au = alreadyIter.next();
-                if (su.getId().equals(au.getUser().getId())) {
-                    potentialIter.remove();
-                    alreadyIter.remove();
-                    break;
-                }
-            }
-        }
-        return createUserMap(potentialUsers);
     }
 
     private Map<String, String> createUserMap(List<User> users) {
@@ -291,7 +264,7 @@ public class UserController {
         return userWeblogRoleDao.findByWeblog(weblog);
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/user/{userId}/role/{role}/attach")
+    @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/user/{userId}/role/{role}/associate")
     public ResponseEntity<String> addUserToWeblog(@PathVariable String weblogId, @PathVariable String userId,
                                           @PathVariable WeblogRole role, Principal p, Locale locale) {
 
@@ -301,7 +274,15 @@ public class UserController {
 
         if (weblog != null && newMember != null && requestor != null &&
                 requestor.hasEffectiveGlobalRole(GlobalRole.ADMIN)) {
-            userManager.grantWeblogRole(newMember, weblog, role);
+
+            if (WeblogRole.NOBLOGNEEDED.equals(role)) {
+                UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(newMember, weblog);
+                if (uwr != null) {
+                    userManager.deleteUserWeblogRole(uwr);
+                }
+            } else {
+                userManager.grantWeblogRole(newMember, weblog, role);
+            }
             return SuccessResponse.textMessage(messages.getMessage("members.userAdded", null, locale));
         } else {
             return ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).build();

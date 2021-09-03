@@ -230,11 +230,6 @@ public class UIController {
         return getBlogOwnerPage(principal, null, weblogId, "templates");
     }
 
-    @RequestMapping(value = "/authoring/members")
-    public ModelAndView memberAdmin(Principal principal, @RequestParam String weblogId) {
-        return getBlogOwnerPage(principal, null, weblogId, "members");
-    }
-
     @RequestMapping(value = "/authoring/templateEdit")
     public ModelAndView templateEdit(Principal principal, @RequestParam String weblogId) {
         return getBlogOwnerPage(principal, null, weblogId, "templateEdit");
@@ -242,44 +237,39 @@ public class UIController {
 
     @RequestMapping(value = "/authoring/mediaFileView")
     public ModelAndView mediaFileView(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, weblogId, "mediaFileView");
+        return getBlogPublisherPage(principal, null, weblogId, "mediaFileView");
     }
 
     @RequestMapping(value = "/authoring/mediaFileAdd")
     public ModelAndView mediaFileAdd(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, weblogId, "mediaFileAdd");
+        return getBlogPublisherPage(principal, null, weblogId, "mediaFileAdd");
     }
 
     @RequestMapping(value = "/authoring/mediaFileEdit")
     public ModelAndView mediaFileEdit(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, weblogId, "mediaFileEdit");
+        return getBlogPublisherPage(principal, null, weblogId, "mediaFileEdit");
     }
 
     @RequestMapping(value = "/authoring/entryAdd")
     public ModelAndView entryAdd(Principal principal, @RequestParam String weblogId) {
         Map<String, Object> myMap = new HashMap<>();
         myMap.put("showMediaFileTab", showMediaFileTab);
-        return getBlogContributorPage(principal, myMap, weblogId, "entryAdd");
+        return getBlogPublisherPage(principal, myMap, weblogId, "entryAdd");
     }
 
     @RequestMapping(value = "/authoring/entryEdit")
     public ModelAndView entryEdit(Principal principal, @RequestParam String weblogId) {
         Map<String, Object> myMap = new HashMap<>();
         myMap.put("showMediaFileTab", showMediaFileTab);
-        return getBlogContributorPage(principal, myMap, weblogId, "entryEdit");
+        return getBlogPublisherPage(principal, myMap, weblogId, "entryEdit");
     }
 
     private ModelAndView getBlogOwnerPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
         return getBlogPage(principal, map, weblogId, actionName, WeblogRole.OWNER);
     }
 
-    private ModelAndView getBlogPublisherPage(Principal principal, String weblogId, String actionName) {
-        return getBlogPage(principal, null, weblogId, actionName, WeblogRole.POST);
-    }
-
-    private ModelAndView getBlogContributorPage(Principal principal, Map<String, Object> map, String weblogId,
-                                                String actionName) {
-        return getBlogPage(principal, map, weblogId, actionName, WeblogRole.EDIT_DRAFT);
+    private ModelAndView getBlogPublisherPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
+        return getBlogPage(principal, map, weblogId, actionName, WeblogRole.POST);
     }
 
     private ModelAndView getBlogPage(Principal principal, Map<String, Object> map, String weblogId, String actionName,

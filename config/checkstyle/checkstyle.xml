@@ -18,8 +18,8 @@
 	under the License.
 -->
 <!DOCTYPE module PUBLIC
-        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <!--
 	Checks to make sure the code meets the CXF coding guidelines which
@@ -44,6 +44,10 @@
     <module name="Translation" />
 
     <!--<module name="StrictDuplicateCode"/>-->
+
+    <module name="LineLength">
+        <property name="max" value="130" />
+    </module>
 
     <module name="TreeWalker">
         <!-- Checks for Javadoc comments.                     -->
@@ -102,9 +106,6 @@
         </module>
         <module name="ExecutableStatementCount">
             <property name="max" value="125" />
-        </module>
-        <module name="LineLength">
-            <property name="max" value="130" />
         </module>
         <module name="MethodLength">
             <property name="max" value="150" />
@@ -202,9 +203,8 @@
         <!--<module name="RedundantThrows"/>-->
         <module name="PackageDeclaration" />
         <module name="IllegalType">
-            <property name="format" value="^xxx$" />
             <property name="illegalClassNames"
-                      value="java.util.GregorianCalendar, java.util.Hashtable, java.util.HashSet, java.util.HashMap, java.util.ArrayList, java.util.LinkedList, java.util.LinkedHashSet, java.util.TreeSet, java.util.TreeMap" />
+                      value="java.util.GregorianCalendar, java.util.Hashtable, java.util.HashSet, java.util.HashMap, java.util.ArrayList, java.util.LinkedList, java.util.LinkedHashSet, java.util.TreeMap" />
         </module>
         <!--module name="DeclarationOrder" /-->
 
@@ -263,14 +263,9 @@
         -->
         <!--
             <module name="GenericIllegalRegexp">
-            <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing spaces."/>
             </module>
         -->
-        <module name="TodoComment">
-            <property name="format" value="WARNING" />
-        </module>
-
         <module name="UpperEll" />
 
         <!--Assert statement may have side effects:-->

@@ -23,6 +23,7 @@ package org.tightblog.service;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,34 +46,39 @@ import org.tightblog.domain.WeblogEntryTag;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntryTagAggregate;
 import org.tightblog.util.Utilities;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test WeblogEntry related business operations.
  */
 public class WeblogEntryManagerIT extends WebloggerTest {
 
-    private static Logger log = LoggerFactory.getLogger(WeblogEntryManagerIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManagerIT.class);
     
     User testUser;
     Weblog testWeblog;
     /**
      * All tests in this suite require a user and a weblog.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("entryTestUser");
         testWeblog = setupWeblog("entry-test-weblog", testUser);
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);
@@ -124,8 +130,8 @@ public class WeblogEntryManagerIT extends WebloggerTest {
     @Test
     public void testWeblogEntryLookups() {
         WeblogEntry entry;
-        List entries;
-        Map entryMap;
+        List<WeblogEntry> entries;
+        Map<LocalDate, List<WeblogEntry>> entryMap;
 
         // setup some test entries to use
         WeblogEntry entry1 = setupWeblogEntry("entry1", testWeblog, testUser);
@@ -308,7 +314,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw); 
             t.printStackTrace(pw);
-            log.info(sw.toString());
+            LOG.info(sw.toString());
         }
     }
 
@@ -373,7 +379,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw); 
             t.printStackTrace(pw);
-            log.info(sw.toString());
+            LOG.info(sw.toString());
         }
     }
 
@@ -389,16 +395,16 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             wesc.setWeblog(testWeblog);
             // tags are always saved lowercase (testTag -> testtag)
             wesc.setTag("testtag");
-            List results = weblogEntryManager.getWeblogEntries(wesc);
+            List<WeblogEntry> results = weblogEntryManager.getWeblogEntries(wesc);
             assertEquals(1, results.size());
-            WeblogEntry testEntry = (WeblogEntry) results.iterator().next();
+            WeblogEntry testEntry = results.iterator().next();
             assertEquals(entry, testEntry);
             weblogEntryManager.removeWeblogEntry(entry);
         } catch (Throwable t) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw); 
             t.printStackTrace(pw);
-            log.info(sw.toString());
+            LOG.info(sw.toString());
         }
     }
 
@@ -413,9 +419,9 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         wesc.setWeblog(testWeblog);
         // tags are always saved lowercase (testTag -> testtag)
         wesc.setTag("testtag");
-        List results = weblogEntryManager.getWeblogEntries(wesc);
+        List<WeblogEntry> results = weblogEntryManager.getWeblogEntries(wesc);
         assertEquals(1, results.size());
-        WeblogEntry testEntry = (WeblogEntry) results.iterator().next();
+        WeblogEntry testEntry = results.iterator().next();
         assertEquals(entry, testEntry);
 
         weblogEntryManager.removeWeblogEntry(entry);
@@ -453,7 +459,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
     }
 
     @Test
-    public void testTagAggregates() throws Exception {
+    public void testTagAggregates() {
         Weblog testWeblog2 = setupWeblog("entry-test-weblog2", testUser);
 
         try {
@@ -545,8 +551,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
                 }
                 Integer expectedCount =
                         expectedWeblogTags.get(stat.getName());
-                assertEquals(stat.getName(),
-                        expectedCount.intValue(), stat.getTotal());
+                assertEquals(expectedCount.intValue(), stat.getTotal(), stat.getName());
             }
 
             tags = weblogManager.getTags(null, null, null, 0, -1);
@@ -564,7 +569,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
                     fail("Unexpected tagName.");
                 }
                 Integer expectedCount = expectedSiteTags.get(stat.getName());
-                assertEquals(stat.getName(), expectedCount.intValue(), stat.getTotal());
+                assertEquals(expectedCount.intValue(), stat.getTotal(), stat.getName());
             }
 
             weblogManager.removeWeblog(testWeblog2);
@@ -572,12 +577,12 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw); 
             t.printStackTrace(pw);
-            log.error(sw.toString());
+            LOG.error(sw.toString());
         }
     }
 
     @Test
-    public void testTagAggregatesCaseSensitivity() throws Exception {
+    public void testTagAggregatesCaseSensitivity() {
         Weblog testWeblog2 = setupWeblog("entry-test-weblog2", testUser);
 
         // let's make sure we are starting from scratch

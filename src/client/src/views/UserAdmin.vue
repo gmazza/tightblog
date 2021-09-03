@@ -32,7 +32,7 @@
       ></AppErrorListMessageBox>
 
       <div id="pendingList" v-cloak>
-        <span v-for="item in pendingList" style="color:red" :key="item.id"
+        <span v-for="item in pendingList" style="color: red" :key="item.id"
           >New registration request: {{ item.screenName }} ({{
             item.emailAddress
           }}):
@@ -49,9 +49,9 @@
       <p class="subtitle">{{ $t("userAdmin.subtitle") }}</p>
       <span id="userEdit" v-cloak>
         <select v-model="userToEdit" size="1" v-on:change="loadUser()">
-          <option v-for="(value, key) in userList" :value="key" :key="key">{{
-            value
-          }}</option>
+          <option v-for="(value, key) in userList" :value="key" :key="key">
+            {{ value }}
+          </option>
         </select>
       </span>
 
@@ -172,8 +172,9 @@
                 v-for="(value, key) in lookupVals.userStatuses"
                 :value="key"
                 :key="key"
-                >{{ value }}</option
               >
+                {{ value }}
+              </option>
             </select>
           </td>
           <td class="description">{{ $t("userAdmin.tip.userStatus") }}</td>
@@ -193,8 +194,9 @@
                 v-for="(value, key) in lookupVals.globalRoles"
                 :value="key"
                 :key="key"
-                >{{ value }}</option
               >
+                {{ value }}
+              </option>
             </select>
           </td>
           <td class="description">{{ $t("userAdmin.tip.globalRole") }}</td>
@@ -229,16 +231,25 @@
 
       <br />
 
+      <div class="control" v-show="userBeingEdited" v-cloak>
+        <button type="button" class="buttonBox" v-on:click="updateUser()">
+          {{ $t("common.save") }}
+        </button>
+        <button type="button" class="buttonBox" v-on:click="cancelChanges()">
+          {{ $t("common.cancel") }}
+        </button>
+      </div>
+
       <div class="showinguser" v-if="userBeingEdited" v-cloak>
         <p>{{ $t("userAdmin.userMemberOf") }}</p>
         <table class="table table-bordered table-hover">
           <thead class="thead-light">
             <tr>
-              <th style="width:30%">{{ $t("common.weblog") }}</th>
-              <th style="width:10%">{{ $t("userAdmin.pending") }}</th>
-              <th style="width:10%">{{ $t("common.role") }}</th>
-              <th style="width:25%">{{ $t("common.edit") }}</th>
-              <th width="width:25%">{{ $t("userAdmin.manage") }}</th>
+              <th style="width: 30%">{{ $t("common.weblog") }}</th>
+              <th style="width: 10%">{{ $t("common.role") }}</th>
+              <th style="width: 25%">{{ $t("common.edit") }}</th>
+              <th width="width: 25%">{{ $t("userAdmin.manage") }}</th>
+              <th width="width: 25%">{{ $t("userAdmin.removeFromWeblog") }}</th>
             </tr>
           </thead>
           <tbody>
@@ -250,9 +261,6 @@
                 <a v-bind:href="weblogRole.weblog.absoluteURL">
                   {{ weblogRole.weblog.name }} [{{ weblogRole.weblog.handle }}]
                 </a>
-              </td>
-              <td>
-                {{ weblogRole.pending }}
               </td>
               <td>
                 {{ weblogRole.weblogRole }}
@@ -277,22 +285,59 @@
                   {{ $t("userAdmin.manage") }}
                 </a>
               </td>
+              <td>
+                <button
+                  type="button"
+                  v-on:click="
+                    setUserWeblogAffiliation(
+                      weblogRole.weblog.id,
+                      'NOBLOGNEEDED'
+                    )
+                  "
+                >
+                  {{ $t("common.remove") }}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
-      </div>
 
+        <div v-if="potentialWeblogs.length > 0">
+          {{ $t("userAdmin.addUserToWeblog") }}
+
+          <select v-model="weblogIdToAdd" size="1" required>
+            <option
+              v-for="weblog in potentialWeblogs"
+              :key="weblog.id"
+              :value="weblog.id"
+            >
+              {{ formatWeblogOption(weblog) }}
+            </option>
+          </select>
+
+          {{ $t("common.role") }}:
+
+          <input type="radio" v-model="weblogToAddRole" value="OWNER" />
+          {{ $t("userAdmin.owner") }}
+
+          <input type="radio" v-model="weblogToAddRole" value="POST" />
+          {{ $t("userAdmin.publisher") }}
+
+          <button
+            type="button"
+            :disabled="!weblogIdToAdd || !weblogToAddRole"
+            @click="setUserWeblogAffiliation(weblogIdToAdd, weblogToAddRole)"
+          >
+            {{ $t("common.add") }}
+          </button>
+        </div>
+
+        <div v-else>
+          {{ $t("userAdmin.noMoreBlogs") }}
+        </div>
+      </div>
       <br />
       <br />
-
-      <div class="control" v-show="userBeingEdited" v-cloak>
-        <button type="button" class="buttonBox" v-on:click="updateUser()">
-          {{ $t("common.save") }}
-        </button>
-        <button type="button" class="buttonBox" v-on:click="cancelChanges()">
-          {{ $t("common.cancel") }}
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -310,36 +355,49 @@ export default {
       userToEdit: null,
       userBeingEdited: null,
       userCredentials: null,
-      userBlogList: {},
+      userBlogList: [],
+      weblogIdToAdd: null,
+      weblogToAddRole: null,
       successMessage: null,
-      errorObj: {}
+      errorObj: {},
     };
   },
   computed: {
     ...mapState("startupConfig", {
-      lookupVals: state => state.lookupValues
+      lookupVals: (state) => state.lookupValues,
     }),
     ...mapState("dynamicConfig", {
-      userList: state => state.userList
-    })
+      userList: (state) => state.userList,
+      weblogList: (state) => state.weblogList,
+    }),
+    potentialWeblogs: function () {
+      return this.weblogList.filter(
+        (w) =>
+          this.userBlogList.filter((u) => u.weblog.id === w.id).length === 0
+      );
+    },
   },
   methods: {
     ...mapActions({
       loadLookupValues: "startupConfig/loadLookupValues",
-      loadUserList: "dynamicConfig/loadUserList"
+      loadUserList: "dynamicConfig/loadUserList",
+      loadWeblogList: "dynamicConfig/loadWeblogList",
     }),
-    getPendingRegistrations: function() {
-      this.axios.get(this.urlRoot + "registrationapproval").then(response => {
+    formatWeblogOption: function (weblog) {
+      return weblog.name + " (" + weblog.handle + ")";
+    },
+    getPendingRegistrations: function () {
+      this.axios.get(this.urlRoot + "registrationapproval").then((response) => {
         this.pendingList = response.data;
       });
     },
-    approveUser: function(userId) {
+    approveUser: function (userId) {
       this.processRegistration(userId, "approve");
     },
-    declineUser: function(userId) {
+    declineUser: function (userId) {
       this.processRegistration(userId, "reject");
     },
-    processRegistration: function(userId, command) {
+    processRegistration: function (userId, command) {
       this.messageClear();
       this.axios
         .post(this.urlRoot + "registrationapproval/" + userId + "/" + command)
@@ -347,9 +405,9 @@ export default {
           this.getPendingRegistrations();
           this.loadUserList();
         })
-        .catch(error => this.commonErrorResponse(error, null));
+        .catch((error) => this.commonErrorResponse(error, null));
     },
-    loadUser: function() {
+    loadUser: function () {
       this.messageClear();
 
       if (!this.userToEdit) {
@@ -358,7 +416,7 @@ export default {
 
       this.axios
         .get(this.urlRoot + "user/" + this.userToEdit)
-        .then(response => {
+        .then((response) => {
           this.userBeingEdited = response.data.user;
           if (
             Object.prototype.hasOwnProperty.call(response.data, "credentials")
@@ -369,41 +427,67 @@ export default {
           }
         });
 
+      this.loadUserWeblogs();
+    },
+    loadUserWeblogs: function () {
       this.axios
         .get(this.urlRoot + "user/" + this.userToEdit + "/weblogs")
-        .then(response => {
+        .then((response) => {
           this.userBlogList = response.data;
         });
     },
-    updateUser: function() {
+    updateUser: function () {
       this.messageClear();
-      var userData = {};
+      const userData = {};
       userData.user = this.userBeingEdited;
       userData.credentials = this.userCredentials;
 
       this.axios
         .put(this.urlRoot + "user/" + this.userBeingEdited.id, userData)
-        .then(response => {
+        .then((response) => {
           this.userBeingEdited = response.data.user;
           this.userCredentials = response.data.credentials;
           this.loadUserList();
           this.getPendingRegistrations();
           this.successMessage = this.$t("userAdmin.userUpdated", {
-            screenName: this.userBeingEdited.screenName
+            screenName: this.userBeingEdited.screenName,
           });
         })
-        .catch(error => this.commonErrorResponse(error, null));
+        .catch((error) => this.commonErrorResponse(error, null));
     },
-    cancelChanges: function() {
+    setUserWeblogAffiliation: function (weblogId, weblogRole) {
+      this.messageClear();
+      if (!weblogId || !weblogRole) {
+        return;
+      }
+      this.axios
+        .post(
+          "/tb-ui/authoring/rest/weblog/" +
+            weblogId +
+            "/user/" +
+            this.userBeingEdited.id +
+            "/role/" +
+            weblogRole +
+            "/associate"
+        )
+        .then((response) => {
+          this.successMessage = response.data;
+          this.weblogIdToAdd = null;
+          this.weblogToAddRole = null;
+          this.loadUserWeblogs();
+        })
+        .catch((error) => this.commonErrorResponse(error));
+    },
+    cancelChanges: function () {
       this.messageClear();
       this.userBeingEdited = null;
       this.userCredentials = null;
     },
-    messageClear: function() {
+    messageClear: function () {
       this.successMessage = null;
       this.errorObj = {};
     },
-    commonErrorResponse: function(error, errorMsg) {
+    commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {
         this.errorObj[0] = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
@@ -415,12 +499,13 @@ export default {
       } else {
         this.errorObj[0] = "System error.";
       }
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.loadLookupValues();
     this.getPendingRegistrations();
     this.loadUserList();
-  }
+    this.loadWeblogList();
+  },
 };
 </script>

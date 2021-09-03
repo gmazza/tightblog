@@ -1,35 +1,23 @@
-buildscript {
-	ext {
-		springBootVersion = '2.3.4.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
-}
-
 // tasks: spotbugsMain, spotbugsTest, spotbugsIntegrationTest or "check" for all
 plugins {
-	id "com.github.spotbugs" version "4.5.0"
+	id "com.github.spotbugs" version "4.7.3"
 	// ./gradlew dependencyUpdates
 	id "com.github.ben-manes.versions" version "0.33.0"
 	id 'com.github.node-gradle.node' version '2.2.4'
 	id 'war'
+	id "org.springframework.boot" version "2.5.4"
+	id "checkstyle"
 }
 
 apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 // run jacoco via gradle jacocoTestReport, report in build/reports
 apply plugin: 'jacoco'
 
 group = 'org.tightblog'
-version = '3.7.2'
-sourceCompatibility = 11
-targetCompatibility = 11
+version = '4.0-SNAPSHOT'
+sourceCompatibility = 16
+targetCompatibility = 16
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
@@ -51,6 +39,7 @@ sourceSets {
 			compileClasspath += main.output + test.output
 			runtimeClasspath += main.output + test.output
 			srcDir file('src/test/java')
+//			include '**/UserManagerIT.java'
 			include '**/*IT.java'
 		}
 		resources.srcDir file('src/test/resources')
@@ -113,46 +102,37 @@ task integrationTest(type: Test) {
 
 check.dependsOn integrationTest
 
-
-checkstyle {
-	toolVersion = "8.9"
-	config = resources.text.fromFile("$rootProject.projectDir/etc/buildconfig/checkstyle.xml", 'UTF-8')
-	showViolations = true
-	ignoreFailures = false
-}
-
 spotbugs {
 	excludeFilter = file("$rootProject.projectDir/etc/buildconfig/spotbugsExcludes.xml")
 }
-
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
 		exclude group: "org.hibernate", module: "hibernate-entitymanager"
 	}
-	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.4')
+	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.9')
 	implementation('org.springframework.boot:spring-boot-starter-security')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	implementation('org.springframework.boot:spring-boot-starter-mail')
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
-	implementation('org.springframework.security:spring-security-taglibs:5.4.0')
+	implementation('org.springframework.security:spring-security-taglibs:5.5.1')
 	implementation('org.springframework.mobile:spring-mobile-device:1.1.5.RELEASE')
-	implementation('org.apache.commons:commons-lang3:3.11')
+	implementation('org.apache.commons:commons-lang3:3.12.0')
 	implementation('org.apache.commons:commons-text:1.9')
 	implementation('org.apache.lucene:lucene-analyzers-common:8.6.2')
 	implementation('org.apache.lucene:lucene-queryparser:8.6.2')
 	implementation('org.apache.tiles:tiles-jsp:3.0.8')
 	implementation('javax.servlet:jstl:1.2')
 	implementation('commons-validator:commons-validator:1.7')
-	implementation('org.jsoup:jsoup:1.13.1')
+	implementation('org.jsoup:jsoup:1.14.2')
 	implementation('com.github.ben-manes.caffeine:caffeine:2.8.5')
-	implementation('org.thymeleaf:thymeleaf-spring4:3.0.11.RELEASE')
+	implementation('org.thymeleaf:thymeleaf-spring4:3.0.12.RELEASE')
 	implementation('org.jboss.aerogear:aerogear-otp-java:1.0.0')
-	implementation('com.atlassian.commonmark:commonmark:0.15.2')
+	implementation('com.atlassian.commonmark:commonmark:0.17.0')
 	implementation('commons-fileupload:commons-fileupload:1.4')
-	implementation('org.apache.derby:derbyclient:10.14.2.0')
+	implementation('org.apache.derby:derbyclient:10.15.2.0')
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 
@@ -197,6 +177,10 @@ task copyUi(type: Copy) {
 	into("tb-ui2") {
 		from "${uiDir}/dist"
 	}
+}
+
+war {
+	enabled = false
 }
 
 bootWar.dependsOn copyUi

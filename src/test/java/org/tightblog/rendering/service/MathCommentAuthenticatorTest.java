@@ -1,5 +1,5 @@
 /*
-   Copyright 2017 Glen Mazza
+   Copyright 2018-2021 the original author or authors.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 */
 package org.tightblog.rendering.service;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
@@ -25,14 +25,16 @@ import javax.servlet.http.HttpSession;
 
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 public class MathCommentAuthenticatorTest {
 
     private static MathCommentAuthenticator mathCommentAuthenticator;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() {
         Locale.setDefault(Locale.US);
         mathCommentAuthenticator = new MathCommentAuthenticator();
@@ -66,7 +68,7 @@ public class MathCommentAuthenticatorTest {
         verify(mockSession).setAttribute(eq("mathValue1"), firstValCaptor.capture());
         verify(mockSession).setAttribute(eq("mathValue2"), secondValCaptor.capture());
         verify(mockSession).setAttribute(eq("mathAnswer"), sumCaptor.capture());
-        assertEquals((long) (firstValCaptor.getValue() + secondValCaptor.getValue()), (long) sumCaptor.getValue());
+        assertEquals(firstValCaptor.getValue() + secondValCaptor.getValue(), (long) sumCaptor.getValue());
 
         // mocked session ignores setAttribute calls, so relying on "when" calls above for getAttribute calls
         String expected =
@@ -140,7 +142,7 @@ public class MathCommentAuthenticatorTest {
         when(mockRequest.getParameter("answer")).thenReturn("82");
         when(mockSession.getAttribute("mathAnswer")).thenReturn(84);
         boolean actual = mathCommentAuthenticator.authenticate(mockRequest);
-        assertFalse("Authenticate didn't fail with incorrect answer", actual);
+        assertFalse(actual, "Authenticate didn't fail with incorrect answer");
     }
 
     @Test
@@ -149,6 +151,6 @@ public class MathCommentAuthenticatorTest {
         HttpServletRequest mockRequest = createMockRequest(mockSession);
         when(mockRequest.getParameter("answer")).thenReturn("82");
         boolean actual = mathCommentAuthenticator.authenticate(mockRequest);
-        assertFalse("Authenticate didn't fail with missing mathAnswer attribute", actual);
+        assertFalse(actual, "Authenticate didn't fail with missing mathAnswer attribute");
     }
 }

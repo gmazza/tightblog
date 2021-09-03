@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.tightblog.rendering.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -65,14 +65,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UIControllerTest {
-    private static Logger log = LoggerFactory.getLogger(UIControllerTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UIControllerTest.class);
 
     private static final String TEST_BLOG_HANDLE = TestUtils.BLOG_HANDLE;
     private static final String TEST_ENTRY_ANCHOR = TestUtils.ENTRY_ANCHOR;
@@ -98,7 +107,7 @@ public class UIControllerTest {
     @Captor
     ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
 
-    @Before
+    @BeforeEach
     public void initializeMocks() throws IOException {
         mockRequest = TestUtils.createMockServletRequest();
         mockPrincipal = mock(Principal.class);
@@ -134,7 +143,7 @@ public class UIControllerTest {
                 mockUD);
 
         mockApplicationContext = mock(ApplicationContext.class);
-        when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet());
+        when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet<>());
         controller.setApplicationContext(mockApplicationContext);
 
         MockitoAnnotations.initMocks(this);
@@ -315,7 +324,7 @@ public class UIControllerTest {
 
         Mockito.clearInvocations(mockWM, mockCache);
 
-        WebloggerTest.logExpectedException(log, "IllegalArgumentException");
+        WebloggerTest.logExpectedException(LOG, "IllegalArgumentException");
         result = controller.getHomePage(TEST_BLOG_HANDLE, 0, mockRequest,
                 mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

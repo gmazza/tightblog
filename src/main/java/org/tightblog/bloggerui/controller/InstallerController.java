@@ -60,13 +60,13 @@ import javax.sql.DataSource;
 @RequestMapping(path = "/tb-ui/install")
 public class InstallerController {
 
-    private static Logger log = LoggerFactory.getLogger(InstallerController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InstallerController.class);
 
-    private DataSource tbDataSource;
-    private MessageSource messages;
-    private DynamicProperties dynamicProperties;
-    private Environment environment;
-    private LuceneIndexer luceneIndexer;
+    private final DataSource tbDataSource;
+    private final MessageSource messages;
+    private final DynamicProperties dynamicProperties;
+    private final Environment environment;
+    private final LuceneIndexer luceneIndexer;
 
     @Value("${weblogger.version}")
     private String tightblogVersion;
@@ -124,33 +124,65 @@ public class InstallerController {
         map.put("tightblogVersion", tightblogVersion);
 
         // is database accessible?
-        try {
-            Connection testcon = tbDataSource.getConnection();
+        try (Connection testcon = tbDataSource.getConnection()) {
             // used if DB creation needed
             map.put("databaseProductName", testcon.getMetaData().getDatabaseProductName());
-            testcon.close();
+            StartupStatus status = checkDatabase(testcon, map);
+            map.put("status", status);
+
+            // is database schema present?
+            if (StartupStatus.tablesMissing.equals(status)) {
+                LOG.info("TightBlog database needs creating, forwarding to creation page");
+                return new ModelAndView(".install", map);
+            } else if (StartupStatus.databaseVersionError.equals(status) || StartupStatus.bootstrapError.equals(status)) {
+                return new ModelAndView(".install", map);
+            }
+
+            // all good, TightBlog ready to bootstrap
+            return bootstrap(request, response);
         } catch (Exception e) {
-            log.error(messages.getMessage("installer.databaseConnectionError", null, Locale.getDefault()));
+            LOG.error(messages.getMessage("installer.databaseConnectionError", null, Locale.getDefault()));
             map.put("status", StartupStatus.databaseError);
             map.put("rootCauseException", e.getCause());
             map.put("rootCauseStackTrace", getRootCauseStackTrace(e.getCause()));
             messageList.add(e.getMessage());
             return new ModelAndView(".install", map);
         }
+    }
 
-        StartupStatus status = checkDatabase(map);
-        map.put("status", status);
+    /**
+     * Determine if database schema needs to be created.
+     */
+    private StartupStatus checkDatabase(Connection conn, Map<String, Object> map) {
+        try {
+            // does the schema already exist?  -- check a couple of tables to find out
+            if (tableMissing(conn, "weblog") || tableMissing(conn, "weblogger_user")) {
+                return StartupStatus.tablesMissing;
+            }
 
-        // is database schema present?
-        if (StartupStatus.tablesMissing.equals(status)) {
-            log.info("TightBlog database needs creating, forwarding to creation page");
-            return new ModelAndView(".install", map);
-        } else if (StartupStatus.databaseVersionError.equals(status) || StartupStatus.bootstrapError.equals(status)) {
-            return new ModelAndView(".install", map);
+            // OK, exists -- does the database schema match that used by the application?
+            int dbversion = -1;
+
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(
+                    "select database_version from weblogger_properties where id = '1'")) {
+
+                if (rs.next()) {
+                    dbversion = Integer.parseInt(rs.getString(1));
+                }
+            }
+
+            if (dbversion != expectedDatabaseVersion) {
+                LOG.warn("TightBlog DB version {} incompatible with application version {}", dbversion,
+                        expectedDatabaseVersion);
+                return StartupStatus.databaseVersionError;
+            }
+        } catch (SQLException e) {
+            LOG.error("Error checking for tables", e);
+            map.put("rootCauseException", e);
+            map.put("rootCauseStackTrace", getRootCauseStackTrace(e));
+            return StartupStatus.bootstrapError;
         }
-
-        // all good, TightBlog ready to bootstrap
-        return bootstrap(request, response);
+        return null;
     }
 
     @RequestMapping(value = "/create")
@@ -198,7 +230,7 @@ public class InstallerController {
             dynamicProperties.setDatabaseReady(true);
             luceneIndexer.initialize();
 
-            log.info("TightBlog Weblogger (Version: {}, Revision {}) startup successful",
+            LOG.info("TightBlog Weblogger (Version: {}, Revision {}) startup successful",
                 environment.getProperty("weblogger.version", "Unknown"),
                 environment.getProperty("weblogger.revision", "Unknown"));
 
@@ -206,7 +238,7 @@ public class InstallerController {
             response.sendRedirect("/tb-ui/app/get-default-blog");
             return null;
         } catch (Exception e) {
-            log.error("Exception", e);
+            LOG.error("Exception", e);
             map.put("rootCauseException", e);
             map.put("rootCauseStackTrace", getRootCauseStackTrace(e));
         }
@@ -219,44 +251,6 @@ public class InstallerController {
         Map<String, Object> map = new HashMap<>();
         map.put("pageTitleKey", "install.pageTitle");
         return map;
-    }
-
-    /**
-     * Determine if database schema needs to be created.
-     */
-    private StartupStatus checkDatabase(Map<String, Object> map) {
-
-        try (Connection conn = tbDataSource.getConnection()) {
-
-            // does the schema already exist?  -- check a couple of tables to find out
-            if (tableMissing(conn, "weblog") || tableMissing(conn, "weblogger_user")) {
-                return StartupStatus.tablesMissing;
-            }
-
-            // OK, exists -- does the database schema match that used by the application?
-            int dbversion = -1;
-
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(
-                    "select database_version from weblogger_properties where id = '1'")) {
-
-                if (rs.next()) {
-                    dbversion = Integer.parseInt(rs.getString(1));
-                }
-            }
-
-            if (dbversion != expectedDatabaseVersion) {
-                log.warn("TightBlog DB version {} incompatible with application version {}", dbversion,
-                        expectedDatabaseVersion);
-                return StartupStatus.databaseVersionError;
-            }
-
-        } catch (SQLException e) {
-            log.error("Error checking for tables", e);
-            map.put("rootCauseException", e);
-            map.put("rootCauseStackTrace", getRootCauseStackTrace(e));
-            return StartupStatus.bootstrapError;
-        }
-        return null;
     }
 
     private String getRootCauseStackTrace(Throwable rootCauseException) {

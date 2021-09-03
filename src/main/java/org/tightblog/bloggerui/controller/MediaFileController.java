@@ -76,7 +76,7 @@ public class MediaFileController {
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/mediadirectories")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'EDIT_DRAFT')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'POST')")
     public List<MediaDirectory> getMediaDirectories(@PathVariable String id, Principal p) {
         return mediaDirectoryDao.findByWeblog(weblogDao.getOne(id))
                         .stream()
@@ -89,7 +89,7 @@ public class MediaFileController {
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/mediadirectories/{id}/files")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'EDIT_DRAFT')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'POST')")
     public List<MediaFile> getMediaDirectoryContents(@PathVariable String id, Principal p) {
         MediaDirectory md = mediaDirectoryDao.getOne(id);
         return md.getMediaFiles()

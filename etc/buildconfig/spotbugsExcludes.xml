@@ -19,24 +19,17 @@
         in some try-with-resources (https://stackoverflow.com/a/50977253/1207540) -->
     <Match>
         <Class name="org.tightblog.bloggerui.controller.InstallerController" />
-        <Method name="checkDatabase"/>
-        <Bug pattern="OBL_UNSATISFIED_OBLIGATION" />
-    </Match>
-
-    <Match>
-        <Class name="org.tightblog.rendering.controller.MediaFileProcessor" />
-        <Method name="getMediaFile"/>
-        <Bug pattern="OBL_UNSATISFIED_OBLIGATION" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
 
     <!-- Additional false positives regarding redundant null checks and Java 11
         https://github.com/spotbugs/spotbugs/issues/259 -->
     <Match>
         <Or>
-            <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
-            <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE"/>
-            <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
-            <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+            <!-- Many known issues -->
+            <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2" />
+            <!-- False positive -->
+            <Bug pattern="DMI_RANDOM_USED_ONLY_ONCE" />
         </Or>
     </Match>
 

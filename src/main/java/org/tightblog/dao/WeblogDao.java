@@ -37,6 +37,8 @@ public interface WeblogDao extends JpaRepository<Weblog, String> {
 
     List<Weblog> findByVisibleTrueOrderByHandle(Pageable pageable);
 
+    List<Weblog> findByOrderByHandle();
+
     // return most popular weblogs based on today's hits
     List<Weblog> findByVisibleTrueAndHitsTodayGreaterThanOrderByHitsTodayDesc(int hitsToday, Pageable pageable);
 

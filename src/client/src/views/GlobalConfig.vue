@@ -49,11 +49,12 @@
             <td class="field">
               <select v-model="webloggerProps.mainBlogId" size="1">
                 <option
-                  v-for="(value, key) in weblogList"
+                  v-for="(value, key) in visibleWeblogs"
                   :key="key"
                   :value="key"
-                  >{{ value }}</option
                 >
+                  {{ value }}
+                </option>
                 <option value="">{{ $t("globalConfig.none") }}</option>
               </select>
             </td>
@@ -75,8 +76,9 @@
                   v-for="(value, key) in lookupVals.registrationOptions"
                   :key="key"
                   :value="key"
-                  >{{ $t(value) }}</option
                 >
+                  {{ $t(value) }}
+                </option>
               </select>
             </td>
             <td class="description">
@@ -111,8 +113,9 @@
                   v-for="(value, key) in lookupVals.blogHtmlLevels"
                   :key="key"
                   :value="key"
-                  >{{ $t(value) }}</option
                 >
+                  {{ $t(value) }}
+                </option>
               </select>
             </td>
             <td class="description">
@@ -191,8 +194,9 @@
                   v-for="commentoption in lookupVals.commentOptionList"
                   :value="commentoption.constant"
                   :key="commentoption.constant"
-                  >{{ $t(commentoption.label) }}</option
                 >
+                  {{ $t(commentoption.label) }}
+                </option>
               </select>
             </td>
             <td class="description"></td>
@@ -213,8 +217,9 @@
                   v-for="(value, key) in lookupVals.commentHtmlLevels"
                   :key="key"
                   :value="key"
-                  >{{ $t(value) }}</option
                 >
+                  {{ $t(value) }}
+                </option>
               </select>
             </td>
             <td class="description">
@@ -229,8 +234,9 @@
                   v-for="spamoption in lookupVals.spamOptionList"
                   :key="spamoption.constant"
                   :value="spamoption.constant"
-                  >{{ $t(spamoption.label) }}</option
                 >
+                  {{ $t(spamoption.label) }}
+                </option>
               </select>
             </td>
             <td class="description">{{ $t("globalConfig.tip.spamPolicy") }}</td>
@@ -276,87 +282,90 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
-  data () {
+  data() {
     return {
       successMessage: null,
       webloggerProps: null,
-      errorMessage: null
-    }
+      errorMessage: null,
+    };
   },
   computed: {
-    ...mapState('dynamicConfig', {
-      weblogList: (state) => state.weblogList
+    ...mapState("dynamicConfig", {
+      weblogList: (state) => state.weblogList,
     }),
-    ...mapState('startupConfig', {
+    ...mapState("startupConfig", {
       startupConfig: (state) => state.startupConfig,
-      lookupVals: (state) => state.lookupValues
-    })
+      lookupVals: (state) => state.lookupValues,
+    }),
+    visibleWeblogs() {
+      return this.weblogList.filter((w) => w.visible === true);
+    },
   },
   methods: {
     ...mapActions({
-      loadWebloggerProperties: 'dynamicConfig/loadWebloggerProperties',
-      saveWebloggerProperties: 'dynamicConfig/saveWebloggerProperties',
-      loadWeblogList: 'dynamicConfig/loadWeblogList',
-      loadStartupConfig: 'startupConfig/loadStartupConfig',
-      loadLookupValues: 'startupConfig/loadLookupValues'
+      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
+      saveWebloggerProperties: "dynamicConfig/saveWebloggerProperties",
+      loadWeblogList: "dynamicConfig/loadWeblogList",
+      loadStartupConfig: "startupConfig/loadStartupConfig",
+      loadLookupValues: "startupConfig/loadLookupValues",
     }),
-    ...mapGetters('dynamicConfig', {
-      getWebloggerProperties: 'getWebloggerProperties'
+    ...mapGetters("dynamicConfig", {
+      getWebloggerProperties: "getWebloggerProperties",
     }),
     loadWebloggerProps: function () {
       this.loadWebloggerProperties().then(
         () => {
           this.webloggerProps = JSON.parse(
             JSON.stringify(this.getWebloggerProperties())
-          )
+          );
         },
         (error) => this.commonErrorResponse(error, null)
-      )
+      );
     },
     loadMetadata: function () {
       this.loadStartupConfig().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      )
+      );
       this.loadLookupValues().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      )
+      );
     },
     updateProperties: function () {
       this.saveWebloggerProperties(this.webloggerProps).then(
         () => {
-          this.webloggerProps = this.getWebloggerProperties()
-          this.errorObj = {}
-          this.successMessage = this.$t('common.changesSaved')
-          window.scrollTo(0, 0)
+          this.webloggerProps = this.getWebloggerProperties();
+          this.errorObj = {};
+          this.successMessage = this.$t("common.changesSaved");
+          window.scrollTo(0, 0);
         },
         (error) => this.commonErrorResponse(error, null)
-      )
+      );
     },
     commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {
-        this.errorMessage = errorMsg
+        this.errorMessage = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
-        console.log('Redirecting...')
-        window.location.href = '/tb-ui/app/login'
+        console.log("Redirecting...");
+        window.location.href = "/tb-ui/app/login";
       } else if (error && error.response) {
-        this.errorMessage = error.response.data.error
+        this.errorMessage = error.response.data.error;
       } else if (error) {
-        this.errorMessage = error
+        this.errorMessage = error;
       } else {
-        this.errorMessage = 'System error.'
+        this.errorMessage = "System error.";
       }
-    }
+    },
   },
   created: function () {
-    this.loadStartupConfig()
-    this.loadWeblogList()
-    this.loadLookupValues()
-    this.loadWebloggerProps()
-  }
-}
+    this.loadStartupConfig();
+    this.loadWeblogList();
+    this.loadLookupValues();
+    this.loadWebloggerProps();
+  },
+};
 </script>

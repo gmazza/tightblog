@@ -37,6 +37,13 @@ public class MathCommentAuthenticator implements CommentAuthenticator {
     @Autowired
     private MessageSource messages;
 
+    private final Random random;
+
+    @Autowired
+    public MathCommentAuthenticator() {
+        this.random = new Random();
+    }
+
     public void setMessages(MessageSource messages) {
         this.messages = messages;
     }
@@ -47,9 +54,8 @@ public class MathCommentAuthenticator implements CommentAuthenticator {
         HttpSession session = request.getSession(true);
         if (session.getAttribute("mathAnswer") == null) {
             // starting a new test
-            Random ran = new Random();
-            int value1 = ran.nextInt(10);
-            int value2 = ran.nextInt(100);
+            int value1 = random.nextInt(10);
+            int value2 = random.nextInt(100);
             int sum = value1 + value2;
             session.setAttribute("mathValue1", value1);
             session.setAttribute("mathValue2", value2);

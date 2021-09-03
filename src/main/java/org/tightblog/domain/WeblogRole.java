@@ -21,14 +21,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public enum WeblogRole {
     // For non-blog related pages (initial install, user registration, login, etc.)
     NOBLOGNEEDED(0),
-    // User can edit but not publish blog articles
-    EDIT_DRAFT(1),
-    // User can post and delete blog entries
-    POST(2),
-    // User has full control over a blog, including its themes and a right to delete the blog.
-    OWNER(3);
+    // User can post and delete blog entries, comment management and tags
+    POST(1),
+    // Post + Settings, Categories, Blogroll & Templates (full control)
+    OWNER(2);
 
-    private int weight;
+    private final int weight;
 
     public int getWeight() {
         return weight;

@@ -1,6 +1,6 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  The ASF licenses this file to You
+ * contributor license agreements.  The ASF licenses this file to You
  * under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,13 +33,11 @@ import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test Search Manager business layer operations.
@@ -55,17 +53,17 @@ public class LuceneIndexerIT extends WebloggerTest {
     /**
      * All tests in this suite require a user and a weblog.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("entryTestUser");
         testWeblog = setupWeblog("entry-test-weblog", testUser);
         // ensure exactly one weblog so downstream tests don't become inaccurate
         List<Weblog> weblogList = weblogDao.findAll();
-        weblogList.forEach(w -> Assert.assertEquals("entry-test-weblog", w.getHandle()));
+        weblogList.forEach(w -> assertEquals("entry-test-weblog", w.getHandle()));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);

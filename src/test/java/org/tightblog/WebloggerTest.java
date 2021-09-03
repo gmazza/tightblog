@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Glen Mazza
+   Copyright 2015-2021 Glen Mazza
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 */
 package org.tightblog;
 
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.WeblogManager;
@@ -32,7 +33,6 @@ import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
-import org.junit.Before;
 import org.tightblog.dao.BlogrollLinkDao;
 import org.tightblog.dao.MediaDirectoryDao;
 import org.tightblog.dao.MediaFileDao;
@@ -49,7 +49,7 @@ import org.tightblog.service.LuceneIndexer;
 import java.time.Instant;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class WebloggerTest {
 
     @Autowired
@@ -103,7 +103,7 @@ public abstract class WebloggerTest {
     @Autowired
     private LuceneIndexer luceneIndexer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         if (!dynamicProperties.isDatabaseReady()) {
             dynamicProperties.setDatabaseReady(true);

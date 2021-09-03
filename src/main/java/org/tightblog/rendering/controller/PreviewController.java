@@ -24,20 +24,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.tightblog.rendering.model.PageModel;
-import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.Template.Role;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogRole;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 import org.tightblog.rendering.cache.CachedContent;
@@ -58,51 +56,43 @@ import java.util.Map;
  * Shows preview of a blog entry prior to publishing.
  *
  * Previews are obtainable only through the authoring interface by a logged-in user
- * having at least EDIT_DRAFT rights on the blog being previewed.
+ * having at least POST rights on the blog being previewed.
  */
 @RestController
 @RequestMapping(path = "/tb-ui/authoring/preview")
 public class PreviewController extends AbstractController {
 
-    private static Logger log = LoggerFactory.getLogger(PreviewController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PreviewController.class);
 
-    private WeblogDao weblogDao;
+    private final WeblogDao weblogDao;
 
-    private ThymeleafRenderer thymeleafRenderer;
-    protected ThemeManager themeManager;
-    protected UserManager userManager;
-    private WeblogEntryManager weblogEntryManager;
-    private PageModel pageModel;
+    private final ThymeleafRenderer thymeleafRenderer;
+    private final ThemeManager themeManager;
+    private final WeblogEntryManager weblogEntryManager;
+    private final PageModel pageModel;
 
     @Autowired
     PreviewController(WeblogDao weblogDao, @Qualifier("blogRenderer") ThymeleafRenderer thymeleafRenderer,
-                      ThemeManager themeManager, UserManager userManager, PageModel pageModel,
+                      ThemeManager themeManager, PageModel pageModel,
                       WeblogEntryManager weblogEntryManager) {
         this.weblogDao = weblogDao;
         this.thymeleafRenderer = thymeleafRenderer;
         this.themeManager = themeManager;
-        this.userManager = userManager;
         this.pageModel = pageModel;
         this.weblogEntryManager = weblogEntryManager;
     }
 
     @GetMapping(path = "/{weblogHandle}/entry/{anchor}")
-    ResponseEntity<Resource> getEntryPreview(@PathVariable String weblogHandle, @PathVariable String anchor,
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
+    ResponseEntity<Resource> getEntryPreview(@PathVariable String weblogId, @PathVariable String anchor,
                                             Principal principal, Device device) throws IOException {
 
-        Weblog weblog = weblogDao.findByHandleAndVisibleTrue(weblogHandle);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         if (weblog == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // User must have access rights on blog being previewed
-        if (!userManager.checkWeblogRole(principal.getName(), weblog, WeblogRole.EDIT_DRAFT)) {
-            log.warn("User {} attempting to preview blog {} without access rights, blocking",
-                    principal.getName(), weblog.getHandle());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        WeblogPageRequest incomingRequest = new WeblogPageRequest(weblogHandle, principal, pageModel, true);
+        WeblogPageRequest incomingRequest = new WeblogPageRequest(weblog.getHandle(), principal, pageModel, true);
         incomingRequest.setNoIndex(true);
         incomingRequest.setWeblog(weblog);
         incomingRequest.setWeblogEntryAnchor(Utilities.decode(anchor));
@@ -112,7 +102,7 @@ public class PreviewController extends AbstractController {
                 incomingRequest.getWeblogEntryAnchor());
 
         if (entry == null) {
-            log.warn("For weblog {}, invalid entry {} requested, returning 404", weblogHandle, anchor);
+            LOG.warn("For weblog {}, invalid entry {} requested, returning 404", weblog.getHandle(), anchor);
             return ResponseEntity.notFound().build();
         } else {
             incomingRequest.setWeblogEntry(entry);
@@ -124,7 +114,7 @@ public class PreviewController extends AbstractController {
             }
 
             if (incomingRequest.getTemplate() == null) {
-                log.warn("For weblog {}, entry {}, no template available, returning 404", weblogHandle, anchor);
+                LOG.warn("For weblog {}, entry {}, no template available, returning 404", weblog.getHandle(), anchor);
                 return ResponseEntity.notFound().build();
             }
         }
