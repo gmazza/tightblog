@@ -58,7 +58,6 @@ public class WeblogEntry implements WeblogOwned {
     public enum PubStatus {
         DRAFT("entries.label.draftOnly"),
         PUBLISHED("entries.label.publishedOnly"),
-        PENDING("entries.label.pendingOnly"),
         SCHEDULED("entries.label.scheduledOnly");
 
         private final String filterMessageConstant;

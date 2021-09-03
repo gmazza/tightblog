@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.tightblog.rendering.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -43,7 +43,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -55,20 +58,20 @@ public class WeblogEntryListGeneratorTest {
     private WeblogEntryListGenerator generator;
     private Weblog weblog;
     private WeblogEntryManager mockWEM;
-    private URLService mockUrlService = mock(URLService.class);
-    private Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
-    private Instant threeDaysAgo = twoDaysAgo.minus(1, ChronoUnit.DAYS);
-    private Instant oneDayAgo = twoDaysAgo.plus(1, ChronoUnit.DAYS);
-    private LocalDate nowLD = LocalDate.from(twoDaysAgo.atZone(ZoneId.systemDefault()));
-    private LocalDate yesterdayLD = LocalDate.from(threeDaysAgo.atZone(ZoneId.systemDefault()));
+    private final URLService mockUrlService = mock(URLService.class);
+    private final Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
+    private final Instant threeDaysAgo = twoDaysAgo.minus(1, ChronoUnit.DAYS);
+    private final Instant oneDayAgo = twoDaysAgo.plus(1, ChronoUnit.DAYS);
+    private final LocalDate nowLD = LocalDate.from(twoDaysAgo.atZone(ZoneId.systemDefault()));
+    private final LocalDate yesterdayLD = LocalDate.from(threeDaysAgo.atZone(ZoneId.systemDefault()));
 
-    @BeforeClass
+    @BeforeAll
     public static void initializeOnce() {
         messages = new ResourceBundleMessageSource();
         messages.setBasename("messages/messages");
     }
 
-    @Before
+    @BeforeEach
     public void initialize() {
         weblog = new Weblog();
         weblog.setLocale(Locale.ENGLISH.getLanguage());
@@ -131,24 +134,24 @@ public class WeblogEntryListGeneratorTest {
 
         WeblogEntryListData data = generator.getPermalinkPager(weblog, "day1story1", true);
         assertEquals(1, data.getEntries().size());
-        assertEquals("entry not added to map", entryToShow, data.getEntries().values().iterator().next().get(0));
-        assertEquals("entry not in list", entryToShow, data.getEntriesAsList().get(0));
-        assertEquals("entriesAsList() not constant w/multiple calls", entryToShow, data.getEntriesAsList().get(0));
-        assertEquals("key not set correctly to entry publish time", entryToShow, data.getEntries().get(
-                        WeblogEntryListGenerator.instantToWeblogLocalDate(entryToShow.getWeblog(), twoDaysAgo)).get(0));
+        assertEquals(entryToShow, data.getEntries().values().iterator().next().get(0), "entry not added to map");
+        assertEquals(entryToShow, data.getEntriesAsList().get(0), "entry not in list");
+        assertEquals(entryToShow, data.getEntriesAsList().get(0), "entriesAsList() not constant w/multiple calls");
+        assertEquals(entryToShow, data.getEntries().get(WeblogEntryListGenerator.instantToWeblogLocalDate(
+                entryToShow.getWeblog(), twoDaysAgo)).get(0), "key not set correctly to entry publish time");
 
         assertEquals("nextUrl", data.getNextLink());
         assertTrue(data.getNextLabel().contains("My Next Story"));
-        assertNotNull("prevUrl", data.getPrevLink());
+        assertEquals("prevUrl", data.getPrevLink());
         assertTrue(data.getPrevLabel().contains("My Prev Story"));
 
         // Test entry still retrievable if no publish time
         entryToShow.setPubTime(null);
         data = generator.getPermalinkPager(weblog, "day1story1", true);
         assertEquals(1, data.getEntries().size());
-        assertEquals("unpublished entry not added to map", entryToShow,
-                data.getEntries().values().iterator().next().get(0));
-        assertEquals("unpublished entry not in list", entryToShow, data.getEntriesAsList().get(0));
+        assertEquals(entryToShow, data.getEntries().values().iterator().next().get(0),
+                "unpublished entry not added to map");
+        assertEquals(entryToShow, data.getEntriesAsList().get(0), "unpublished entry not in list");
 
         // Test SCHEDULED entries not allowed with canShowUnpublishedEntries = false
         data = generator.getPermalinkPager(weblog, "day1story1", false);

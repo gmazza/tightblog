@@ -55,7 +55,7 @@ import javax.validation.Valid;
 @EnableConfigurationProperties(DynamicProperties.class)
 public class WeblogController {
 
-    private static Logger log = LoggerFactory.getLogger(WeblogController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogController.class);
 
     private final UserDao userDao;
     private final WeblogManager weblogManager;
@@ -151,7 +151,7 @@ public class WeblogController {
             // save config
             if (newWeblog) {
                 weblogManager.addWeblog(weblog);
-                log.info("New weblog {} created by user {}", weblog, weblog.getCreator());
+                LOG.info("New weblog {} created by user {}", weblog, weblog.getCreator());
             } else {
                 weblogManager.saveWeblog(weblog, true);
             }

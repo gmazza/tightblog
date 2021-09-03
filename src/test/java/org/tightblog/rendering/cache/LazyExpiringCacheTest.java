@@ -15,13 +15,15 @@
  */
 package org.tightblog.rendering.cache;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.tightblog.domain.Template;
 
 import java.time.Instant;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LazyExpiringCacheTest {
 
@@ -29,7 +31,7 @@ public class LazyExpiringCacheTest {
     private Instant twentySecondsAgo = Instant.now().minusSeconds(20);
     private Instant twentySecondsLater = twentySecondsAgo.plusSeconds(40);
 
-    @Before
+    @BeforeEach
     public void initialize() {
         cache = new LazyExpiringCache("testCache", 10, 3600);
         cache.init();

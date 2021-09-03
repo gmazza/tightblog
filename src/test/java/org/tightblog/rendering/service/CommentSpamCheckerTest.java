@@ -1,5 +1,5 @@
 /*
-   Copyright 2019 Glen Mazza
+   Copyright 2018-2021 the original author or authors.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 */
 package org.tightblog.rendering.service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 public class CommentSpamCheckerTest {
 
@@ -42,7 +43,7 @@ public class CommentSpamCheckerTest {
     private Weblog weblog;
     private WeblogEntryComment comment;
 
-    @Before
+    @BeforeEach
     public void initializeMocks() {
         mockWebloggerPropertiesDao = mock(WebloggerPropertiesDao.class);
         mockUrlService = mock(URLService.class);
@@ -81,7 +82,7 @@ public class CommentSpamCheckerTest {
                 generateCommentWithLinks(4), messageMap);
         assertEquals(SpamCheckResult.SPAM, vr);
         String expectedKey = "commentSpamChecker.excessLinksMessage";
-        assertEquals("Message Map hasn't one entry", 1, messageMap.size());
+        assertEquals(1, messageMap.size());
         assertTrue("Message Map missing correct key", messageMap.containsKey(expectedKey));
     }
 
@@ -111,7 +112,7 @@ public class CommentSpamCheckerTest {
                 new WeblogEntryComment("123456"), messageMap);
         assertEquals(SpamCheckResult.SPAM, vr);
         String expectedKey = "commentSpamChecker.excessSizeMessage";
-        assertEquals("Message Map hasn't one entry", 1, messageMap.size());
+        assertEquals(1, messageMap.size());
         assertTrue("Message Map missing correct key", messageMap.containsKey(expectedKey));
     }
 
@@ -133,30 +134,30 @@ public class CommentSpamCheckerTest {
         weblog.setBlacklist("badweblogword");
         // comment fields all null here, validator should pass
         SpamCheckResult result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Null comment wasn't accepted", SpamCheckResult.NOT_SPAM, result);
+        assertEquals(SpamCheckResult.NOT_SPAM, result, "Null comment wasn't accepted");
         assertEquals(0, messageMap.size());
 
         comment.setContent("a badweblogword");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Weblog blacklist ignored", SpamCheckResult.SPAM, result);
+        assertEquals(SpamCheckResult.SPAM, result, "Weblog blacklist ignored");
 
         comment.setContent("goodword");
         comment.setEmail("a bad phrase is here");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Global blacklist ignored", SpamCheckResult.SPAM, result);
+        assertEquals(SpamCheckResult.SPAM, result, "Global blacklist ignored");
 
         comment.setContent("goodword");
         comment.setEmail("goodword");
         comment.setName("bad phrase");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Name not checked against blacklist", SpamCheckResult.SPAM, result);
+        assertEquals(SpamCheckResult.SPAM, result, "Name not checked against blacklist");
 
         comment.setContent("goodword");
         comment.setEmail("goodword");
         comment.setName("goodword");
         comment.setUrl("a badweblogword");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("URL not checked against blacklist", SpamCheckResult.SPAM, result);
+        assertEquals(SpamCheckResult.SPAM, result, "URL not checked against blacklist");
 
         messageMap = new HashMap<>();
         comment.setContent("goodword");
@@ -164,17 +165,17 @@ public class CommentSpamCheckerTest {
         comment.setName("goodword");
         comment.setUrl("goodword");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Blacklist failing non-spam content", SpamCheckResult.NOT_SPAM, result);
-        assertEquals("Message Map hasn't zero entries", 0, messageMap.size());
+        assertEquals(SpamCheckResult.NOT_SPAM, result, "Blacklist failing non-spam content");
+        assertEquals(0, messageMap.size());
 
         weblog.setBlacklist("badsite.com");
         comment.setContent("badsite.com");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Blacklist not working with periods", SpamCheckResult.SPAM, result);
+        assertEquals(SpamCheckResult.SPAM, result, "Blacklist not working with periods");
 
         comment.setContent("badsiteacom");
         result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals("Blacklist not escaping periods", SpamCheckResult.NOT_SPAM, result);
+        assertEquals(SpamCheckResult.NOT_SPAM, result, "Blacklist not escaping periods");
     }
 
     @Test

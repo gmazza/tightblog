@@ -28,11 +28,13 @@ import org.tightblog.domain.Template.Role;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogTemplate;
 import org.tightblog.domain.Weblog;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test Weblog Page related business operations.
@@ -46,7 +48,7 @@ public class ThemeManagerIT extends WebloggerTest {
     /**
      * All tests in this suite require a user and a weblog.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("wtTestUser");
@@ -60,7 +62,7 @@ public class ThemeManagerIT extends WebloggerTest {
         testPage.setWeblog(testWeblog);
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);
@@ -126,7 +128,7 @@ public class ThemeManagerIT extends WebloggerTest {
         assertNotNull(page);
 
         // lookup all pages for weblog
-        List pages = weblogTemplateDao.getWeblogTemplateMetadata(testWeblog);
+        List<WeblogTemplate> pages = weblogTemplateDao.getWeblogTemplateMetadata(testWeblog);
         assertNotNull(pages);
         assertEquals(1, pages.size());
         

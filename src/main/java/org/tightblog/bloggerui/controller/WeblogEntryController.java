@@ -32,7 +32,6 @@ import org.tightblog.bloggerui.model.WeblogEntryData;
 import org.tightblog.bloggerui.model.WeblogEntrySaveResponse;
 import org.tightblog.bloggerui.model.WeblogCategoryData;
 import org.tightblog.dao.WeblogEntryCommentDao;
-import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
@@ -97,7 +96,6 @@ public class WeblogEntryController {
     private final WeblogEntryManager weblogEntryManager;
     private final LuceneIndexer luceneIndexer;
     private final URLService urlService;
-    private final EmailService emailService;
     private final MessageSource messages;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryCommentDao weblogEntryCommentDao;
@@ -110,7 +108,7 @@ public class WeblogEntryController {
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
                                  UserDao userDao, UserManager userManager, WeblogManager weblogManager,
                                  WeblogEntryManager weblogEntryManager, LuceneIndexer luceneIndexer,
-                                 URLService urlService, EmailService emailService, MessageSource messages,
+                                 URLService urlService, MessageSource messages,
                                  WebloggerPropertiesDao webloggerPropertiesDao,
                                  WeblogEntryDao weblogEntryDao, DynamicProperties dp,
                                  WeblogEntryCommentDao weblogEntryCommentDao,
@@ -125,7 +123,6 @@ public class WeblogEntryController {
         this.weblogEntryManager = weblogEntryManager;
         this.luceneIndexer = luceneIndexer;
         this.urlService = urlService;
-        this.emailService = emailService;
         this.messages = messages;
         this.dp = dp;
         this.weblogEntryCommentDao = weblogEntryCommentDao;
@@ -136,7 +133,7 @@ public class WeblogEntryController {
     private static final int ITEMS_PER_PAGE = 20;
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'EDIT_DRAFT')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
     public WeblogEntry getWeblogEntry(@PathVariable String id, Principal p) {
 
         WeblogEntry entry = weblogEntryDao.getOne(id);
@@ -186,15 +183,14 @@ public class WeblogEntryController {
     }
 
     @GetMapping(value = "/{weblogId}/recententries/{pubStatus}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'EDIT_DRAFT')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public List<WeblogEntry> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
                                               Principal p) {
 
         Weblog weblog = weblogDao.getOne(weblogId);
-        boolean needsPostRole = !(pubStatus == PubStatus.DRAFT || pubStatus == PubStatus.PENDING);
 
         List<WeblogEntry> entries = new ArrayList<>();
-        if (!needsPostRole || userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
+        if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
             WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
             wesc.setWeblog(weblog);
             wesc.setMaxResults(20);
@@ -221,6 +217,7 @@ public class WeblogEntryController {
     }
 
     @GetMapping(value = "/{id}/tagdata")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public TagAutocompleteData getWeblogTagData(@PathVariable String id, @RequestParam("prefix") String prefix) {
         List<WeblogEntryTagAggregate> tags;
         Weblog weblog = weblogDao.findById(id).orElse(null);
@@ -233,7 +230,7 @@ public class WeblogEntryController {
     }
 
     @GetMapping(value = "/{weblogId}/entryeditmetadata")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'EDIT_DRAFT')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public EntryEditMetadata getEntryEditMetadata(@PathVariable String weblogId, Principal p, Locale locale) {
 
         // Get user permissions and locale
@@ -269,6 +266,7 @@ public class WeblogEntryController {
     // save
     // submit for review
     @PostMapping(value = "/{weblogId}/entries")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public ResponseEntity<?> postEntry(@PathVariable String weblogId, @Valid @RequestBody WeblogEntry entryData,
                                        Locale locale, Principal p) {
 
@@ -284,8 +282,7 @@ public class WeblogEntryController {
         Weblog weblog = (entry == null) ? weblogDao.findById(weblogId).orElse(null)
                 : entry.getWeblog();
 
-        WeblogRole necessaryRole = (PubStatus.PENDING.equals(entryData.getStatus()) ||
-                PubStatus.DRAFT.equals(entryData.getStatus())) ? WeblogRole.EDIT_DRAFT : WeblogRole.POST;
+        WeblogRole necessaryRole = WeblogRole.POST;
         if (weblog != null && userManager.checkWeblogRole(user, weblog, necessaryRole)) {
 
             // create new?
@@ -357,10 +354,6 @@ public class WeblogEntryController {
                 luceneIndexer.updateIndex(entry, true);
             }
 
-            if (PubStatus.PENDING.equals(entry.getStatus())) {
-                emailService.sendPendingEntryNotice(entry);
-            }
-
             WeblogEntrySaveResponse wesr = new WeblogEntrySaveResponse();
             wesr.setEntryId(entry.getId());
 
@@ -376,9 +369,6 @@ public class WeblogEntryController {
                     message = messages.getMessage("entryEdit.scheduledEntry",
                             new Object[] {DateTimeFormatter.ISO_DATE_TIME.withZone(entry.getWeblog().getZoneId())
                                     .format(entry.getPubTime())}, null, locale);
-                    break;
-                case PENDING:
-                    message = messages.getMessage("entryEdit.submittedForReview", null, locale);
                     break;
                 default:
             }
@@ -409,16 +399,12 @@ public class WeblogEntryController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public ResponseEntity<?> deleteWeblogEntry(@PathVariable String id, Principal p, Locale locale) {
         LOG.info("Call to remove entry {}", id);
 
-        User user = userDao.findEnabledByUserName(p.getName());
-        WeblogEntry entry = weblogEntryDao.getOne(id);
-
-        WeblogRole necessaryRole = (PubStatus.PENDING.equals(entry.getStatus()) ||
-                PubStatus.DRAFT.equals(entry.getStatus())) ? WeblogRole.EDIT_DRAFT : WeblogRole.POST;
-
-        if (entry.getWeblog() != null && userManager.checkWeblogRole(user, entry.getWeblog(), necessaryRole)) {
+        WeblogEntry entry = weblogEntryDao.findByIdOrNull(id);
+        if (entry != null) {
             // remove from search index
             if (entry.isPublished()) {
                 luceneIndexer.updateIndex(entry, true);
@@ -428,7 +414,7 @@ public class WeblogEntryController {
 
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.status(403).body(messages.getMessage("error.title.403", null, locale));
+            return ResponseEntity.status(404).body(messages.getMessage("error.title.404", null, locale));
         }
     }
 }

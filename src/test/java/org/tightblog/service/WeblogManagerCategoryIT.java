@@ -23,6 +23,9 @@ package org.tightblog.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogCategory;
@@ -30,11 +33,12 @@ import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test Weblog Category related business operations.
@@ -48,7 +52,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
     /**
      * All tests in this suite require a user and a weblog.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("categoryTestUser");
@@ -62,7 +66,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
         testCat = setupWeblogCategory(testWeblog, "catTest-testCat");
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);
@@ -83,7 +87,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
 
     @Test
     public void testLookupAllCategoriesByWeblog() {
-        List cats = weblogManager.getWeblogCategories(testWeblog);
+        List<WeblogCategory> cats = weblogManager.getWeblogCategories(testWeblog);
         assertNotNull(cats);
         assertEquals(4, cats.size());
     }
@@ -150,7 +154,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
 
         // query for object
         Optional<WeblogCategory> maybeCat = weblogCategoryDao.findById(testCategory.getId());
-        if (!maybeCat.isPresent()) {
+        if (maybeCat.isEmpty()) {
             throw new IllegalStateException("error setting up weblog category");
         }
         return maybeCat.get();

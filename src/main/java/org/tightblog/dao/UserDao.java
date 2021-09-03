@@ -23,7 +23,6 @@ import org.springframework.stereotype.Repository;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 
-import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -39,7 +38,7 @@ public interface UserDao extends JpaRepository<User, String> {
     }
 
     default List<User> findByStatusEnabled() {
-        return findByStatusIn(Collections.unmodifiableList(List.of(UserStatus.ENABLED)));
+        return findByStatusIn(List.of(UserStatus.ENABLED));
     }
 
     List<User> findByStatusIn(List<UserStatus> statuses);

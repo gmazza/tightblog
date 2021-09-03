@@ -72,10 +72,6 @@
                     <fmt:message key="entryEdit.draft" />
                     (<fmt:message key="entryEdit.updateTime" /> {{ entry.updateTime | standard_datetime }})
                 </span>
-                <span v-show="entry.status == 'PENDING'" style="color:orange; font-weight:bold">
-                    <fmt:message key="entryEdit.pending" />
-                    (<fmt:message key="entryEdit.updateTime" /> {{ entry.updateTime | standard_datetime }})
-                </span>
                 <span v-show="entry.status == 'SCHEDULED'" style="color:orange; font-weight:bold">
                     <fmt:message key="entryEdit.scheduled" />
                     (<fmt:message key="entryEdit.updateTime"/> {{ entry.updateTime | standard_datetime }})
@@ -220,9 +216,6 @@
             <span v-show="metadata.author">
                 <button type="button" v-on:click="saveEntry('PUBLISHED')"><fmt:message key='entryEdit.post'/></button>
             </span>
-            <span v-show="!metadata.author">
-                <button type="button" v-on:click="saveEntry('PENDING')"><fmt:message key='entryEdit.submitForReview'/></button>
-            </span>
         </span>
 
         <span style="float:right" v-show="entry.id">
@@ -270,20 +263,6 @@
                 </div>
                 <div v-show="entry.commentCountIncludingUnapproved == 0">
                     <fmt:message key="generic.none" />
-                </div>
-
-                <div v-show="recentEntries.PENDING && recentEntries.PENDING.length > 0">
-                    <hr size="1" noshade="noshade" />
-                    <h3><fmt:message key="entryEdit.pendingEntries" /></h3>
-
-                    <span v-for="post in recentEntries.PENDING">
-                        <span class="entryEditSidebarLink">
-                            <img src='${pageContext.request.contextPath}/images/table_edit.png'
-                                 align="absmiddle" border="0" alt="icon" title="Edit" />
-                            <a v-bind:href="post.editUrl">{{post.title}}</a>
-                        </span>
-                        <br>
-                    </span>
                 </div>
 
                 <div v-show="recentEntries.DRAFT && recentEntries.DRAFT.length > 0">

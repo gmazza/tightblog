@@ -203,8 +203,6 @@
     <p>
       <span class="draftEntryBox">&nbsp;&nbsp;&nbsp;&nbsp;</span>
       {{ $t("entries.draft") }}&nbsp;&nbsp;
-      <span class="pendingEntryBox">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      {{ $t("entries.pending") }}&nbsp;&nbsp;
       <span class="scheduledEntryBox">&nbsp;&nbsp;&nbsp;&nbsp;</span>
       {{ $t("entries.scheduled") }}&nbsp;&nbsp;
     </p>
@@ -363,8 +361,6 @@ export default {
     entryStatusClass: function (status) {
       if (status === "DRAFT") {
         return "draftEntryBox";
-      } else if (status === "PENDING") {
-        return "pendingEntryBox";
       } else if (status === "SCHEDULED") {
         return "scheduledEntryBox";
       } else {

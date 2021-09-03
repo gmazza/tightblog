@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.tightblog.rendering.service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.thymeleaf.templateresource.StringTemplateResource;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.SharedTemplate;
@@ -28,8 +28,8 @@ import org.tightblog.dao.WeblogTemplateDao;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +39,7 @@ public class ThemeTemplateResolverTest {
     private ThemeTemplateResolver themeTemplateResolver;
     private WeblogTemplateDao mockWeblogTemplateDao;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         mockThemeManager = mock(ThemeManager.class);
         mockWeblogTemplateDao = mock(WeblogTemplateDao.class);

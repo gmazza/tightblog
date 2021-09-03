@@ -36,6 +36,8 @@ public interface WeblogTemplateDao extends JpaRepository<WeblogTemplate, String>
     @Cacheable(value = "weblogTemplatesByRole")
     WeblogTemplate findByWeblogAndRole(Weblog weblog, Template.Role role);
 
+    WeblogTemplate findByWeblogIdAndId(String weblogId, String templateId);
+
     @Cacheable(value = "weblogTemplates", key = "#weblog.handle")
     // Select all but the template source (latter obtainable individually by methods above)
     // https://stackoverflow.com/a/47471486/1207540

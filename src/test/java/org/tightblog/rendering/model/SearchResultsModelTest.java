@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.tightblog.rendering.model;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.tightblog.rendering.service.CalendarGenerator;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.service.UserManager;
@@ -26,7 +26,7 @@ import org.tightblog.service.LuceneIndexer;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.dao.WeblogEntryDao;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class SearchResultsModelTest {
@@ -40,7 +40,7 @@ public class SearchResultsModelTest {
     private WeblogEntryDao mockWeblogEntryDao;
     private LuceneIndexer mockLuceneIndexer;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         mockUserManager = mock(UserManager.class);
         WeblogManager mockWeblogManager = mock(WeblogManager.class);

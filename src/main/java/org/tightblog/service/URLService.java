@@ -153,7 +153,7 @@ public class URLService {
      * Get the url for previewing a draft of a given blog entry.
      */
     public String getWeblogEntryDraftPreviewURL(WeblogEntry entry) {
-        String url = dp.getAbsoluteUrl() + PREVIEW_URL_SEGMENT + entry.getWeblog().getHandle() + "/";
+        String url = dp.getAbsoluteUrl() + PREVIEW_URL_SEGMENT + entry.getWeblog().getId() + "/";
         url += "entry/" + Utilities.encode(entry.getAnchor());
         return url;
     }

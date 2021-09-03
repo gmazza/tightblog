@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.tightblog.rendering.service;
 
 import org.attoparser.ParseException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.expression.spel.SpelEvaluationException;
@@ -37,7 +37,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -48,10 +51,10 @@ public class ThymeleafRendererTest {
 
     private ThymeleafRenderer renderer;
     private WeblogTemplate template;
-    private Map<String, Object> model = new HashMap<>();
+    private final Map<String, Object> model = new HashMap<>();
     private SpringTemplateEngine templateEngine;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         model.put("foo", 123);
         model.put("bar", "banana");
@@ -134,11 +137,13 @@ public class ThymeleafRendererTest {
         assertNull(context.getVariable("secondMessage"));
     }
 
-    @Test(expected = TemplateInputException.class)
-    public void throwExceptionIfFirstCauseNotParseException() throws IOException {
-        IllegalArgumentException iae = new IllegalArgumentException("firstCause");
-        TemplateInputException tie = new TemplateInputException("TIE Message", iae);
-        doThrow(tie).when(renderer).runTemplateEngine(eq("mytestid"), any(IContext.class), any());
-        renderer.render(template, model);
+    @Test()
+    public void throwExceptionIfFirstCauseNotParseException() {
+        assertThrows(TemplateInputException.class, () -> {
+            IllegalArgumentException iae = new IllegalArgumentException("firstCause");
+            TemplateInputException tie = new TemplateInputException("TIE Message", iae);
+            doThrow(tie).when(renderer).runTemplateEngine(eq("mytestid"), any(IContext.class), any());
+            renderer.render(template, model);
+        });
     }
 }

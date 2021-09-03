@@ -30,14 +30,15 @@ import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.Weblog;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.persistence.RollbackException;
 
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test Comment related business operations.
@@ -50,7 +51,7 @@ public class WeblogEntryManagerCommentIT extends WebloggerTest {
     /**
      * All tests in this suite require a user, weblog, and an entry.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
@@ -63,7 +64,7 @@ public class WeblogEntryManagerCommentIT extends WebloggerTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try {
             weblogEntryManager.removeWeblogEntry(testEntry);

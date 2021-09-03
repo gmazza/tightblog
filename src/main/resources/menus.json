@@ -6,12 +6,12 @@
         "titleKey": "tabbedmenu.weblog",
         "actionPath": "/tb-ui/app/authoring/",
         "globalRole": "BLOGGER",
-        "weblogRole": "EDIT_DRAFT",
+        "weblogRole": "POST",
         "tabItems": [
           {
             "action": "entryAdd",
             "titleKey": "entryAdd.title",
-            "weblogRole": "EDIT_DRAFT",
+            "weblogRole": "POST",
             "subActions": ["entryEdit"]
           },
           {
@@ -20,31 +20,13 @@
             "enabledProperty": "media.file.showTab",
             "weblogRole": "POST",
             "subActions": ["mediaFileAdd", "mediaFileEdit"]
-          }
-        ]
-      },
-      {
-        "titleKey": "tabbedmenu.website",
-        "globalRole": "BLOGGER",
-        "weblogRole": "OWNER",
-        "tabItems": [
+          },
           {
             "action": "templates",
             "actionPath": "/tb-ui/app/authoring/",
             "titleKey": "templates.title",
             "enabledProperty": "themes.customtheme.allowed",
             "subActions": ["templateEdit"]
-          },
-          {
-            "action": "weblogConfig",
-            "actionPath": "/tb-ui2/index.html#/authoring/",
-            "titleKey": "weblogConfig.title",
-            "vueTab": true
-          },
-          {
-            "action": "members",
-            "actionPath": "/tb-ui/app/authoring/",
-            "titleKey": "members.title"
           }
         ]
       }

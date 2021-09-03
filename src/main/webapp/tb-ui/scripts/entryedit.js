@@ -70,7 +70,6 @@ var vm = new Vue({
         commentCountMsg: null,
         deleteModalMsg: null,
         recentEntries: {
-            PENDING: {},
             SCHEDULED: {},
             DRAFT: {},
             PUBLISHED: {}
@@ -162,7 +161,6 @@ var vm = new Vue({
             this.getRecentEntries('DRAFT');
             this.getRecentEntries('PUBLISHED');
             this.getRecentEntries('SCHEDULED');
-            this.getRecentEntries('PENDING');
         },
         updateTags: function(tagsString) {
             this.entry.tagsAsString = tagsString;

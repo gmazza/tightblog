@@ -125,8 +125,4 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/TemplateEdit.jsp" />
     </definition>
 
-    <definition name=".members" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/Members.jsp" />
-    </definition>
-
 </tiles-definitions>

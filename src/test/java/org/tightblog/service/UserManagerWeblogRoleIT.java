@@ -28,11 +28,15 @@ import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test WeblogRole related business operations.
@@ -41,14 +45,14 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("roleTestUser");
         testWeblog = setupWeblog("role-test-weblog", testUser);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);
@@ -84,13 +88,13 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
         // revoke role
         userManager.deleteUserWeblogRole(role);
 
-        // add only draft role
-        userManager.grantWeblogRole(testUser, testWeblog, WeblogRole.EDIT_DRAFT);
+        // add post role
+        userManager.grantWeblogRole(testUser, testWeblog, WeblogRole.POST);
 
-        // check that user has draft weblog role only
+        // check that user has post role
         role = userWeblogRoleDao.findByUserAndWeblog(testUser, testWeblog);
         assertNotNull(role);
-        assertSame(role.getWeblogRole(), WeblogRole.EDIT_DRAFT);
+        assertSame(role.getWeblogRole(), WeblogRole.POST);
     }
     
     
@@ -134,8 +138,8 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
         // we need a second user for this test
         User user = setupUser("testInvitations");
 
-        // invite user to weblog
-        userManager.grantWeblogRole(user, testWeblog, WeblogRole.EDIT_DRAFT);
+        // add user to weblog
+        userManager.grantWeblogRole(user, testWeblog, WeblogRole.POST);
 
         // re-query now that we have changed things
         user = userDao.findEnabledByUserName(user.getUserName());
@@ -147,11 +151,11 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
         assertEquals(1, userRoles.size());
         assertEquals(testWeblog.getId(), userRoles.get(0).getWeblog().getId());
 
-        // assert that website has user
-        List users = userWeblogRoleDao.findByWeblogAndStatusEnabled(testWeblog);
+        // assert that weblog has user
+        List<User> users = userWeblogRoleDao.findByWeblogAndStatusEnabled(testWeblog);
         assertEquals(2, users.size());
 
-        // test user can be retired from website
+        // test user can be retired from weblog
         UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(user, testWeblog);
         userManager.deleteUserWeblogRole(uwr);
 

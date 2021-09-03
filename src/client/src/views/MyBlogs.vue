@@ -90,8 +90,6 @@
             </a>
             <br />
 
-            <!-- Show Entries and Comments links for users above EDIT_DRAFT role -->
-            <span v-if="role.weblogRole != 'EDIT_DRAFT'">
               <img src="@/assets/table_multiple.png" />
               <router-link
                 :to="{ name: 'entries', params: { weblogId: role.weblog.id } }"
@@ -109,7 +107,6 @@
                 unapprovedCommentCount })
               </span>
               <br />
-            </span>
 
             <!-- Only admins get access to theme and config settings -->
             <span v-if="role.weblogRole == 'OWNER'">
@@ -191,8 +188,6 @@ export default {
     getRoleText: function (weblogRole) {
       if (weblogRole === "POST") {
         return "PUBLISHER";
-      } else if (weblogRole === "EDIT_DRAFT") {
-        return "CONTRIBUTOR";
       } // else 'OWNER'
       return weblogRole;
     },

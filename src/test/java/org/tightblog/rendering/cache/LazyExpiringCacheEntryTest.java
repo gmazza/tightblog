@@ -15,17 +15,18 @@
  */
 package org.tightblog.rendering.cache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tightblog.domain.Template;
 
 import java.time.Instant;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LazyExpiringCacheEntryTest {
 
-    private Instant twentySecondsAgo = Instant.now().minusSeconds(20);
-    private Instant twentySecondsLater = twentySecondsAgo.plusSeconds(40);
+    private final Instant twentySecondsAgo = Instant.now().minusSeconds(20);
+    private final Instant twentySecondsLater = twentySecondsAgo.plusSeconds(40);
 
     @Test
     public void testGetNonexpiredValue() {

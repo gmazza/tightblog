@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.ObjectUtils;
@@ -39,13 +39,17 @@ import org.tightblog.domain.MediaDirectory;
 import org.tightblog.domain.MediaFile;
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,21 +66,17 @@ public class MediaManagerIT extends WebloggerTest {
     @Resource
     private MediaManager mediaManager;
 
-    public void setMediaManager(MediaManager mediaManager) {
-        this.mediaManager = mediaManager;
-    }
-
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         hawkInputStream = MediaManagerIT.class.getResourceAsStream("/hawk.jpg");
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException {
         hawkInputStream.close();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("mediaFileTestUser");
@@ -84,7 +84,7 @@ public class MediaManagerIT extends WebloggerTest {
         defaultDirectory = mediaDirectoryDao.findByWeblogAndName(testWeblog, "default");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);

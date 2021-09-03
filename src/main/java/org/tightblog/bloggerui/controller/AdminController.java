@@ -21,13 +21,10 @@
 package org.tightblog.bloggerui.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +65,8 @@ public class AdminController {
     private final WeblogDao weblogDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
 
+    private record WeblogData(String id, String name, String handle, boolean visible) { }
+
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
@@ -99,24 +98,12 @@ public class AdminController {
         LOG.info("daily hit counts manually reset by administrator");
     }
 
-    @GetMapping(value = "/visibleWeblogHandles")
-    public List<String> getVisibleWeblogHandles() {
-        List<String> weblogHandles = new ArrayList<>();
-        List<Weblog> weblogs = weblogDao.findByVisibleTrueOrderByHandle(Pageable.unpaged());
-        for (Weblog weblog : weblogs) {
-            weblogHandles.add(weblog.getHandle());
-        }
-        return weblogHandles;
-    }
-
     @GetMapping(value = "/webloglist")
-    public Map<String, String> getWeblogList() {
-        List<Weblog> weblogs = weblogDao.findByVisibleTrueOrderByHandle(Pageable.unpaged());
-
-        Map<String, String> weblogIdToHandleMap = new HashMap<>();
-        weblogs.forEach(w -> weblogIdToHandleMap.put(w.getId(), w.getHandle()));
-
-        return weblogIdToHandleMap;
+    public List<WeblogData> getWeblogList() {
+        List<Weblog> weblogs = weblogDao.findByOrderByHandle();
+        List<WeblogData> list = new ArrayList<>();
+        weblogs.forEach(w -> list.add(new WeblogData(w.getId(), w.getName(), w.getHandle(), w.getVisible())));
+        return list;
     }
 
     @PostMapping(value = "/weblog/{handle}/rebuildindex")

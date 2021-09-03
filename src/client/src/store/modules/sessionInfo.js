@@ -1,68 +1,69 @@
-import axios from 'axios'
+import axios from "axios";
+import { loadDataUsingAxios } from "@/store";
 
 export default {
   namespaced: true,
   state: {
     userWeblogRoles: [],
-    items: {}
+    items: {},
   },
   getters: {
-    getSessionInfo: state => {
-      return state.items
+    getSessionInfo: (state) => {
+      return state.items;
     },
-    getUserWeblogRoles: state => {
-      return state.userWeblogRoles
-    }
+    getUserWeblogRoles: (state) => {
+      return state.userWeblogRoles;
+    },
   },
   mutations: {
-    setSessionInfo (state, sessionInfo) {
-      state.items = sessionInfo
+    setSessionInfo(state, sessionInfo) {
+      state.items = sessionInfo;
     },
-    setUserWeblogRoles (state, userWeblogRoles) {
-      state.userWeblogRoles = userWeblogRoles
-    }
+    setUserWeblogRoles(state, userWeblogRoles) {
+      state.userWeblogRoles = userWeblogRoles;
+    },
   },
   actions: {
-    loadSessionInfo ({ commit }) {
+    loadSessionInfo({ commit }) {
+      loadDataUsingAxios({
+        commit: commit,
+        url: "/tb-ui/app/any/sessioninfo",
+        setter: "setSessionInfo",
+      });
+    },
+    loadUserWeblogRoles({ commit }) {
+      loadDataUsingAxios({
+        commit: commit,
+        url: "/tb-ui/authoring/rest/loggedinuser/weblogs",
+        setter: "setUserWeblogRoles",
+      });
+    },
+    detachUserFromWeblog({ dispatch }, weblogId) {
       return new Promise((resolve, reject) => {
         axios
-          .get('/tb-ui/app/any/sessioninfo')
-          .then(response => {
-            commit('setSessionInfo', response.data)
-            resolve()
-          })
-          .catch(error => reject(error))
-      })
-    },
-    loadUserWeblogRoles ({ commit }) {
-      return new Promise((resolve, reject) => {
-        axios.get('/tb-ui/authoring/rest/loggedinuser/weblogs')
-          .then(response => {
-            commit('setUserWeblogRoles', response.data)
-            resolve()
-          })
-          .catch(error => reject(error))
-      })
-    },
-    detachUserFromWeblog ({ dispatch }, weblogId) {
-      return new Promise((resolve, reject) => {
-        axios.post('/tb-ui/authoring/rest/weblogrole/' + weblogId + '/detach')
+          .post("/tb-ui/authoring/rest/weblogrole/" + weblogId + "/detach")
           .then(() => {
-            dispatch('loadUserWeblogRoles')
-            resolve()
+            dispatch("loadUserWeblogRoles");
+            resolve();
           })
-          .catch(error => reject(error))
-      })
+          .catch((error) => reject(error));
+      });
     },
-    setReceiveCommentsForWeblog ({ dispatch }, role) {
+    setReceiveCommentsForWeblog({ dispatch }, role) {
       return new Promise((resolve, reject) => {
-        axios.post('/tb-ui/authoring/rest/weblogrole/' + role.id + '/emails/' + role.emailComments)
+        axios
+          .post(
+            "/tb-ui/authoring/rest/weblogrole/" +
+              role.id +
+              "/emails/" +
+              role.emailComments
+          )
           .then(() => {
-            dispatch('loadUserWeblogRoles')
-            resolve()
+            dispatch("loadUserWeblogRoles");
+            resolve();
           })
-          .catch(error => reject(error))
-      })
-    }
-  }
-}
+          .catch((error) => reject(error));
+      });
+    },
+  },
+};

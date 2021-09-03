@@ -47,10 +47,10 @@ import java.util.stream.Collectors;
 public class BlogrollController {
     private static Logger log = LoggerFactory.getLogger(BlogrollController.class);
 
-    private WeblogDao weblogDao;
-    private BlogrollLinkDao blogrollLinkDao;
-    private WeblogManager weblogManager;
-    private UserManager userManager;
+    private final WeblogDao weblogDao;
+    private final BlogrollLinkDao blogrollLinkDao;
+    private final WeblogManager weblogManager;
+    private final UserManager userManager;
 
     @Autowired
     public BlogrollController(WeblogDao weblogDao, BlogrollLinkDao blogrollLinkDao,

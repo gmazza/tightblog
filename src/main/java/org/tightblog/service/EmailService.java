@@ -51,7 +51,6 @@ import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -62,24 +61,23 @@ import java.util.stream.Collectors;
 @EnableConfigurationProperties(DynamicProperties.class)
 public class EmailService {
 
-    private static Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
-    private UserManager userManager;
-    private UserDao userDao;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private WeblogManager weblogManager;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private URLService urlService;
-    private JavaMailSender mailSender;
-    private SpringTemplateEngine standardTemplateEngine;
-    private MessageSource messages;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private DynamicProperties dp;
-    private boolean mailEnabled;
+    private final UserManager userManager;
+    private final UserDao userDao;
+    private final UserWeblogRoleDao userWeblogRoleDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final URLService urlService;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine standardTemplateEngine;
+    private final MessageSource messages;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final DynamicProperties dp;
+    private final boolean mailEnabled;
 
     @Autowired
     public EmailService(UserManager userManager, UserDao userDao,
-                        UserWeblogRoleDao userWeblogRoleDao, WeblogManager weblogManager,
+                        UserWeblogRoleDao userWeblogRoleDao,
                         URLService urlService, JavaMailSender mailSender,
                         SpringTemplateEngine standardTemplateEngine, MessageSource messages, DynamicProperties dp,
                         WebloggerPropertiesDao webloggerPropertiesDao,
@@ -89,7 +87,6 @@ public class EmailService {
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
-        this.weblogManager = weblogManager;
         this.weblogEntryCommentDao = weblogEntryCommentDao;
         this.urlService = urlService;
         this.mailSender = mailSender;
@@ -108,7 +105,7 @@ public class EmailService {
      */
     public void sendUserActivationEmail(User user) {
         if (!mailEnabled) {
-            log.warn("Cannot send user activation email to {} because mail.enabled=false; either enable" +
+            LOG.warn("Cannot send user activation email to {} because mail.enabled=false; either enable" +
                     " or have a blog server admin activate account from User Admin page.", user);
             return;
         }
@@ -205,45 +202,6 @@ public class EmailService {
     }
 
     /**
-     * Sends email to owners and publishers of a blog whenever someone with draft rights
-     * submits a blog entry for review.
-     *
-     * @param entry pending WeblogEntry to review.
-     */
-    public void sendPendingEntryNotice(WeblogEntry entry) {
-        if (!mailEnabled) {
-            return;
-        }
-
-        String from = entry.getCreator().getEmailAddress();
-
-        // build list of reviewers (website users with at least publish role)
-        List<User> weblogUsers = userWeblogRoleDao.findByWeblogAndStatusEnabled(entry.getWeblog());
-        List<String> reviewers = new ArrayList<>();
-        weblogUsers.forEach(user -> {
-            if (userManager.checkWeblogRole(user, entry.getWeblog(), WeblogRole.POST) &&
-                    user.getEmailAddress() != null) {
-                reviewers.add(user.getEmailAddress());
-            }
-        });
-
-        String[] to = reviewers.toArray(new String[0]);
-        String subject = messages.getMessage("weblogEntry.pendingEntrySubject",
-               new Object[] {entry.getWeblog().getName(), entry.getWeblog().getHandle()},
-                entry.getWeblog().getLocaleInstance());
-
-        Context ctx = new Context(entry.getWeblog().getLocaleInstance());
-        ctx.setVariable("emailType", "PendingEntryNotice");
-        ctx.setVariable("entryTitle", entry.getTitle());
-        ctx.setVariable("screenName", entry.getCreator().getScreenName());
-        String entryEditURL = urlService.getEntryEditURL(entry);
-        ctx.setVariable("editURL", entryEditURL);
-        String message = standardTemplateEngine.process("emails/CommonEmailLayout", ctx);
-
-        sendMessage(from, to, new String[]{from}, subject, message);
-    }
-
-    /**
      * Sends email to owners and publishers of a blog whenever a blog reader leaves a comment
      * that needs to be moderated.
      *
@@ -319,11 +277,11 @@ public class EmailService {
         for (WeblogEntryComment priorComment : priorComments) {
             // if user has commented twice, count the most recent notify setting
             if (priorComment.getNotify()) {
-                log.info("Add to subscribers list: {}", priorComment.getEmail());
+                LOG.info("Add to subscribers list: {}", priorComment.getEmail());
                 subscribers.put(priorComment.getEmail().toLowerCase(), priorComment.getId());
             } else {
                 // remove user who doesn't want to be notified
-                log.info("Remove from subscribers list: {}", priorComment.getEmail());
+                LOG.info("Remove from subscribers list: {}", priorComment.getEmail());
                 subscribers.remove(priorComment.getEmail().toLowerCase());
             }
         }
@@ -430,14 +388,14 @@ public class EmailService {
             if (!StringUtils.isEmpty(from)) {
                 InternetAddress sentFrom = new InternetAddress(from);
                 message.setFrom(sentFrom);
-                log.debug("e-mail from: {}", sentFrom);
+                LOG.debug("e-mail from: {}", sentFrom);
             }
 
             if (to != null) {
                 InternetAddress[] sendTo = new InternetAddress[to.length];
                 for (int i = 0; i < to.length; i++) {
                     sendTo[i] = new InternetAddress(to[i]);
-                    log.debug("sending e-mail to: {}", to[i]);
+                    LOG.debug("sending e-mail to: {}", to[i]);
                 }
                 message.setRecipients(Message.RecipientType.TO, sendTo);
             }
@@ -446,7 +404,7 @@ public class EmailService {
                 InternetAddress[] copyTo = new InternetAddress[cc.length];
                 for (int i = 0; i < cc.length; i++) {
                     copyTo[i] = new InternetAddress(cc[i]);
-                    log.debug("copying e-mail to: {}", cc[i]);
+                    LOG.debug("copying e-mail to: {}", cc[i]);
                 }
                 message.setRecipients(Message.RecipientType.CC, copyTo);
             }
@@ -471,7 +429,7 @@ public class EmailService {
                 throw sendex;
             }
         } catch (MessagingException e) {
-            log.error("ERROR: Problem sending email with subject {}", subject, e);
+            LOG.error("ERROR: Problem sending email with subject {}", subject, e);
         }
     }
 }

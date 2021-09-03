@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.TotalHits;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -68,9 +68,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -98,7 +98,7 @@ public class SearchControllerTest {
     @Captor
     ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
 
-    @Before
+    @BeforeEach
     public void initializeMocks() throws IOException {
         mockPrincipal = mock(Principal.class);
 
@@ -119,7 +119,7 @@ public class SearchControllerTest {
 
         mockApplicationContext = mock(ApplicationContext.class);
         // return empty model map in getModelMap()
-        when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet());
+        when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet<>());
 
         mockIndexSearcher = mock(IndexSearcher.class);
         mockSearchTask = mock(SearchTask.class);

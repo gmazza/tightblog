@@ -27,17 +27,19 @@ import org.tightblog.WebloggerTest;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test User related business operations.
  */
 public class UserManagerIT extends WebloggerTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         userDao.deleteAll();

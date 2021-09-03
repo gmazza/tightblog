@@ -28,13 +28,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.bloggerui.model.WeblogTemplateData;
-import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WeblogTemplate;
 import org.tightblog.domain.WeblogTheme;
 import org.tightblog.dao.WeblogDao;
@@ -61,22 +59,19 @@ import java.util.stream.Collectors;
 @RestController
 public class TemplateController {
 
-    private static Logger log = LoggerFactory.getLogger(TemplateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TemplateController.class);
 
-    private WeblogDao weblogDao;
-    private WeblogTemplateDao weblogTemplateDao;
-    private UserManager userManager;
-    private WeblogManager weblogManager;
-    private ThemeManager themeManager;
-    private MessageSource messages;
+    private final WeblogDao weblogDao;
+    private final WeblogTemplateDao weblogTemplateDao;
+    private final WeblogManager weblogManager;
+    private final ThemeManager themeManager;
+    private final MessageSource messages;
 
     @Autowired
     public TemplateController(WeblogDao weblogDao, WeblogTemplateDao weblogTemplateDao,
-                              UserManager userManager, WeblogManager weblogManager,
-                              ThemeManager themeManager, MessageSource messages) {
+                              WeblogManager weblogManager, ThemeManager themeManager, MessageSource messages) {
         this.weblogDao = weblogDao;
         this.weblogTemplateDao = weblogTemplateDao;
-        this.userManager = userManager;
         this.weblogManager = weblogManager;
         this.themeManager = themeManager;
         this.messages = messages;
@@ -210,25 +205,25 @@ public class TemplateController {
         return violations;
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/templates/delete")
-    public void deleteTemplates(@RequestBody List<String> ids, Principal p, HttpServletResponse response) {
+    @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/templates/delete")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
+    public void deleteTemplates(@PathVariable String weblogId, @RequestBody List<String> ids, Principal p,
+                                HttpServletResponse response) {
         for (String id : ids) {
-            deleteTemplate(id, p, response);
+            deleteTemplate(weblogId, id, response);
         }
     }
 
-    private void deleteTemplate(@PathVariable String id, Principal p, HttpServletResponse response) {
-        log.info("Deleting template with ID {}...", id);
-        WeblogTemplate template = weblogTemplateDao.getOne(id);
+    private void deleteTemplate(String weblogId, String id, HttpServletResponse response) {
+        LOG.info("Deleting template with ID {}...", id);
+        // searching by both weblog ID and ID to ensure that templates from another weblogID (different from one
+        // @PreAuthorize security check was made) aren't deleted.
+        WeblogTemplate template = weblogTemplateDao.findByWeblogIdAndId(weblogId, id);
         if (template != null) {
-            if (userManager.checkWeblogRole(p.getName(), template.getWeblog(), WeblogRole.OWNER)) {
-                weblogTemplateDao.delete(template);
-                weblogManager.evictWeblogTemplateCaches(template.getWeblog(), template.getName(), template.getRole());
-                weblogManager.saveWeblog(template.getWeblog(), true);
-                response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            }
+            weblogTemplateDao.delete(template);
+            weblogManager.evictWeblogTemplateCaches(template.getWeblog(), template.getName(), template.getRole());
+            weblogManager.saveWeblog(template.getWeblog(), true);
+            response.setStatus(HttpServletResponse.SC_OK);
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -240,36 +235,38 @@ public class TemplateController {
                                          Locale locale) {
 
         Weblog weblog = weblogDao.getOne(weblogId);
-        SharedTheme newTheme = themeManager.getSharedTheme(newThemeId);
-
-        if (newTheme != null) {
-            List<Violation> errors = validateTheme(weblog, newTheme, locale);
-            if (errors.size() > 0) {
-                return ValidationErrorResponse.badRequest(errors);
-            }
-
-            // Remove old template overrides
-            List<WeblogTemplate> oldTemplates = weblogTemplateDao.getWeblogTemplateMetadata(weblog);
-
-            for (WeblogTemplate template : oldTemplates) {
-                if (template.getDerivation() == Template.Derivation.OVERRIDDEN) {
-                    weblogTemplateDao.deleteById(template.getId());
-                }
-                weblogManager.evictWeblogTemplateCaches(weblog, template.getName(), template.getRole());
-            }
-
-            weblog.setTheme(newThemeId);
-
-            log.debug("Switching to theme {} for weblog {}", newThemeId, weblog.getHandle());
-
-            // save updated weblog so its cached pages will expire
-            weblogManager.saveWeblog(weblog, true);
-            weblogTemplateDao.evictWeblogTemplates(weblog);
-
-            return SuccessResponse.textMessage(messages.getMessage("templates.setTheme.success",
-                    new Object[] {newTheme.getName()}, locale));
+        SharedTheme newTheme;
+        try {
+            newTheme = themeManager.getSharedTheme(newThemeId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        List<Violation> errors = validateTheme(weblog, newTheme, locale);
+        if (errors.size() > 0) {
+            return ValidationErrorResponse.badRequest(errors);
+        }
+
+        // Remove old template overrides
+        List<WeblogTemplate> oldTemplates = weblogTemplateDao.getWeblogTemplateMetadata(weblog);
+
+        for (WeblogTemplate template : oldTemplates) {
+            if (template.getDerivation() == Template.Derivation.OVERRIDDEN) {
+                weblogTemplateDao.deleteById(template.getId());
+            }
+            weblogManager.evictWeblogTemplateCaches(weblog, template.getName(), template.getRole());
+        }
+
+        weblog.setTheme(newThemeId);
+
+        LOG.debug("Switching to theme {} for weblog {}", newThemeId, weblog.getHandle());
+
+        // save updated weblog so its cached pages will expire
+        weblogManager.saveWeblog(weblog, true);
+        weblogTemplateDao.evictWeblogTemplates(weblog);
+
+        return SuccessResponse.textMessage(messages.getMessage("templates.setTheme.success",
+                new Object[] {newTheme.getName()}, locale));
     }
 
     private List<Violation> validateTheme(Weblog weblog, SharedTheme newTheme, Locale locale) {

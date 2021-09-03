@@ -42,6 +42,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -193,10 +194,9 @@ public class ThemeManager implements ServletContextAware {
                 // load resource representing preview image
                 String previewFilePath = sharedTheme.getThemeDir() + sharedTheme.getPreviewImagePath();
 
-                try (InputStream test = servletContext.getResourceAsStream(previewFilePath)) {
-                    if (test == null) {
-                        log.warn("Couldn't find theme [{}] thumbnail at path [{}]", sharedTheme.getName(), previewFilePath);
-                    }
+                URL test = servletContext.getResource(previewFilePath);
+                if (test == null) {
+                    log.warn("Couldn't find theme [{}] thumbnail at path [{}]", sharedTheme.getName(), previewFilePath);
                 }
 
                 // create the templates based on the theme descriptor data

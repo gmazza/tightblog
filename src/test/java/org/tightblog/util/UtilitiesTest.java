@@ -20,7 +20,7 @@
  */
 package org.tightblog.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.mobile.device.Device;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.mobile.device.DeviceType;
@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

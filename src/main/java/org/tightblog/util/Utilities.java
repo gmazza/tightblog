@@ -332,7 +332,6 @@ public final class Utilities {
         return DeviceType.NORMAL;
     }
 
-
     /**
      * Parse date as either 6-char or 8-char format.  Use current date if date not provided
      * in URL (e.g., a permalink), more than 30 days in the future, or not valid

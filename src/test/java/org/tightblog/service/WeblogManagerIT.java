@@ -1,6 +1,6 @@
 /*
 * Licensed to the Apache Software Foundation (ASF) under one or more
-*  contributor license agreements.  The ASF licenses this file to You
+* contributor license agreements.  The ASF licenses this file to You
 * under the Apache License, Version 2.0 (the "License"); you may not
 * use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -25,17 +25,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.tightblog.domain.WeblogBookmark;
 import org.tightblog.domain.WeblogRole;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test Weblog related business operations.
@@ -47,14 +51,14 @@ public class WeblogManagerIT extends WebloggerTest {
     /**
      * All tests in this suite require a user.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         testUser = setupUser("weblogTestUser");
         testWeblog = setupWeblog("testweblogmanager", testUser);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         weblogManager.removeWeblog(testWeblog);
         userManager.removeUser(testUser);
@@ -152,7 +156,7 @@ public class WeblogManagerIT extends WebloggerTest {
             weblog = weblogDao.findByHandleAndVisibleTrue(testWeblog1.getHandle());
             assertNotNull(weblog);
             
-            userManager.grantWeblogRole(testUser, testWeblog1, WeblogRole.EDIT_DRAFT);
+            userManager.grantWeblogRole(testUser, testWeblog1, WeblogRole.POST);
 
             // get all weblogs for user
             userRoles = userWeblogRoleDao.findByUser(testUser);
