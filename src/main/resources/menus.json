@@ -20,13 +20,6 @@
             "enabledProperty": "media.file.showTab",
             "weblogRole": "POST",
             "subActions": ["mediaFileAdd", "mediaFileEdit"]
-          },
-          {
-            "action": "templates",
-            "actionPath": "/tb-ui/app/authoring/",
-            "titleKey": "templates.title",
-            "enabledProperty": "themes.customtheme.allowed",
-            "subActions": ["templateEdit"]
           }
         ]
       }

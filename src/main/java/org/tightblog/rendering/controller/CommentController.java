@@ -22,6 +22,7 @@ package org.tightblog.rendering.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jsoup.safety.Safelist;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -54,7 +55,6 @@ import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.util.HTMLSanitizer;
 import org.tightblog.util.Utilities;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,23 +95,23 @@ import java.util.stream.Stream;
 @RequestMapping(path = CommentController.PATH)
 public class CommentController extends AbstractController {
 
-    private static Logger log = LoggerFactory.getLogger(CommentController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
 
     public static final String PATH = "/tb-ui/rendering/comment";
 
     private static final String EMAIL_ADDR_REGEXP = "^.*@.*[.].{2,}$";
 
-    private WeblogDao weblogDao;
+    private final WeblogDao weblogDao;
 
-    private UserDao userDao;
-    private LuceneIndexer luceneIndexer;
-    private WeblogEntryManager weblogEntryManager;
-    private UserManager userManager;
-    private EmailService emailService;
-    private MessageSource messages;
-    private PageModel pageModel;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private CommentSpamChecker commentSpamChecker;
+    private final UserDao userDao;
+    private final LuceneIndexer luceneIndexer;
+    private final WeblogEntryManager weblogEntryManager;
+    private final UserManager userManager;
+    private final EmailService emailService;
+    private final MessageSource messages;
+    private final PageModel pageModel;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final CommentSpamChecker commentSpamChecker;
 
     private EntityManager entityManager;
 
@@ -159,7 +159,7 @@ public class CommentController extends AbstractController {
         WebloggerProperties.CommentPolicy commentOption = props.getCommentPolicy();
 
         if (WebloggerProperties.CommentPolicy.NONE.equals(commentOption)) {
-            log.info("Getting comment post even though commenting is disabled -- returning 404");
+            LOG.info("Getting comment post even though commenting is disabled -- returning 404");
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
@@ -169,7 +169,7 @@ public class CommentController extends AbstractController {
 
         Weblog weblog = weblogDao.findByHandleAndVisibleTrue(incomingRequest.getWeblogHandle());
         if (weblog == null) {
-            log.info("Commenter attempted to leave comment for weblog with unknown handle: {}, returning 404",
+            LOG.info("Commenter attempted to leave comment for weblog with unknown handle: {}, returning 404",
                     incomingRequest.getWeblogHandle());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -179,7 +179,7 @@ public class CommentController extends AbstractController {
 
         WeblogEntry entry = weblogEntryManager.getWeblogEntryByAnchor(weblog, incomingRequest.getWeblogEntryAnchor());
         if (entry == null || !entry.isPublished()) {
-            log.info("Commenter attempted to leave comment for weblog {}'s entry with unknown or " +
+            LOG.info("Commenter attempted to leave comment for weblog {}'s entry with unknown or " +
                             "unpublished anchor: {}, returning 404",
                     incomingRequest.getWeblogHandle(), incomingRequest.getWeblogEntryAnchor());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -194,7 +194,7 @@ public class CommentController extends AbstractController {
 
         WeblogEntryComment incomingComment = createCommentFromRequest(request, incomingRequest, props.getCommentHtmlPolicy());
 
-        log.debug("Incoming comment: {}", incomingComment.toString());
+        LOG.debug("Incoming comment: {}", incomingComment.toString());
 
         // First check comment for valid and authorized input
         String errorProperty;
@@ -269,7 +269,7 @@ public class CommentController extends AbstractController {
                     emailService.sendPendingCommentNotice(incomingComment, spamEvaluations);
                 }
             } else {
-                log.info("Incoming comment from {} ({}) for blog {} judged to be spam, deleted per blog's spam policy",
+                LOG.info("Incoming comment from {} ({}) for blog {} judged to be spam, deleted per blog's spam policy",
                         incomingComment.getName(), incomingComment.getEmail(), incomingComment.getWeblog().getHandle());
             }
 
@@ -284,7 +284,7 @@ public class CommentController extends AbstractController {
         String dispatchUrl = PageController.PATH + "/" + weblog.getHandle() + "/entry/"
                 + Utilities.encode(incomingRequest.getWeblogEntry().getAnchor());
 
-        log.debug("comment processed, forwarding to {}", dispatchUrl);
+        LOG.debug("comment processed, forwarding to {}", dispatchUrl);
         // add comment so PageProcessor can place it in the PageModel for rendering
         request.setAttribute("commentForm", incomingComment);
         RequestDispatcher dispatcher = request.getRequestDispatcher(dispatchUrl);
@@ -339,13 +339,13 @@ public class CommentController extends AbstractController {
         if (StringUtils.isNotBlank(rawComment)) {
             comment.setContent(StringUtils.left(rawComment, 2000));
 
-            Whitelist commentHTMLWhitelist = sanitizerLevel.getWhitelist();
+            Safelist commentHTMLSafelist = sanitizerLevel.getSafelist();
 
             // Need to insert paragraph breaks in case commenter didn't do so.
             String commentTemp = Utilities.insertLineBreaksIfMissing(comment.getContent());
 
             // Remove HTML tags outside those permitted by the TightBlog admin
-            comment.setContent(Jsoup.clean(commentTemp, commentHTMLWhitelist));
+            comment.setContent(Jsoup.clean(commentTemp, commentHTMLSafelist));
         }
 
         return comment;

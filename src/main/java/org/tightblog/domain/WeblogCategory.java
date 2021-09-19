@@ -29,8 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -47,11 +45,6 @@ public class WeblogCategory implements Comparable<WeblogCategory>, WeblogOwned {
     private int position;
     // parent weblog of category
     private Weblog weblog;
-
-    // transient fields for statistics
-    private int numEntries;
-    private LocalDate firstEntry;
-    private LocalDate lastEntry;
 
     public WeblogCategory() {
     }
@@ -135,32 +128,5 @@ public class WeblogCategory implements Comparable<WeblogCategory>, WeblogOwned {
             hashCode = Objects.hashCode(id);
         }
         return hashCode;
-    }
-
-    @Transient
-    public int getNumEntries() {
-        return numEntries;
-    }
-
-    public void setNumEntries(int numEntries) {
-        this.numEntries = numEntries;
-    }
-
-    @Transient
-    public LocalDate getFirstEntry() {
-        return firstEntry;
-    }
-
-    public void setFirstEntry(LocalDate firstEntry) {
-        this.firstEntry = firstEntry;
-    }
-
-    @Transient
-    public LocalDate getLastEntry() {
-        return lastEntry;
-    }
-
-    public void setLastEntry(LocalDate lastEntry) {
-        this.lastEntry = lastEntry;
     }
 }

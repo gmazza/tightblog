@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -68,18 +69,18 @@ import java.util.TreeMap;
 @EnableConfigurationProperties(DynamicProperties.class)
 public class WeblogManager {
 
-    private static Logger log = LoggerFactory.getLogger(WeblogManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogManager.class);
 
-    private WeblogEntryDao weblogEntryDao;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private WeblogCategoryDao weblogCategoryDao;
-    private WeblogEntryTagDao weblogEntryTagDao;
-    private WeblogTemplateDao weblogTemplateDao;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private WeblogDao weblogDao;
-    private UserManager userManager;
-    private DynamicProperties dp;
+    private final WeblogEntryDao weblogEntryDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final WeblogCategoryDao weblogCategoryDao;
+    private final WeblogEntryTagDao weblogEntryTagDao;
+    private final WeblogTemplateDao weblogTemplateDao;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final UserWeblogRoleDao userWeblogRoleDao;
+    private final WeblogDao weblogDao;
+    private final UserManager userManager;
+    private final DynamicProperties dp;
 
     @Autowired
     private MediaManager mediaManager;
@@ -99,6 +100,8 @@ public class WeblogManager {
     // Map of each weblog and its extra hit count that has had additional accesses since the
     // last scheduled updateHitCounters() call.
     private Map<String, Long> hitsTally = Collections.synchronizedMap(new HashMap<>());
+
+    public record WeblogCategoryData(String id, String name, LocalDate firstEntry, LocalDate lastEntry, int numEntries) { }
 
     @Autowired
     public WeblogManager(WeblogEntryDao weblogEntryDao,
@@ -273,7 +276,7 @@ public class WeblogManager {
                     weblog.setHitsToday(weblog.getHitsToday() + entry.getValue().intValue());
                     saveWeblog(weblog, true);
                     totalHitsProcessed += entry.getValue();
-                    log.info("Updated blog hits, {} total extra hits from {} blogs", totalHitsProcessed, hitsTallyCopy.size());
+                    LOG.info("Updated blog hits, {} total extra hits from {} blogs", totalHitsProcessed, hitsTallyCopy.size());
                 }
             }
         }
@@ -283,8 +286,9 @@ public class WeblogManager {
      * Get WeblogCategory objects for a weblog.
      * @param weblog weblog whose categories are desired
      */
-    public List<WeblogCategory> getWeblogCategories(Weblog weblog) {
+    public List<WeblogCategoryData> getWeblogCategoryData(Weblog weblog) {
         List<WeblogCategory> categories = weblogCategoryDao.findByWeblogOrderByPosition(weblog);
+        List<WeblogCategoryData> wcdList = new ArrayList<>(categories.size());
 
         // obtain usage stats
         String queryString = "SELECT new org.tightblog.service.WeblogManager.CategoryStats(we.category, " +
@@ -295,31 +299,34 @@ public class WeblogManager {
 
         List<CategoryStats> stats = query.getResultList();
 
-        for (CategoryStats stat : stats) {
-            WeblogCategory category = categories.stream().filter(
-                    r -> r.getId().equals(stat.category.getId())).findFirst().orElse(null);
-            if (category != null) {
-                category.setNumEntries(stat.numEntries);
-                category.setFirstEntry(stat.firstEntry);
-                category.setLastEntry(stat.lastEntry);
+        for (WeblogCategory cat : categories) {
+            Optional<CategoryStats> maybeStats = stats.stream().filter(s -> cat.getId().equals(s.category.getId())).findFirst();
+            if (maybeStats.isPresent()) {
+                CategoryStats stat = maybeStats.get();
+                wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
+                        stat.firstEntry, stat.lastEntry, stat.numEntries));
+            } else {
+                wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
+                        null, null, 0));
             }
         }
-        return categories;
+
+        return wcdList;
     }
 
-    public static class CategoryStats {
-        public CategoryStats(WeblogCategory category, Instant firstEntry, Instant lastEntry, Long numEntries) {
-            this.category = category;
-            this.numEntries = numEntries.intValue();
-            this.firstEntry = firstEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
-            this.lastEntry = lastEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
-        }
+     public static class CategoryStats {
+         public CategoryStats(WeblogCategory category, Instant firstEntry, Instant lastEntry, Long numEntries) {
+             this.category = category;
+             this.numEntries = numEntries.intValue();
+             this.firstEntry = firstEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
+             this.lastEntry = lastEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
+         }
 
-        WeblogCategory category;
-        private int numEntries;
-        private LocalDate firstEntry;
-        private LocalDate lastEntry;
-    }
+         WeblogCategory category;
+         private final int numEntries;
+         private final LocalDate firstEntry;
+         private final LocalDate lastEntry;
+     }
 
     /**
      * Get list of WeblogEntryTagAggregate objects for the tags comprising a weblog.
@@ -496,7 +503,7 @@ public class WeblogManager {
 
      @Scheduled(cron = "${cron.reset.hit.counts}")
      public void resetHitCounts() {
-         log.info("Resetting daily hit counts...");
+         LOG.info("Resetting daily hit counts...");
          weblogDao.resetDailyHitCounts();
      }
 }

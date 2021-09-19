@@ -320,14 +320,29 @@
           id="modal-delete"
           centered
           ok-variant="danger"
-          @ok="deleteWeblog()"
+          @ok="removeWeblog()"
         >
           <template #modal-title>
-            <div v-html="deleteDialogTitle"></div>
+            <div
+              v-html="
+                $t('weblogConfig.deleteConfirm', {
+                  handle: weblog.handle,
+                })
+              "
+            ></div>
           </template>
-          <div v-html="deleteDialogWarning" class="text-danger"></div>
+          <div
+            v-html="$t('weblogConfig.deleteWarning')"
+            class="text-danger"
+          ></div>
           <br />
-          <div>{{ deleteDialogInstruction }}</div>
+          <div>
+            {{
+              $t("weblogConfig.deleteInstruction", {
+                handle: weblog.handle,
+              })
+            }}
+          </div>
           <div>
             <label for="newTag">{{ $t("weblogConfig.handle") }}:</label>
             <input v-model="deleteHandle" type="text" />
@@ -416,14 +431,12 @@ export default {
           saveButtonText: "common.save",
           subtitlePrompt: "weblogConfig.updateWeblogPrompt",
           pageTitleKey: "weblogConfig.updateTitle",
-          refreshUrl: "/tb-ui/app/weblogConfig?weblogId=" + this.weblogId,
         };
       } else {
         return {
           saveButtonText: "weblogConfig.createWeblogButton",
           subtitlePrompt: "weblogConfig.createWeblogPrompt",
           pageTitleKey: "weblogConfig.createTitle",
-          refreshUrl: "/tb-ui/app/createWeblog",
         };
       }
     },
@@ -433,38 +446,21 @@ export default {
       loadStartupConfig: "startupConfig/loadStartupConfig",
       loadLookupValues: "startupConfig/loadLookupValues",
       loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
+      fetchWeblog: "sessionInfo/fetchWeblog",
+      upsertWeblog: "sessionInfo/upsertWeblog",
+      deleteWeblog: "sessionInfo/deleteWeblog",
     }),
-    loadWeblog: function () {
-      this.axios
-        .get("/tb-ui/authoring/rest/weblog/" + this.weblogId)
-        .then((response) => {
-          this.weblog = response.data;
-          this.deleteDialogTitle = this.$t("weblogConfig.deleteConfirm", {
-            handle: this.weblog.handle,
-          });
-          this.deleteDialogWarning = this.$t("weblogConfig.deleteWarning");
-          this.deleteDialogInstruction = this.$t(
-            "weblogConfig.deleteInstruction",
-            { handle: this.weblog.handle }
-          );
-        });
-    },
     updateWeblog: function () {
       this.messageClear();
-      const urlToUse = this.weblogId
-        ? "/tb-ui/authoring/rest/weblog/" + this.weblogId
-        : "/tb-ui/authoring/rest/weblogs";
-
-      this.axios
-        .post(urlToUse, this.weblog)
-        .then((response) => {
-          this.weblog = response.data;
-          if (!this.weblogId) {
+      const isNew = !this.weblogId;
+      this.upsertWeblog({ ...this.weblog })
+        .then(() => {
+          if (isNew) {
             this.$router.push({ name: "myBlogs" });
           } else {
             this.successMessage = this.$t("common.changesSaved");
+            window.scrollTo(0, 0);
           }
-          window.scrollTo(0, 0);
         })
         .catch((error) => {
           if (error.response.status === 400) {
@@ -475,27 +471,26 @@ export default {
           }
         });
     },
+    removeWeblog: function () {
+      if (
+        this.weblog.id &&
+        this.weblog.handle.toUpperCase() ===
+          this.deleteHandle.toUpperCase().trim()
+      ) {
+        this.deleteWeblog(this.weblogId)
+          .then(() => {
+            this.$router.push({ name: "myBlogs" });
+          })
+          .catch((error) => this.commonErrorResponse(error));
+      }
+    },
     cancelChanges: function () {
       this.messageClear();
       if (this.weblogId) {
         this.loadWeblog();
         window.scrollTo(0, 0);
       } else {
-        window.location.href = "/tb-ui/app/home";
-      }
-    },
-    deleteWeblog: function () {
-      if (
-        this.weblog.id &&
-        this.weblog.handle.toUpperCase() ===
-          this.deleteHandle.toUpperCase().trim()
-      ) {
-        this.axios
-          .delete("/tb-ui/authoring/rest/weblog/" + this.weblogId)
-          .then(() => {
-            window.location.href = "/tb-ui/app/home";
-          })
-          .catch((error) => this.commonErrorResponse(error));
+        this.$router.push({ name: "myBlogs" });
       }
     },
     commonErrorResponse: function (error) {
@@ -516,7 +511,9 @@ export default {
     this.loadStartupConfig();
     this.loadLookupValues();
     if (this.weblogId) {
-      this.loadWeblog();
+      this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+        this.weblog = { ...fetchedWeblog };
+      });
     }
   },
 };

@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
-import org.tightblog.bloggerui.model.WeblogTemplateData;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.service.ThemeManager;
@@ -67,6 +66,10 @@ public class TemplateController {
     private final ThemeManager themeManager;
     private final MessageSource messages;
 
+    private record TemplateRole(String constant, String readableName, String descriptionProperty) { }
+    private record WeblogThemeData(List<SharedTheme> themes, List<? extends Template> templates,
+                                   List<TemplateRole> availableTemplateRoles) { }
+
     @Autowired
     public TemplateController(WeblogDao weblogDao, WeblogTemplateDao weblogTemplateDao,
                               WeblogManager weblogManager, ThemeManager themeManager, MessageSource messages) {
@@ -79,13 +82,9 @@ public class TemplateController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/templates")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
-    public WeblogTemplateData getWeblogTemplates(@PathVariable String id, Principal p, Locale locale) {
-
-        Weblog weblog = weblogDao.getOne(id);
+    public WeblogThemeData getWeblogTemplates(@PathVariable String id, Principal p) {
+        Weblog weblog = weblogDao.getById(id);
         WeblogTheme theme = new WeblogTheme(weblogTemplateDao, weblog, themeManager.getSharedTheme(weblog.getTheme()));
-
-        WeblogTemplateData wtd = new WeblogTemplateData();
-        wtd.getTemplates().addAll(theme.getTemplates());
 
         // build list of template role types that may be added
         List<Template.Role> availableRoles = Arrays.stream(Template.Role.values()).
@@ -93,23 +92,21 @@ public class TemplateController {
                 collect(Collectors.toList());
 
         // remove from above list any already existing for the theme
-        wtd.getTemplates().stream().filter(t -> t.getRole().isSingleton()).forEach(t ->
+        theme.getTemplates().stream().filter(t -> t.getRole().isSingleton()).forEach(t ->
                 availableRoles.removeIf(r -> r.name().equals(t.getRole().name())));
 
-        availableRoles.forEach(role -> wtd.getAvailableTemplateRoles().put(role.getName(), role.getReadableName()));
-        availableRoles.forEach(role -> wtd.getTemplateRoleDescriptions().put(role.getName(),
-                messages.getMessage(role.getDescriptionProperty(), null, locale)));
+        List<TemplateRole> roles = new ArrayList<>();
+        availableRoles.forEach(role -> roles.add(new TemplateRole(role.getName(), role.getReadableName(),
+                role.getDescriptionProperty())));
 
-        wtd.getThemes().addAll(themeManager.getEnabledSharedThemesList());
-
-        return wtd;
+        return new WeblogThemeData(themeManager.getEnabledSharedThemesList(), theme.getTemplates(), roles);
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/template/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogTemplate), #id, 'OWNER')")
     public WeblogTemplate getWeblogTemplate(@PathVariable String id, Principal p) {
 
-        WeblogTemplate template = weblogTemplateDao.getOne(id);
+        WeblogTemplate template = weblogTemplateDao.getById(id);
 
         if (themeManager.getSharedTheme(template.getWeblog().getTheme()).getTemplateByName(template.getName()) != null) {
             template.setDerivation(Template.Derivation.OVERRIDDEN);
@@ -126,7 +123,7 @@ public class TemplateController {
     public WeblogTemplate getWeblogTemplateByName(@PathVariable String weblogId, @PathVariable String templateName, Principal p,
                                                   HttpServletResponse response) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
         SharedTheme sharedTheme = themeManager.getSharedTheme(weblog.getTheme());
         Template sharedTemplate = sharedTheme.getTemplateByName(templateName);
         if (sharedTemplate != null) {
@@ -141,9 +138,10 @@ public class TemplateController {
     public ResponseEntity<?> postTemplate(@PathVariable String weblogId, @Valid @RequestBody WeblogTemplate templateData,
                                       Principal p, Locale locale) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
-        WeblogTemplate templateToSave = weblogTemplateDao.findById(templateData.getId()).orElse(null);
+        Weblog weblog = weblogDao.getById(weblogId);
+        WeblogTemplate templateToSave = weblogTemplateDao.findByWeblogIdAndId(weblog.getId(), templateData.getId());
 
+        String originalName = null;
         // create new?
         if (templateToSave == null) {
             templateToSave = new WeblogTemplate();
@@ -152,22 +150,22 @@ public class TemplateController {
             } else {
                 templateToSave.setRole(Template.Role.valueOf(templateData.getRoleName()));
             }
+            templateToSave.setName(templateData.getName());
+            templateToSave.setWeblog(weblog);
+        } else {
+            originalName = templateToSave.getName();
+            if (Template.Derivation.SPECIFICBLOG.equals(templateToSave.getDerivation())) {
+                templateToSave.setName(templateData.getName());
+            }
         }
 
-        templateToSave.setWeblog(weblog);
         templateToSave.setTemplate(templateData.getTemplate());
+        templateToSave.setLastModified(Instant.now());
 
         // some properties relevant only for certain template roles
         if (!templateToSave.getRole().isSingleton()) {
             templateToSave.setDescription(templateData.getDescription());
         }
-
-        String originalName = templateToSave.getName();
-        if (Template.Derivation.SPECIFICBLOG.equals(templateToSave.getDerivation())) {
-            templateToSave.setName(templateData.getName());
-        }
-
-        templateToSave.setLastModified(Instant.now());
 
         List<Violation> violations = validateTemplates(templateToSave, locale);
         if (violations.size() > 0) {
@@ -234,7 +232,7 @@ public class TemplateController {
     public ResponseEntity<?> switchTheme(@PathVariable String weblogId, @PathVariable String newThemeId, Principal p,
                                          Locale locale) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
         SharedTheme newTheme;
         try {
             newTheme = themeManager.getSharedTheme(newThemeId);
@@ -265,8 +263,7 @@ public class TemplateController {
         weblogManager.saveWeblog(weblog, true);
         weblogTemplateDao.evictWeblogTemplates(weblog);
 
-        return SuccessResponse.textMessage(messages.getMessage("templates.setTheme.success",
-                new Object[] {newTheme.getName()}, locale));
+        return ResponseEntity.noContent().build();
     }
 
     private List<Violation> validateTheme(Weblog weblog, SharedTheme newTheme, Locale locale) {

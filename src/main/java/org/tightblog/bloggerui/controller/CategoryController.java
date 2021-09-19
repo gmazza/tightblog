@@ -22,7 +22,6 @@ package org.tightblog.bloggerui.controller;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,16 +38,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.dao.WeblogDao;
+import org.tightblog.service.WeblogManager.WeblogCategoryData;
 
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class CategoryController {
 
-    private WeblogDao weblogDao;
-    private WeblogCategoryDao weblogCategoryDao;
-    private WeblogManager weblogManager;
-    private WeblogEntryManager weblogEntryManager;
+    private final WeblogDao weblogDao;
+    private final WeblogCategoryDao weblogCategoryDao;
+    private final WeblogManager weblogManager;
+    private final WeblogEntryManager weblogEntryManager;
 
     @Autowired
     public CategoryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao, WeblogManager weblogManager,
@@ -61,12 +61,8 @@ public class CategoryController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/categories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public List<WeblogCategory> getWeblogCategories(@RequestParam(name = "weblogId") String weblogId, Principal p) {
-
-        return weblogManager.getWeblogCategories(weblogDao.getOne(weblogId))
-                .stream()
-                .peek(cat -> cat.setWeblog(null))
-                .collect(Collectors.toList());
+    public List<WeblogCategoryData> getWeblogCategoryData(@RequestParam(name = "weblogId") String weblogId, Principal p) {
+        return weblogManager.getWeblogCategoryData(weblogDao.getById(weblogId));
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/categories")
@@ -74,7 +70,7 @@ public class CategoryController {
     public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategory newCategory,
                             Principal p, HttpServletResponse response) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         if (weblog.getWeblogCategories().stream().anyMatch(c -> newCategory.getName().equals(c.getName()))) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -90,7 +86,7 @@ public class CategoryController {
     public void updateCategory(@PathVariable String id, @RequestBody WeblogCategory updatedCategory, Principal p,
                                HttpServletResponse response) {
 
-        WeblogCategory c = weblogCategoryDao.getOne(id);
+        WeblogCategory c = weblogCategoryDao.getById(id);
         Weblog weblog = c.getWeblog();
         if (!c.getName().equals(updatedCategory.getName())) {
             // can't change category name to one already existing for blog
@@ -107,7 +103,7 @@ public class CategoryController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogCategory), #id, 'OWNER')")
     public void removeCategory(@PathVariable String id, @RequestParam String targetCategoryId, Principal p) {
 
-        WeblogCategory categoryToRemove = weblogCategoryDao.getOne(id);
+        WeblogCategory categoryToRemove = weblogCategoryDao.getById(id);
 
         // ensure target category is on same weblog
         Weblog weblog = categoryToRemove.getWeblog();

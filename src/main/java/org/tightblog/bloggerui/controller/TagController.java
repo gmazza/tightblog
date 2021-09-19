@@ -61,7 +61,7 @@ public class TagController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public WeblogTagSummaryData getTags(@PathVariable String weblogId, @PathVariable int page, Principal p) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         List<WeblogEntryTagAggregate> rawEntries = weblogManager.getTags(weblog, "count", null,
                 page * ITEMS_PER_PAGE, ITEMS_PER_PAGE + 1);
@@ -97,7 +97,7 @@ public class TagController {
 
     private Map<String, Integer> changeTags(String weblogId, String currentTagName, String newTagName, boolean isAdd) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
         log.info("For weblog {} {} current tag {} to new tag {}", weblog.getHandle(), isAdd ? "adding" : "renaming",
                 currentTagName, newTagName);
 
@@ -111,7 +111,7 @@ public class TagController {
     @PostMapping(value = "/weblog/{weblogId}/delete")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public void deleteTags(@PathVariable String weblogId, @RequestBody List<String> tagNames, Principal p) {
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
         for (String tagName : tagNames) {
             weblogManager.removeTag(weblog, tagName);
         }

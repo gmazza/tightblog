@@ -29,7 +29,6 @@ import org.tightblog.bloggerui.model.EntryEditMetadata;
 import org.tightblog.bloggerui.model.TagAutocompleteData;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.bloggerui.model.WeblogEntryData;
-import org.tightblog.bloggerui.model.WeblogEntrySaveResponse;
 import org.tightblog.bloggerui.model.WeblogCategoryData;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.URLService;
@@ -104,6 +103,8 @@ public class WeblogEntryController {
     // Max Tag options to display for autocomplete
     private final int maxAutocompleteTags;
 
+    private record WeblogEntrySaveResponse(String entryId, String message) { }
+
     @Autowired
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
                                  UserDao userDao, UserManager userManager, WeblogManager weblogManager,
@@ -136,7 +137,7 @@ public class WeblogEntryController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
     public WeblogEntry getWeblogEntry(@PathVariable String id, Principal p) {
 
-        WeblogEntry entry = weblogEntryDao.getOne(id);
+        WeblogEntry entry = weblogEntryDao.getById(id);
         Weblog weblog = entry.getWeblog();
         entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
         entry.setCommentsUrl(urlService.getCommentManagementURL(weblog.getId(), entry.getId()));
@@ -160,7 +161,7 @@ public class WeblogEntryController {
     public WeblogEntryData getWeblogEntries(@PathVariable String weblogId, @PathVariable int page,
                                             @RequestBody WeblogEntrySearchCriteria criteria, Principal p) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         criteria.setWeblog(weblog);
         criteria.setOffset(page * ITEMS_PER_PAGE);
@@ -187,7 +188,7 @@ public class WeblogEntryController {
     public List<WeblogEntry> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
                                               Principal p) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         List<WeblogEntry> entries = new ArrayList<>();
         if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
@@ -207,7 +208,7 @@ public class WeblogEntryController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public WeblogCategoryData getWeblogCategoryData(@PathVariable String weblogId, Principal p) {
 
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         // categories
         WeblogCategoryData wcd = new WeblogCategoryData();
@@ -235,7 +236,7 @@ public class WeblogEntryController {
 
         // Get user permissions and locale
         User user = userDao.findEnabledByUserName(p.getName());
-        Weblog weblog = weblogDao.getOne(weblogId);
+        Weblog weblog = weblogDao.getById(weblogId);
 
         EntryEditMetadata fields = new EntryEditMetadata();
 
@@ -264,7 +265,6 @@ public class WeblogEntryController {
 
     // publish
     // save
-    // submit for review
     @PostMapping(value = "/{weblogId}/entries")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public ResponseEntity<?> postEntry(@PathVariable String weblogId, @Valid @RequestBody WeblogEntry entryData,
@@ -354,27 +354,18 @@ public class WeblogEntryController {
                 luceneIndexer.updateIndex(entry, true);
             }
 
-            WeblogEntrySaveResponse wesr = new WeblogEntrySaveResponse();
-            wesr.setEntryId(entry.getId());
-
             String message = null;
             switch (entry.getStatus()) {
-                case DRAFT:
-                    message = messages.getMessage("entryEdit.draftSaved", null, locale);
-                    break;
-                case PUBLISHED:
-                    message = messages.getMessage("entryEdit.publishedEntry", null, locale);
-                    break;
-                case SCHEDULED:
-                    message = messages.getMessage("entryEdit.scheduledEntry",
-                            new Object[] {DateTimeFormatter.ISO_DATE_TIME.withZone(entry.getWeblog().getZoneId())
-                                    .format(entry.getPubTime())}, null, locale);
-                    break;
-                default:
+                case DRAFT -> message = messages.getMessage("entryEdit.draftSaved", null, locale);
+                case PUBLISHED -> message = messages.getMessage("entryEdit.publishedEntry", null, locale);
+                case SCHEDULED -> message = messages.getMessage("entryEdit.scheduledEntry",
+                        new Object[]{DateTimeFormatter.ISO_DATE_TIME.withZone(entry.getWeblog().getZoneId())
+                                .format(entry.getPubTime())}, null, locale);
+                default -> {
+                }
             }
 
-            wesr.setMessage(message);
-            return ResponseEntity.ok(wesr);
+            return ResponseEntity.ok(new WeblogEntrySaveResponse(entry.getId(), message));
         } else {
             return ResponseEntity.status(403).body(messages.getMessage("error.title.403", null, locale));
         }

@@ -117,12 +117,4 @@
         <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
     </definition>
 
-    <definition name=".templates" extends=".tiles-vue-tabbedpage"  >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/Templates.jsp" />
-    </definition>
-
-    <definition name=".templateEdit" extends=".tiles-vue-tabbedpage"  >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/TemplateEdit.jsp" />
-    </definition>
-
 </tiles-definitions>

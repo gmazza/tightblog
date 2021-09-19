@@ -15,44 +15,44 @@
 */
 package org.tightblog.util;
 
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 public final class HTMLSanitizer {
 
-    private static final Whitelist NONE_WHITELIST = Whitelist.none();
+    private static final Safelist NONE_SAFELIST = Safelist.none();
 
-    private static final Whitelist LIMITED_WHITELIST = Whitelist.simpleText().addTags("br", "p");
+    private static final Safelist LIMITED_SAFELIST = Safelist.simpleText().addTags("br", "p");
 
-    private static final Whitelist BASIC_WHITELIST = Whitelist.basic();
+    private static final Safelist BASIC_SAFELIST = Safelist.basic();
 
-    private static final Whitelist BASIC_IMAGES_WHITELIST = Whitelist.basicWithImages();
+    private static final Safelist BASIC_IMAGES_SAFELIST = Safelist.basicWithImages();
 
-    private static final Whitelist RELAXED_WHITELIST = Whitelist.relaxed();
+    private static final Safelist RELAXED_SAFELIST = Safelist.relaxed();
 
-    private static final Whitelist RELAXED_IFRAMES_WHITELIST = Whitelist.relaxed()
+    private static final Safelist RELAXED_IFRAMES_SAFELIST = Safelist.relaxed()
             .addTags("iframe")
             .addAttributes("iframe", "width", "height", "src", "style", "allowfullscreen")
             .addProtocols("iframe", "src", "http", "https");
 
     public enum Level {
-        NONE(0, "globalConfig.htmlsanitizer.none", NONE_WHITELIST),
-        LIMITED(1, "globalConfig.htmlsanitizer.limited", LIMITED_WHITELIST),
-        BASIC(2, "globalConfig.htmlsanitizer.basic", BASIC_WHITELIST),
-        BASIC_IMAGES(3, "globalConfig.htmlsanitizer.basicimages", BASIC_IMAGES_WHITELIST),
-        RELAXED(4, "globalConfig.htmlsanitizer.relaxed", RELAXED_WHITELIST),
-        RELAXED_IFRAMES(5, "globalConfig.htmlsanitizer.relaxediframes", RELAXED_IFRAMES_WHITELIST),
+        NONE(0, "globalConfig.htmlsanitizer.none", NONE_SAFELIST),
+        LIMITED(1, "globalConfig.htmlsanitizer.limited", LIMITED_SAFELIST),
+        BASIC(2, "globalConfig.htmlsanitizer.basic", BASIC_SAFELIST),
+        BASIC_IMAGES(3, "globalConfig.htmlsanitizer.basicimages", BASIC_IMAGES_SAFELIST),
+        RELAXED(4, "globalConfig.htmlsanitizer.relaxed", RELAXED_SAFELIST),
+        RELAXED_IFRAMES(5, "globalConfig.htmlsanitizer.relaxediframes", RELAXED_IFRAMES_SAFELIST),
         OFF(6, "globalConfig.htmlsanitizer.off", null);
 
         private String description;
 
         private int sanitizingLevel;
 
-        private Whitelist whitelist;
+        private Safelist safelist;
 
-        Level(int sanitizingLevel, String description, Whitelist whitelist) {
+        Level(int sanitizingLevel, String description, Safelist safelist) {
             this.sanitizingLevel = sanitizingLevel;
             this.description = description;
-            this.whitelist = whitelist;
+            this.safelist = safelist;
         }
 
         public String getDescription() {
@@ -63,8 +63,8 @@ public final class HTMLSanitizer {
             return sanitizingLevel;
         }
 
-        public Whitelist getWhitelist() {
-            return whitelist;
+        public Safelist getSafelist() {
+            return safelist;
         }
     }
 

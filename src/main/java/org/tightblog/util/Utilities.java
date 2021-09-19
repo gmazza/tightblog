@@ -88,7 +88,7 @@ public final class Utilities {
         if (str == null) {
             return null;
         } else {
-            return Jsoup.clean(str, HTMLSanitizer.Level.NONE.getWhitelist());
+            return Jsoup.clean(str, HTMLSanitizer.Level.NONE.getSafelist());
         }
     }
 
