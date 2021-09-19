@@ -90,6 +90,7 @@
     "description": "Description",
     "edit": "Edit",
     "entries": "Entries",
+    "lastModified": "Last Modified",
     "name": "Name",
     "newEntry": "New Entry",
     "nextPage": "Next Page",
@@ -100,10 +101,12 @@
     "rename": "Rename",
     "role": "Role",
     "save": "Save",
+    "saveChanges": "Save Changes",
     "selectAll": "Select All",
     "tags": "Tags",
     "weblog": "Weblog",
-    "url": "URL"
+    "url": "URL",
+    "view": "View"
   },
   "entries": {
     "title": "Entries",
@@ -142,14 +145,14 @@
     "requiredRegistrationProcess": "Registration process for new users",
     "newUsersCreateBlogs": "New users may create weblogs by default?",
     "weblogSettings": "Weblog Settings",
-    "htmlWhitelistLevel": "Allowed HTML in blog entries",
+    "htmlSafelistLevel": "Allowed HTML in blog entries",
     "allowCustomTheme": "Allow Custom Themes?",
     "maxMediaFileAllocationMb": "Max Media File Allocation (MB)",
     "defaultAnalyticsTrackingCode": "Default web analytics tracking code",
     "allowAnalyticsCodeOverride": "Allow individual blogs to override above code?",
     "commentSettings": "Comment Settings",
     "enableComments": "Allow weblog comments?",
-    "commentHtmlWhitelistLevel": "Allowed HTML in comments",
+    "commentHtmlSafelistLevel": "Allowed HTML in comments",
     "spamPolicy": "What to do with comments identified as spam?",
     "emailComments": "Allow email notification of comments?",
     "ignoreUrls": "Comment spam filter",
@@ -181,12 +184,12 @@
       "frontpageWeblogHandle": "The default weblog shown at the application's base URL.  Will automatically be set to the first weblog created but can be later changed here.",
       "requiredRegistrationProcess": "For best security, disable when everyone you want to have an account has one.",
       "newUsersCreateBlogs": "Whether new users may create their own blogs or will instead rely on others creating blogs and assigning them to users via the blog's Members tab.  Can be overridden per account on the User Admin tab.",
-      "htmlWhitelistLevel": "Limit blog entries to only certain HTML tags to help prevent bloggers from doing anything bad to their readers with forms, JavaScript, etc.  Any disallowed elements will be stripped out from the text.  Largely unnecessary if you limit blogging accounts to people you fully trust (as you should).  Note: Affects only blog entry text, if restricting here you will probably also wish to disallow theme template customization for fuller protection.",
+      "htmlSafelistLevel": "Limit blog entries to only certain HTML tags to help prevent bloggers from doing anything bad to their readers with forms, JavaScript, etc.  Any disallowed elements will be stripped out from the text.  Largely unnecessary if you limit blogging accounts to people you fully trust (as you should).  Note: Affects only blog entry text, if restricting here you will probably also wish to disallow theme template customization for fuller protection.",
       "allowCustomTheme": "Whether bloggers may switch their themes and/or customize their theme templates.",
       "maxMediaFileAllocationMb": "Upload space allowed for media files (images, MP3s, etc.)  The application property file offers additional options for specifying allowable media file types as well as hiding the media file tab to disallow all uploads.",
       "defaultAnalyticsTrackingCode": "Google Analytics or similar traffic determining code placed in the HTML header of all blogs.",
       "allowAnalyticsCodeOverride": "If checked, allows an individual blogger to use his own tracking code in place of any code specified above.",
-      "commentHtmlWhitelistLevel": "HTML tags used by commenters outside the specified approved list will be stripped out.",
+      "commentHtmlSafelistLevel": "HTML tags used by commenters outside the specified approved list will be stripped out.",
       "spamPolicy": "TightBlog includes a configurable spam-checker for incoming comments.  When a comment is evaluated to be spam, how should it to be handled differently from a non-spam comment?  Option chosen here will mark the most permissive handling of spam (individual blogs may configure a more stringent handling.)",
       "emailComments": "For non-moderated comments, sends an email to the weblog's members whenever a new comment is added. Also provides blog commenters a checkbox option to receive emails when subsequent comments occur for the entry.",
       "ignoreUrls": "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
@@ -231,6 +234,38 @@
     "noneFound": "No tags presently attached to any blog entry.",
     "replace": "Replace",
     "viewPublished": "View Published"
+  },
+  "templateEdit": {
+    "title": "Edit template",
+    "role": "Role",
+    "tip": "This template can be edited to change what it generates. Refer to the theme templates customization page of the TightBlog wiki for information about the objects and code available for use. Editing templates is a feature intended for advanced users, if you're not comfortable with HTML you might wish to leave your templates alone.",
+    "launch": "Launch",
+    "returnToTemplates": "Return to Template List"
+  },
+  "templates": {
+    "confirmDeleteTemplate": "Confirm:  Delete {count} selected templates?",
+    "confirmSwitchTemplate": "Confirm: Change theme to {targetThemeName}?",
+    "createNewTemplate": "Add a new template",
+    "currentTheme": "Current theme",
+    "description": "Description",
+    "deleteWarning": "<b>WARNING</b>: Deletions are not reversible, make sure your blog does not rely on templates that you're deleting (or for overrides, can rely on the original provided with the theme.)",
+    "tip": "You can edit the templates that define the layout, colors and fonts of your weblog. You can also create new templates to define entirely new pages. Note if you're not comfortable with HTML, you might want to leave your templates alone.  Please <b>backup</b> your templates!",
+    "title": "Templates",
+    "selectAllLabel": "Select all overridden and added templates",
+    "source": "Source",
+    "sourceTooltip": "Built-In refers to a template provided with the theme, Override refers to a built-in template that has been edited/changed in this particular blog, and Added refers to extra templates not provided with the theme.",
+    "switchTheme": "Switch Theme To",
+    "switchWarning": "<b>WARNING</b>: Any templates in the current theme with source value of 'Override' will be permanently deleted upon switching themes.  Before switching, be sure to back up any template overrides you might want again.  Prior to a theme change, you may wish to create a test blog (deletable from its Settings page) with the new theme to evaluate it.",
+    "typeDescription": {
+      "weblog": "The main template used to generate the home page of your weblog, normally showing a list of blog entries ordered by day.  Usually delegates to a custom internal template named 'day' for the generation of the blog entries under each day.  One and only one per blog.",
+      "permalink": "Optional override to the Weblog template when viewing a permalink to a single blog entry. Usually differentiated by having code to support comments. Can alternatively rely on the isPermalink boolean in the Weblog template to generate any permalink-specific items desired.  Maximum one per blog.",
+      "search": "Optional override to the Weblog template when displaying search results (internal search engine only, external search engines usually bring up their own results page). Can alternatively rely on the isSearchResults boolean in the Weblog template to render search results related items instead. Maximum one per blog.",
+      "stylesheet": "Any CSS stylesheet to be linked in from other templates.",
+      "javascript": "A JavaScript source file to be linked from other templates.",
+      "atomFeed": "A template that generates an Atom-formatted RSS feed.",
+      "customInternal": "A template which is called by other templates for the generation of data, but is not viewable by itself from a browser window.",
+      "customExternal": "A template that generates an independent web page viewable from a browser.  Use for hosting any non-blog website pages desired."
+    }
   },
   "userAdd": {
     "tip": {

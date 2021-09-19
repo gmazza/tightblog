@@ -7,6 +7,7 @@
       <router-link :to="{ name: 'categories' }">Categories</router-link>
       <router-link :to="{ name: 'tags' }">Tags</router-link>
       <router-link :to="{ name: 'blogroll' }">Blogroll</router-link>
+      <router-link :to="{ name: 'templates' }">Templates</router-link>
     </nav>
   </div>
 </template>

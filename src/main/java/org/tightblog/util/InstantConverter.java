@@ -17,20 +17,20 @@ package org.tightblog.util;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 @Converter(autoApply = true)
-public class InstantConverter implements AttributeConverter<Instant, Timestamp> {
+public class InstantConverter implements AttributeConverter<Instant, LocalDateTime> {
 
     @Override
-    public Timestamp convertToDatabaseColumn(Instant attribute) {
-        return attribute == null ? null : Timestamp.from(attribute);
+    public LocalDateTime convertToDatabaseColumn(Instant attribute) {
+        return attribute == null ? null : LocalDateTime.from(attribute.atOffset(ZoneOffset.UTC));
     }
 
     @Override
-    public Instant convertToEntityAttribute(Timestamp dbData) {
-        return dbData == null ? null : dbData.toInstant();
+    public Instant convertToEntityAttribute(LocalDateTime dbData) {
+        return dbData == null ? null : dbData.toInstant(ZoneOffset.UTC);
     }
-
 }

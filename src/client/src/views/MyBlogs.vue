@@ -205,6 +205,7 @@ export default {
         .msgBoxConfirm([messageVNode], {
           title: this.$t("myBlogs.confirmResignationTitle"),
           okTitle: this.$t("common.confirm"),
+          cancelTitle: this.$t("common.cancel"),
           centered: true,
         })
         .then((value) => {

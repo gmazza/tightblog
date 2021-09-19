@@ -106,7 +106,7 @@
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.htmlWhitelistLevel") }}</td>
+            <td class="label">{{ $t("globalConfig.htmlSafelistLevel") }}</td>
             <td class="field">
               <select v-model="webloggerProps.blogHtmlPolicy" size="1" required>
                 <option
@@ -119,7 +119,7 @@
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.htmlWhitelistLevel") }}
+              {{ $t("globalConfig.tip.htmlSafelistLevel") }}
             </td>
           </tr>
           <tr>
@@ -205,7 +205,7 @@
         <thead v-show="webloggerProps.commentPolicy != 'NONE'">
           <tr>
             <td class="label">
-              {{ $t("globalConfig.commentHtmlWhitelistLevel") }}
+              {{ $t("globalConfig.commentHtmlSafelistLevel") }}
             </td>
             <td class="field">
               <select
@@ -223,7 +223,7 @@
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.commentHtmlWhitelistLevel") }}
+              {{ $t("globalConfig.tip.commentHtmlSafelistLevel") }}
             </td>
           </tr>
           <tr>

@@ -37,19 +37,19 @@ public interface Template {
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     enum Role {
-        WEBLOG("Weblog", "text/html", true, true, true, "template.weblog.description"),
-        PERMALINK("Permalink", "text/html", true, true, true, "template.permalink.description"),
+        WEBLOG("Weblog", "text/html", true, true, true, "templates.typeDescription.weblog"),
+        PERMALINK("Permalink", "text/html", true, true, true, "templates.typeDescription.permalink"),
         SEARCH_RESULTS("Search Results", "text/html", true, true, true,
-                "template.search.description"),
-        STYLESHEET("Stylesheet", "text/css", false, false, true, "template.stylesheet.description"),
+                "templates.typeDescription.search"),
+        STYLESHEET("Stylesheet", "text/css", false, false, true, "templates.typeDescription.stylesheet"),
         JAVASCRIPT("JavaScript file", "application/javascript", false, false,
-                true, "template.javascript.description"),
+                true, "templates.typeDescription.javascript"),
         ATOMFEED("Atom Feed", "application/atom+xml;charset=utf-8", false, true,
-                false, "template.atomFeed.description"),
+                false, "templates.typeDescription.atomFeed"),
         CUSTOM_INTERNAL("Custom internal", "text/html", false, false,
-                true, "template.customInternal.description"),
+                true, "templates.typeDescription.customInternal"),
         CUSTOM_EXTERNAL("Custom external", "text/html", false, true,
-                true, "template.customExternal.description");
+                true, "templates.typeDescription.customExternal");
 
         // fromObject() allows for enum deserialization (used with front-end template saves)
         // see https://github.com/FasterXML/jackson-databind/issues/158#issuecomment-13092598

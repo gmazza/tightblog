@@ -22,6 +22,7 @@ package org.tightblog.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,7 +44,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +73,14 @@ import java.util.stream.Collectors;
 @Component
 public class WeblogEntryManager {
 
-    private static Logger log = LoggerFactory.getLogger(WeblogEntryManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManager.class);
 
-    private WeblogManager weblogManager;
-    private WeblogEntryDao weblogEntryDao;
-    private WeblogEntryCommentDao weblogEntryCommentDao;
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private URLService urlService;
-    private LuceneIndexer luceneIndexer;
+    private final WeblogManager weblogManager;
+    private final WeblogEntryDao weblogEntryDao;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final URLService urlService;
+    private final LuceneIndexer luceneIndexer;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -151,18 +151,18 @@ public class WeblogEntryManager {
      */
     @Scheduled(cron = "${cron.promote.scheduled.entries}")
     public void promoteScheduledEntries() {
-        log.debug("promoting scheduled entries...");
+        LOG.debug("promoting scheduled entries...");
 
         try {
             Instant now = Instant.now();
-            log.debug("looking up scheduled entries older than {}", now);
+            LOG.debug("looking up scheduled entries older than {}", now);
 
             // get all published entries older than current time
             WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
             wesc.setEndDate(now);
             wesc.setStatus(WeblogEntry.PubStatus.SCHEDULED);
             List<WeblogEntry> scheduledEntries = getWeblogEntries(wesc);
-            log.debug("promoting {} entries to PUBLISHED state", scheduledEntries.size());
+            LOG.debug("promoting {} entries to PUBLISHED state", scheduledEntries.size());
 
             for (WeblogEntry entry : scheduledEntries) {
                 entry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
@@ -177,9 +177,9 @@ public class WeblogEntryManager {
             }
 
         } catch (Exception e) {
-            log.error("Unexpected exception running task", e);
+            LOG.error("Unexpected exception running task", e);
         }
-        log.debug("finished promoting entries");
+        LOG.debug("finished promoting entries");
     }
 
     public void saveWeblogEntry(WeblogEntry entry) {
@@ -650,10 +650,10 @@ public class WeblogEntryManager {
 
         if (ret != null) {
             WebloggerProperties props = webloggerPropertiesDao.findOrNull();
-            Whitelist whitelist = props.getBlogHtmlPolicy().getWhitelist();
+            Safelist safelist = props.getBlogHtmlPolicy().getSafelist();
 
-            if (whitelist != null) {
-                ret = Jsoup.clean(ret, whitelist);
+            if (safelist != null) {
+                ret = Jsoup.clean(ret, safelist);
             }
         }
 
@@ -681,7 +681,7 @@ public class WeblogEntryManager {
 
             if (response != 200) {
                 // Bad Response
-                log.info("Mediacast error {}:{} from url {}", response, message, url);
+                LOG.info("Mediacast error {}:{} from url {}", response, message, url);
                 throw new IllegalArgumentException("entryEdit.mediaCastResponseError");
             } else {
                 String contentType = con.getContentType();
@@ -689,21 +689,21 @@ public class WeblogEntryManager {
 
                 if (contentType == null || length == -1) {
                     // Incomplete
-                    log.info("Response valid, but contentType or length is invalid");
+                    LOG.info("Response valid, but contentType or length is invalid");
                     throw new IllegalArgumentException("entryEdit.mediaCastLacksContentTypeOrLength");
                 }
 
                 resource = new AtomEnclosure(url, contentType, length);
-                log.info("Valid mediacast resource = {}", resource.toString());
+                LOG.info("Valid mediacast resource = {}", resource.toString());
 
             }
         } catch (MalformedURLException mfue) {
             // Bad URL
-            log.info("Malformed MediaCast url: {}", url);
+            LOG.info("Malformed MediaCast url: {}", url);
             throw new IllegalArgumentException("entryEdit.mediaCastUrlMalformed", mfue);
         } catch (IOException e) {
             // Check Failed
-            log.error("ERROR while checking MediaCast URL: {}: {}", url, e.getMessage());
+            LOG.error("ERROR while checking MediaCast URL: {}: {}", url, e.getMessage());
             throw new IllegalArgumentException("entryEdit.mediaCastFailedFetchingInfo", e);
         }
         return resource;

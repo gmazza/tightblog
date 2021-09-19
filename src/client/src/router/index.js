@@ -64,6 +64,20 @@ const routes = [
     props: true,
   },
   {
+    path: "/app/templates/:weblogId",
+    name: "templates",
+    component: () =>
+      import(/* webpackChunkName: "templates" */ "../views/Templates"),
+    props: true,
+  },
+  {
+    path: "/app/templateEdit/:weblogId",
+    name: "templateEdit",
+    component: () =>
+      import(/* webpackChunkName: "templateEdit" */ "../views/TemplateEdit"),
+    props: true,
+  },
+  {
     path: "/authoring/weblogConfig/:weblogId",
     name: "weblogConfig",
     component: () =>

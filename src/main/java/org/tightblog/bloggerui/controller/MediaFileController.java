@@ -78,7 +78,7 @@ public class MediaFileController {
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/mediadirectories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'POST')")
     public List<MediaDirectory> getMediaDirectories(@PathVariable String id, Principal p) {
-        return mediaDirectoryDao.findByWeblog(weblogDao.getOne(id))
+        return mediaDirectoryDao.findByWeblog(weblogDao.getById(id))
                         .stream()
                         .peek(md -> {
                             md.setMediaFiles(null);
@@ -91,7 +91,7 @@ public class MediaFileController {
     @GetMapping(value = "/tb-ui/authoring/rest/mediadirectories/{id}/files")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'POST')")
     public List<MediaFile> getMediaDirectoryContents(@PathVariable String id, Principal p) {
-        MediaDirectory md = mediaDirectoryDao.getOne(id);
+        MediaDirectory md = mediaDirectoryDao.getById(id);
         return md.getMediaFiles()
                 .stream()
                 .peek(mf -> {
@@ -107,7 +107,7 @@ public class MediaFileController {
     @GetMapping(value = "/tb-ui/authoring/rest/mediafile/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaFile), #id, 'POST')")
     public MediaFile getMediaFile(@PathVariable String id, Principal p) {
-        MediaFile mf = mediaFileDao.getOne(id);
+        MediaFile mf = mediaFileDao.getById(id);
         mf.setCreator(null);
         mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getId()));
         mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
@@ -192,7 +192,7 @@ public class MediaFileController {
     public ResponseEntity<?> addMediaDirectory(@PathVariable String weblogId, @RequestBody MediaDirectory mediaDirectory,
                                     Principal p, Locale locale) {
         try {
-            Weblog weblog = weblogDao.getOne(weblogId);
+            Weblog weblog = weblogDao.getById(weblogId);
             MediaDirectory newDir = mediaManager.createMediaDirectory(weblog, mediaDirectory.getName().trim());
             return SuccessResponse.textMessage(newDir.getId());
         } catch (IllegalArgumentException e) {
@@ -204,7 +204,7 @@ public class MediaFileController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'OWNER')")
     public ResponseEntity<String> deleteMediaDirectory(@PathVariable String id, Principal p, Locale locale) {
 
-        MediaDirectory itemToRemove = mediaDirectoryDao.getOne(id);
+        MediaDirectory itemToRemove = mediaDirectoryDao.getById(id);
         Weblog weblog = itemToRemove.getWeblog();
         mediaManager.removeAllFiles(itemToRemove);
         weblog.getMediaDirectories().remove(itemToRemove);
@@ -220,7 +220,7 @@ public class MediaFileController {
                                  Principal p, Locale locale) {
 
         if (fileIdsToDelete != null && fileIdsToDelete.size() > 0) {
-            Weblog weblog = weblogDao.getOne(weblogId);
+            Weblog weblog = weblogDao.getById(weblogId);
             for (String fileId : fileIdsToDelete) {
                 MediaFile mediaFile = mediaFileDao.findByIdOrNull(fileId);
                 if (mediaFile != null && weblog.equals(mediaFile.getDirectory().getWeblog())) {
@@ -241,7 +241,7 @@ public class MediaFileController {
                                @RequestBody List<String> fileIdsToMove, Principal p, Locale locale) {
 
         if (fileIdsToMove != null && fileIdsToMove.size() > 0) {
-            Weblog weblog = weblogDao.getOne(weblogId);
+            Weblog weblog = weblogDao.getById(weblogId);
             MediaDirectory targetDirectory = mediaDirectoryDao.findByIdOrNull(directoryId);
             if (weblog != null && targetDirectory != null && weblog.equals(targetDirectory.getWeblog())) {
                 for (String fileId : fileIdsToMove) {

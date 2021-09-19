@@ -41,31 +41,31 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(name = "external.github.enabled", havingValue = "true")
 public class ExternalSourceController {
 
-    private static Logger log = LoggerFactory.getLogger(ExternalSourceController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExternalSourceController.class);
 
-    private LazyExpiringCache githubSourceCache;
-    private Set<Pattern> whitelistPatterns = new HashSet<>();
-    private ThymeleafRenderer thymeleafRenderer;
+    private final LazyExpiringCache githubSourceCache;
+    private final Set<Pattern> safelistPatterns = new HashSet<>();
+    private final ThymeleafRenderer thymeleafRenderer;
 
     public static final String PATH = "/tb-ui/rendering/external";
 
     private static final MediaType APP_JAVASCRIPT = new MediaType("application", "javascript");
 
     public ExternalSourceController(@Qualifier("standardRenderer") ThymeleafRenderer thymeleafRenderer,
-                                    @Value("#{'${external.github.whitelist:}'.split(',')}") String githubSourceWhitelist,
+                                    @Value("#{'${external.github.safelist:}'.split(',')}") String githubSourceSafelist,
                                     LazyExpiringCache githubSourceCache) {
 
         this.githubSourceCache = githubSourceCache;
         this.thymeleafRenderer = thymeleafRenderer;
 
-        if (!StringUtils.isBlank(githubSourceWhitelist)) {
-            for (String patternString : githubSourceWhitelist.trim().split("\\s*,\\s*")) {
-                whitelistPatterns.add(Pattern.compile(patternString));
+        if (!StringUtils.isBlank(githubSourceSafelist)) {
+            for (String patternString : githubSourceSafelist.trim().split("\\s*,\\s*")) {
+                safelistPatterns.add(Pattern.compile(patternString));
             }
-            log.info("GitHub whitelist configured with {} patterns: {}",
-                    whitelistPatterns.size(), Arrays.toString(whitelistPatterns.toArray()));
+            LOG.info("GitHub safelist configured with {} patterns: {}",
+                    safelistPatterns.size(), Arrays.toString(safelistPatterns.toArray()));
         } else {
-            log.info("No whitelist defined for external GitHub source so all GitHub URLs will be allowed");
+            LOG.info("No safelist defined for external GitHub source so all GitHub URLs will be allowed");
         }
     }
 
@@ -100,7 +100,7 @@ public class ExternalSourceController {
         // path2 = gmazza/blog-samples/raw/master/...
         String path2 =  path.substring(projectPosition + 1);
 
-        // Can check and return from cache before whitelist.  Any change in whitelist
+        // Can check and return from cache before safelist.  Any change in safelist
         // status for a request occurs only after app reboot, which means cache would be
         // empty anyway for a newly blocked URL.
         String cacheKey = generateKey(path2, startLine, endLine, height, showLinenums);
@@ -108,13 +108,13 @@ public class ExternalSourceController {
 
         if (response == null) {
 
-            // need to check if path2 passes whitelist if latter defined
-            if (whitelistPatterns.size() > 0) {
+            // need to check if path2 passes safelist if latter defined
+            if (safelistPatterns.size() > 0) {
                 boolean allowed = false;
 
-                // block attempts to move up a directory to circumvent whitelist
+                // block attempts to move up a directory to circumvent safelist
                 if (!path2.contains("..")) {
-                    for (Pattern pattern : whitelistPatterns) {
+                    for (Pattern pattern : safelistPatterns) {
                         if (pattern.matcher(path2).matches()) {
                             allowed = true;
                             break;
@@ -122,7 +122,7 @@ public class ExternalSourceController {
                     }
                 }
                 if (!allowed) {
-                    log.info("Requested Github path {} blocked by configured whitelist", path2);
+                    LOG.info("Requested Github path {} blocked by configured safelist", path2);
                     return ResponseEntity.notFound().build();
                 }
             }

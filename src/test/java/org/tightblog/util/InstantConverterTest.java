@@ -17,8 +17,9 @@ package org.tightblog.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -27,22 +28,22 @@ public class InstantConverterTest {
 
     @Test
     public void convertToDatabaseColumn() {
-        Instant now = Instant.now();
-        Timestamp timestamp = Timestamp.from(now);
+        Instant now = Instant.now(Clock.systemUTC());
+        LocalDateTime ldt = LocalDateTime.now(Clock.systemUTC());
 
         InstantConverter converter = new InstantConverter();
-        Timestamp test = converter.convertToDatabaseColumn(now);
-        assertEquals(timestamp, test);
+        LocalDateTime test = converter.convertToDatabaseColumn(now);
+        assertEquals(ldt, test);
         assertNull(converter.convertToDatabaseColumn(null));
     }
 
     @Test
     public void convertToEntityAttribute() {
-        Instant now = Instant.now();
-        Timestamp timestamp = Timestamp.from(now);
+        Instant now = Instant.now(Clock.systemUTC());
+        LocalDateTime ldt = LocalDateTime.now(Clock.systemUTC());
 
         InstantConverter converter = new InstantConverter();
-        Instant test = converter.convertToEntityAttribute(timestamp);
+        Instant test = converter.convertToEntityAttribute(ldt);
         assertEquals(now, test);
         assertNull(converter.convertToEntityAttribute(null));
     }

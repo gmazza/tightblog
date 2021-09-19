@@ -225,16 +225,6 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @RequestMapping(value = "/authoring/templates")
-    public ModelAndView templates(Principal principal, @RequestParam String weblogId) {
-        return getBlogOwnerPage(principal, null, weblogId, "templates");
-    }
-
-    @RequestMapping(value = "/authoring/templateEdit")
-    public ModelAndView templateEdit(Principal principal, @RequestParam String weblogId) {
-        return getBlogOwnerPage(principal, null, weblogId, "templateEdit");
-    }
-
     @RequestMapping(value = "/authoring/mediaFileView")
     public ModelAndView mediaFileView(Principal principal, @RequestParam String weblogId) {
         return getBlogPublisherPage(principal, null, weblogId, "mediaFileView");
@@ -321,6 +311,7 @@ public class UIController {
         if (weblog != null) {
             map.put("actionWeblogURL", urlService.getWeblogURL(weblog));
         }
+        map.put("absoluteUrl", dynamicProperties.getAbsoluteUrl());
         map.put("userIsAdmin", user != null && GlobalRole.ADMIN.equals(user.getGlobalRole()));
         map.put("userCanCreateBlogs", user != null && user.hasEffectiveGlobalRole(GlobalRole.BLOGCREATOR));
 

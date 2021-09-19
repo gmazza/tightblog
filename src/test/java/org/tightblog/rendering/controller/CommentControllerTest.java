@@ -323,7 +323,7 @@ public class CommentControllerTest {
 
         WeblogEntryComment wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.LIMITED);
 
-        assertEquals("Content not processed correctly (text, whitelist filtering of tags, and adding paragraph tags)",
+        assertEquals("Content not processed correctly (text, safelist filtering of tags, and adding paragraph tags)",
                 "<p>Enjoy My Link from Bob!</p>", wec.getContent());
         assertEquals("Sam", wec.getName());
         assertEquals("https:// not added to URL", "https://www.foo.com", wec.getUrl());
@@ -337,7 +337,7 @@ public class CommentControllerTest {
         when(mockRequest.getParameter("notify")).thenReturn(null);
         wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.BASIC);
         assertFalse(wec.getNotify());
-        assertEquals("Content not processed correctly (text and whitelist filtering of tags)",
+        assertEquals("Content not processed correctly (text and safelist filtering of tags)",
                 "<p>Enjoy <a href=\"http://www.abc.com\" rel=\"nofollow\">My Link</a> from Bob!</p>", wec.getContent());
 
         // test other cases
