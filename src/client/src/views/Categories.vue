@@ -203,7 +203,7 @@ export default {
           this.axios
             .put(
               categoryId
-                ? "/tb-ui/authoring/rest/category/" + categoryId
+                ? "/tb-ui/authoring/rest/weblog/" + this.weblogId + "/category"
                 : "/tb-ui/authoring/rest/categories?weblogId=" + this.weblogId,
               this.itemToEdit
             )
@@ -224,7 +224,9 @@ export default {
         this.messageClear();
         this.axios
           .delete(
-            "/tb-ui/authoring/rest/category/" +
+            "/tb-ui/authoring/rest/weblog/" +
+              this.weblogId +
+              "/category/" +
               this.categoryToDelete.id +
               "?targetCategoryId=" +
               this.targetCategoryId

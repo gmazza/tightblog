@@ -225,21 +225,6 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @RequestMapping(value = "/authoring/mediaFileView")
-    public ModelAndView mediaFileView(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, null, weblogId, "mediaFileView");
-    }
-
-    @RequestMapping(value = "/authoring/mediaFileAdd")
-    public ModelAndView mediaFileAdd(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, null, weblogId, "mediaFileAdd");
-    }
-
-    @RequestMapping(value = "/authoring/mediaFileEdit")
-    public ModelAndView mediaFileEdit(Principal principal, @RequestParam String weblogId) {
-        return getBlogPublisherPage(principal, null, weblogId, "mediaFileEdit");
-    }
-
     @RequestMapping(value = "/authoring/entryAdd")
     public ModelAndView entryAdd(Principal principal, @RequestParam String weblogId) {
         Map<String, Object> myMap = new HashMap<>();
@@ -254,22 +239,13 @@ public class UIController {
         return getBlogPublisherPage(principal, myMap, weblogId, "entryEdit");
     }
 
-    private ModelAndView getBlogOwnerPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
-        return getBlogPage(principal, map, weblogId, actionName, WeblogRole.OWNER);
-    }
-
     private ModelAndView getBlogPublisherPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
-        return getBlogPage(principal, map, weblogId, actionName, WeblogRole.POST);
-    }
-
-    private ModelAndView getBlogPage(Principal principal, Map<String, Object> map, String weblogId, String actionName,
-                                     WeblogRole requiredRole) {
         User user = userDao.findEnabledByUserName(principal.getName());
         Weblog weblog = weblogDao.findById(weblogId).orElse(null);
 
         boolean isAdmin = user.hasEffectiveGlobalRole(GlobalRole.ADMIN);
         UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(user, weblog);
-        if (isAdmin || (uwr != null && uwr.hasEffectiveWeblogRole(requiredRole))) {
+        if (isAdmin || (uwr != null && uwr.hasEffectiveWeblogRole(WeblogRole.POST))) {
             if (map == null) {
                 map = new HashMap<>();
             }

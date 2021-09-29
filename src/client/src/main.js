@@ -15,6 +15,16 @@ Vue.use(VueAxios, axios);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
+Vue.filter("str_limit", function (value, size) {
+  if (!value) return "";
+  value = value.toString();
+
+  if (value.length <= size) {
+    return value;
+  }
+  return value.substr(0, size) + "...";
+});
+
 Vue.mixin({
   methods: {
     globalHelper: function () {

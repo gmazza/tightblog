@@ -97,18 +97,6 @@
     </definition>
 
     <!-- weblog editor pages (and associates) -->
-    <definition name=".mediaFileEdit" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
-    </definition>
-
-    <definition name=".mediaFileAdd" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileEdit.jsp" />
-    </definition>
-
-    <definition name=".mediaFileView" extends=".tiles-vue-tabbedpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/MediaFileView.jsp" />
-    </definition>
-
     <definition name=".entryEdit" extends=".tiles-vue-manualpage" >
         <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
     </definition>

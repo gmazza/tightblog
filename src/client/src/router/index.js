@@ -71,6 +71,20 @@ const routes = [
     props: true,
   },
   {
+    path: "/app/mediaFiles/:weblogId",
+    name: "mediaFiles",
+    component: () =>
+      import(/* webpackChunkName: "mediaFiles" */ "../views/MediaFiles"),
+    props: true,
+  },
+  {
+    path: "/app/mediaFileEdit/:weblogId",
+    name: "mediaFileEdit",
+    component: () =>
+      import(/* webpackChunkName: "mediaFileEdit" */ "../views/MediaFileEdit"),
+    props: true,
+  },
+  {
     path: "/app/templateEdit/:weblogId",
     name: "templateEdit",
     component: () =>

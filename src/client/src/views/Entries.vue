@@ -51,12 +51,8 @@
                   <option value="">
                     {{ $t("entries.label.allCategories") }}
                   </option>
-                  <option
-                    v-for="(value, key) in categoryData.categories"
-                    :value="key"
-                    :key="key"
-                  >
-                    {{ value }}
+                  <option v-for="cat in categoryData" :value="cat" :key="cat">
+                    {{ cat }}
                   </option>
                 </select>
               </div>
@@ -306,7 +302,7 @@ export default {
   },
   data() {
     return {
-      categoryData: {},
+      categoryData: [],
       searchParams: {
         categoryName: "",
         sortBy: "PUBLICATION_TIME",

@@ -67,51 +67,52 @@ public class CategoryController {
 
     @PutMapping(value = "/tb-ui/authoring/rest/categories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategory newCategory,
+    public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategoryData newCategory,
                             Principal p, HttpServletResponse response) {
 
         Weblog weblog = weblogDao.getById(weblogId);
 
-        if (weblog.getWeblogCategories().stream().anyMatch(c -> newCategory.getName().equals(c.getName()))) {
+        if (weblog.getWeblogCategories().stream().anyMatch(c -> newCategory.name().equals(c.getName()))) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
         } else {
-            WeblogCategory wc = new WeblogCategory(weblog, newCategory.getName());
+            WeblogCategory wc = new WeblogCategory(weblog, newCategory.name());
             weblog.addCategory(wc);
             weblogManager.saveWeblog(weblog, true);
         }
     }
 
-    @PutMapping(value = "/tb-ui/authoring/rest/category/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogCategory), #id, 'OWNER')")
-    public void updateCategory(@PathVariable String id, @RequestBody WeblogCategory updatedCategory, Principal p,
+    @PutMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/category")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
+    public void updateCategory(@PathVariable String weblogId, @RequestBody WeblogCategoryData updatedCategory, Principal p,
                                HttpServletResponse response) {
 
-        WeblogCategory c = weblogCategoryDao.getById(id);
+        WeblogCategory c = weblogCategoryDao.findByIdAndWeblogId(updatedCategory.id(), weblogId);
         Weblog weblog = c.getWeblog();
-        if (!c.getName().equals(updatedCategory.getName())) {
+        if (!c.getName().equals(updatedCategory.name())) {
             // can't change category name to one already existing for blog
-            if (weblog.getWeblogCategories().stream().anyMatch(wc -> updatedCategory.getName().equals(wc.getName()))) {
+            if (weblog.getWeblogCategories().stream().anyMatch(wc -> updatedCategory.name().equals(wc.getName()))) {
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
             } else {
-                c.setName(updatedCategory.getName());
+                c.setName(updatedCategory.name());
                 weblogManager.saveWeblog(weblog, true);
             }
         }
     }
 
-    @DeleteMapping(value = "/tb-ui/authoring/rest/category/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogCategory), #id, 'OWNER')")
-    public void removeCategory(@PathVariable String id, @RequestParam String targetCategoryId, Principal p) {
+    @DeleteMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/category/{id}")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
+    public void removeCategory(@PathVariable String weblogId, @PathVariable String id, @RequestParam String targetCategoryId,
+                               Principal p) {
 
-        WeblogCategory categoryToRemove = weblogCategoryDao.getById(id);
+        WeblogCategory categoryToRemove = weblogCategoryDao.findByIdAndWeblogId(id, weblogId);
+        WeblogCategory targetCategory = weblogCategoryDao.findByIdAndWeblogId(targetCategoryId, weblogId);
 
-        // ensure target category is on same weblog
-        Weblog weblog = categoryToRemove.getWeblog();
-        WeblogCategory targetCategory = weblogCategoryDao.findByIdAndWeblog(targetCategoryId, weblog);
-
-        weblogEntryManager.moveWeblogCategoryContents(categoryToRemove, targetCategory);
-        weblog.getWeblogCategories().remove(categoryToRemove);
-        weblogManager.saveWeblog(weblog, true);
+        if (categoryToRemove != null && targetCategory != null) {
+            Weblog weblog = categoryToRemove.getWeblog();
+            weblogEntryManager.moveWeblogCategoryContents(categoryToRemove, targetCategory);
+            weblog.getWeblogCategories().remove(categoryToRemove);
+            weblogManager.saveWeblog(weblog, true);
+        }
     }
 
 }

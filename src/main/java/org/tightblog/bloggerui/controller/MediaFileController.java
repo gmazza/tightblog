@@ -33,6 +33,7 @@ import org.tightblog.dao.UserDao;
 import org.tightblog.dao.WeblogDao;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
@@ -47,17 +48,17 @@ import java.util.stream.Collectors;
 
 @RestController
 public class MediaFileController {
-    private static Logger log = LoggerFactory.getLogger(MediaFileController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MediaFileController.class);
 
-    private WeblogDao weblogDao;
-    private MediaDirectoryDao mediaDirectoryDao;
-    private MediaFileDao mediaFileDao;
-    private WeblogManager weblogManager;
-    private UserManager userManager;
-    private UserDao userDao;
-    private MediaManager mediaManager;
-    private MessageSource messages;
-    private URLService urlService;
+    private final WeblogDao weblogDao;
+    private final MediaDirectoryDao mediaDirectoryDao;
+    private final MediaFileDao mediaFileDao;
+    private final WeblogManager weblogManager;
+    private final UserManager userManager;
+    private final UserDao userDao;
+    private final MediaManager mediaManager;
+    private final MessageSource messages;
+    private final URLService urlService;
 
     @Autowired
     public MediaFileController(WeblogDao weblogDao, MediaDirectoryDao mediaDirectoryDao,
@@ -182,7 +183,7 @@ public class MediaFileController {
 
             return ResponseEntity.ok(mf);
         } catch (IOException e) {
-            log.error("Error uploading file {} from user {}", mf.getName(), user.getUserName(), e);
+            LOG.error("Error uploading file {} from user {}", mf.getName(), user.getUserName(), e);
             throw e;
         }
     }
@@ -202,22 +203,19 @@ public class MediaFileController {
 
     @DeleteMapping(value = "/tb-ui/authoring/rest/mediadirectory/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'OWNER')")
-    public ResponseEntity<String> deleteMediaDirectory(@PathVariable String id, Principal p, Locale locale) {
+    public void deleteMediaDirectory(@PathVariable String id, Principal p) {
 
         MediaDirectory itemToRemove = mediaDirectoryDao.getById(id);
         Weblog weblog = itemToRemove.getWeblog();
         mediaManager.removeAllFiles(itemToRemove);
         weblog.getMediaDirectories().remove(itemToRemove);
         weblogManager.saveWeblog(weblog, false);
-
-        return SuccessResponse.textMessage(messages.getMessage("mediaFileView.deleteFolder.success",
-                null, locale));
    }
 
     @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public ResponseEntity<String> deleteMediaFiles(@PathVariable String weblogId, @RequestBody List<String> fileIdsToDelete,
-                                 Principal p, Locale locale) {
+    public void deleteMediaFiles(@PathVariable String weblogId, @RequestBody List<String> fileIdsToDelete,
+                                 Principal p, HttpServletResponse response) {
 
         if (fileIdsToDelete != null && fileIdsToDelete.size() > 0) {
             Weblog weblog = weblogDao.getById(weblogId);
@@ -229,32 +227,29 @@ public class MediaFileController {
             }
             // setting false as even with refresh any blog articles using deleted images will have broken images
             weblogManager.saveWeblog(weblog, false);
-            return SuccessResponse.textMessage(messages.getMessage("mediaFileView.delete.success",
-                    null, locale));
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
-        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}/todirectory/{directoryId}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public ResponseEntity<String> moveMediaFiles(@PathVariable String weblogId, @PathVariable String directoryId,
-                               @RequestBody List<String> fileIdsToMove, Principal p, Locale locale) {
+    public void moveMediaFiles(@PathVariable String weblogId, @PathVariable String directoryId,
+                               @RequestBody List<String> fileIdsToMove, Principal p, HttpServletResponse response) {
 
         if (fileIdsToMove != null && fileIdsToMove.size() > 0) {
             Weblog weblog = weblogDao.getById(weblogId);
             MediaDirectory targetDirectory = mediaDirectoryDao.findByIdOrNull(directoryId);
-            if (weblog != null && targetDirectory != null && weblog.equals(targetDirectory.getWeblog())) {
+            if (targetDirectory != null && weblog.equals(targetDirectory.getWeblog())) {
                 for (String fileId : fileIdsToMove) {
                     MediaFile mediaFile = mediaFileDao.findByIdOrNull(fileId);
                     if (mediaFile != null && weblog.equals(mediaFile.getDirectory().getWeblog())) {
                         mediaManager.moveMediaFiles(Collections.singletonList(mediaFile), targetDirectory);
                     }
                 }
-                return SuccessResponse.textMessage(messages.getMessage("mediaFileView.move.success",
-                        null, locale));
             }
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
-        return ResponseEntity.notFound().build();
     }
-
 }

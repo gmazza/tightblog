@@ -13,13 +13,6 @@
             "titleKey": "entryAdd.title",
             "weblogRole": "POST",
             "subActions": ["entryEdit"]
-          },
-          {
-            "action": "mediaFileView",
-            "titleKey": "mediaFileView.title",
-            "enabledProperty": "media.file.showTab",
-            "weblogRole": "POST",
-            "subActions": ["mediaFileAdd", "mediaFileEdit"]
           }
         ]
       }

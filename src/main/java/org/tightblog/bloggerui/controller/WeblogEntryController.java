@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.bloggerui.model.EntryEditMetadata;
-import org.tightblog.bloggerui.model.TagAutocompleteData;
 import org.tightblog.bloggerui.model.Violation;
-import org.tightblog.bloggerui.model.WeblogEntryData;
-import org.tightblog.bloggerui.model.WeblogCategoryData;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
@@ -104,6 +101,8 @@ public class WeblogEntryController {
     private final int maxAutocompleteTags;
 
     private record WeblogEntrySaveResponse(String entryId, String message) { }
+    private record TagAutocompleteData(String prefix, List<WeblogEntryTagAggregate> tagcounts) { }
+    private record WeblogEntryData(List<WeblogEntry> entries, boolean hasMore) { }
 
     @Autowired
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
@@ -169,18 +168,17 @@ public class WeblogEntryController {
         criteria.setCalculatePermalinks(true);
         List<WeblogEntry> rawEntries = weblogEntryManager.getWeblogEntries(criteria);
 
-        WeblogEntryData data = new WeblogEntryData();
-        data.getEntries().addAll(rawEntries.stream()
+        List<WeblogEntry> entries = rawEntries.stream()
                 .peek(re -> re.setWeblog(null))
-                .peek(re -> re.getCategory().setWeblog(null))
-                .collect(Collectors.toList()));
+                .peek(re -> re.getCategory().setWeblog(null)).collect(Collectors.toList());
 
+        boolean hasMore = false;
         if (rawEntries.size() > ITEMS_PER_PAGE) {
-            data.getEntries().remove(data.getEntries().size() - 1);
-            data.setHasMore(true);
+            entries.remove(entries.size() - 1);
+            hasMore = true;
         }
 
-        return data;
+        return new WeblogEntryData(entries, hasMore);
     }
 
     @GetMapping(value = "/{weblogId}/recententries/{pubStatus}")
@@ -206,15 +204,13 @@ public class WeblogEntryController {
 
     @GetMapping(value = "/{weblogId}/categorydata")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public WeblogCategoryData getWeblogCategoryData(@PathVariable String weblogId, Principal p) {
-
+    public List<String> getWeblogCategoryNames(@PathVariable String weblogId, Principal p) {
         Weblog weblog = weblogDao.getById(weblogId);
 
         // categories
-        WeblogCategoryData wcd = new WeblogCategoryData();
-        weblog.getWeblogCategories().forEach(cat -> wcd.getCategories().put(cat.getName(), cat.getName()));
-
-        return wcd;
+        List<String> categoryList = new ArrayList<>();
+        weblog.getWeblogCategories().forEach(cat -> categoryList.add(cat.getName()));
+        return categoryList;
     }
 
     @GetMapping(value = "/{id}/tagdata")
@@ -223,11 +219,7 @@ public class WeblogEntryController {
         List<WeblogEntryTagAggregate> tags;
         Weblog weblog = weblogDao.findById(id).orElse(null);
         tags = weblogManager.getTags(weblog, null, prefix, 0, maxAutocompleteTags);
-
-        TagAutocompleteData wtd = new TagAutocompleteData();
-        wtd.setPrefix(prefix);
-        wtd.getTagcounts().addAll(tags);
-        return wtd;
+        return new TagAutocompleteData(prefix, tags);
     }
 
     @GetMapping(value = "/{weblogId}/entryeditmetadata")
@@ -354,16 +346,13 @@ public class WeblogEntryController {
                 luceneIndexer.updateIndex(entry, true);
             }
 
-            String message = null;
-            switch (entry.getStatus()) {
-                case DRAFT -> message = messages.getMessage("entryEdit.draftSaved", null, locale);
-                case PUBLISHED -> message = messages.getMessage("entryEdit.publishedEntry", null, locale);
-                case SCHEDULED -> message = messages.getMessage("entryEdit.scheduledEntry",
+            String message = switch (entry.getStatus()) {
+                case DRAFT -> messages.getMessage("entryEdit.draftSaved", null, locale);
+                case PUBLISHED -> messages.getMessage("entryEdit.publishedEntry", null, locale);
+                case SCHEDULED -> messages.getMessage("entryEdit.scheduledEntry",
                         new Object[]{DateTimeFormatter.ISO_DATE_TIME.withZone(entry.getWeblog().getZoneId())
                                 .format(entry.getPubTime())}, null, locale);
-                default -> {
-                }
-            }
+            };
 
             return ResponseEntity.ok(new WeblogEntrySaveResponse(entry.getId(), message));
         } else {
