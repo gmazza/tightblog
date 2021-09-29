@@ -63,12 +63,7 @@
             </th>
             <th width="8%">
               {{ $t("templates.source") }}
-              <img
-                src="@/assets/help.png"
-                border="0"
-                alt="icon"
-                :title="$t('templates.sourceTooltip')"
-              />
+              <AppHelpPopup :helpText="$t('templates.sourceTooltip')" />
             </th>
             <th width="13%">
               {{ $t("common.lastModified") }}

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.bloggerui.model.SuccessResponse;
-import org.tightblog.bloggerui.model.UserData;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
@@ -88,6 +87,8 @@ public class UserController {
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryCommentDao weblogEntryCommentDao;
     private final URLService urlService;
+
+    private record UserData(User user, UserCredentials credentials) { }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -168,11 +169,8 @@ public class UserController {
         User user = userDao.findByIdOrNull(id);
 
         if (user != null) {
-            UserData data = new UserData();
             UserCredentials creds = userCredentialsDao.findByUserName(user.getUserName());
-            data.setUser(user);
-            data.setCredentials(creds);
-            return data;
+            return new UserData(user, creds);
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -204,23 +202,23 @@ public class UserController {
         if (userCount == 0 || !WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
             boolean mustActivate = userCount > 0;
             if (mustActivate) {
-                newData.getUser().setActivationCode(UUID.randomUUID().toString());
-                newData.getUser().setStatus(UserStatus.REGISTERED);
+                newData.user().setActivationCode(UUID.randomUUID().toString());
+                newData.user().setStatus(UserStatus.REGISTERED);
             } else {
                 // initial user is the Admin, is automatically enabled.
-                newData.getUser().setStatus(UserStatus.ENABLED);
+                newData.user().setStatus(UserStatus.ENABLED);
             }
 
             User user = new User();
-            user.setUserName(newData.getUser().getUserName());
+            user.setUserName(newData.user().getUserName());
             user.setDateCreated(Instant.now());
 
-            ResponseEntity re = saveUser(user, newData, null, response, true);
+            ResponseEntity<UserData> re = saveUser(user, newData, null, response, true);
 
             if (re.getStatusCode() == HttpStatus.OK && mustActivate) {
-                UserData data = (UserData) re.getBody();
+                UserData data = re.getBody();
                 if (data != null) {
-                    emailService.sendUserActivationEmail(data.getUser());
+                    emailService.sendUserActivationEmail(data.user());
                 }
             }
             return re;
@@ -322,19 +320,20 @@ public class UserController {
         }
     }
 
-    private ResponseEntity saveUser(User user, UserData newData, Principal p, HttpServletResponse response, boolean add) {
+    private ResponseEntity<UserData> saveUser(User user, UserData newData, Principal p, HttpServletResponse response,
+                                              boolean add) {
 
         if (user != null) {
-            user.setScreenName(newData.getUser().getScreenName().trim());
-            user.setEmailAddress(newData.getUser().getEmailAddress().trim());
+            user.setScreenName(newData.user().getScreenName().trim());
+            user.setEmailAddress(newData.user().getEmailAddress().trim());
 
             if (!UserStatus.ENABLED.equals(user.getStatus()) && StringUtils.isNotEmpty(
-                    newData.getUser().getActivationCode())) {
-                user.setActivationCode(newData.getUser().getActivationCode());
+                    newData.user().getActivationCode())) {
+                user.setActivationCode(newData.user().getActivationCode());
             }
 
             if (add) {
-                user.setStatus(newData.getUser().getStatus());
+                user.setStatus(newData.user().getStatus());
                 if (userDao.count() == 0) {
                     // first person in is always an admin
                     user.setGlobalRole(GlobalRole.ADMIN);
@@ -345,8 +344,8 @@ public class UserController {
             } else {
                 // users can't alter own roles or status
                 if (!user.getUserName().equals(p.getName())) {
-                    user.setGlobalRole(newData.getUser().getGlobalRole());
-                    user.setStatus(newData.getUser().getStatus());
+                    user.setGlobalRole(newData.user().getGlobalRole());
+                    user.setStatus(newData.user().getStatus());
                 }
             }
 
@@ -354,8 +353,8 @@ public class UserController {
                 userDao.saveAndFlush(user);
                 userDao.evictUser(user);
                 // reset password if set
-                if (newData.getCredentials() != null) {
-                    UserCredentials credentials = newData.getCredentials();
+                if (newData.credentials() != null) {
+                    UserCredentials credentials = newData.credentials();
 
                     if (!StringUtils.isEmpty(credentials.getPasswordText())) {
                         userManager.updateCredentials(user.getId(), credentials.getPasswordText());
@@ -367,58 +366,57 @@ public class UserController {
                 }
                 response.setStatus(HttpServletResponse.SC_OK);
             } catch (RollbackException e) {
-                return ResponseEntity.status(HttpServletResponse.SC_CONFLICT).body("Persistence Problem");
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        UserData data = new UserData();
-        data.setUser(user);
+
         UserCredentials creds = userCredentialsDao.findByUserName(user.getUserName());
-        data.setCredentials(creds);
+        UserData data = new UserData(user, creds);
         return ResponseEntity.ok(data);
     }
 
     private List<Violation> validateUser(User currentUser, UserData data, boolean isAdd, Locale locale) {
         List<Violation> errors = new ArrayList<>();
 
-        User testHasUserName = userDao.findByUserName(data.getUser().getUserName());
-        if (testHasUserName != null && !testHasUserName.getId().equals(data.getUser().getId())) {
+        User testHasUserName = userDao.findByUserName(data.user().getUserName());
+        if (testHasUserName != null && !testHasUserName.getId().equals(data.user().getId())) {
             errors.add(new Violation(messages.getMessage("error.add.user.userNameInUse",
                     null, locale)));
         }
 
-        User testHasScreenName = userDao.findByScreenName(data.getUser().getScreenName());
-        if (testHasScreenName != null && !testHasScreenName.getId().equals(data.getUser().getId())) {
+        User testHasScreenName = userDao.findByScreenName(data.user().getScreenName());
+        if (testHasScreenName != null && !testHasScreenName.getId().equals(data.user().getId())) {
             errors.add(new Violation(messages.getMessage("error.add.user.screenNameInUse",
                     null, locale)));
         }
 
-        User testHasEmail = userDao.findByEmailAddress(data.getUser().getEmailAddress());
-        if (testHasEmail != null && !testHasEmail.getId().equals(data.getUser().getId())) {
+        User testHasEmail = userDao.findByEmailAddress(data.user().getEmailAddress());
+        if (testHasEmail != null && !testHasEmail.getId().equals(data.user().getId())) {
             errors.add(new Violation(messages.getMessage("error.add.user.emailAddressInUse",
                     null, locale)));
         }
 
         if (currentUser != null) {
             UserStatus currentStatus = currentUser.getStatus();
-            if (currentStatus != data.getUser().getStatus()) {
+            if (currentStatus != data.user().getStatus()) {
                 switch (currentStatus) {
                     case ENABLED:
-                        if (data.getUser().getStatus() != UserStatus.DISABLED) {
+                        if (data.user().getStatus() != UserStatus.DISABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.enabled.only.disabled", null, locale)));
                         }
                         break;
                     case DISABLED:
-                        if (data.getUser().getStatus() != UserStatus.ENABLED) {
+                        if (data.user().getStatus() != UserStatus.ENABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.disabled.only.enabled", null, locale)));
                         }
                         break;
                     case REGISTERED:
                     case EMAILVERIFIED:
-                        if (data.getUser().getStatus() != UserStatus.ENABLED) {
+                        if (data.user().getStatus() != UserStatus.ENABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.nonenabled.only.enabled", null, locale)));
                         }
@@ -428,8 +426,8 @@ public class UserController {
             }
         }
 
-        if (data.getCredentials() != null) {
-            UserCredentials credentials = data.getCredentials();
+        if (data.credentials() != null) {
+            UserCredentials credentials = data.credentials();
             String maybePassword = credentials.getPasswordText();
             if (!StringUtils.isEmpty(maybePassword)) {
                 if (!maybePassword.equals(credentials.getPasswordConfirm())) {

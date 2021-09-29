@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.tightblog.bloggerui.model.WeblogTagSummaryData;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.Weblog;
@@ -41,9 +40,9 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/tb-ui/authoring/rest/tags")
 public class TagController {
 
-    private WeblogDao weblogDao;
-    private WeblogManager weblogManager;
-    private URLService urlService;
+    private final WeblogDao weblogDao;
+    private final WeblogManager weblogManager;
+    private final URLService urlService;
 
     @Autowired
     public TagController(WeblogDao weblogDao, WeblogManager weblogManager, URLService urlService) {
@@ -52,7 +51,9 @@ public class TagController {
         this.urlService = urlService;
     }
 
-    private static Logger log = LoggerFactory.getLogger(TagController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TagController.class);
+
+    private record WeblogTagSummaryData(List<WeblogEntryTagAggregate> tags, boolean hasMore) { }
 
     // number of entries to show per page
     private static final int ITEMS_PER_PAGE = 30;
@@ -66,19 +67,18 @@ public class TagController {
         List<WeblogEntryTagAggregate> rawEntries = weblogManager.getTags(weblog, "count", null,
                 page * ITEMS_PER_PAGE, ITEMS_PER_PAGE + 1);
 
-        WeblogTagSummaryData data = new WeblogTagSummaryData();
-        data.getTags().addAll(rawEntries.stream()
+        List<WeblogEntryTagAggregate> tags = rawEntries.stream()
                 .peek(re -> re.setWeblog(null))
                 .peek(re -> re.setViewUrl(
-                        urlService.getWeblogCollectionURL(weblog, null, null, re.getName(), 0)))
-                .collect(Collectors.toList()));
+                        urlService.getWeblogCollectionURL(weblog, null, null, re.getName(), 0))).collect(Collectors.toList());
 
+        boolean hasMore = false;
         if (rawEntries.size() > ITEMS_PER_PAGE) {
-            data.getTags().remove(data.getTags().size() - 1);
-            data.setHasMore(true);
+            tags.remove(tags.size() - 1);
+            hasMore = true;
         }
 
-        return data;
+        return new WeblogTagSummaryData(tags, hasMore);
     }
 
     @PostMapping(value = "/weblog/{weblogId}/add/currenttag/{currentTagName}/newtag/{newTagName}")
@@ -98,7 +98,7 @@ public class TagController {
     private Map<String, Integer> changeTags(String weblogId, String currentTagName, String newTagName, boolean isAdd) {
 
         Weblog weblog = weblogDao.getById(weblogId);
-        log.info("For weblog {} {} current tag {} to new tag {}", weblog.getHandle(), isAdd ? "adding" : "renaming",
+        LOG.info("For weblog {} {} current tag {} to new tag {}", weblog.getHandle(), isAdd ? "adding" : "renaming",
                 currentTagName, newTagName);
 
         Map<String, Integer> results = weblogManager.addTag(weblog, currentTagName, newTagName);

@@ -95,6 +95,7 @@
     "newEntry": "New Entry",
     "nextPage": "Next Page",
     "no": "No",
+    "notes": "Notes",
     "previousPage": "Previous Page",
     "refresh": "Refresh",
     "remove": "Remove",
@@ -194,6 +195,49 @@
       "emailComments": "For non-moderated comments, sends an email to the weblog's members whenever a new comment is added. Also provides blog commenters a checkbox option to receive emails when subsequent comments occur for the entry.",
       "ignoreUrls": "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
     }
+  },
+  "mediaFiles": {
+    "title": "Media Files",
+    "tip": "Media files (pictures, podcasts, etc.) can be uploaded here for use within blogs.  The Copy to Clipboard icon for an image can be used to copy the image URL into the blog entry editor.",
+    "viewFolder": "View Folder",
+    "moveSelected": "Move selected to:",
+    "deleteFolder": "Delete folder",
+    "selectAllLabel": "Select all files in folder",
+    "addFolder": "Add New Folder",
+    "create": "Create",
+    "folderEmpty": "Folder is empty.",
+    "add": "Add media file",
+    "confirmDeleteFilesTmpl": "Delete <strong>{count}</strong> selected media file(s)?",
+    "confirmDeleteFolderTmpl": "Delete folder <strong>{folderName}</strong> including its <strong>{count}</strong> media file(s)?",
+    "confirmMoveFilesTmpl": "Move <strong>{count}</strong> selected media file(s) to folder <strong>{targetFolderName}</strong>?",
+    "folderCreateErrorExists": "Folder with that name already exists, please choose another.",
+    "deleteFileSuccess": "Media file(s) successfully deleted.",
+    "deleteFolderSuccess": "Media folder successfully deleted.",
+    "moveSuccess": "Media file(s) successfully moved."
+  },
+  "mediaFileEdit": {
+    "title": "Edit media file",
+    "pageTip": "You may edit the information stored about this media file. Changes outside of image reloading take effect for future uses of the image only; for images already in a blog entry edit the entry to update the anchor, alt text, etc., associated with the image.",
+    "fileInfo": "File info",
+    "fileLocation": "File Location",
+    "fileType": "Type",
+    "fileSize": "Size",
+    "fileDimensions": "Image",
+    "clickToView": "Click to view in new window",
+    "permalink": "Link (URL)",
+    "folder": "Folder",
+    "altText": "Alt text",
+    "anchor": "Target URL",
+    "titleText": "Title text",
+    "tooltip": {
+      "altText": "Additional text explaining the media file that may be rendered by the browser as a pop-up when the reader's mouse is over the media file.",
+      "anchor": "Used for images only; if the image is clicked on, webpage URL (including http:// or https://) to redirect to.",
+      "titleText": "Additional text explaining the media file that may be rendered by the browser as a pop-up when the reader's mouse is over the media file."
+    }
+  },
+  "mediaFileAdd": {
+    "title": "Add new media file",
+    "pageTip": "Use this page to upload your new media file.  Each file must have a name, but all other fields are optional."
   },
   "myBlogs": {
     "title": "My Blogs",
