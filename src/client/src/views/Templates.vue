@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="asyncDataStatus_ready">
     <AppUserNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -198,7 +198,7 @@
               </tr>
               <tr>
                 <td colspan="2" class="field">
-                  <p>
+                  <p v-if="selectedTemplateRole">
                     {{ $t(selectedTemplateRole.descriptionProperty) }}
                   </p>
                 </td>
@@ -220,6 +220,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   props: {
@@ -246,6 +247,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("sessionInfo", {
       sessionInfo: (state) => state.items,
@@ -423,12 +425,13 @@ export default {
       this.errorObj = {};
     },
   },
-  created: function () {
-    this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+  async created() {
+    await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
       this.weblog = { ...fetchedWeblog };
     });
-    this.loadTemplateData();
-    this.resetAddTemplateData();
+    await this.loadTemplateData();
+    await this.resetAddTemplateData();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

@@ -306,7 +306,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             assertEquals(testEntry, entry);
             assertNotNull(entry.getTags());
             assertEquals(1, entry.getTags().size());
-            assertEquals("testtag", (entry.getTags()
+            assertEquals("testtag", (entry.getTagSet()
                     .iterator().next()).getName());
 
             weblogEntryManager.removeWeblogEntry(testEntry);
@@ -446,7 +446,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         weblogEntryManager.saveWeblogEntry(entry);
 
         entry = weblogEntryDao.findByIdOrNull(id);
-        Set<String> tagNames = entry.getTags().stream()
+        Set<String> tagNames = entry.getTagSet().stream()
                 .map(WeblogEntryTag::getName)
                 .collect(Collectors.toCollection(HashSet::new));
 
@@ -763,7 +763,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         if (name.length() == 0) {
             return;
         }
-        for (WeblogEntryTag tag : entry.getTags()) {
+        for (WeblogEntryTag tag : entry.getTagSet()) {
             if (tag.getName().equals(name)) {
                 return;
             }
@@ -772,7 +772,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         tag.setName(name);
         tag.setWeblog(entry.getWeblog());
         tag.setWeblogEntry(entry);
-        entry.getTags().add(tag);
+        entry.getTagSet().add(tag);
     }
 
 }

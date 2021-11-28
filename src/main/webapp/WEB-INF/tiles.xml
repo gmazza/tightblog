@@ -24,19 +24,6 @@
         "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 <tiles-definitions>
 
-    <definition name=".tiles-vue-tabbedpage" template="/WEB-INF/jsps/tiles/tiles-tabbedpage.jsp">
-        <put-attribute name="bannerStatus" value="/WEB-INF/jsps/tiles/bannerStatus.jsp" />
-        <put-attribute name="head"         value="/WEB-INF/jsps/tiles/head.jsp" />
-        <put-attribute name="sidebarType"  value="nosidebar" />
-        <put-attribute name="menu"         value="/WEB-INF/jsps/tiles/menu.jsp" />
-        <put-attribute name="content"      value="${content}" />
-        <put-attribute name="footer"       value="/WEB-INF/jsps/tiles/footer.jsp" />
-    </definition>
-
-    <definition name=".tiles-vue-manualpage" template="/WEB-INF/jsps/tiles/tiles-manualpage.jsp" 
-        extends=".tiles-vue-tabbedpage">
-    </definition>
-
     <definition name=".tiles-simplepage" template="/WEB-INF/jsps/tiles/tiles-simplepage.jsp">
         <put-attribute name="bannerStatus" value="/WEB-INF/jsps/tiles/bannerStatus.jsp" />
         <put-attribute name="head"         value="/WEB-INF/jsps/tiles/head.jsp" />
@@ -94,15 +81,6 @@
     <definition name=".install" extends=".tiles-no-nav-page" >
         <put-attribute name="content" value="/WEB-INF/jsps/core/Install.jsp" />
         <put-attribute name="titleRight" value="installer.bannerTitleRight"/>
-    </definition>
-
-    <!-- weblog editor pages (and associates) -->
-    <definition name=".entryEdit" extends=".tiles-vue-manualpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
-    </definition>
-
-    <definition name=".entryAdd" extends=".tiles-vue-manualpage" >
-        <put-attribute name="content" value="/WEB-INF/jsps/editor/EntryEdit.jsp" />
     </definition>
 
 </tiles-definitions>

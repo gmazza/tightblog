@@ -68,12 +68,12 @@ export default {
         setter: "setUserWeblogRoles",
       });
     },
-    fetchWeblog({ dispatch, getters }, weblogId) {
+    async fetchWeblog({ dispatch, getters }, weblogId) {
       const weblog = getters.weblog(weblogId);
       if (weblog != null) {
         return weblog;
       } else {
-        dispatch("refreshWeblog", weblogId);
+        return await dispatch("refreshWeblog", weblogId);
       }
     },
     refreshWeblog({ commit }, weblogId) {

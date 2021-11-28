@@ -131,18 +131,11 @@ public class WeblogEntry implements WeblogOwned {
     private int hours;
     private int minutes;
     private String dateString;
-    private String editUrl;
-    private String commentsUrl;
     private String permalink;
     private String previewUrl;
-    private String tagsAsString;
+    private Set<String> tags;
 
     public WeblogEntry() {
-    }
-
-    public WeblogEntry(String title, String editUrl) {
-        this.title = title;
-        this.editUrl = editUrl;
     }
 
     @Id
@@ -342,12 +335,12 @@ public class WeblogEntry implements WeblogOwned {
     @OneToMany(targetEntity = WeblogEntryTag.class,
             cascade = CascadeType.ALL, mappedBy = "weblogEntry", orphanRemoval = true)
     @OrderBy("name")
-    public Set<WeblogEntryTag> getTags() {
+    public Set<WeblogEntryTag> getTagSet() {
         return tagSet;
     }
 
-    public void setTags(Set<WeblogEntryTag> tags) {
-        this.tagSet = tags;
+    public void setTagSet(Set<WeblogEntryTag> tagSet) {
+        this.tagSet = tagSet;
     }
 
     /**
@@ -360,7 +353,7 @@ public class WeblogEntry implements WeblogOwned {
         for (String tagStr : newTags) {
             String normalizedString = Utilities.normalizeTag(tagStr, localeObject);
             boolean found = false;
-            for (WeblogEntryTag currentTag : getTags()) {
+            for (WeblogEntryTag currentTag : getTagSet()) {
                 if (currentTag.getName().equals(normalizedString)) {
                     // reuse currently existing
                     newTagSet.add(currentTag);
@@ -377,19 +370,19 @@ public class WeblogEntry implements WeblogOwned {
             }
         }
         // will erase tags not in the new list, JPA will delete them from DB.
-        setTags(newTagSet);
+        setTagSet(newTagSet);
     }
 
     @Transient
-    public String getTagsAsString() {
-        if (tagsAsString == null) {
-            tagsAsString = String.join(" ", getTags().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet()));
+    public Set<String> getTags() {
+        if (tags == null) {
+            tags = getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
         }
-        return tagsAsString;
+        return tags;
     }
 
-    public void setTagsAsString(String tagsAsString) {
-        this.tagsAsString = tagsAsString;
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
     }
 
     public void setWeblogEntryCommentDao(WeblogEntryCommentDao weblogEntryCommentDao) {
@@ -458,24 +451,6 @@ public class WeblogEntry implements WeblogOwned {
 
     public void setDateString(String dateString) {
         this.dateString = dateString;
-    }
-
-    @Transient
-    public String getEditUrl() {
-        return editUrl;
-    }
-
-    public void setEditUrl(String editUrl) {
-        this.editUrl = editUrl;
-    }
-
-    @Transient
-    public String getCommentsUrl() {
-        return commentsUrl;
-    }
-
-    public void setCommentsUrl(String commentsUrl) {
-        this.commentsUrl = commentsUrl;
     }
 
     @Transient

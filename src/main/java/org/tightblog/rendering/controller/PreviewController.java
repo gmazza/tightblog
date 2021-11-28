@@ -82,8 +82,8 @@ public class PreviewController extends AbstractController {
         this.weblogEntryManager = weblogEntryManager;
     }
 
-    @GetMapping(path = "/{weblogHandle}/entry/{anchor}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
+    @GetMapping(path = "/{weblogId}/entry/{anchor}")
+    @PreAuthorize("@securityService.hasAccess(#principal.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     ResponseEntity<Resource> getEntryPreview(@PathVariable String weblogId, @PathVariable String anchor,
                                             Principal principal, Device device) throws IOException {
 

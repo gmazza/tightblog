@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <h1>{{ $t("myBlogs.title") }}</h1>
     <span v-show="userWeblogRoles.length == 0">
       <p>{{ $t("myBlogs.noblogs") }}</p>
@@ -81,43 +81,51 @@
 
           <td class="mm_table_actions" width="20%" align="left">
             <img src="@/assets/table_edit.png" />
-            <a
-              v-bind:href="
-                '/tb-ui/app/authoring/entryAdd?weblogId=' + role.weblog.id
-              "
+            <router-link
+              :to="{
+                name: 'entryEdit',
+                params: {
+                  weblogId: role.weblog.id,
+                },
+              }"
+              >{{ $t("common.newEntry") }}</router-link
             >
-              {{ $t("common.newEntry") }}
-            </a>
             <br />
 
-              <img src="@/assets/table_multiple.png" />
-              <router-link
-                :to="{ name: 'entries', params: { weblogId: role.weblog.id } }"
-                >Entries</router-link
-              >
-              <br />
+            <img src="@/assets/table_multiple.png" />
+            <router-link
+              :to="{ name: 'entries', params: { weblogId: role.weblog.id } }"
+              >{{ $t("common.entries") }}</router-link
+            >
+            <br />
 
-              <img src="@/assets/page_white_edit.png" />
-              <router-link
-                :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
-                >Comments</router-link
-              >
-              <span v-if="role.weblog.unapprovedComments > 0">
-                ({{ $t("weblogConfig.deleteConfirm", { count:
-                unapprovedCommentCount })
-              </span>
-              <br />
+            <img src="@/assets/page_white_edit.png" />
+            <router-link
+              :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
+              >{{ $t("common.comments") }}</router-link
+            >
+            <span v-if="role.weblog.unapprovedComments > 0">
+              {{
+                $t("weblogConfig.deleteConfirm", {
+                  count: unapprovedCommentCount,
+                })
+              }}
+            </span>
+            <br />
 
             <!-- Only admins get access to theme and config settings -->
             <span v-if="role.weblogRole == 'OWNER'">
               <!-- And only show theme option if custom themes are enabled -->
               <span v-if="webloggerProps.usersCustomizeThemes">
                 <img src="@/assets/layout.png" />
-                <a
-                  v-bind:href="
-                    '/tb-ui/app/authoring/templates?weblogId=' + role.weblog.id
-                  "
-                  >{{ $t("myBlogs.theme") }}</a
+                <router-link
+                  :to="{
+                    name: 'templates',
+                    params: {
+                      weblogId: role.weblog.id,
+                    },
+                  }"
+                  >{{ $t("myBlogs.theme") }}</router-link
                 >
                 <br />
               </span>
@@ -128,7 +136,7 @@
                   name: 'weblogConfig',
                   params: { weblogId: role.weblog.id },
                 }"
-                >Weblog Settings</router-link
+                >{{ $t("weblogConfig.updateTitle") }}</router-link
               >
               <br />
             </span>
@@ -157,6 +165,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   data: function () {
@@ -165,6 +174,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("sessionInfo", {
       sessionInfo: (state) => state.items,
@@ -222,19 +232,20 @@ export default {
       }
     },
   },
-  created: function () {
+  async created() {
     if (this.webloggerProps === undefined || this.webloggerProps.length === 0) {
-      this.loadWebloggerProperties();
+      await this.loadWebloggerProperties();
     }
     if (!this.sessionInfo) {
-      this.loadSessionInfo();
+      await this.loadSessionInfo();
     }
     if (
       this.userWeblogRoles === undefined ||
       this.userWeblogRoles.length === 0
     ) {
-      this.loadUserWeblogRoles();
+      await this.loadUserWeblogRoles();
     }
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

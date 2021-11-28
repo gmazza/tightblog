@@ -19,204 +19,211 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
-    <AppSuccessMessageBox
-      :message="successMessage"
-      @close-box="successMessage = null"
-    />
-    <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
-    ></AppErrorListMessageBox>
-    <h2>{{ $t("mediaFiles.title") }}</h2>
-    <p class="pagetip" v-html="$t('mediaFiles.tip')"></p>
-    <div class="control clearfix">
-      <span style="padding-left: 7px">
-        <input
-          type="checkbox"
-          v-bind:disabled="mediaFiles.length == 0"
-          v-model="allFilesSelected"
-          v-on:input="toggleCheckboxes($event.target.checked)"
-          :title="$t('mediaFiles.selectAllLabel')"
-        />
-      </span>
+  <div v-if="asyncDataStatus_ready">
+    <AppUserNav />
+    <div style="text-align: left; padding: 20px">
+      <AppSuccessMessageBox
+        :message="successMessage"
+        @close-box="successMessage = null"
+      />
+      <AppErrorListMessageBox
+        :in-error-obj="errorObj"
+        @close-box="errorObj.errors = null"
+      ></AppErrorListMessageBox>
+      <h2>{{ $t("mediaFiles.title") }}</h2>
+      <p class="pagetip" v-html="$t('mediaFiles.tip')"></p>
+      <div class="control clearfix">
+        <span style="padding-left: 7px">
+          <input
+            type="checkbox"
+            v-bind:disabled="mediaFiles.length == 0"
+            v-model="allFilesSelected"
+            v-on:input="toggleCheckboxes($event.target.checked)"
+            :title="$t('mediaFiles.selectAllLabel')"
+          />
+        </span>
 
-      <span style="float: right">
-        <!-- Folder list -->
-        {{ mediaFiles.viewFolder }}
-        <select
-          v-model="currentFolderId"
-          v-on:change="loadMediaFiles()"
-          size="1"
-          required
-        >
-          <option
-            v-for="dir in mediaDirectories"
-            :key="dir.id"
-            v-bind:value="dir.id"
-          >
-            {{ dir.name }}
-          </option>
-        </select>
-      </span>
-    </div>
-    <!-- Contents of media folder -->
-
-    <div width="720px" height="500px" v-cloak>
-      <ul id="myMenu">
-        <li
-          v-if="mediaFiles.length == 0"
-          style="text-align: center; list-style-type: none"
-        >
-          {{ $t("mediaFiles.folderEmpty") }}
-        </li>
-
-        <li
-          v-else
-          class="align-images"
-          v-for="mediaFile in mediaFiles"
-          v-bind:id="mediaFile.id"
-          :key="mediaFile.id"
-        >
-          <div class="mediaObject">
-            <router-link
-              :to="{
-                name: 'mediaFileEdit',
-                params: {
-                  weblogId,
-                  folderId: currentFolderId,
-                  mediaFileId: mediaFile.id,
-                },
-              }"
-            >
-              <img
-                v-if="mediaFile.imageFile"
-                v-bind:src="mediaFile.thumbnailURL"
-                v-bind:alt="mediaFile.altText"
-                v-bind:title="mediaFile.name"
-              />
-
-              <img
-                v-else
-                src="@/assets/page_white.png"
-                v-bind:alt="mediaFile.altText"
-                style="padding: 40px 50px"
-              />
-            </router-link>
-          </div>
-
-          <div class="mediaObjectInfo">
-            <input
-              type="checkbox"
-              name="idSelections"
-              v-model="mediaFile.selected"
-              v-bind:value="mediaFile.id"
-            />
-
-            {{ mediaFile.name | str_limit(47) }}
-
-            <span style="float: right">
-              <button
-                type="submit"
-                v-on:click="copyToClipboard(mediaFile)"
-                alt="Copy URL to clipboard"
-                title="Copy URL to clipboard"
-              >
-                <img
-                  src="@/assets/copy_to_clipboard.png"
-                  border="0"
-                  alt="icon"
-                />
-              </button>
-            </span>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div style="clear: left"></div>
-
-    <div class="control clearfix" style="margin-top: 15px">
-      <span style="padding-left: 7px">
-        <router-link
-          :to="{
-            name: 'mediaFileEdit',
-            params: {
-              weblogId,
-              folderId: currentFolderId,
-            },
-          }"
-        >
-          <button type="button">
-            <img src="@/assets/image_add.png" border="0" alt="icon" />
-            {{ $t("mediaFiles.add") }}
-          </button>
-        </router-link>
-
-        <span v-show="mediaFiles.length > 0">
-          <button
-            type="button"
-            v-bind:disabled="filesSelectedCount == 0"
-            v-on:click="moveFiles()"
-            v-show="mediaDirectories.length > 1"
-          >
-            {{ $t("mediaFiles.moveSelected") }}
-          </button>
-
+        <span style="float: right">
+          <!-- Folder list -->
+          {{ mediaFiles.viewFolder }}
           <select
-            id="moveTargetMenu"
+            v-model="currentFolderId"
+            v-on:change="loadMediaFiles()"
             size="1"
             required
-            v-model="targetFolderId"
-            v-show="mediaDirectories.length > 1"
           >
-            <option v-for="dir in moveToFolders" :value="dir.id" :key="dir.id">
+            <option
+              v-for="dir in mediaDirectories"
+              :key="dir.id"
+              v-bind:value="dir.id"
+            >
               {{ dir.name }}
             </option>
           </select>
         </span>
-      </span>
+      </div>
+      <!-- Contents of media folder -->
 
-      <span style="float: right">
-        <button
-          type="button"
-          v-bind:disabled="filesSelectedCount == 0"
-          v-on:click="deleteFiles()"
-        >
-          {{ $t("common.deleteSelected") }}
-        </button>
+      <div width="720px" height="500px" v-cloak>
+        <ul id="myMenu">
+          <li
+            v-if="mediaFiles.length == 0"
+            style="text-align: center; list-style-type: none"
+          >
+            {{ $t("mediaFiles.folderEmpty") }}
+          </li>
 
-        <button
-          type="button"
-          v-on:click="deleteFolder()"
-          v-show="mediaDirectories.length > 1"
-        >
-          {{ $t("mediaFiles.deleteFolder") }}
-        </button>
-      </span>
-    </div>
+          <li
+            v-else
+            class="align-images"
+            v-for="mediaFile in mediaFiles"
+            v-bind:id="mediaFile.id"
+            :key="mediaFile.id"
+          >
+            <div class="mediaObject">
+              <router-link
+                :to="{
+                  name: 'mediaFileEdit',
+                  params: {
+                    weblogId,
+                    folderId: currentFolderId,
+                    mediaFileId: mediaFile.id,
+                  },
+                }"
+              >
+                <img
+                  v-if="mediaFile.imageFile"
+                  v-bind:src="mediaFile.thumbnailURL"
+                  v-bind:alt="mediaFile.altText"
+                  v-bind:title="mediaFile.name"
+                />
 
-    <div class="menu-tr sidebarFade">
-      <div class="sidebarInner">
-        <div>
-          <img src="@/assets/folder_add.png" border="0" alt="icon" />{{
-            $t("mediaFiles.addFolder")
-          }}
-          <div style="padding-left: 2em; padding-top: 1em">
-            {{ $t("common.name") }}:
-            <input
-              type="text"
-              v-model="newFolderName"
-              size="10"
-              maxlength="25"
-            />
+                <img
+                  v-else
+                  src="@/assets/page_white.png"
+                  v-bind:alt="mediaFile.altText"
+                  style="padding: 40px 50px"
+                />
+              </router-link>
+            </div>
+
+            <div class="mediaObjectInfo">
+              <input
+                type="checkbox"
+                name="idSelections"
+                v-model="mediaFile.selected"
+                v-bind:value="mediaFile.id"
+              />
+
+              {{ mediaFile.name | str_limit(47) }}
+
+              <span style="float: right">
+                <button
+                  type="submit"
+                  v-on:click="copyToClipboard(mediaFile)"
+                  alt="Copy URL to clipboard"
+                  title="Copy URL to clipboard"
+                >
+                  <img
+                    src="@/assets/copy_to_clipboard.png"
+                    border="0"
+                    alt="icon"
+                  />
+                </button>
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div style="clear: left"></div>
+
+      <div class="control clearfix" style="margin-top: 15px">
+        <span style="padding-left: 7px">
+          <router-link
+            :to="{
+              name: 'mediaFileEdit',
+              params: {
+                weblogId,
+                folderId: currentFolderId,
+              },
+            }"
+          >
+            <button type="button">
+              <img src="@/assets/image_add.png" border="0" alt="icon" />
+              {{ $t("mediaFiles.add") }}
+            </button>
+          </router-link>
+
+          <span v-show="mediaFiles.length > 0">
             <button
               type="button"
-              v-on:click="addFolder()"
-              v-bind:disabled="newFolderName == ''"
+              v-bind:disabled="filesSelectedCount == 0"
+              v-on:click="moveFiles()"
+              v-show="mediaDirectories.length > 1"
             >
-              {{ $t("mediaFiles.create") }}
+              {{ $t("mediaFiles.moveSelected") }}
             </button>
+
+            <select
+              id="moveTargetMenu"
+              size="1"
+              required
+              v-model="targetFolderId"
+              v-show="mediaDirectories.length > 1"
+            >
+              <option
+                v-for="dir in moveToFolders"
+                :value="dir.id"
+                :key="dir.id"
+              >
+                {{ dir.name }}
+              </option>
+            </select>
+          </span>
+        </span>
+
+        <span style="float: right">
+          <button
+            type="button"
+            v-bind:disabled="filesSelectedCount == 0"
+            v-on:click="deleteFiles()"
+          >
+            {{ $t("common.deleteSelected") }}
+          </button>
+
+          <button
+            type="button"
+            v-on:click="deleteFolder()"
+            v-show="mediaDirectories.length > 1"
+          >
+            {{ $t("mediaFiles.deleteFolder") }}
+          </button>
+        </span>
+      </div>
+
+      <div class="menu-tr sidebarFade">
+        <div class="sidebarInner">
+          <div>
+            <img src="@/assets/folder_add.png" border="0" alt="icon" />{{
+              $t("mediaFiles.addFolder")
+            }}
+            <div style="padding-left: 2em; padding-top: 1em">
+              {{ $t("common.name") }}:
+              <input
+                type="text"
+                v-model="newFolderName"
+                size="10"
+                maxlength="25"
+              />
+              <button
+                type="button"
+                v-on:click="addFolder()"
+                v-bind:disabled="newFolderName == ''"
+              >
+                {{ $t("mediaFiles.create") }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -225,6 +232,8 @@
 </template>
 
 <script>
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
+
 export default {
   props: {
     weblogId: {
@@ -236,6 +245,7 @@ export default {
       type: String,
     },
   },
+  mixins: [asyncDataStatus],
   data() {
     return {
       mediaDirectories: [],
@@ -492,9 +502,10 @@ export default {
       this.errorObj = {};
     },
   },
-  mounted: function () {
+  async created() {
     this.currentFolderId = this.folderId;
-    this.loadMediaFolders();
+    await this.loadMediaFolders();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

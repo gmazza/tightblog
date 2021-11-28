@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <AppErrorListMessageBox
       :in-error-obj="errorObj"
       @close-box="errorObj.errors = null"
@@ -200,6 +200,8 @@
 </template>
 
 <script>
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
+
 export default {
   props: {
     weblogId: {
@@ -226,6 +228,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   methods: {
     loadMediaFile: function () {
       this.axios
@@ -274,10 +277,11 @@ export default {
       });
     },
   },
-  mounted: function () {
+  async created() {
     if (this.mediaFileId) {
-      this.loadMediaFile();
+      await this.loadMediaFile();
     }
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

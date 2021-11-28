@@ -448,7 +448,7 @@ public class WeblogManager {
 
         boolean updated = false;
         for (WeblogEntryTag tag : currentResults) {
-            tag.getWeblogEntry().getTags().remove(tag);
+            tag.getWeblogEntry().getTagSet().remove(tag);
             weblogEntryDao.save(tag.getWeblogEntry());
             updated = true;
         }
@@ -480,7 +480,7 @@ public class WeblogManager {
                 unchangedEntries++;
             } else {
                 WeblogEntryTag newTag = new WeblogEntryTag(weblog, currentTag.getWeblogEntry(), newTagName);
-                currentTag.getWeblogEntry().getTags().add(newTag);
+                currentTag.getWeblogEntry().getTagSet().add(newTag);
                 weblogEntryDao.save(currentTag.getWeblogEntry());
                 updatedEntries++;
             }

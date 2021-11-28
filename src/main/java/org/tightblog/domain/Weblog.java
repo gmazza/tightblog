@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Weblogs have a many-to-many association with users. They also have one-to-many and
@@ -73,6 +74,8 @@ public class Weblog implements WeblogOwned {
     private EditFormat editFormat = EditFormat.HTML;
     private String blacklist;
     private CommentPolicy allowComments = CommentPolicy.MODERATE_NONPUB;
+    private int defaultCommentDays = -1;
+    private boolean applyCommentDefaults;
     private SpamPolicy spamPolicy = SpamPolicy.NO_EMAIL;
     @NotBlank(message = "{weblogConfig.error.themeNull}")
     private String theme;
@@ -80,14 +83,12 @@ public class Weblog implements WeblogOwned {
     private String timeZone;
     private Boolean visible = Boolean.TRUE;
     private Instant dateCreated = Instant.now();
-    private int defaultCommentDays = -1;
     private int entriesPerPage = 12;
     private Instant lastModified = Instant.now();
     private String about;
     private User creator;
     private String analyticsCode;
     private int hitsToday;
-    private boolean applyCommentDefaults;
 
     // Transient, derived from and re-calculated each time blacklist property is set
     private List<java.util.regex.Pattern> blacklistRegexRules = new ArrayList<>();
@@ -437,6 +438,10 @@ public class Weblog implements WeblogOwned {
 
     public void setWeblogCategories(List<WeblogCategory> cats) {
         this.weblogCategories = cats;
+    }
+
+    public List<String> getWeblogCategoryNames() {
+        return getWeblogCategories().stream().map(WeblogCategory::getName).collect(Collectors.toList());
     }
 
     public boolean hasCategory(String categoryName) {

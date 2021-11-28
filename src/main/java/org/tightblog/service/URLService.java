@@ -107,31 +107,16 @@ public class URLService {
      * Get a url to add a new weblog entry.
      */
     public String getNewEntryURL(String weblogId) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/app/authoring/entryAdd";
-        Map<String, String> params = new HashMap<>();
-        params.put("weblogId", weblogId);
-        return url + Utilities.getQueryString(params);
+        return dp.getAbsoluteUrl() + "/tb-ui2/index.html#/app/entryEdit/" + weblogId;
     }
 
     /**
      * Get a url to edit a specific weblog entry.
      */
     public String getEntryEditURL(WeblogEntry entry) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/app/authoring/entryEdit";
+        String url = dp.getAbsoluteUrl() + "/tb-ui2/index.html#/app/entryEdit/" + entry.getWeblog().getId();
         Map<String, String> params = new HashMap<>();
-        params.put("weblogId", entry.getWeblog().getId());
         params.put("entryId", entry.getId());
-        return url + Utilities.getQueryString(params);
-    }
-
-    /**
-     * Get a url for the comments for a specific weblog entry.
-     */
-    public String getCommentManagementURL(String weblogId, String entryId) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/app/authoring/comments";
-        Map<String, String> params = new HashMap<>();
-        params.put("weblogId", weblogId);
-        params.put("entryId", entryId);
         return url + Utilities.getQueryString(params);
     }
 

@@ -453,31 +453,6 @@ td .menu-tl, td .menu-tr {
 	height: 100%;
 }
 
-/* ----------------------------------------------------------------------
-Menu tab table (the tabs)
----------------------------------------------------------------------- */
-
-.menuTabTable {
-    height: 25px;
-    _height: 21px; /* for IE */
-    margin: 0px;
-    padding: 0px;
-}
-td.menuTabSeparator {
-    width: 4px;
-}
-
-td.menuTab {
-    margin: 0px;
-    padding: 0px;
-    vertical-align: top;
-    border-radius: 15px 15px 0px 0px;
-}
-
-td.menuTabSelected {
-    font-weight: bold;
-}
-
 td.buttontd {
     text-align: center
 }

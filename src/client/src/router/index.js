@@ -51,11 +51,24 @@ const routes = [
     props: true,
   },
   {
+    path: "/app/entryEdit/:weblogId",
+    name: "entryEdit",
+    component: () =>
+      import(/* webpackChunkName: "entryEdit" */ "../views/EntryEdit"),
+    props: (route) => ({
+      weblogId: route.params.weblogId,
+      entryId: route.query.entryId,
+    }),
+  },
+  {
     path: "/app/comments/:weblogId",
     name: "comments",
     component: () =>
       import(/* webpackChunkName: "comments" */ "../views/Comments"),
-    props: true,
+    props: (route) => ({
+      weblogId: route.params.weblogId,
+      entryId: route.query.entryId,
+    }),
   },
   {
     path: "/app/tags/:weblogId",

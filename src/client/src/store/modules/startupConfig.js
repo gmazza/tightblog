@@ -32,7 +32,7 @@ export default {
         });
       }
     },
-    loadStartupConfig({ commit }) {
+    async loadStartupConfig({ commit }) {
       if (!this.getStartupConfig || this.getStartupConfig.length === 0) {
         loadDataUsingAxios({
           commit: commit,

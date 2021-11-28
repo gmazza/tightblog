@@ -64,30 +64,6 @@ div.controlToggle {
     color: #666666;
 }
 
-/* ------------------------------------------------------------------------ */
-/* add colors and images to menu.css */
-
-td.menuTabSelected {
-    background: url("menutab-sel.gif") repeat-x;
-}
-td.menuTabUnselected {
-    background: url("menutab-unsel.gif") repeat-x;
-}
-.menuItemTable {
-    background-color: #c6ab74;
-    color: black;
-}
-td.menuTab a:link, td.menuTab a:visited, td.menuTab a:hover, td.menuTab a:active {
-    color: black;
-}
-
-a.menuItemSelected:link, a.menuItemSelected:visited, a.menuItemSelected:hover, a.menuItemSelected:active {
-    color: black;
-}
-a.menuItemUnselected:link, a.menuItemUnselected:visited, a.menuItemUnselected:hover, a.menuItemUnselected:active {
-    color: black;
-}
-
 /* for main menu page */
 
 span.mm_weblog_name {
