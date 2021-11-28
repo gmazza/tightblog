@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div>
+  <div v-if="asyncDataStatus_ready">
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -247,7 +247,7 @@
             <tr>
               <th style="width: 30%">{{ $t("common.weblog") }}</th>
               <th style="width: 10%">{{ $t("common.role") }}</th>
-              <th style="width: 25%">{{ $t("common.edit") }}</th>
+              <th style="width: 25%">{{ $t("common.entries") }}</th>
               <th width="width: 25%">{{ $t("userAdmin.manage") }}</th>
               <th width="width: 25%">{{ $t("userAdmin.removeFromWeblog") }}</th>
             </tr>
@@ -258,7 +258,7 @@
               v-bind:key="weblogRole.handle"
             >
               <td>
-                <a v-bind:href="weblogRole.weblog.absoluteURL">
+                <a v-bind:href="weblogRole.weblog.absoluteURL" target="_blank">
                   {{ weblogRole.weblog.name }} [{{ weblogRole.weblog.handle }}]
                 </a>
               </td>
@@ -267,23 +267,25 @@
               </td>
               <td>
                 <img src="@/assets/page_white_edit.png" />
-                <a
+                <router-link
+                  :to="{
+                    name: 'entries',
+                    params: { weblogId: weblogRole.weblog.id },
+                  }"
                   target="_blank"
-                  v-bind:href="entriesUrl + '?weblogId=' + weblogRole.weblog.id"
+                  >{{ $t("common.entries") }}</router-link
                 >
-                  {{ $t("userAdmin.editEntries") }}
-                </a>
               </td>
               <td>
                 <img src="@/assets/page_white_edit.png" />
-                <a
+                <router-link
+                  :to="{
+                    name: 'weblogConfig',
+                    params: { weblogId: weblogRole.weblog.id },
+                  }"
                   target="_blank"
-                  v-bind:href="
-                    weblogConfigUrl + '?weblogId=' + weblogRole.weblog.id
-                  "
+                  >{{ $t("userAdmin.manage") }}</router-link
                 >
-                  {{ $t("userAdmin.manage") }}
-                </a>
               </td>
               <td>
                 <button
@@ -344,13 +346,12 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   data() {
     return {
       urlRoot: "/tb-ui/admin/rest/useradmin/",
-      entriesUrl: "/tb-ui/app/authoring/entries",
-      weblogConfigUrl: "/tb-ui/app/authoring/weblogConfig",
       pendingList: {},
       userToEdit: null,
       userBeingEdited: null,
@@ -362,6 +363,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("startupConfig", {
       lookupVals: (state) => state.lookupValues,
@@ -501,11 +503,12 @@ export default {
       }
     },
   },
-  created: function () {
-    this.loadLookupValues();
-    this.getPendingRegistrations();
-    this.loadUserList();
-    this.loadWeblogList();
+  async created() {
+    await this.loadLookupValues();
+    await this.getPendingRegistrations();
+    await this.loadUserList();
+    await this.loadWeblogList();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

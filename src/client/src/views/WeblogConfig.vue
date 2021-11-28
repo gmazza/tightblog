@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div>
+  <div v-if="asyncDataStatus_ready">
     <div v-if="weblogId">
       <AppUserNav />
     </div>
@@ -361,6 +361,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   props: {
@@ -390,6 +391,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("sessionInfo", {
       sessionInfo: (state) => state.items,
@@ -506,15 +508,16 @@ export default {
       this.successMessage = null;
     },
   },
-  created: function () {
-    this.loadWebloggerProperties();
-    this.loadStartupConfig();
-    this.loadLookupValues();
+  async created() {
+    await this.loadWebloggerProperties();
+    await this.loadStartupConfig();
+    await this.loadLookupValues();
     if (this.weblogId) {
-      this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+      await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
         this.weblog = { ...fetchedWeblog };
       });
     }
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

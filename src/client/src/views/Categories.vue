@@ -19,14 +19,12 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <AppUserNav />
-    <div style="text-align: left; padding: 20px">
-      <AppErrorListMessageBox
-        :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
-      ></AppErrorListMessageBox>
-    </div>
+    <AppErrorListMessageBox
+      :in-error-obj="errorObj"
+      @close-box="errorObj.errors = null"
+    ></AppErrorListMessageBox>
     <h2>{{ $t("categories.title") }}</h2>
     <p class="pagetip">{{ $t("categories.rootPrompt") }}</p>
 
@@ -141,7 +139,10 @@
 </template>
 
 <script>
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
+
 export default {
+  mixins: [asyncDataStatus],
   props: {
     weblogId: {
       required: true,
@@ -252,9 +253,9 @@ export default {
       this.errorObj = {};
     },
   },
-  mounted: function () {
-    this.messageClear();
-    this.loadItems();
+  async created() {
+    await this.loadItems();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

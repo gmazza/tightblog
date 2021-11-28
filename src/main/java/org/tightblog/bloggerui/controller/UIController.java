@@ -32,13 +32,10 @@ import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
-import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.bloggerui.model.Menu;
 import org.tightblog.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.tightblog.service.EmailService;
-import org.tightblog.service.MenuService;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
@@ -65,14 +61,12 @@ import java.util.Map;
 @RequestMapping(path = "/tb-ui/app")
 public class UIController {
 
-    private final WeblogDao weblogDao;
     private final UserManager userManager;
     private final UserDao userDao;
     private final UserWeblogRoleDao userWeblogRoleDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryManager weblogEntryManager;
     private final EmailService emailService;
-    private final MenuService menuHelper;
     private final MessageSource messages;
     private final URLService urlService;
     private final LookupValues lookupValues;
@@ -81,12 +75,11 @@ public class UIController {
     private final ThemeManager themeManager;
 
     @Autowired
-    public UIController(WeblogDao weblogDao, UserManager userManager, UserDao userDao,
+    public UIController(UserManager userManager, UserDao userDao,
                         WeblogEntryManager weblogEntryManager, UserWeblogRoleDao userWeblogRoleDao,
-                        EmailService emailService, MenuService menuHelper, MessageSource messages,
+                        EmailService emailService, MessageSource messages,
                         WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService,
                         Environment environment, ThemeManager themeManager, DynamicProperties dynamicProperties) {
-        this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
         this.userDao = userDao;
@@ -94,7 +87,6 @@ public class UIController {
         this.weblogEntryManager = weblogEntryManager;
         this.urlService = urlService;
         this.emailService = emailService;
-        this.menuHelper = menuHelper;
         this.messages = messages;
         this.environment = environment;
         this.themeManager = themeManager;
@@ -105,9 +97,6 @@ public class UIController {
 
     @Value("${mfa.enabled:true}")
     private boolean mfaEnabled;
-
-    @Value("${media.file.showTab}")
-    boolean showMediaFileTab;
 
     @RequestMapping(value = "/login")
     public ModelAndView login(@RequestParam(required = false) String activationCode,
@@ -225,40 +214,6 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @RequestMapping(value = "/authoring/entryAdd")
-    public ModelAndView entryAdd(Principal principal, @RequestParam String weblogId) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("showMediaFileTab", showMediaFileTab);
-        return getBlogPublisherPage(principal, myMap, weblogId, "entryAdd");
-    }
-
-    @RequestMapping(value = "/authoring/entryEdit")
-    public ModelAndView entryEdit(Principal principal, @RequestParam String weblogId) {
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("showMediaFileTab", showMediaFileTab);
-        return getBlogPublisherPage(principal, myMap, weblogId, "entryEdit");
-    }
-
-    private ModelAndView getBlogPublisherPage(Principal principal, Map<String, Object> map, String weblogId, String actionName) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        Weblog weblog = weblogDao.findById(weblogId).orElse(null);
-
-        boolean isAdmin = user.hasEffectiveGlobalRole(GlobalRole.ADMIN);
-        UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(user, weblog);
-        if (isAdmin || (uwr != null && uwr.hasEffectiveWeblogRole(WeblogRole.POST))) {
-            if (map == null) {
-                map = new HashMap<>();
-            }
-
-            WeblogRole menuRole = isAdmin ? WeblogRole.OWNER : uwr.getWeblogRole();
-            map.put("menu", getMenu(user, actionName, menuRole));
-            map.put("weblogId", weblogId);
-            return tightblogModelAndView(actionName, map, user, weblog);
-        } else {
-            return tightblogModelAndView("denied", null, null, null);
-        }
-    }
-
     @GetMapping(value = "/any/sessioninfo")
     @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
@@ -330,10 +285,6 @@ public class UIController {
         map.putAll(getSessionInfo(user, weblog));
         map.put("pageTitleKey", actionName + ".title");
         return new ModelAndView("." + actionName, map);
-    }
-
-    private Menu getMenu(User user, String actionName, WeblogRole requiredRole) {
-        return menuHelper.getMenu(user.getGlobalRole(), requiredRole, actionName);
     }
 
 }

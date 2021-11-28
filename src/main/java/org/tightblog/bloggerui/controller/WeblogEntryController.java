@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.config.DynamicProperties;
-import org.tightblog.bloggerui.model.EntryEditMetadata;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.URLService;
@@ -42,13 +41,10 @@ import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogEntryTagAggregate;
 import org.tightblog.domain.WeblogRole;
-import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.dao.WeblogEntryDao;
 import org.tightblog.dao.WeblogDao;
-import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.util.Utilities;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +64,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -81,7 +75,7 @@ public class WeblogEntryController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryController.class);
 
-    private static final DateTimeFormatter PUB_DATE_FORMAT = DateTimeFormatter.ofPattern("M/d/yyyy");
+    private static final DateTimeFormatter PUB_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final WeblogDao weblogDao;
     private final WeblogEntryDao weblogEntryDao;
@@ -93,23 +87,21 @@ public class WeblogEntryController {
     private final LuceneIndexer luceneIndexer;
     private final URLService urlService;
     private final MessageSource messages;
-    private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryCommentDao weblogEntryCommentDao;
     private final DynamicProperties dp;
 
     // Max Tag options to display for autocomplete
     private final int maxAutocompleteTags;
 
-    private record WeblogEntrySaveResponse(String entryId, String message) { }
     private record TagAutocompleteData(String prefix, List<WeblogEntryTagAggregate> tagcounts) { }
     private record WeblogEntryData(List<WeblogEntry> entries, boolean hasMore) { }
+    private record RecentWeblogEntryData(String id, String title, String entryEditURL) { }
 
     @Autowired
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
                                  UserDao userDao, UserManager userManager, WeblogManager weblogManager,
                                  WeblogEntryManager weblogEntryManager, LuceneIndexer luceneIndexer,
                                  URLService urlService, MessageSource messages,
-                                 WebloggerPropertiesDao webloggerPropertiesDao,
                                  WeblogEntryDao weblogEntryDao, DynamicProperties dp,
                                  WeblogEntryCommentDao weblogEntryCommentDao,
                                  @Value("${max.autocomplete.tags:20}") int maxAutocompleteTags) {
@@ -119,7 +111,6 @@ public class WeblogEntryController {
         this.userDao = userDao;
         this.userManager = userManager;
         this.weblogManager = weblogManager;
-        this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.weblogEntryManager = weblogEntryManager;
         this.luceneIndexer = luceneIndexer;
         this.urlService = urlService;
@@ -137,9 +128,7 @@ public class WeblogEntryController {
     public WeblogEntry getWeblogEntry(@PathVariable String id, Principal p) {
 
         WeblogEntry entry = weblogEntryDao.getById(id);
-        Weblog weblog = entry.getWeblog();
         entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
-        entry.setCommentsUrl(urlService.getCommentManagementURL(weblog.getId(), entry.getId()));
         entry.setPermalink(urlService.getWeblogEntryURL(entry));
         entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
 
@@ -183,12 +172,12 @@ public class WeblogEntryController {
 
     @GetMapping(value = "/{weblogId}/recententries/{pubStatus}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public List<WeblogEntry> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
+    public List<RecentWeblogEntryData> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
                                               Principal p) {
 
         Weblog weblog = weblogDao.getById(weblogId);
 
-        List<WeblogEntry> entries = new ArrayList<>();
+        List<RecentWeblogEntryData> entries = new ArrayList<>();
         if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {
             WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
             wesc.setWeblog(weblog);
@@ -196,21 +185,10 @@ public class WeblogEntryController {
             wesc.setStatus(pubStatus);
 
             List<WeblogEntry> fullEntries = weblogEntryManager.getWeblogEntries(wesc);
-            entries.addAll(fullEntries.stream().map(e -> new WeblogEntry(e.getTitle(),
-                    urlService.getEntryEditURL(e))).collect(Collectors.toList()));
+            entries.addAll(fullEntries.stream().map(e -> new RecentWeblogEntryData(e.getId(),
+                    e.getTitle(), urlService.getEntryEditURL(e))).collect(Collectors.toList()));
         }
         return entries;
-    }
-
-    @GetMapping(value = "/{weblogId}/categorydata")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public List<String> getWeblogCategoryNames(@PathVariable String weblogId, Principal p) {
-        Weblog weblog = weblogDao.getById(weblogId);
-
-        // categories
-        List<String> categoryList = new ArrayList<>();
-        weblog.getWeblogCategories().forEach(cat -> categoryList.add(cat.getName()));
-        return categoryList;
     }
 
     @GetMapping(value = "/{id}/tagdata")
@@ -220,39 +198,6 @@ public class WeblogEntryController {
         Weblog weblog = weblogDao.findById(id).orElse(null);
         tags = weblogManager.getTags(weblog, null, prefix, 0, maxAutocompleteTags);
         return new TagAutocompleteData(prefix, tags);
-    }
-
-    @GetMapping(value = "/{weblogId}/entryeditmetadata")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public EntryEditMetadata getEntryEditMetadata(@PathVariable String weblogId, Principal p, Locale locale) {
-
-        // Get user permissions and locale
-        User user = userDao.findEnabledByUserName(p.getName());
-        Weblog weblog = weblogDao.getById(weblogId);
-
-        EntryEditMetadata fields = new EntryEditMetadata();
-
-        // categories
-        weblog.getWeblogCategories().forEach(cat -> fields.getCategories().put(cat.getId(), cat.getName()));
-
-        fields.setAuthor(userManager.checkWeblogRole(user, weblog, WeblogRole.POST));
-        fields.setCommentingEnabled(!WebloggerProperties.CommentPolicy.NONE.equals(
-                webloggerPropertiesDao.findOrNull().getCommentPolicy()) &&
-                !WebloggerProperties.CommentPolicy.NONE.equals(weblog.getAllowComments()));
-        fields.setDefaultCommentDays(weblog.getDefaultCommentDays());
-        fields.setDefaultEditFormat(weblog.getEditFormat());
-        fields.setTimezone(weblog.getTimeZone());
-
-        fields.getEditFormats().putAll(Arrays.stream(Weblog.EditFormat.values())
-                .collect(Utilities.toLinkedHashMap(Weblog.EditFormat::name,
-                        eF -> messages.getMessage(eF.getDescriptionKey(), null, locale))));
-
-        // comment day options
-        fields.getCommentDayOptions().putAll(Arrays.stream(WeblogEntry.CommentDayOption.values())
-                .collect(Utilities.toLinkedHashMap(cdo -> Integer.toString(cdo.getDays()),
-                        cdo -> messages.getMessage(cdo.getDescriptionKey(), null, locale))));
-
-        return fields;
     }
 
     // publish
@@ -301,14 +246,10 @@ public class WeblogEntryController {
             entry.setText(entryData.getText());
             entry.setSummary(entryData.getSummary());
             entry.setNotes(entryData.getNotes());
-            if (!StringUtils.isEmpty(entryData.getTagsAsString())) {
-                entry.updateTags(new HashSet<>(Arrays.asList(entryData.getTagsAsString().trim().split("\\s+"))));
-            } else {
-                entry.updateTags(new HashSet<>());
-            }
+            entry.updateTags(entryData.getTags());
             entry.setSearchDescription(entryData.getSearchDescription());
             entry.setEnclosureUrl(entryData.getEnclosureUrl());
-            WeblogCategory category = weblogCategoryDao.findById(entryData.getCategory().getId()).orElse(null);
+            WeblogCategory category = weblogCategoryDao.findByWeblogAndName(weblog, entryData.getCategory().getName());
             if (category != null) {
                 entry.setCategory(category);
             } else {
@@ -346,15 +287,7 @@ public class WeblogEntryController {
                 luceneIndexer.updateIndex(entry, true);
             }
 
-            String message = switch (entry.getStatus()) {
-                case DRAFT -> messages.getMessage("entryEdit.draftSaved", null, locale);
-                case PUBLISHED -> messages.getMessage("entryEdit.publishedEntry", null, locale);
-                case SCHEDULED -> messages.getMessage("entryEdit.scheduledEntry",
-                        new Object[]{DateTimeFormatter.ISO_DATE_TIME.withZone(entry.getWeblog().getZoneId())
-                                .format(entry.getPubTime())}, null, locale);
-            };
-
-            return ResponseEntity.ok(new WeblogEntrySaveResponse(entry.getId(), message));
+            return ResponseEntity.ok(entry.getId());
         } else {
             return ResponseEntity.status(403).body(messages.getMessage("error.title.403", null, locale));
         }
@@ -379,7 +312,7 @@ public class WeblogEntryController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
     public ResponseEntity<?> deleteWeblogEntry(@PathVariable String id, Principal p, Locale locale) {
         LOG.info("Call to remove entry {}", id);
 

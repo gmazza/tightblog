@@ -29,7 +29,7 @@ public class SecurityService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private UserManager userManager;
+    private final UserManager userManager;
 
     public SecurityService(UserManager userManager) {
         this.userManager = userManager;

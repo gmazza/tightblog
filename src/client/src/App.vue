@@ -1,25 +1,33 @@
 <template>
   <div id="app">
     <TheNavigation />
-    <router-view />
+    <router-view v-show="showPage" @ready="showPage = true" />
+    <div v-show="!showPage" class="push-top">loading...</div>
   </div>
 </template>
 
 <script>
-import TheNavigation from '@/components/TheNavigation'
+import TheNavigation from "@/components/TheNavigation";
 
 export default {
   components: {
-    TheNavigation
+    TheNavigation,
   },
-  created () {
-    const locale = localStorage.getItem('locale')
-
+  data() {
+    return {
+      showPage: true,
+    };
+  },
+  created() {
+    const locale = localStorage.getItem("locale");
     if (locale) {
-      this.$i18n.locale = locale
+      this.$i18n.locale = locale;
     }
-  }
-}
+    /*    this.$router.beforeEach(() => {
+      this.showPage = false;
+    }); */
+  },
+};
 </script>
 
 <style>

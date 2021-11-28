@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <AppUserNav />
     <AppErrorListMessageBox
       :in-error-obj="errorObj"
@@ -51,7 +51,11 @@
                   <option value="">
                     {{ $t("entries.label.allCategories") }}
                   </option>
-                  <option v-for="cat in categoryData" :value="cat" :key="cat">
+                  <option
+                    v-for="cat in weblog.weblogCategoryNames"
+                    :value="cat"
+                    :key="cat"
+                  >
                     {{ cat }}
                   </option>
                 </select>
@@ -259,17 +263,18 @@
           </td>
 
           <td>
-            <a
-              target="_blank"
-              v-bind:href="
-                '/tb-ui/app/authoring/entryEdit?weblogId=' +
-                weblogId +
-                '&entryId=' +
-                entry.id
-              "
+            <router-link
+              :to="{
+                name: 'entryEdit',
+                params: {
+                  weblogId: weblogId,
+                },
+                query: {
+                  entryId: entry.id,
+                },
+              }"
+              >{{ $t("common.edit") }}</router-link
             >
-              {{ $t("common.edit") }}
-            </a>
           </td>
 
           <td class="buttontd">
@@ -292,6 +297,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   props: {
@@ -302,7 +308,7 @@ export default {
   },
   data() {
     return {
-      categoryData: [],
+      weblog: {},
       searchParams: {
         categoryName: "",
         sortBy: "PUBLICATION_TIME",
@@ -316,6 +322,7 @@ export default {
       urlRoot: "/tb-ui/authoring/rest/weblogentries/",
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("startupConfig", {
       lookupVals: (state) => state.lookupValues,
@@ -324,6 +331,7 @@ export default {
   methods: {
     ...mapActions({
       loadLookupValues: "startupConfig/loadLookupValues",
+      fetchWeblog: "sessionInfo/fetchWeblog",
     }),
     loadEntries: function () {
       const queryParams = { ...this.searchParams };
@@ -385,14 +393,6 @@ export default {
           }
         });
     },
-    loadCategoryData: function () {
-      this.axios
-        .get(this.urlRoot + this.weblogId + "/categorydata")
-        .then((response) => {
-          this.categoryData = response.data;
-        })
-        .catch((error) => this.commonErrorResponse(error));
-    },
     dateToSeconds: function (dateStr, addOne) {
       if (dateStr) {
         return (
@@ -418,10 +418,13 @@ export default {
       }
     },
   },
-  mounted: function () {
-    this.loadLookupValues();
-    this.loadCategoryData();
-    this.loadEntries();
+  async created() {
+    await this.loadLookupValues();
+    await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+      this.weblog = { ...fetchedWeblog };
+    });
+    await this.loadEntries();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

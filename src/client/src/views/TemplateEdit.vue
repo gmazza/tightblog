@@ -18,7 +18,7 @@
   Source file modified from the original ASF source; all changes made
   are also under Apache License.
 -->
-<template>
+<template v-if="asyncDataStatus_ready">
   <div style="text-align: left; padding: 20px">
     <AppSuccessMessageBox
       :message="successMessage"
@@ -49,11 +49,6 @@
           />
           <span v-if="templateLoaded && templateData.role.accessibleViaUrl">
             <br />
-            <c:out value="${actionWeblogURL}" />page/<span
-              id="linkPreview"
-              style="color: red"
-              >{{ templateData.name }}</span
-            >
             <span v-if="lastSavedName != null">
               [<a id="launchLink" v-on:click="launchPage()">{{
                 $t("templateEdit.launch")
@@ -110,6 +105,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   props: {
@@ -138,6 +134,7 @@ export default {
       workingTemplateId: null,
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("sessionInfo", {
       sessionInfo: (state) => state.items,
@@ -209,9 +206,10 @@ export default {
       }
     },
   },
-  created: function () {
+  async created() {
     this.workingTemplateId = this.templateId;
-    this.loadTemplate();
+    await this.loadTemplate();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

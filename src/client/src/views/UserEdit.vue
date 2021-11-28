@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <AppSuccessMessageBox
       :message="successMessage"
       @close-box="successMessage = null"
@@ -146,6 +146,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   data: function () {
@@ -158,6 +159,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("sessionInfo", {
       sessionInfo: (state) => state.items,
@@ -241,11 +243,12 @@ export default {
       }
     },
   },
-  mounted: function () {
-    this.loadSessionInfo();
+  async created() {
+    await this.loadSessionInfo();
     if (this.sessionInfo.authenticatedUser != null) {
-      this.loadUser(this.sessionInfo.authenticatedUser.id);
+      await this.loadUser(this.sessionInfo.authenticatedUser.id);
     }
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

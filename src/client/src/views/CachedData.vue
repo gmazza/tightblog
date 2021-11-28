@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div>
+  <div v-if="asyncDataStatus_ready">
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -36,22 +36,22 @@
       <p>{{ $t("cachedData.explanation") }}</p>
 
       <!-- needed? -->
-      <br style="clear:left" />
+      <br style="clear: left" />
 
       <table class="table table-sm table-bordered table-striped">
         <thead class="thead-light">
           <tr>
-            <th style="width:10%">{{ $t("common.name") }}</th>
-            <th style="width:9%">{{ $t("cachedData.maxEntries") }}</th>
-            <th style="width:9%">{{ $t("cachedData.currentSize") }}</th>
-            <th style="width:9%">{{ $t("cachedData.incoming") }}</th>
-            <th style="width:9%">{{ $t("cachedData.handledBy304") }}</th>
-            <th style="width:9%">{{ $t("cachedData.cacheHits") }}</th>
-            <th style="width:9%">{{ $t("cachedData.cacheMisses") }}</th>
-            <th style="width:9%">{{ $t("cachedData.304Efficiency") }}</th>
-            <th style="width:9%">{{ $t("cachedData.cacheEfficiency") }}</th>
-            <th style="width:9%">{{ $t("cachedData.totalEfficiency") }}</th>
-            <th style="width:9%"></th>
+            <th style="width: 10%">{{ $t("common.name") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.maxEntries") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.currentSize") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.incoming") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.handledBy304") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.cacheHits") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.cacheMisses") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.304Efficiency") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.cacheEfficiency") }}</th>
+            <th style="width: 9%">{{ $t("cachedData.totalEfficiency") }}</th>
+            <th style="width: 9%"></th>
           </tr>
         </thead>
         <tbody id="tableBody" v-cloak>
@@ -119,9 +119,13 @@
           {{ $t("cachedData.promptIndex") }}:
           <br />
           <select v-model="weblogToReindex" size="1" required>
-            <option v-for="value in weblogList" :value="value" :key="value">{{
-              value
-            }}</option>
+            <option
+              v-for="value in weblogList"
+              :value="value"
+              :key="value.handle"
+            >
+              {{ value.handle }}
+            </option>
           </select>
           <button type="button" v-on:click="reindexWeblog()">
             {{ $t("cachedData.buttonIndex") }}
@@ -134,6 +138,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   data() {
@@ -141,51 +146,52 @@ export default {
       urlRoot: "/tb-ui/admin/rest/server/",
       weblogToReindex: null,
       successMessage: null,
-      errorMessage: null
+      errorMessage: null,
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("caches", {
-      cacheData: state => state.items
+      cacheData: (state) => state.items,
     }),
     ...mapState("dynamicConfig", {
-      weblogList: state => state.weblogList
+      weblogList: (state) => state.weblogList,
     }),
     ...mapState("startupConfig", {
-      startupConfig: state => state.startupConfig
-    })
+      startupConfig: (state) => state.startupConfig,
+    }),
   },
   methods: {
     ...mapActions({
       loadCaches: "caches/loadCaches",
       clearCacheEntry: "caches/clearCacheEntry",
       loadStartupConfig: "startupConfig/loadStartupConfig",
-      loadWeblogList: "dynamicConfig/loadWeblogList"
+      loadWeblogList: "dynamicConfig/loadWeblogList",
     }),
-    messageClear: function() {
+    messageClear: function () {
       this.successMessage = null;
       this.errorObj = {};
     },
-    clearCache: function(cacheItem) {
+    clearCache: function (cacheItem) {
       this.messageClear();
 
       this.clearCacheEntry(cacheItem)
         .then(
           (this.successMessage = this.$t("cachedData.cacheCleared", {
-            name: cacheItem
+            name: cacheItem,
           }))
         )
-        .catch(error => this.commonErrorResponse(error, null));
+        .catch((error) => this.commonErrorResponse(error, null));
     },
-    resetHitCounts: function() {
+    resetHitCounts: function () {
       this.axios
         .post(this.urlRoot + "resethitcount")
         .then((this.successMessage = this.$t("cachedData.hitCountReset")))
-        .catch(error => this.commonErrorResponse(error, null));
+        .catch((error) => this.commonErrorResponse(error, null));
     },
-    reindexWeblog: function() {
+    reindexWeblog: function () {
       if (this.weblogToReindex) {
-        var handle = this.weblogToReindex;
+        const handle = this.weblogToReindex;
         this.messageClear();
         this.axios
           .post(
@@ -193,13 +199,13 @@ export default {
           )
           .then(
             (this.successMessage = this.$t("cachedData.indexingStarted", {
-              handle
+              handle,
             }))
           )
-          .catch(error => this.commonErrorResponse(error, null));
+          .catch((error) => this.commonErrorResponse(error, null));
       }
     },
-    commonErrorResponse: function(error, errorMsg) {
+    commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {
         this.errorMessage = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
@@ -212,12 +218,13 @@ export default {
       } else {
         this.errorMessage = "System error.";
       }
-    }
+    },
   },
-  mounted() {
-    this.loadStartupConfig();
-    this.loadWeblogList();
-    this.loadCaches();
-  }
+  async created() {
+    await this.loadStartupConfig();
+    await this.loadWeblogList();
+    await this.loadCaches();
+    this.asyncDataStatus_fetched();
+  },
 };
 </script>

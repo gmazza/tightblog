@@ -1,5 +1,5 @@
 <template>
-  <div style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
     <AppUserNav />
     <AppErrorListMessageBox
       :in-error-obj="errorObj"
@@ -250,6 +250,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
   props: {
@@ -278,6 +279,7 @@ export default {
       urlRoot: "/tb-ui/authoring/rest/comments/",
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     ...mapState("startupConfig", {
       lookupVals: (state) => state.lookupValues,
@@ -417,9 +419,10 @@ export default {
       }
     },
   },
-  mounted: function () {
-    this.loadLookupValues();
-    this.loadComments();
+  async created() {
+    await this.loadLookupValues();
+    await this.loadComments();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>

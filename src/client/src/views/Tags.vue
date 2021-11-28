@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div>
+  <div v-if="asyncDataStatus_ready">
     <AppUserNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -161,6 +161,8 @@
 </template>
 
 <script>
+import asyncDataStatus from "@/mixins/AsyncDataStatus";
+
 export default {
   props: {
     weblogId: {
@@ -182,6 +184,7 @@ export default {
       errorObj: {},
     };
   },
+  mixins: [asyncDataStatus],
   computed: {
     tagsSelected: function () {
       return this.tagData.tags.filter((tag) => tag.selected).length > 0;
@@ -345,8 +348,9 @@ export default {
       this.errorObj = {};
     },
   },
-  mounted: function () {
-    this.loadTags();
+  async created() {
+    await this.loadTags();
+    this.asyncDataStatus_fetched();
   },
 };
 </script>
