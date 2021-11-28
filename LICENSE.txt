@@ -5,6 +5,10 @@ TightBlog is licensed under the Apache License Version 2.0, see below.
 TightBlog uses components from Apache Roller, also licensed under the Apache License
 Version 2.0.
 
+TightBlog includes the JQuery (MIT) front end library:
+
+jQuery | (c) 2005, 2014 jQuery Foundation, Inc. | jquery.org/license
+
 -------------------------------------------------------------------------------
 
 For parsing CommonMark-written blog entries TightBlog uses Atlassian's
