@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(path = "/tb-ui/app")
 public class UIController {
 
     private final UserManager userManager;
@@ -98,7 +97,7 @@ public class UIController {
     @Value("${mfa.enabled:true}")
     private boolean mfaEnabled;
 
-    @RequestMapping(value = "/login")
+    @RequestMapping(value = "/tb-ui/app/login")
     public ModelAndView login(@RequestParam(required = false) String activationCode,
                               @RequestParam(required = false) Boolean error,
                               HttpServletRequest request) {
@@ -133,7 +132,7 @@ public class UIController {
         return tightblogModelAndView("login", myMap, null, null);
     }
 
-    @RequestMapping(value = "/unsubscribe")
+    @RequestMapping(value = "/tb-ui/app/unsubscribe")
     public ModelAndView unsubscribe(@RequestParam String commentId) {
 
         Pair<String, Boolean> results = weblogEntryManager.stopNotificationsForCommenter(commentId);
@@ -144,19 +143,32 @@ public class UIController {
         return tightblogModelAndView("unsubscribed", myMap, null, null);
     }
 
-    @RequestMapping(value = "/logout")
+    // https://stackoverflow.com/a/59290035/1207540
+    @RequestMapping(value = "/tb-ui2/app/**")
+    public String redirect() {
+        // Forward to home page so that route is preserved.
+        return "forward:/tb-ui2/index.html";
+    }
+
+    @RequestMapping(value = "/tb-ui2/admin/**")
+    public String redirectAdmin() {
+        // Forward to home page so that route is preserved.
+        return "forward:/tb-ui2/index.html";
+    }
+
+    @RequestMapping(value = "/tb-ui/app/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.getSession().invalidate();
         response.sendRedirect(request.getContextPath() + "/");
     }
 
-    @RequestMapping(value = "/relogin")
+    @RequestMapping(value = "/tb-ui/app/relogin")
     public void logoutAndLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.getSession().invalidate();
         response.sendRedirect(request.getContextPath() + "/tb-ui/app/login-redirect");
     }
 
-    @RequestMapping(value = "/login-redirect")
+    @RequestMapping(value = "/tb-ui/app/login-redirect")
     public void loginRedirect(Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         if (principal == null) {
@@ -183,7 +195,7 @@ public class UIController {
         }
     }
 
-    @RequestMapping(value = "/scanCode")
+    @RequestMapping(value = "/tb-ui/app/scanCode")
     public ModelAndView scanAuthenticatorSecret(Principal principal) {
         User user = userDao.findEnabledByUserName(principal.getName());
         String qrCode = userManager.generateMFAQRUrl(user);
@@ -193,7 +205,7 @@ public class UIController {
         return tightblogModelAndView("scanCode", myMap, null, null);
     }
 
-    @RequestMapping(value = "/get-default-blog")
+    @RequestMapping(value = "/tb-ui/app/get-default-blog")
     public void getDefaultBlog(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Weblog defaultBlog = webloggerPropertiesDao.findOrNull().getMainBlog();
         String path;
@@ -214,7 +226,7 @@ public class UIController {
         response.sendRedirect(redirect);
     }
 
-    @GetMapping(value = "/any/sessioninfo")
+    @GetMapping(value = "/tb-ui/app/any/sessioninfo")
     @ResponseBody
     public Map<String, Object> getSessionInfo(Principal principal) {
         if (principal != null) {
@@ -225,7 +237,7 @@ public class UIController {
         }
     }
 
-    @GetMapping(value = "/any/webloggerproperties")
+    @GetMapping(value = "/tb-ui/app/any/webloggerproperties")
     @ResponseBody
     public WebloggerProperties getWebloggerProperties() {
         WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
@@ -254,7 +266,7 @@ public class UIController {
         return map;
     }
 
-    @GetMapping(value = "/authoring/lookupvalues")
+    @GetMapping(value = "/tb-ui/app/authoring/lookupvalues")
     @ResponseBody
     public LookupValues getLookupValues() {
         if (lookupValues.getSharedThemeMap().isEmpty()) {
@@ -265,7 +277,7 @@ public class UIController {
         return lookupValues;
     }
 
-    @GetMapping(value = "/authoring/startupconfig")
+    @GetMapping(value = "/tb-ui/app/authoring/startupconfig")
     @ResponseBody
     public StartupConfiguration getStartupConfig() {
         StartupConfiguration gcm = new StartupConfiguration();

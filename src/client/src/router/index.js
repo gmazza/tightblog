@@ -6,10 +6,15 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    alias: "/app/myBlogs",
+    alias: ["/app/myBlogs", "/index.html"],
     name: "myBlogs",
     component: () =>
       import(/* webpackChunkName: "myblogs" */ "../views/MyBlogs"),
+  },
+  {
+    path: "/app/login2",
+    name: "login",
+    component: () => import(/* webpackChunkName: "login" */ "../views/Login"),
   },
   {
     path: "/app/profile",
@@ -105,7 +110,7 @@ const routes = [
     props: true,
   },
   {
-    path: "/authoring/weblogConfig/:weblogId",
+    path: "/app/weblogConfig/:weblogId",
     name: "weblogConfig",
     component: () =>
       import(/* webpackChunkName: "weblogconfig" */ "../views/WeblogConfig"),
@@ -130,9 +135,17 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "cachedData" */ "../views/CachedData"),
   },
+  {
+    path: "*",
+    name: "notFound",
+    component: () =>
+      import(/* webpackChunkName: "notFound" */ "../views/NotFound"),
+  },
 ];
 
 const router = new VueRouter({
+  mode: "history",
+  base: "/tb-ui2",
   routes,
 });
 

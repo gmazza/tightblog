@@ -51,9 +51,9 @@
                 <option
                   v-for="(value, key) in visibleWeblogs"
                   :key="key"
-                  :value="key"
+                  :value="value.id"
                 >
-                  {{ value }}
+                  {{ weblogDescription(value) }}
                 </option>
                 <option value="">{{ $t("globalConfig.none") }}</option>
               </select>
@@ -323,6 +323,7 @@ export default {
           this.webloggerProps = JSON.parse(
             JSON.stringify(this.getWebloggerProperties())
           );
+          console.log("weblogger props: " + this.webloggerProps);
         },
         (error) => this.commonErrorResponse(error, null)
       );
@@ -347,6 +348,9 @@ export default {
         },
         (error) => this.commonErrorResponse(error, null)
       );
+    },
+    weblogDescription: function (weblogItem) {
+      return weblogItem.name + " (" + weblogItem.handle + ")";
     },
     commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {

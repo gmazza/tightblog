@@ -17,7 +17,6 @@
     "fs": "0.0.1-security",
     "jqueryui": "^1.11.1",
     "vue": "^2.6.14",
-    "vue-autosuggest": "^2.2.0",
     "vue-axios": "^3.2.5",
     "vue-i18n": "^8.25.0",
     "vue-router": "^3.5.2",

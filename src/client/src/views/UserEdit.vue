@@ -198,10 +198,10 @@ export default {
     },
     updateUser: function () {
       this.messageClear();
-      var userData = {};
+      const userData = {};
       userData.user = this.userBeingEdited;
       userData.credentials = this.userCredentials;
-      var urlToUse = this.sessionInfo.authenticatedUser
+      const urlToUse = this.sessionInfo.authenticatedUser
         ? "/tb-ui/authoring/rest/userprofile/" +
           this.sessionInfo.authenticatedUser.id
         : "/tb-ui/register/rest/registeruser";
@@ -246,7 +246,10 @@ export default {
   async created() {
     await this.loadSessionInfo();
     if (this.sessionInfo.authenticatedUser != null) {
+      console.log("is not null!");
       await this.loadUser(this.sessionInfo.authenticatedUser.id);
+    } else {
+      console.log("is null!");
     }
     this.asyncDataStatus_fetched();
   },

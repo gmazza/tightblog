@@ -43,9 +43,9 @@ import java.util.LinkedHashMap;
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private MultiFactorAuthenticationProvider multiFactorAuthenticationProvider;
-    private CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource;
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final MultiFactorAuthenticationProvider multiFactorAuthenticationProvider;
+    private final CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
     public WebSecurityConfiguration(CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource,
@@ -69,12 +69,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 // UI Calls
-                // .antMatchers("/images/**", "/scripts/**", "/styles/**").permitAll()
-                .antMatchers("/tb-ui/app/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui2/index.html").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui/app/authoring/**", "/tb-ui/app/profile", "/tb-ui2/#/app/myBlogs")
-                    .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
-                .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
+                .antMatchers("/tb-ui2/**").hasAuthority("ADMIN") // needed to trigger login
                 .antMatchers("/tb-ui/app/login-redirect")
                     .permitAll() // hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
                 .antMatchers("/tb-ui/app/scanCode").hasAuthority("MISSING_MFA_SECRET")
@@ -101,13 +96,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map = new LinkedHashMap<>();
         // UI endpoints (also with defaultEntryPoint below), return login form if unauthorized
         map.put(new AntPathRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
+//        map.put(new AntPathRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui2/#/app/login2/"));
         // REST endpoints, want to return 401 if unauthorized
         map.put(new AntPathRequestMatcher("/tb-ui/admin/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
         map.put(new AntPathRequestMatcher("/tb-ui/authoring/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         final DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(map);
         entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
-
+//      entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui2/#/app/login2/"));
         return entryPoint;
     }
 
