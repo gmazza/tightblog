@@ -22,7 +22,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,13 +54,6 @@ public class GlobalControllerAdvice {
             error.getErrors().add(new Violation(fieldError.getField(), fieldError.getDefaultMessage()));
         }
         return error;
-    }
-
-    // Any Vue URL not handled by Spring Boot, route back to index.html
-    // https://stackoverflow.com/a/54990364
-    @ExceptionHandler(NoHandlerFoundException.class)
-    String noHandlerFound(NoHandlerFoundException ex) {
-        return "/tb-ui2/index.html";
     }
 
     // for path and query variables:
