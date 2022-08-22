@@ -246,10 +246,7 @@ export default {
   async created() {
     await this.loadSessionInfo();
     if (this.sessionInfo.authenticatedUser != null) {
-      console.log("is not null!");
       await this.loadUser(this.sessionInfo.authenticatedUser.id);
-    } else {
-      console.log("is null!");
     }
     this.asyncDataStatus_fetched();
   },

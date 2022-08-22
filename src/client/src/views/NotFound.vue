@@ -1,5 +1,5 @@
 <template>
-  <div>Not found (NotFound.vue)!</div>
+  <div>Not found!</div>
 </template>
 
 <script>
