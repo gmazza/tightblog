@@ -242,6 +242,16 @@
       "ignoreUrls": "Comma-separated list of words to mark comments on any blog as spam. Commentor name, email, URL, and comment text are searched.  List provided here will be combined with any defined at the individual blog level for checking that blog's comments for spam."
     }
   },
+  "login": {
+    "title": "Welcome to TightBlog",
+    "prompt": "Please enter your username and password to login.",
+    "mfaPrompt": "Please enter your username, password and authenticator code from your smartphone to login. (For first-time logins, the authenticator code field can be ignored, setup instructions will appear after login.)",
+    "username": "Username",
+    "password": "Password",
+    "mfaCode": "Authenticator Code",
+    "login": "Login",
+    "invalidMfaCode": "Authenticator code is invalid, please recheck the latest code provided by your smartphone and try again."
+  },
   "mediaFiles": {
     "title": "Media Files",
     "tip": "Media files (pictures, podcasts, etc.) can be uploaded here for use within blogs.  The Copy to Clipboard icon for an image can be used to copy the image URL into the blog entry editor.",
