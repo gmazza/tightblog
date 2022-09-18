@@ -28,7 +28,7 @@ public enum UserStatus {
     // User is enabled and can log in.
     ENABLED(3);
 
-    private int weight;
+    private final int weight;
 
     public int getWeight() {
         return weight;

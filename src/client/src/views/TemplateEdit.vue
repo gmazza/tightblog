@@ -19,87 +19,91 @@
   are also under Apache License.
 -->
 <template v-if="asyncDataStatus_ready">
-  <div style="text-align: left; padding: 20px">
-    <AppSuccessMessageBox
-      :message="successMessage"
-      @close-box="successMessage = null"
-    />
-    <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
-    ></AppErrorListMessageBox>
-    <h2>{{ $t("templateEdit.title") }}</h2>
-    <p class="pagetip" v-html="$t('templateEdit.tip')"></p>
+  <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
 
-    <table cellspacing="5">
-      <tr>
-        <td class="label">{{ $t("common.name") }}</td>
-        <td class="field">
-          <input
-            id="name"
-            type="text"
-            v-model="templateData.name"
-            size="50"
-            maxlength="255"
-            :style="{
-              background:
-                templateData.derivation == 'Added' ? 'white' : 'lightgrey',
-            }"
-            :readonly="templateData.derivation != 'Added'"
-          />
-          <span v-if="templateLoaded && templateData.role.accessibleViaUrl">
-            <br />
-            <span v-if="lastSavedName != null">
-              [<a id="launchLink" v-on:click="launchPage()">{{
-                $t("templateEdit.launch")
-              }}</a
-              >]
+    <div style="text-align: left; padding: 20px">
+      <AppSuccessMessageBox
+        :message="successMessage"
+        @close-box="successMessage = null"
+      />
+      <AppErrorListMessageBox
+        :in-error-obj="errorObj"
+        @close-box="errorObj.errors = null"
+      ></AppErrorListMessageBox>
+      <h2>{{ $t("templateEdit.title") }}</h2>
+      <p class="pagetip" v-html="$t('templateEdit.tip')"></p>
+
+      <table cellspacing="5">
+        <tr>
+          <td class="label">{{ $t("common.name") }}</td>
+          <td class="field">
+            <input
+              id="name"
+              type="text"
+              v-model="templateData.name"
+              size="50"
+              maxlength="255"
+              :style="{
+                background:
+                  templateData.derivation == 'Added' ? 'white' : 'lightgrey',
+              }"
+              :readonly="templateData.derivation != 'Added'"
+            />
+            <span v-if="templateLoaded && templateData.role.accessibleViaUrl">
+              <br />
+              <span v-if="lastSavedName != null">
+                [<a id="launchLink" v-on:click="launchPage()">{{
+                  $t("templateEdit.launch")
+                }}</a
+                >]
+              </span>
             </span>
-          </span>
-        </td>
-      </tr>
+          </td>
+        </tr>
 
-      <tr v-if="templateLoaded">
-        <td class="label">{{ $t("common.role") }}</td>
-        <td class="field">
-          <span>{{ templateData.role.readableName }}</span>
-        </td>
-      </tr>
+        <tr v-if="templateLoaded">
+          <td class="label">{{ $t("common.role") }}</td>
+          <td class="field">
+            <span>{{ templateData.role.readableName }}</span>
+          </td>
+        </tr>
 
-      <tr v-if="templateLoaded && !templateData.role.singleton">
-        <td class="label" valign="top" style="padding-top: 4px">
-          {{ $t("common.description") }}
-        </td>
-        <td class="field">
-          <textarea
-            id="description"
-            type="text"
-            v-model="templateData.description"
-            cols="50"
-            rows="2"
-          ></textarea>
-        </td>
-      </tr>
-    </table>
+        <tr v-if="templateLoaded && !templateData.role.singleton">
+          <td class="label" valign="top" style="padding-top: 4px">
+            {{ $t("common.description") }}
+          </td>
+          <td class="field">
+            <textarea
+              id="description"
+              type="text"
+              v-model="templateData.description"
+              cols="50"
+              rows="2"
+            ></textarea>
+          </td>
+        </tr>
+      </table>
 
-    <textarea
-      v-model="templateData.template"
-      rows="20"
-      style="width: 100%"
-    ></textarea>
+      <textarea
+        v-model="templateData.template"
+        rows="20"
+        style="width: 100%"
+      ></textarea>
 
-    <table style="width: 100%">
-      <tr>
-        <td>
-          <button type="button" @click="saveTemplate()">
-            {{ $t("common.saveChanges") }}
-          </button>
-          <button type="button" @click="cancel()">
-            {{ $t("templateEdit.returnToTemplates") }}
-          </button>
-        </td>
-      </tr>
-    </table>
+      <table style="width: 100%">
+        <tr>
+          <td>
+            <button type="button" @click="saveTemplate()">
+              {{ $t("common.saveChanges") }}
+            </button>
+            <button type="button" @click="cancel()">
+              {{ $t("templateEdit.returnToTemplates") }}
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 

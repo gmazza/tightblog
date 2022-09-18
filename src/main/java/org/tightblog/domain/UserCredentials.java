@@ -41,6 +41,7 @@ public class UserCredentials {
     private String userName;
     private String password;
     private GlobalRole globalRole;
+    private UserStatus status;
 
     // for Authenticator app use
     // see http://www.baeldung.com/spring-security-two-factor-authentication-with-soft-token
@@ -105,6 +106,16 @@ public class UserCredentials {
 
     public void setGlobalRole(GlobalRole globalRole) {
         this.globalRole = globalRole;
+    }
+
+    @Basic(optional = false)
+    @Enumerated(EnumType.STRING)
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
     @Transient

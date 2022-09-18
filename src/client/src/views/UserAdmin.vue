@@ -20,6 +20,7 @@
 -->
 <template>
   <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -202,7 +203,7 @@
           <td class="description">{{ $t("userAdmin.tip.globalRole") }}</td>
         </tr>
 
-        <tr v-if="lookupVals.mfaEnabled && userCredentials">
+        <tr v-if="startupConfig.mfaEnabled">
           <td class="label">
             <label for="hasMfaSecret">{{ $t("userAdmin.hasMfaSecret") }}</label>
           </td>
@@ -367,6 +368,7 @@ export default {
   computed: {
     ...mapState("startupConfig", {
       lookupVals: (state) => state.lookupValues,
+      startupConfig: (state) => state.startupConfig,
     }),
     ...mapState("dynamicConfig", {
       userList: (state) => state.userList,
@@ -382,6 +384,7 @@ export default {
   methods: {
     ...mapActions({
       loadLookupValues: "startupConfig/loadLookupValues",
+      loadStartupConfig: "startupConfig/loadStartupConfig",
       loadUserList: "dynamicConfig/loadUserList",
       loadWeblogList: "dynamicConfig/loadWeblogList",
     }),
@@ -420,13 +423,7 @@ export default {
         .get(this.urlRoot + "user/" + this.userToEdit)
         .then((response) => {
           this.userBeingEdited = response.data.user;
-          if (
-            Object.prototype.hasOwnProperty.call(response.data, "credentials")
-          ) {
-            this.userCredentials = response.data.credentials;
-          } else {
-            this.userCredentials = null;
-          }
+          this.userCredentials = response.data.credentials;
         });
 
       this.loadUserWeblogs();
@@ -504,10 +501,13 @@ export default {
     },
   },
   async created() {
+    await this.loadStartupConfig();
     await this.loadLookupValues();
     await this.getPendingRegistrations();
     await this.loadUserList();
     await this.loadWeblogList();
+    console.log("enabled? " + this.startupConfig.mfaEnabled);
+    console.log("creds? " + this.userCredentials);
     this.asyncDataStatus_fetched();
   },
 };

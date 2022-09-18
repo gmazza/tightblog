@@ -19,128 +19,134 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
-    <div>
-      <AppErrorListMessageBox
-        :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
-      ></AppErrorListMessageBox>
-    </div>
-    <h2>{{ $t("blogroll.title") }}</h2>
-    <p class="pagetip">{{ $t("blogroll.rootPrompt") }}</p>
+    <div style="text-align: left; padding: 20px">
+      <div>
+        <AppErrorListMessageBox
+          :in-error-obj="errorObj"
+          @close-box="errorObj.errors = null"
+        ></AppErrorListMessageBox>
+      </div>
+      <h2>{{ $t("blogroll.title") }}</h2>
+      <p class="pagetip">{{ $t("blogroll.rootPrompt") }}</p>
 
-    <table class="table table-sm table-bordered table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th width="5%">
-            <input
-              type="checkbox"
-              :disabled="items.length == 0"
-              @input="toggleCheckboxes($event.target.checked)"
-              :title="$t('blogroll.selectAllLabel')"
-            />
-          </th>
-          <th width="25%">
-            {{ $t("blogroll.linkLabel") }}
-          </th>
-          <th width="25%">
-            {{ $t("blogroll.urlHeader") }}
-          </th>
-          <th width="35%">
-            {{ $t("common.description") }}
-          </th>
-          <th width="10%">{{ $t("common.edit") }}</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody" v-cloak>
-        <tr v-for="item in orderedItems" :key="item.id">
-          <td class="center" style="vertical-align: middle">
-            <input
-              type="checkbox"
-              name="idSelections"
-              :title="$t('blogroll.checkboxTitle', { itemName: item.name })"
-              v-model="item.selected"
-              :value="item.id"
-            />
-          </td>
-          <td>{{ item.name }}</td>
-          <td>
-            <a target="_blank" :href="item.url">{{ item.url }}</a>
-          </td>
-          <td>{{ item.description }}</td>
-          <td class="buttontd">
-            <button class="btn btn-warning" v-on:click="showUpsertModal(item)">
-              {{ $t("common.edit") }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <table class="table table-sm table-bordered table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th width="5%">
+              <input
+                type="checkbox"
+                :disabled="items.length == 0"
+                @input="toggleCheckboxes($event.target.checked)"
+                :title="$t('blogroll.selectAllLabel')"
+              />
+            </th>
+            <th width="25%">
+              {{ $t("blogroll.linkLabel") }}
+            </th>
+            <th width="25%">
+              {{ $t("blogroll.urlHeader") }}
+            </th>
+            <th width="35%">
+              {{ $t("common.description") }}
+            </th>
+            <th width="10%">{{ $t("common.edit") }}</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" v-cloak>
+          <tr v-for="item in orderedItems" :key="item.id">
+            <td class="center" style="vertical-align: middle">
+              <input
+                type="checkbox"
+                name="idSelections"
+                :title="$t('blogroll.checkboxTitle', { itemName: item.name })"
+                v-model="item.selected"
+                :value="item.id"
+              />
+            </td>
+            <td>{{ item.name }}</td>
+            <td>
+              <a target="_blank" :href="item.url">{{ item.url }}</a>
+            </td>
+            <td>{{ item.description }}</td>
+            <td class="buttontd">
+              <button
+                class="btn btn-warning"
+                v-on:click="showUpsertModal(item)"
+              >
+                {{ $t("common.edit") }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="control clearfix">
-      <button type="button" v-on:click="showUpsertModal(null)">
-        {{ $t("blogroll.addLink") }}
-      </button>
-
-      <span v-if="items.length > 0">
-        <button @click="deleteSelected()" v-bind:disabled="!itemsSelected">
-          {{ $t("common.deleteSelected") }}
+      <div class="control clearfix">
+        <button type="button" v-on:click="showUpsertModal(null)">
+          {{ $t("blogroll.addLink") }}
         </button>
-      </span>
-    </div>
 
-    <!-- Add/Edit Link modal -->
-    <div tabindex="-1" role="dialog">
-      <b-modal id="modal-upsert" centered @ok="updateItem()">
-        <template #modal-title>
-          {{ editModalTitle }}
-        </template>
-        <p class="pagetip">
-          {{ $t("blogroll.requiredFields") }}
-        </p>
-        <form>
-          <div class="form-group">
-            <label for="name" class="col-form-label">{{
-              $t("blogroll.linkLabel")
-            }}</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="itemToEdit.name"
-              maxlength="80"
-            />
-          </div>
-          <div class="form-group">
-            <label for="url" class="col-form-label">{{
-              $t("common.url")
-            }}</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="itemToEdit.url"
-              maxlength="128"
-            />
-          </div>
-          <div class="form-group">
-            <label for="description" class="col-form-label">{{
-              $t("common.description")
-            }}</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="itemToEdit.description"
-              maxlength="128"
-            />
-          </div>
-        </form>
-        <template #modal-ok>
-          {{ $t("common.save") }}
-        </template>
-        <template #modal-cancel>
-          {{ $t("common.cancel") }}
-        </template>
-      </b-modal>
+        <span v-if="items.length > 0">
+          <button @click="deleteSelected()" v-bind:disabled="!itemsSelected">
+            {{ $t("common.deleteSelected") }}
+          </button>
+        </span>
+      </div>
+
+      <!-- Add/Edit Link modal -->
+      <div tabindex="-1" role="dialog">
+        <b-modal id="modal-upsert" centered @ok="updateItem()">
+          <template #modal-title>
+            {{ editModalTitle }}
+          </template>
+          <p class="pagetip">
+            {{ $t("blogroll.requiredFields") }}
+          </p>
+          <form>
+            <div class="form-group">
+              <label for="name" class="col-form-label">{{
+                $t("blogroll.linkLabel")
+              }}</label>
+              <input
+                type="text"
+                class="form-control"
+                v-model="itemToEdit.name"
+                maxlength="80"
+              />
+            </div>
+            <div class="form-group">
+              <label for="url" class="col-form-label">{{
+                $t("common.url")
+              }}</label>
+              <input
+                type="text"
+                class="form-control"
+                v-model="itemToEdit.url"
+                maxlength="128"
+              />
+            </div>
+            <div class="form-group">
+              <label for="description" class="col-form-label">{{
+                $t("common.description")
+              }}</label>
+              <input
+                type="text"
+                class="form-control"
+                v-model="itemToEdit.description"
+                maxlength="128"
+              />
+            </div>
+          </form>
+          <template #modal-ok>
+            {{ $t("common.save") }}
+          </template>
+          <template #modal-cancel>
+            {{ $t("common.cancel") }}
+          </template>
+        </b-modal>
+      </div>
     </div>
   </div>
 </template>

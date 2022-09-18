@@ -8,6 +8,9 @@ const routes = [
     path: "/",
     alias: ["/app/myBlogs", "/index.html"],
     name: "myBlogs",
+    meta: {
+      userNeedsMFARegistration: true,
+    },
     component: () =>
       import(/* webpackChunkName: "myblogs" */ "../views/MyBlogs"),
   },
@@ -27,6 +30,15 @@ const routes = [
     name: "register",
     component: () =>
       import(/* webpackChunkName: "useredit" */ "../views/UserEdit"),
+  },
+  {
+    path: "/app/scanCode",
+    name: "register",
+    meta: {
+      userNeedsMFARegistration: true,
+    },
+    component: () =>
+      import(/* webpackChunkName: "scanCode" */ "../views/ScanCode"),
   },
   {
     path: "/app/createWeblog",
@@ -51,6 +63,9 @@ const routes = [
   {
     path: "/app/entries/:weblogId",
     name: "entries",
+    meta: {
+      userNeedsMFARegistration: true,
+    },
     component: () =>
       import(/* webpackChunkName: "entries" */ "../views/Entries"),
     props: true,

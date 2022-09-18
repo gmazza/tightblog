@@ -323,6 +323,11 @@
     "createEdit": "Create & Edit",
     "preferences": "Preferences"
   },
+  "scanCode": {
+    "title": "Add Authenticator",
+    "tip": "Scan this QR code using an authenticator app on your smartphone. This will be needed to provide authenticator codes for subsequent logins.  If problems scanning right now, see administrator to erase this code for your account so you can get a new one at next login.",
+    "relogin": "Once done, <a href='{loginURL}'>Re-Login</a>."
+  },
   "tags": {
     "title": "Tags",
     "prompt": "Here are the tags currently in use within your blog entries.  On this page you can remove specified tags from all entries, add tags to each entry already having a given tag, and replace a tag with a new or already existing tag.",

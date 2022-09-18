@@ -88,7 +88,7 @@ public class LookupValues {
         if (globalRoles == null) {
             globalRoles = new HashMap<>();
             globalRoles.putAll(Arrays.stream(GlobalRole.values())
-                    .filter(r -> r != GlobalRole.NOAUTHNEEDED)
+                    .filter(GlobalRole::isUserAssignable)
                     .collect(Utilities.toLinkedHashMap(GlobalRole::name, GlobalRole::name)));
         }
         return globalRoles;

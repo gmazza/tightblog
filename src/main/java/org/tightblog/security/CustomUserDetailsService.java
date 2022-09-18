@@ -32,6 +32,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.tightblog.dao.UserCredentialsDao;
+import org.tightblog.domain.UserStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +82,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         targetPassword = creds.getPassword();
 
         // If MFA required & user hasn't a secret for their authenticator app, limit role
-        // to PRE_AUTH_USER (intended to limit user to QR code scan page.)
+        // to MISSING_MFA_SECRET (intended to limit user to QR code scan page.)
         if (mfaEnabled && StringUtils.isBlank(creds.getMfaSecret())) {
             targetGlobalRole = GlobalRole.MISSING_MFA_SECRET;
         } else {

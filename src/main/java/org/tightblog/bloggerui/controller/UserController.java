@@ -89,6 +89,7 @@ public class UserController {
     private final URLService urlService;
 
     private record UserData(User user, UserCredentials credentials) { }
+    private record QRCodeData(String qrCode) { }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -162,6 +163,13 @@ public class UserController {
         return userMap.entrySet().stream().sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (e1, e2) -> e2, LinkedHashMap::new));
+    }
+
+    @GetMapping(value = "/tb-ui/newuser/rest/newqrcode")
+    public QRCodeData getNewQRCode(Principal principal) {
+        User user = userDao.findEnabledByUserName(principal.getName());
+        String qrCode = userManager.generateMFAQRUrl(user);
+        return new QRCodeData(qrCode);
     }
 
     @GetMapping(value = "/tb-ui/admin/rest/useradmin/user/{id}")

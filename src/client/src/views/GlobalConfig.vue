@@ -20,6 +20,7 @@
 -->
 <template>
   <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -297,6 +298,7 @@ export default {
   computed: {
     ...mapState("dynamicConfig", {
       weblogList: (state) => state.weblogList,
+      webloggerProperties: (state) => state.webloggerProperties,
     }),
     ...mapState("startupConfig", {
       startupConfig: (state) => state.startupConfig,
@@ -314,18 +316,9 @@ export default {
       loadStartupConfig: "startupConfig/loadStartupConfig",
       loadLookupValues: "startupConfig/loadLookupValues",
     }),
-    ...mapGetters("dynamicConfig", {
-      getWebloggerProperties: "getWebloggerProperties",
-    }),
     loadWebloggerProps: function () {
-      this.loadWebloggerProperties().then(
-        () => {
-          this.webloggerProps = JSON.parse(
-            JSON.stringify(this.getWebloggerProperties())
-          );
-          console.log("weblogger props: " + this.webloggerProps);
-        },
-        (error) => this.commonErrorResponse(error, null)
+      this.webloggerProps = JSON.parse(
+        JSON.stringify(this.webloggerProperties)
       );
     },
     loadMetadata: function () {
@@ -341,7 +334,8 @@ export default {
     updateProperties: function () {
       this.saveWebloggerProperties(this.webloggerProps).then(
         () => {
-          this.webloggerProps = this.getWebloggerProperties();
+          this.loadWebloggerProperties();
+          this.loadWebloggerProps();
           this.errorObj = {};
           this.successMessage = this.$t("common.changesSaved");
           window.scrollTo(0, 0);
@@ -368,10 +362,11 @@ export default {
     },
   },
   async created() {
+    await this.loadWebloggerProperties();
     await this.loadStartupConfig();
     await this.loadWeblogList();
     await this.loadLookupValues();
-    await this.loadWebloggerProps();
+    this.loadWebloggerProps();
     this.asyncDataStatus_fetched();
   },
 };
