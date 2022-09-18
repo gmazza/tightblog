@@ -21,24 +21,32 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 // Each role includes the roles of those of lower weight as defined in this enum
 public enum GlobalRole {
     // For pages that don't need authenticated users (initial install, user registration, login, etc.)
-    NOAUTHNEEDED(0),
-    // For users missing Authenticator app secret and system requires multifactor authentication
-    MISSING_MFA_SECRET(1),
+    NOAUTHNEEDED(0, false),
+    // For users missing Authenticator app secret when system requires multifactor authentication
+    // temporary setting at log-in when needed, does not erase actual Global Role stored with user
+    MISSING_MFA_SECRET(1, false),
     // Users can edit weblogs for which they have permission
-    BLOGGER(2),
+    BLOGGER(2, true),
     // Users can create new blogs
-    BLOGCREATOR(3),
+    BLOGCREATOR(3, true),
     // Blog server admin rights: server settings, user management, etc.
-    ADMIN(4);
+    ADMIN(4, true);
 
-    private int weight;
+    private final int weight;
+
+    private final boolean userAssignable;
 
     public int getWeight() {
         return weight;
     }
 
-    GlobalRole(int weight) {
+    public boolean isUserAssignable() {
+        return userAssignable;
+    }
+
+    GlobalRole(int weight, boolean userAssignable) {
         this.weight = weight;
+        this.userAssignable = userAssignable;
     }
 
     @JsonCreator

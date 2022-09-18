@@ -20,6 +20,7 @@
 -->
 <template>
   <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+    <AppTitleBar />
     <AppErrorListMessageBox
       :in-error-obj="errorObj"
       @close-box="errorObj.errors = null"

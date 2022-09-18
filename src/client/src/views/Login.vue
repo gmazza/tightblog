@@ -29,6 +29,7 @@
       @close-box="errorMessage = null"
     />
 
+    <p>Vue Login</p>
     <p v-if="lookupVals.mfaEnabled">{{ $t("login.mfaPrompt") }}</p>
     <p v-else>{{ $t("login.prompt") }}</p>
 

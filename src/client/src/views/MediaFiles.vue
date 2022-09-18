@@ -20,6 +20,7 @@
 -->
 <template>
   <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox

@@ -1,18 +1,12 @@
 <template>
   <div id="app">
-    <TheNavigation />
     <router-view v-show="showPage" @ready="showPage = true" />
     <div v-show="!showPage" class="push-top">loading...</div>
   </div>
 </template>
 
 <script>
-import TheNavigation from "@/components/TheNavigation";
-
 export default {
-  components: {
-    TheNavigation,
-  },
   data() {
     return {
       showPage: true,

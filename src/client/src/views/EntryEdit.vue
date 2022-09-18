@@ -1,5 +1,6 @@
 <template>
   <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
     <div id="sidebar_maincontent_wrap" style="text-align: left; padding: 20px">
       <AppErrorListMessageBox

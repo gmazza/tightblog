@@ -31,22 +31,22 @@ export default {
     },
   },
   actions: {
-    loadWebloggerProperties({ commit }) {
-      loadDataUsingAxios({
+    async loadWebloggerProperties({ commit }) {
+      await loadDataUsingAxios({
         commit: commit,
         url: "/tb-ui/app/any/webloggerproperties",
         setter: "setWebloggerProperties",
       });
     },
-    loadWeblogList({ commit }) {
-      loadDataUsingAxios({
+    async loadWeblogList({ commit }) {
+      await loadDataUsingAxios({
         commit: commit,
         url: "/tb-ui/admin/rest/server/webloglist",
         setter: "setWeblogList",
       });
     },
-    loadUserList({ commit }) {
-      loadDataUsingAxios({
+    async loadUserList({ commit }) {
+      await loadDataUsingAxios({
         commit: commit,
         url: "/tb-ui/admin/rest/useradmin/userlist",
         setter: "setUserList",

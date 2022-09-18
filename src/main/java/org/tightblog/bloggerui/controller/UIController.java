@@ -179,7 +179,7 @@ public class UIController {
 
             if (mfaEnabled && ((UsernamePasswordAuthenticationToken) principal).getAuthorities().stream().anyMatch(
                             role -> GlobalRole.MISSING_MFA_SECRET.name().equals(role.getAuthority()))) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui/app/scanCode");
+                response.sendRedirect(request.getContextPath() + "/tb-ui2/app/scanCode");
             } else if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
                 response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
             } else {
@@ -193,16 +193,6 @@ public class UIController {
                 }
             }
         }
-    }
-
-    @RequestMapping(value = "/tb-ui/app/scanCode")
-    public ModelAndView scanAuthenticatorSecret(Principal principal) {
-        User user = userDao.findEnabledByUserName(principal.getName());
-        String qrCode = userManager.generateMFAQRUrl(user);
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("qrCode", qrCode);
-
-        return tightblogModelAndView("scanCode", myMap, null, null);
     }
 
     @RequestMapping(value = "/tb-ui/app/get-default-blog")
@@ -257,6 +247,7 @@ public class UIController {
         map.put("absoluteUrl", dynamicProperties.getAbsoluteUrl());
         map.put("userIsAdmin", user != null && GlobalRole.ADMIN.equals(user.getGlobalRole()));
         map.put("userCanCreateBlogs", user != null && user.hasEffectiveGlobalRole(GlobalRole.BLOGCREATOR));
+        map.put("userNeedsMFARegistration", user != null && GlobalRole.MISSING_MFA_SECRET.equals(user.getGlobalRole()));
 
         // TODO: remove below (in favor of /startupconfig) once Vue conversion complete
         map.put("mfaEnabled", mfaEnabled);

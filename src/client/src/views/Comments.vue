@@ -1,88 +1,91 @@
 <template>
-  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
-    <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
-    ></AppErrorListMessageBox>
-    <h2>{{ $t("comments.title") }}</h2>
-    <p class="pagetip">
-      {{ $t("comments.tip") }}
-    </p>
-    <div class="sidebarFade">
-      <div class="menu-tr">
-        <div class="menu-tl">
-          <div class="sidebarInner">
-            <h3>{{ $t("comments.sidebarTitle") }}</h3>
-            <hr size="1" noshade="noshade" />
+    <div style="text-align: left; padding: 20px">
+      <AppErrorListMessageBox
+        :in-error-obj="errorObj"
+        @close-box="errorObj.errors = null"
+      ></AppErrorListMessageBox>
+      <h2>{{ $t("comments.title") }}</h2>
+      <p class="pagetip">
+        {{ $t("comments.tip") }}
+      </p>
+      <div class="sidebarFade">
+        <div class="menu-tr">
+          <div class="menu-tl">
+            <div class="sidebarInner">
+              <h3>{{ $t("comments.sidebarTitle") }}</h3>
+              <hr size="1" noshade="noshade" />
 
-            <p>{{ $t("comments.sidebarDescription") }}</p>
+              <p>{{ $t("comments.sidebarDescription") }}</p>
 
-            <div class="sideformrow">
-              <label for="searchText" class="sideformrow"
-                >{{ $t("comments.searchString") }}:</label
-              >
-              <input
-                id="searchText"
-                type="text"
-                v-model="searchParams.searchText"
-                size="30"
-              />
-            </div>
-            <br />
-            <br />
-
-            <div class="sideformrow">
-              <label for="startDateString" class="sideformrow"
-                >{{ $t("comments.label.startDate") }}:</label
-              >
-              <b-form-datepicker
-                id="start-date-picker"
-                v-model="searchParams.startDateString"
-                class="mb-2"
-                reset-button
-              ></b-form-datepicker>
-            </div>
-
-            <div class="sideformrow">
-              <label for="endDateString" class="sideformrow"
-                >{{ $t("comments.label.endDate") }}:</label
-              >
-              <b-form-datepicker
-                id="end-date-picker"
-                v-model="searchParams.endDateString"
-                class="mb-2"
-                reset-button
-              ></b-form-datepicker>
-            </div>
-            <br /><br />
-
-            <div class="sideformrow">
-              <label for="status" class="sideformrow">
-                {{ $t("comments.pendingStatus") }}:
-              </label>
-              <div>
-                <select
-                  id="status"
-                  v-model="searchParams.status"
-                  size="1"
-                  required
+              <div class="sideformrow">
+                <label for="searchText" class="sideformrow"
+                  >{{ $t("comments.searchString") }}:</label
                 >
-                  <option
-                    v-for="(value, key) in lookupVals.commentApprovalStatuses"
-                    :key="key"
-                    :value="key"
-                  >
-                    {{ $t(value) }}
-                  </option>
-                </select>
+                <input
+                  id="searchText"
+                  type="text"
+                  v-model="searchParams.searchText"
+                  size="30"
+                />
               </div>
+              <br />
+              <br />
+
+              <div class="sideformrow">
+                <label for="startDateString" class="sideformrow"
+                  >{{ $t("comments.label.startDate") }}:</label
+                >
+                <b-form-datepicker
+                  id="start-date-picker"
+                  v-model="searchParams.startDateString"
+                  class="mb-2"
+                  reset-button
+                ></b-form-datepicker>
+              </div>
+
+              <div class="sideformrow">
+                <label for="endDateString" class="sideformrow"
+                  >{{ $t("comments.label.endDate") }}:</label
+                >
+                <b-form-datepicker
+                  id="end-date-picker"
+                  v-model="searchParams.endDateString"
+                  class="mb-2"
+                  reset-button
+                ></b-form-datepicker>
+              </div>
+              <br /><br />
+
+              <div class="sideformrow">
+                <label for="status" class="sideformrow">
+                  {{ $t("comments.pendingStatus") }}:
+                </label>
+                <div>
+                  <select
+                    id="status"
+                    v-model="searchParams.status"
+                    size="1"
+                    required
+                  >
+                    <option
+                      v-for="(value, key) in lookupVals.commentApprovalStatuses"
+                      :key="key"
+                      :value="key"
+                    >
+                      {{ $t(value) }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <br /><br />
+              <button type="button" v-on:click="loadComments()">
+                {{ $t("entries.buttonFilter") }}
+              </button>
+              <br />
             </div>
-            <br /><br />
-            <button type="button" v-on:click="loadComments()">
-              {{ $t("entries.buttonFilter") }}
-            </button>
-            <br />
           </div>
         </div>
       </div>

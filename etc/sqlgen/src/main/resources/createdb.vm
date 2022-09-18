@@ -9,7 +9,7 @@ create table weblogger_user (
     username        varchar(48) not null,
     screenname      varchar(48) not null,
     emailaddress    varchar(255) not null,
-    global_role     varchar(16) not null,
+    global_role     varchar(20) not null,
     status          varchar(20) not null,
     datecreated     $TIMESTAMP_SQL_TYPE not null,
     lastlogin       $TIMESTAMP_SQL_TYPE,

@@ -19,118 +19,121 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
-    <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
-    ></AppErrorListMessageBox>
-    <h2>{{ $t("entries.title") }}</h2>
-    <p class="pagetip">{{ $t("entries.tip") }}</p>
+    <div style="text-align: left; padding: 20px">
+      <AppErrorListMessageBox
+        :in-error-obj="errorObj"
+        @close-box="errorObj.errors = null"
+      ></AppErrorListMessageBox>
+      <h2>{{ $t("entries.title") }}</h2>
+      <p class="pagetip">{{ $t("entries.tip") }}</p>
 
-    <div class="sidebarFade">
-      <div class="menu-tr">
-        <div class="menu-tl">
-          <div class="sidebarInner">
-            <h3>{{ $t("entries.sidebarTitle") }}</h3>
-            <hr size="1" noshade="noshade" />
+      <div class="sidebarFade">
+        <div class="menu-tr">
+          <div class="menu-tl">
+            <div class="sidebarInner">
+              <h3>{{ $t("entries.sidebarTitle") }}</h3>
+              <hr size="1" noshade="noshade" />
 
-            <p>{{ $t("entries.sidebarDescription") }}</p>
+              <p>{{ $t("entries.sidebarDescription") }}</p>
 
-            <div>
-              <div class="sideformrow">
-                <label for="categoryId" class="sideformrow">
-                  {{ $t("common.category") }}</label
-                >
-                <select
-                  id="categoryId"
-                  v-model="searchParams.categoryName"
-                  size="1"
-                  required
-                >
-                  <option value="">
-                    {{ $t("entries.label.allCategories") }}
-                  </option>
-                  <option
-                    v-for="cat in weblog.weblogCategoryNames"
-                    :value="cat"
-                    :key="cat"
+              <div>
+                <div class="sideformrow">
+                  <label for="categoryId" class="sideformrow">
+                    {{ $t("common.category") }}</label
                   >
-                    {{ cat }}
-                  </option>
-                </select>
-              </div>
-              <br /><br />
-
-              <div class="sideformrow">
-                <label for="startDateString" class="sideformrow"
-                  >{{ $t("entries.label.startDate") }}:</label
-                >
-                <b-form-datepicker
-                  id="start-date-picker"
-                  v-model="searchParams.startDateString"
-                  class="mb-2"
-                  reset-button
-                ></b-form-datepicker>
-              </div>
-
-              <div class="sideformrow">
-                <label for="endDateString" class="sideformrow"
-                  >{{ $t("entries.label.endDate") }}:</label
-                >
-                <b-form-datepicker
-                  id="end-date-picker"
-                  v-model="searchParams.endDateString"
-                  class="mb-2"
-                  reset-button
-                ></b-form-datepicker>
-              </div>
-              <br /><br />
-
-              <div class="sideformrow">
-                <label for="status" class="sideformrow">
-                  {{ $t("entries.label.status") }}:
-                </label>
-                <div>
                   <select
-                    id="status"
-                    v-model="searchParams.status"
+                    id="categoryId"
+                    v-model="searchParams.categoryName"
                     size="1"
                     required
                   >
+                    <option value="">
+                      {{ $t("entries.label.allCategories") }}
+                    </option>
                     <option
-                      v-for="(value, key) in lookupVals.entryStatusOptions"
-                      :value="key"
-                      :key="key"
+                      v-for="cat in weblog.weblogCategoryNames"
+                      :value="cat"
+                      :key="cat"
                     >
-                      {{ $t(value) }}
+                      {{ cat }}
                     </option>
                   </select>
                 </div>
-              </div>
+                <br /><br />
 
-              <div class="sideformrow">
-                <label for="status" class="sideformrow">
-                  {{ $t("entries.label.sortBy") }}: <br /><br />
-                </label>
-                <div>
-                  <div
-                    v-for="(value, key) in lookupVals.dateSortByOptions"
-                    :key="key"
+                <div class="sideformrow">
+                  <label for="startDateString" class="sideformrow"
+                    >{{ $t("entries.label.startDate") }}:</label
                   >
-                    <input
-                      type="radio"
-                      name="sortBy"
-                      v-model="searchParams.sortBy"
-                      v-bind:value="key"
-                    />{{ $t(value) }}<br />
+                  <b-form-datepicker
+                    id="start-date-picker"
+                    v-model="searchParams.startDateString"
+                    class="mb-2"
+                    reset-button
+                  ></b-form-datepicker>
+                </div>
+
+                <div class="sideformrow">
+                  <label for="endDateString" class="sideformrow"
+                    >{{ $t("entries.label.endDate") }}:</label
+                  >
+                  <b-form-datepicker
+                    id="end-date-picker"
+                    v-model="searchParams.endDateString"
+                    class="mb-2"
+                    reset-button
+                  ></b-form-datepicker>
+                </div>
+                <br /><br />
+
+                <div class="sideformrow">
+                  <label for="status" class="sideformrow">
+                    {{ $t("entries.label.status") }}:
+                  </label>
+                  <div>
+                    <select
+                      id="status"
+                      v-model="searchParams.status"
+                      size="1"
+                      required
+                    >
+                      <option
+                        v-for="(value, key) in lookupVals.entryStatusOptions"
+                        :value="key"
+                        :key="key"
+                      >
+                        {{ $t(value) }}
+                      </option>
+                    </select>
                   </div>
                 </div>
+
+                <div class="sideformrow">
+                  <label for="status" class="sideformrow">
+                    {{ $t("entries.label.sortBy") }}: <br /><br />
+                  </label>
+                  <div>
+                    <div
+                      v-for="(value, key) in lookupVals.dateSortByOptions"
+                      :key="key"
+                    >
+                      <input
+                        type="radio"
+                        name="sortBy"
+                        v-model="searchParams.sortBy"
+                        v-bind:value="key"
+                      />{{ $t(value) }}<br />
+                    </div>
+                  </div>
+                </div>
+                <br />
+                <button type="button" v-on:click="loadEntries()">
+                  {{ $t("entries.buttonFilter") }}
+                </button>
               </div>
-              <br />
-              <button type="button" v-on:click="loadEntries()">
-                {{ $t("entries.buttonFilter") }}
-              </button>
             </div>
           </div>
         </div>

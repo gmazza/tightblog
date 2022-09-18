@@ -68,11 +68,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // API Calls
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                .antMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
                 // UI Calls
-                .antMatchers("/tb-ui2/**").hasAuthority("ADMIN") // needed to trigger login
+                .antMatchers("/tb-ui2/app/register").permitAll() // needed to trigger login
+                .antMatchers("/tb-ui2/css/**").permitAll() // needed to trigger login
+                .antMatchers("/tb-ui2/js/**").permitAll() // needed to trigger login
+                .antMatchers("/tb-ui2/*.ico").permitAll() // needed to trigger login
+                .antMatchers("/tb-ui2/*.css").permitAll() // needed to trigger login
+                .antMatchers("/tb-ui2/admin/**").hasAuthority("ADMIN") // needed to trigger login
+                .antMatchers("/tb-ui2/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR") // needed to trigger login
+                .antMatchers("/tb-ui2/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET") // needed to trigger login
                 .antMatchers("/tb-ui/app/login-redirect")
-                    .permitAll() // hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/scanCode").hasAuthority("MISSING_MFA_SECRET")
+                    .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
+                .antMatchers("/tb-ui2/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // needed to trigger login
                 // All remaining, everyone can see
                 .anyRequest().permitAll()
                 .and()

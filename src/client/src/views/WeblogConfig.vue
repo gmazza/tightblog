@@ -20,6 +20,7 @@
 -->
 <template>
   <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <div v-if="weblogId">
       <AppUserNav />
     </div>

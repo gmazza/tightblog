@@ -19,121 +19,127 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+  <div v-if="asyncDataStatus_ready">
+    <AppTitleBar />
     <AppUserNav />
-    <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
-    ></AppErrorListMessageBox>
-    <h2>{{ $t("categories.title") }}</h2>
-    <p class="pagetip">{{ $t("categories.rootPrompt") }}</p>
+    <div style="text-align: left; padding: 20px">
+      <AppErrorListMessageBox
+        :in-error-obj="errorObj"
+        @close-box="errorObj.errors = null"
+      ></AppErrorListMessageBox>
+      <h2>{{ $t("categories.title") }}</h2>
+      <p class="pagetip">{{ $t("categories.rootPrompt") }}</p>
 
-    <table class="table table-sm table-bordered table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th width="20%">{{ $t("common.category") }}</th>
-          <th width="20%">{{ $t("common.column.numEntries") }}</th>
-          <th width="20%">{{ $t("common.column.firstEntry") }}</th>
-          <th width="20%">{{ $t("common.column.lastEntry") }}</th>
-          <th width="10%">{{ $t("common.rename") }}</th>
-          <th width="10%">{{ $t("common.delete") }}</th>
-        </tr>
-      </thead>
-      <tbody v-cloak>
-        <tr v-for="item in orderedItems" :key="item.id">
-          <td>{{ item.name }}</td>
-          <td>{{ item.numEntries }}</td>
-          <td>{{ item.firstEntry }}</td>
-          <td>{{ item.lastEntry }}</td>
-          <td class="buttontd">
-            <button class="btn btn-warning" v-on:click="showUpsertModal(item)">
-              {{ $t("common.rename") }}
-            </button>
-          </td>
-          <td class="buttontd">
-            <span v-if="items.length > 1">
+      <table class="table table-sm table-bordered table-striped">
+        <thead class="thead-light">
+          <tr>
+            <th width="20%">{{ $t("common.category") }}</th>
+            <th width="20%">{{ $t("common.column.numEntries") }}</th>
+            <th width="20%">{{ $t("common.column.firstEntry") }}</th>
+            <th width="20%">{{ $t("common.column.lastEntry") }}</th>
+            <th width="10%">{{ $t("common.rename") }}</th>
+            <th width="10%">{{ $t("common.delete") }}</th>
+          </tr>
+        </thead>
+        <tbody v-cloak>
+          <tr v-for="item in orderedItems" :key="item.id">
+            <td>{{ item.name }}</td>
+            <td>{{ item.numEntries }}</td>
+            <td>{{ item.firstEntry }}</td>
+            <td>{{ item.lastEntry }}</td>
+            <td class="buttontd">
               <button
-                v-b-modal.modal-delete
-                @click="showDeleteModal(item)"
-                class="btn btn-danger"
+                class="btn btn-warning"
+                v-on:click="showUpsertModal(item)"
               >
-                {{ $t("common.delete") }}
+                {{ $t("common.rename") }}
               </button>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+            <td class="buttontd">
+              <span v-if="items.length > 1">
+                <button
+                  v-b-modal.modal-delete
+                  @click="showDeleteModal(item)"
+                  class="btn btn-danger"
+                >
+                  {{ $t("common.delete") }}
+                </button>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="control clearfix">
-      <button type="button" v-on:click="showUpsertModal(null)">
-        {{ $t("categories.addCategory") }}
-      </button>
-    </div>
+      <div class="control clearfix">
+        <button type="button" v-on:click="showUpsertModal(null)">
+          {{ $t("categories.addCategory") }}
+        </button>
+      </div>
 
-    <!-- Add/Edit Category modal -->
-    <div tabindex="-1" role="dialog">
-      <b-modal id="modal-upsert" centered @ok="upsertItem()">
-        <template #modal-title>
-          {{ upsertModalTitle }}
-        </template>
+      <!-- Add/Edit Category modal -->
+      <div tabindex="-1" role="dialog">
+        <b-modal id="modal-upsert" centered @ok="upsertItem()">
+          <template #modal-title>
+            {{ upsertModalTitle }}
+          </template>
 
-        <span v-if="showUpdateErrorMessage">
-          {{ $t("categories.errorDuplicateName") }}<br />
-        </span>
-        <label for="category-name">{{ $t("common.name") }}:</label>
-        <input
-          id="category-name"
-          v-model="itemToEdit.name"
-          maxlength="80"
-          size="40"
-        />
+          <span v-if="showUpdateErrorMessage">
+            {{ $t("categories.errorDuplicateName") }}<br />
+          </span>
+          <label for="category-name">{{ $t("common.name") }}:</label>
+          <input
+            id="category-name"
+            v-model="itemToEdit.name"
+            maxlength="80"
+            size="40"
+          />
 
-        <template #modal-ok>
-          {{ $t("common.save") }}
-        </template>
-        <template #modal-cancel>
-          {{ $t("common.cancel") }}
-        </template>
-      </b-modal>
-    </div>
+          <template #modal-ok>
+            {{ $t("common.save") }}
+          </template>
+          <template #modal-cancel>
+            {{ $t("common.cancel") }}
+          </template>
+        </b-modal>
+      </div>
 
-    <!-- Delete category modal -->
-    <div tabindex="-1" role="dialog">
-      <b-modal
-        id="modal-delete"
-        centered
-        ok-variant="danger"
-        @ok="deleteItem()"
-      >
-        <template #modal-title>
-          <h5
-            v-html="
-              $t('categories.deleteCategory', {
-                categoryName: categoryToDelete.name,
-              })
-            "
-          ></h5>
-        </template>
-        <p>
-          {{ $t("categories.deleteMoveToWhere") }}
-          <select v-model="targetCategoryId" size="1" required>
-            <option
-              v-for="item in moveToCategories"
-              :key="item.id"
-              :value="item.id"
-            >
-              {{ item.name }}
-            </option>
-          </select>
-        </p>
-        <template #modal-ok>
-          {{ $t("common.delete") }}
-        </template>
-        <template #modal-cancel>
-          {{ $t("common.cancel") }}
-        </template>
-      </b-modal>
+      <!-- Delete category modal -->
+      <div tabindex="-1" role="dialog">
+        <b-modal
+          id="modal-delete"
+          centered
+          ok-variant="danger"
+          @ok="deleteItem()"
+        >
+          <template #modal-title>
+            <h5
+              v-html="
+                $t('categories.deleteCategory', {
+                  categoryName: categoryToDelete.name,
+                })
+              "
+            ></h5>
+          </template>
+          <p>
+            {{ $t("categories.deleteMoveToWhere") }}
+            <select v-model="targetCategoryId" size="1" required>
+              <option
+                v-for="item in moveToCategories"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </option>
+            </select>
+          </p>
+          <template #modal-ok>
+            {{ $t("common.delete") }}
+          </template>
+          <template #modal-cancel>
+            {{ $t("common.cancel") }}
+          </template>
+        </b-modal>
+      </div>
     </div>
   </div>
 </template>
