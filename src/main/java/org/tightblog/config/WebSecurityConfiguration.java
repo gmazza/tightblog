@@ -69,6 +69,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
+                .antMatchers("/tb-ui/blogreader/**").permitAll()
                 // UI Calls
                 .antMatchers("/tb-ui2/app/register").permitAll() // needed to trigger login
                 .antMatchers("/tb-ui2/css/**").permitAll() // needed to trigger login
@@ -76,6 +77,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/tb-ui2/*.ico").permitAll() // needed to trigger login
                 .antMatchers("/tb-ui2/*.css").permitAll() // needed to trigger login
                 .antMatchers("/tb-ui2/admin/**").hasAuthority("ADMIN") // needed to trigger login
+                .antMatchers("/tb-ui2/app/unsubscribeNotifications").permitAll()
                 .antMatchers("/tb-ui2/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR") // needed to trigger login
                 .antMatchers("/tb-ui2/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET") // needed to trigger login
                 .antMatchers("/tb-ui/app/login-redirect")

@@ -80,7 +80,7 @@ public class URLService {
      * use to unsubscribe from further comments.
      */
     public String getCommentNotificationUnsubscribeURL(String commentId) {
-        return dp.getAbsoluteUrl() + "/tb-ui/app/unsubscribe?commentId=" + commentId;
+        return dp.getAbsoluteUrl() + "/tb-ui2/app/unsubscribeNotifications?commentId=" + commentId;
     }
 
     /**
