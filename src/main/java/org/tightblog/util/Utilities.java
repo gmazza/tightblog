@@ -251,8 +251,9 @@ public final class Utilities {
                 continue;
             }
 
-            if ((33 <= c && c <= 126) || Character.isUnicodeIdentifierPart(c) ||
-                    Character.isUnicodeIdentifierStart(c)) {
+            if ((33 <= c && c <= 126)
+                    || Character.isUnicodeIdentifierPart(c)
+                    || Character.isUnicodeIdentifierStart(c)) {
                 sb.append(c);
             }
         }

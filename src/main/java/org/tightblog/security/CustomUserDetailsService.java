@@ -32,7 +32,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.tightblog.dao.UserCredentialsDao;
-import org.tightblog.domain.UserStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +45,9 @@ import java.util.List;
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserCredentialsDao userCredentialsDao;
+    private final UserCredentialsDao userCredentialsDao;
 
-    private DynamicProperties dynamicProperties;
+    private final DynamicProperties dynamicProperties;
 
     @Autowired
     public CustomUserDetailsService(UserCredentialsDao userCredentialsDao,

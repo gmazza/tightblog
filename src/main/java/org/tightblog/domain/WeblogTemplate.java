@@ -175,7 +175,8 @@ public class WeblogTemplate implements Template, WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogTemplate && Objects.equals(id, ((WeblogTemplate) other).id));
+        return other == this ||
+                (other instanceof WeblogTemplate && Objects.equals(id, ((WeblogTemplate) other).id));
     }
 
     @Override
