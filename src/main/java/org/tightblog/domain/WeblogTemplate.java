@@ -21,10 +21,8 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.validation.constraints.NotBlank;
 import org.tightblog.util.Utilities;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
