@@ -38,7 +38,7 @@ public interface WeblogTemplateDao extends JpaRepository<WeblogTemplate, String>
 
     WeblogTemplate findByWeblogIdAndId(String weblogId, String templateId);
 
-    @Cacheable(value = "weblogTemplates", key = "#weblog.handle")
+    @Cacheable(value = "weblogTemplates", key = "#weblog.handle", condition = "#weblog != null")
     // Select all but the template source (latter obtainable individually by methods above)
     // https://stackoverflow.com/a/47471486/1207540
     @Query("SELECT new org.tightblog.domain.WeblogTemplate(w.id, w.role, w.name, w.description, " +
@@ -48,7 +48,7 @@ public interface WeblogTemplateDao extends JpaRepository<WeblogTemplate, String>
     @Transactional("transactionManager")
     void deleteByWeblog(Weblog weblog);
 
-    @CacheEvict(value = "weblogTemplates", key = "#weblog.handle")
+    @CacheEvict(value = "weblogTemplates", key = "#weblog.handle", condition = "#weblog != null")
     default void evictWeblogTemplates(Weblog weblog) {
         // ignored
     }

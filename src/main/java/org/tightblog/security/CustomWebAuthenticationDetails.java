@@ -36,13 +36,12 @@ public class CustomWebAuthenticationDetails extends WebAuthenticationDetails {
     public boolean equals(Object obj) {
         boolean equals = super.equals(obj);
 
-        if (equals && obj instanceof CustomWebAuthenticationDetails) {
-            CustomWebAuthenticationDetails rhs = (CustomWebAuthenticationDetails) obj;
+        if (equals && obj instanceof CustomWebAuthenticationDetails rhs) {
 
-            if ((verificationCode == null) && (rhs.getVerificationCode() != null)) {
+            if (verificationCode == null && rhs.getVerificationCode() != null) {
                 return false;
             }
-            if ((verificationCode != null) && (rhs.getVerificationCode() == null)) {
+            if (verificationCode != null && rhs.getVerificationCode() == null) {
                 return false;
             }
             if (verificationCode != null) {

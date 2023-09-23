@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter);
 
+// make sure paths defined in WebSecurityConfiguration.java
+// to limit access to them based on auth status and auth user roles
 const routes = [
   {
     path: "/",
@@ -39,6 +41,15 @@ const routes = [
     },
     component: () =>
       import(/* webpackChunkName: "scanCode" */ "../views/ScanCode"),
+  },
+  {
+    path: "/app/unsubscribeNotifications",
+    name: "unsubscribed",
+    component: () =>
+      import(/* webpackChunkName: "scanCode" */ "../views/Unsubscribed"),
+    props: (route) => ({
+      commentId: route.params.commentId,
+    }),
   },
   {
     path: "/app/createWeblog",

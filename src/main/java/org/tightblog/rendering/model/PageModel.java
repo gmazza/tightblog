@@ -40,13 +40,13 @@ import java.util.List;
 @Component
 public class PageModel {
 
-    private UserManager userManager;
-    private WeblogManager weblogManager;
-    private WeblogEntryManager weblogEntryManager;
+    private final UserManager userManager;
+    private final WeblogManager weblogManager;
+    private final WeblogEntryManager weblogEntryManager;
     protected ThemeManager themeManager;
-    private WeblogEntryListGenerator weblogEntryListGenerator;
-    private CalendarGenerator calendarGenerator;
-    private int maxEntriesPerPage;
+    private final WeblogEntryListGenerator weblogEntryListGenerator;
+    private final CalendarGenerator calendarGenerator;
+    private final int maxEntriesPerPage;
 
     @Autowired
     public PageModel(

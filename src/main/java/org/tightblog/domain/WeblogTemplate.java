@@ -21,10 +21,8 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.validation.constraints.NotBlank;
 import org.tightblog.util.Utilities;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -175,7 +173,8 @@ public class WeblogTemplate implements Template, WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogTemplate && Objects.equals(id, ((WeblogTemplate) other).id));
+        return other == this ||
+                (other instanceof WeblogTemplate && Objects.equals(id, ((WeblogTemplate) other).id));
     }
 
     @Override
