@@ -189,7 +189,7 @@ task copyUi(type: Copy) {
 }
 
 war {
-	enabled = false
+	enabled = true
 }
 
 copyUi.dependsOn deleteUi
