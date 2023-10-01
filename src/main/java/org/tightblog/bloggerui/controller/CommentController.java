@@ -174,19 +174,4 @@ public class CommentController {
         weblogEntryManager.saveComment(wec, true);
         return wec;
     }
-/*
-    @PostMapping(value = "/tb-ui/blogreader/unsubscribe/{commentId}")
-    public UnsubscribeResults unsubscribeNotifications(@PathVariable String commentId, HttpServletRequest request)
-            throws IOException {
-
-        boolean foundSubscription;
-        String entryTitle;
-
-        Pair<String, Boolean> results = weblogEntryManager.stopNotificationsForCommenter(commentId);
-        foundSubscription = results.getRight();
-        entryTitle = results.getLeft();
-
-        return new UnsubscribeResults(entryTitle != null, entryTitle, foundSubscription);
-    }
- */
 }

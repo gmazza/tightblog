@@ -41,7 +41,7 @@ public class TestUtils {
     public static final String ENTRY_ANCHOR = "entry-anchor";
 
     @Captor
-    ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
+    private static ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
 
     public static HttpServletRequest createMockServletRequestForWeblogEntryRequest() {
         return createBaseMockServletRequest(addBlogHandle("page/%s/entry/" + ENTRY_ANCHOR));
@@ -61,7 +61,6 @@ public class TestUtils {
 
     public static WeblogPageRequest extractWeblogPageRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
         throws IOException {
-        ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor = ArgumentCaptor.forClass(Map.class);
         verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         return (WeblogPageRequest) results.get("model");
@@ -69,7 +68,6 @@ public class TestUtils {
 
     public static WeblogSearchRequest extractWeblogSearchRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
             throws IOException {
-        ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor = ArgumentCaptor.forClass(Map.class);
         verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
         Map<String, Object> results = stringObjectMapCaptor.getValue();
         return (WeblogSearchRequest) results.get("model");
