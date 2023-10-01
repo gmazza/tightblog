@@ -43,15 +43,6 @@ const routes = [
       import(/* webpackChunkName: "scanCode" */ "../views/ScanCode"),
   },
   {
-    path: "/app/unsubscribeNotifications",
-    name: "unsubscribed",
-    component: () =>
-      import(/* webpackChunkName: "scanCode" */ "../views/Unsubscribed"),
-    props: (route) => ({
-      commentId: route.params.commentId,
-    }),
-  },
-  {
     path: "/app/createWeblog",
     name: "createWeblog",
     component: () =>
