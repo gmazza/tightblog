@@ -739,6 +739,10 @@ public class WeblogEntryManager {
                     found = true;
                 }
             }
+            LOG.info("Attempt to unsubscribe {} from {} comments: {}", commentWithUnsubscribingUser.getEmail(),
+                    entry.getTitle(), found);
+        } else {
+            LOG.warn("Could not find comment with ID {} during attempt to unsubscribe", commentId);
         }
         return Pair.of(blogEntryTitle, found);
     }

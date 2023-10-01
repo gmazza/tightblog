@@ -81,18 +81,18 @@ import java.util.Map;
 @RequestMapping(path = PageController.PATH)
 public class PageController extends AbstractController {
 
-    private static Logger log = LoggerFactory.getLogger(PageController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageController.class);
 
     public static final String PATH = "/tb-ui/rendering/page";
 
-    private UserDao userDao;
-    private WeblogDao weblogDao;
-    private LazyExpiringCache weblogPageCache;
-    private WeblogManager weblogManager;
-    private WeblogEntryManager weblogEntryManager;
-    private ThymeleafRenderer thymeleafRenderer;
-    private ThemeManager themeManager;
-    private PageModel pageModel;
+    private final UserDao userDao;
+    private final WeblogDao weblogDao;
+    private final LazyExpiringCache weblogPageCache;
+    private final WeblogManager weblogManager;
+    private final WeblogEntryManager weblogEntryManager;
+    private final ThymeleafRenderer thymeleafRenderer;
+    private final ThemeManager themeManager;
+    private final PageModel pageModel;
 
     @Autowired
     PageController(WeblogDao weblogDao, LazyExpiringCache weblogPageCache,
@@ -143,7 +143,7 @@ public class PageController extends AbstractController {
                     incomingRequest.getWeblogEntryAnchor());
 
             if (entry == null || !entry.isPublished()) {
-                log.warn("For weblog {}, invalid or not yet published entry {} requested, returning home page instead.",
+                LOGGER.warn("For weblog {}, invalid or not yet published entry {} requested, returning home page instead.",
                         weblogHandle, anchor);
                 return getHomePage(weblogHandle, 0, request, principal);
             } else {
@@ -222,7 +222,7 @@ public class PageController extends AbstractController {
                 incomingRequest.setTemplate(template);
                 return handleRequest(incomingRequest, null, hsr);
             } else {
-                log.warn("For weblog {}, invalid or non-external page {} requested, returning home page instead.",
+                LOGGER.warn("For weblog {}, invalid or non-external page {} requested, returning home page instead.",
                         weblogHandle, customPage);
                 return getHomePage(weblogHandle, 0, hsr, principal);
             }
@@ -243,7 +243,6 @@ public class PageController extends AbstractController {
         }
 
         weblogPageCache.incrementIncomingRequests();
-        incomingRequest.setDeviceType(Utilities.getDeviceType(request));
 
         // TODO: handle pagenums in the callers
         if (pageNum != null) {
@@ -294,7 +293,7 @@ public class PageController extends AbstractController {
             }
 
             if (incomingRequest.getTemplate() == null) {
-                log.warn("For weblog {}, no WEBLOG template defined, returning 404",
+                LOGGER.warn("For weblog {}, no WEBLOG template defined, returning 404",
                         incomingRequest.getWeblog());
                 return ResponseEntity.notFound().build();
             }
@@ -315,7 +314,7 @@ public class PageController extends AbstractController {
                 // render content
                 rendererOutput = thymeleafRenderer.render(incomingRequest.getTemplate(), model);
             } catch (Exception e) {
-                log.error("Rendering error for {}", incomingRequest, e);
+                LOGGER.error("Rendering error for {}", incomingRequest, e);
             }
         }
 
@@ -325,7 +324,7 @@ public class PageController extends AbstractController {
             }
 
             if (newContent && cacheKey != null) {
-                log.debug("PUT {}", cacheKey);
+                LOGGER.debug("PUT {}", cacheKey);
                 weblogPageCache.put(cacheKey, rendererOutput);
             }
 
@@ -337,7 +336,7 @@ public class PageController extends AbstractController {
                     .cacheControl(CacheControl.noCache())
                     .body(new ByteArrayResource(rendererOutput.getContent()));
         } else {
-            log.error("Unable to rendering anything for {}, returning 404", incomingRequest);
+            LOGGER.error("Unable to rendering anything for {}, returning 404", incomingRequest);
             return ResponseEntity.notFound().build();
         }
     }
@@ -386,8 +385,6 @@ public class PageController extends AbstractController {
         if (request.getAuthenticatedUser() != null) {
             key.append("/user=").append(request.getAuthenticatedUser());
         }
-
-        key.append("/deviceType=").append(request.getDeviceType().toString());
 
         return key.toString();
     }

@@ -19,17 +19,13 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.mobile.device.DeviceResolverHandlerInterceptor;
-import org.springframework.mobile.device.DeviceWebArgumentResolver;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.mvc.method.annotation.ServletWebArgumentResolverAdapter;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
 import org.springframework.web.servlet.view.tiles3.TilesView;
+import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -41,7 +37,6 @@ import org.tightblog.rendering.service.ThemeTemplateResolver;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -61,6 +56,15 @@ public class WebConfig implements WebMvcConfigurer {
         return tilesViewResolver;
     }
 
+    @Bean
+    public ThymeleafViewResolver thymeleafViewResolver(SpringTemplateEngine standardTemplateEngine) {
+        ThymeleafViewResolver thymeleafViewResolver = new ThymeleafViewResolver();
+        thymeleafViewResolver.setCacheUnresolved(false);
+        thymeleafViewResolver.setTemplateEngine(standardTemplateEngine);
+        thymeleafViewResolver.setOrder(1);
+        return thymeleafViewResolver;
+    }
+
     // https://www.baeldung.com/spring-custom-validation-message-source#defining-localvalidatorfactorybean
     @Bean
     public LocalValidatorFactoryBean getValidator(MessageSource messageSource) {
@@ -74,14 +78,6 @@ public class WebConfig implements WebMvcConfigurer {
         TilesConfigurer tconf = new TilesConfigurer();
         tconf.setDefinitions("/WEB-INF/tiles.xml");
         return tconf;
-    }
-
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        // Adding Spring mobile argument resolvers (allowing use of Device argument in Controller methods)
-        resolvers.add(
-                new ServletWebArgumentResolverAdapter(
-                        new DeviceWebArgumentResolver()));
     }
 
     // To process resources in the webapp/thymeleaf folder: Atom feeds,
@@ -148,8 +144,4 @@ public class WebConfig implements WebMvcConfigurer {
         return models;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new DeviceResolverHandlerInterceptor());
-    }
 }

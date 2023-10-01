@@ -129,10 +129,10 @@ public class UIController {
             }
 
         }
-        return tightblogModelAndView("login", myMap, null, null);
+        return tilesModelAndView("login", myMap, null, null);
     }
 
-    @RequestMapping(value = "/tb-ui/app/unsubscribe")
+    @RequestMapping(value = "/tb-ui/app/unsubscribeNotifications")
     public ModelAndView unsubscribe(@RequestParam String commentId) {
 
         Pair<String, Boolean> results = weblogEntryManager.stopNotificationsForCommenter(commentId);
@@ -140,7 +140,7 @@ public class UIController {
         myMap.put("found", results.getRight());
         myMap.put("weblogEntryTitle", results.getLeft());
 
-        return tightblogModelAndView("unsubscribed", myMap, null, null);
+        return thymeleafModelAndView("emails/UnsubscribeResults", myMap, null, null);
     }
 
     // https://stackoverflow.com/a/59290035/1207540
@@ -281,7 +281,7 @@ public class UIController {
         return gcm;
     }
 
-    private ModelAndView tightblogModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
+    private ModelAndView tilesModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
         if (map == null) {
             map = new HashMap<>();
         }
@@ -290,4 +290,12 @@ public class UIController {
         return new ModelAndView("." + actionName, map);
     }
 
+    private ModelAndView thymeleafModelAndView(String htmlResource, Map<String, Object> map, User user, Weblog weblog) {
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.putAll(getSessionInfo(user, weblog));
+        // per class WebConfig, Thymeleaf has /thymeleaf/ and .html already covered
+        return new ModelAndView(htmlResource, map);
+    }
 }

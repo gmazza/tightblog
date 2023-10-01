@@ -28,7 +28,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mobile.device.DeviceType;
 import org.tightblog.TestUtils;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.Template;
@@ -505,15 +504,13 @@ public class UIControllerTest {
         WeblogPageRequest wpr = mock(WeblogPageRequest.class);
         when(wpr.getWeblogHandle()).thenReturn("bobsblog");
         when(wpr.getWeblogEntryAnchor()).thenReturn("neatoentry");
-        when(wpr.getDeviceType()).thenReturn(DeviceType.TABLET);
         when(wpr.getAuthenticatedUser()).thenReturn("bob");
 
         String test1 = controller.generateKey(wpr);
-        assertEquals("bobsblog/entry/neatoentry/user=bob/deviceType=TABLET", test1);
+        assertEquals("bobsblog/entry/neatoentry/user=bob", test1);
 
         when(wpr.getAuthenticatedUser()).thenReturn(null);
         when(wpr.getWeblogEntryAnchor()).thenReturn(null);
-        when(wpr.getDeviceType()).thenReturn(DeviceType.MOBILE);
         when(wpr.getWeblogDate()).thenReturn("20171006");
         when(wpr.getCategory()).thenReturn("finance");
         when(wpr.getTag()).thenReturn("taxes");
@@ -522,12 +519,12 @@ public class UIControllerTest {
 
         test1 = controller.generateKey(wpr);
         assertEquals("bobsblog/date/20171006/cat/finance/tag/" +
-                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE", test1);
+                "taxes/page=5/query=a=foo&b=123", test1);
 
         when(wpr.getCustomPageName()).thenReturn("mytemplate");
         test1 = controller.generateKey(wpr);
         assertEquals("bobsblog/page/mytemplate/date/20171006/cat/finance/tag/" +
-                "taxes/page=5/query=a=foo&b=123/deviceType=MOBILE", test1);
+                "taxes/page=5/query=a=foo&b=123", test1);
     }
 
     @Test

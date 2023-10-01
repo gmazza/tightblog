@@ -22,23 +22,21 @@ package org.tightblog.rendering.requests;
 
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
-import org.springframework.mobile.device.DeviceType;
 
 import java.security.Principal;
 
 /**
  * Represents a request to a weblog.
  *
- * NOTE: It is extremely important to mention that this class and all of its
- * subclasses are meant to be extremely light weight.  Meaning they should
+ * NOTE: It is important to mention that this class and all of its
+ * subclasses are meant to be extremely lightweight.  Meaning they should
  * avoid time consuming operations whenever possible, especially operations
- * which require a trip to the db.
+ * which require a trip to the database.
  */
 public class WeblogRequest {
 
     // lightweight attributes
     private String weblogHandle;
-    private DeviceType deviceType = DeviceType.NORMAL;
     protected int pageNum;
     private Principal principal;
 
@@ -78,14 +76,6 @@ public class WeblogRequest {
 
     public boolean isLoggedIn() {
         return getAuthenticatedUser() != null;
-    }
-
-    public DeviceType getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
     }
 
     public User getBlogger() {

@@ -375,10 +375,8 @@
   "unsubscribed": {
     "title": "Notifications Unsubscribe",
     "prompt": "Unsubscribe from notifications for blog entry <b>{entryTitle}</b>",
-    "unsubscribed": {
-      "success": "You have now been unsubscribed from further notifications for this blog entry.",
-      "failure": "Hmm, we could not find a mapping between you and this blog entry, perhaps you were unsubscribed earlier or the blog entry was deleted.  If you receive any more comment emails for this blog entry, please contact the blog administrator."
-    }
+    "success": "You have now been unsubscribed from further notifications for this blog entry.",
+    "failure": "Hmm, we could not find a mapping between you and this blog entry, perhaps you were unsubscribed earlier or the blog entry was deleted.  If you receive any more comment emails for this blog entry, please contact the blog administrator."
   },
   "userAdd": {
     "tip": {

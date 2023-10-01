@@ -148,7 +148,7 @@ public class SearchControllerTest {
     @Test
     public void testWeblogEntryListGeneratorCalledWithCorrectParameters() throws IOException {
         controller.getSearchResults("myblog", "stamps", "collectibles",
-                4, mockPrincipal, null);
+                4, mockPrincipal);
 
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 
@@ -173,7 +173,7 @@ public class SearchControllerTest {
     public void test404OnMissingWeblog() {
         when(mockWD.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
         ResponseEntity<Resource> result = controller.getSearchResults("myblog", "foo", null,
-                0, mockPrincipal, null);
+                0, mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -185,7 +185,7 @@ public class SearchControllerTest {
         when(mockWeblogTheme.getTemplateByRole(Template.Role.SEARCH_RESULTS)).thenReturn(null);
 
         ResponseEntity<Resource> result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal, null);
+                mockPrincipal);
 
         // verify weblog retrieved, NOT FOUND returned due to no matching template
         verify(mockThemeManager).getWeblogTheme(weblog);
@@ -197,7 +197,7 @@ public class SearchControllerTest {
 
         Mockito.clearInvocations(mockThemeManager, mockWeblogTheme);
         result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal, null);
+                mockPrincipal);
         verify(mockWeblogTheme).getTemplateByRole(Template.Role.WEBLOG);
         assertEquals(MediaType.TEXT_HTML, result.getHeaders().getContentType());
 
@@ -212,7 +212,7 @@ public class SearchControllerTest {
 
         Mockito.clearInvocations(mockThemeManager, mockWeblogTheme, mockRenderer);
         result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal, null);
+                mockPrincipal);
         // search results template should now be retrieved, backup weblog template call not occurring
         verify(mockWeblogTheme, never()).getTemplateByRole(Template.Role.WEBLOG);
 
@@ -228,14 +228,14 @@ public class SearchControllerTest {
         // test 404 if exception during rendering
         doThrow(new IllegalArgumentException("Expected exception during testing")).when(mockRenderer).render(any(), any());
         result = controller.getSearchResults("myblog", null, "foo", 0,
-                mockPrincipal, null);
+                mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test
     public void testConvertHitsToEntries() throws IOException {
         controller.getSearchResults("myblog", "collectibles",
-                "stamps", 4, mockPrincipal, null);
+                "stamps", 4, mockPrincipal);
 
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 
@@ -309,7 +309,7 @@ public class SearchControllerTest {
     @Test
     public void testEntriesByDateMapPopulatedWhenResultsReturned() throws IOException {
         controller.getSearchResults("myblog", "stamps",
-                "collectibles", 4, mockPrincipal, null);
+                "collectibles", 4, mockPrincipal);
 
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 

@@ -120,7 +120,7 @@ public class PreviewControllerTest {
     @Test
     public void test404OnMissingWeblog() throws IOException {
         when(mockWeblogDao.findByHandleAndVisibleTrue("myblog")).thenReturn(null);
-        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), "myanchor", mockPrincipal, null);
+        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), "myanchor", mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -137,7 +137,7 @@ public class PreviewControllerTest {
         permalinkTemplate.setRole(Template.Role.PERMALINK);
         permalinkTemplate.setName("mypermalinktemplate");
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(permalinkTemplate);
-        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal);
         ArgumentCaptor<Template> templateCaptor = ArgumentCaptor.forClass(Template.class);
         verify(mockRenderer).render(templateCaptor.capture(), any());
         Template results = templateCaptor.getValue();
@@ -147,7 +147,7 @@ public class PreviewControllerTest {
         // Weblog template retrieved for a weblog entry if no permalink template
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(null);
         Mockito.clearInvocations(mockRenderer);
-        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal);
         verify(mockRenderer).render(templateCaptor.capture(), any());
         results = templateCaptor.getValue();
         assertEquals(weblogTemplate.getName(), results.getName());
@@ -155,7 +155,7 @@ public class PreviewControllerTest {
 
         // not found returned if no weblog entry for given anchor
         when(mockWEM.getWeblogEntryByAnchor(weblog, ENTRY_ANCHOR)).thenReturn(null);
-        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
+        ResponseEntity<Resource> result = controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -173,7 +173,7 @@ public class PreviewControllerTest {
         when(mockTheme.getTemplateByRole(Template.Role.PERMALINK)).thenReturn(sharedTemplate);
 
         // testing that themes get "model" added to the rendering map.
-        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal, null);
+        controller.getEntryPreview(weblog.getId(), ENTRY_ANCHOR, mockPrincipal);
         verify(mockRenderer).render(eq(sharedTemplate), stringObjectMapCaptor.capture());
 
         Map<String, Object> results = stringObjectMapCaptor.getValue();
