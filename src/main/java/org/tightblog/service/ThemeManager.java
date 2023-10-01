@@ -43,6 +43,7 @@ import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -57,11 +58,11 @@ import java.util.Set;
 @Component
 public class ThemeManager implements ServletContextAware {
 
-    private static Logger log = LoggerFactory.getLogger(ThemeManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThemeManager.class);
 
     private ServletContext servletContext;
-    private ObjectMapper objectMapper;
-    private WeblogTemplateDao weblogTemplateDao;
+    private final ObjectMapper objectMapper;
+    private final WeblogTemplateDao weblogTemplateDao;
 
     @Autowired
     public ThemeManager(ObjectMapper objectMapper, WeblogTemplateDao weblogTemplateDao) {
@@ -81,7 +82,7 @@ public class ThemeManager implements ServletContextAware {
     }
 
     // map of themes in format (theme id, Theme)
-    private Map<String, SharedTheme> themeMap = new HashMap<>();
+    private final Map<String, SharedTheme> themeMap = new HashMap<>();
 
     // list of themes
     private List<SharedTheme> themeList = new ArrayList<>();
@@ -97,24 +98,24 @@ public class ThemeManager implements ServletContextAware {
 
         Set<String> paths = servletContext.getResourcePaths(blogThemePath);
 
-        if (paths != null && paths.size() > 0) {
-            log.info("{} shared blog themes detected, loading...", paths.size());
+        if (paths != null && !paths.isEmpty()) {
+            LOGGER.info("{} shared blog themes detected, loading...", paths.size());
             for (String path : paths) {
                 try {
                     SharedTheme theme = loadThemeData(path);
                     themeMap.put(theme.getId(), theme);
                 } catch (Exception unexpected) {
                     // shouldn't happen, so let's learn why it did
-                    log.error("Exception processing theme {}, will be skipped", path, unexpected);
+                    LOGGER.error("Exception processing theme {}, will be skipped", path, unexpected);
                 }
             }
 
             // for convenience create an alphabetized list also
             themeList = new ArrayList<>(this.themeMap.values());
             themeList.sort(Comparator.comparing(SharedTheme::getName));
-            log.info("Successfully loaded {} shared blog themes.", themeList.size());
+            LOGGER.info("Successfully loaded {} shared blog themes.", themeList.size());
         } else {
-            log.info("No shared blog themes detected at path {}, none will be loaded", blogThemePath);
+            LOGGER.info("No shared blog themes detected at path {}, none will be loaded", blogThemePath);
         }
     }
 
@@ -145,7 +146,7 @@ public class ThemeManager implements ServletContextAware {
         if (staticTheme != null) {
             weblogTheme = new WeblogTheme(weblogTemplateDao, weblog, staticTheme);
         } else {
-            log.warn("Unable to find shared theme {}", weblog.getTheme());
+            LOGGER.warn("Unable to find shared theme {}", weblog.getTheme());
         }
 
         return weblogTheme;
@@ -196,7 +197,7 @@ public class ThemeManager implements ServletContextAware {
 
                 URL test = servletContext.getResource(previewFilePath);
                 if (test == null) {
-                    log.warn("Couldn't find theme [{}] thumbnail at path [{}]", sharedTheme.getName(), previewFilePath);
+                    LOGGER.warn("Couldn't find theme [{}] thumbnail at path [{}]", sharedTheme.getName(), previewFilePath);
                 }
 
                 // create the templates based on the theme descriptor data
@@ -224,7 +225,7 @@ public class ThemeManager implements ServletContextAware {
                     throw new IllegalStateException("Theme " + sharedTheme.getName() + " has no template with 'weblog' action");
                 }
 
-                log.info("Loaded {}", sharedTheme);
+                LOGGER.info("Loaded {}", sharedTheme);
             } else {
                 throw new IllegalStateException("Theme JSON " + themeJson + " not found");
             }
@@ -239,9 +240,9 @@ public class ThemeManager implements ServletContextAware {
             return false;
         }
 
-        String contents = IOUtils.toString(stream);
+        String contents = IOUtils.toString(stream, StandardCharsets.UTF_8);
         if (contents == null) {
-            log.error("Couldn't load template resource [{}]", resourcePath);
+            LOGGER.error("Couldn't load template resource [{}]", resourcePath);
             sharedTemplate.setTemplate("");
         } else {
             sharedTemplate.setTemplate(contents);

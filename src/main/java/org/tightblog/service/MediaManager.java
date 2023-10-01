@@ -58,14 +58,14 @@ import java.util.Set;
 @Component
 public class MediaManager {
 
-    private FileService fileService;
-    private MediaDirectoryDao mediaDirectoryDao;
-    private MediaFileDao mediaFileDao;
+    private final FileService fileService;
+    private final MediaDirectoryDao mediaDirectoryDao;
+    private final MediaFileDao mediaFileDao;
 
     @Autowired
     private WeblogManager weblogManager;
 
-    private static Logger log = LoggerFactory.getLogger(MediaManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaManager.class);
 
     @Autowired
     public MediaManager(FileService fileService,
@@ -112,14 +112,14 @@ public class MediaManager {
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             Validator validator = factory.getValidator();
             Set<ConstraintViolation<MediaDirectory>> errors = validator.validate(newDirectory);
-            if (errors.size() > 0) {
+            if (!errors.isEmpty()) {
                 // strip away { and } from message string
                 String origMessage = errors.iterator().next().getMessage();
                 throw new IllegalArgumentException(origMessage.substring(1, origMessage.length() - 1));
             }
             weblog.getMediaDirectories().add(newDirectory);
             weblogManager.saveWeblog(weblog, false);
-            log.debug("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
+            LOGGER.debug("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
         }
         return newDirectory;
     }
@@ -197,7 +197,7 @@ public class MediaManager {
                 mediaFile.setHeight(MediaFile.MAX_THUMBNAIL_HEIGHT);
             }
         } catch (IOException e) {
-            log.debug("ERROR creating thumbnail", e);
+            LOGGER.debug("ERROR creating thumbnail", e);
         }
     }
 
@@ -251,7 +251,7 @@ public class MediaManager {
             // Now thumbnail
             fileService.deleteFile(weblog, mediaFile.getId() + "_sm");
         } catch (Exception e) {
-            log.debug("File to be deleted already unavailable in the file store");
+            LOGGER.debug("File to be deleted already unavailable in the file store");
         }
         mediaFile.getDirectory().getMediaFiles().remove(mediaFile);
         mediaFileDao.delete(mediaFile);

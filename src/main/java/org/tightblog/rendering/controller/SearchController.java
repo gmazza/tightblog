@@ -25,7 +25,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mobile.device.Device;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.tightblog.dao.WeblogDao;
-import org.tightblog.util.Utilities;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -56,14 +54,14 @@ import java.util.Map;
 @RequestMapping(path = SearchController.PATH)
 public class SearchController extends AbstractController {
 
-    private static Logger log = LoggerFactory.getLogger(SearchController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 
     public static final String PATH = "/tb-ui/rendering/search";
 
-    private WeblogDao weblogDao;
-    private ThymeleafRenderer thymeleafRenderer;
-    private ThemeManager themeManager;
-    private SearchResultsModel searchResultsModel;
+    private final WeblogDao weblogDao;
+    private final ThymeleafRenderer thymeleafRenderer;
+    private final ThemeManager themeManager;
+    private final SearchResultsModel searchResultsModel;
 
     @Autowired
     SearchController(WeblogDao weblogDao,
@@ -80,9 +78,8 @@ public class SearchController extends AbstractController {
                                               @RequestParam(value = "q") String query,
                                               @RequestParam(value = "cat", required = false) String category,
                                               @RequestParam(value = "page", required = false) Integer pageNum,
-                                              Principal principal, Device device) {
+                                              Principal principal) {
         WeblogSearchRequest searchRequest = new WeblogSearchRequest(weblogHandle, principal, searchResultsModel);
-        searchRequest.setDeviceType(Utilities.getDeviceType(device));
 
         Weblog weblog = weblogDao.findByHandleAndVisibleTrue(searchRequest.getWeblogHandle());
 
@@ -128,7 +125,7 @@ public class SearchController extends AbstractController {
                     .contentLength(rendererOutput.getContent().length)
                     .body(new ByteArrayResource(rendererOutput.getContent()));
         } catch (Exception e) {
-            log.error("Error during rendering of template {}", searchRequest.getTemplate().getId(), e);
+            LOGGER.error("Error during rendering of template {}", searchRequest.getTemplate().getId(), e);
             return ResponseEntity.notFound().build();
         }
     }

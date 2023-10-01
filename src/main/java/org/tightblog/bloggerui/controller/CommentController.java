@@ -15,7 +15,6 @@
 */
 package org.tightblog.bloggerui.controller;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.safety.Safelist;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.service.EmailService;
@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @EnableConfigurationProperties(DynamicProperties.class)
+@RequestMapping(path = "/tb-ui/authoring/rest/comments")
 public class CommentController {
 
     // number of comments to show per page
@@ -90,7 +91,7 @@ public class CommentController {
         this.dp = dp;
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/comments/{weblogId}/page/{page}")
+    @PostMapping(value = "/{weblogId}/page/{page}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public CommentData getWeblogComments(@PathVariable String weblogId, @PathVariable int page,
                                          @RequestParam(required = false) String entryId,
@@ -119,7 +120,7 @@ public class CommentController {
         return new CommentData(entryId != null ? criteria.getEntry().getTitle() : null, entryComments, hasMore);
     }
 
-    @DeleteMapping(value = "/tb-ui/authoring/rest/comments/{id}")
+    @DeleteMapping(value = "/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id,  'POST')")
     public void deleteComment(@PathVariable String id, Principal p) {
         WeblogEntryComment itemToRemove = weblogEntryCommentDao.getById(id);
@@ -128,14 +129,14 @@ public class CommentController {
         dp.updateLastSitewideChange();
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/comments/{id}/approve")
+    @PostMapping(value = "/{id}/approve")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void approveComment(@PathVariable String id, Principal p) {
         changeApprovalStatus(id, ApprovalStatus.APPROVED);
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/comments/{id}/hide")
+    @PostMapping(value = "/{id}/hide")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void hideComment(@PathVariable String id, Principal p) {
@@ -157,7 +158,7 @@ public class CommentController {
         luceneIndexer.updateIndex(comment.getWeblogEntry(), false);
     }
 
-    @PutMapping(value = "/tb-ui/authoring/rest/comments/{id}/content")
+    @PutMapping(value = "/{id}/content")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
     public WeblogEntryComment updateComment(@PathVariable String id, Principal p, HttpServletRequest request)
             throws IOException {
@@ -173,7 +174,7 @@ public class CommentController {
         weblogEntryManager.saveComment(wec, true);
         return wec;
     }
-
+/*
     @PostMapping(value = "/tb-ui/blogreader/unsubscribe/{commentId}")
     public UnsubscribeResults unsubscribeNotifications(@PathVariable String commentId, HttpServletRequest request)
             throws IOException {
@@ -187,4 +188,5 @@ public class CommentController {
 
         return new UnsubscribeResults(entryTitle != null, entryTitle, foundSubscription);
     }
+ */
 }

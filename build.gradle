@@ -7,7 +7,7 @@ plugins {
 	id "com.github.ben-manes.versions" version "0.48.0"
 	id 'com.github.node-gradle.node' version '2.2.4'
 	id 'war'
-	id "org.springframework.boot" version "2.5.4"
+	id "org.springframework.boot" version "2.7.16"
 	id "checkstyle"
 	// run jacoco via gradle jacocoTestReport, report in build/reports
 	id 'jacoco'
@@ -114,7 +114,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
 		exclude group: "org.hibernate", module: "hibernate-entitymanager"
 	}
-	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.9')
 	implementation('org.springframework.boot:spring-boot-starter-security')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-web')
@@ -122,7 +121,7 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
 	implementation('org.springframework.security:spring-security-taglibs:5.5.1')
-	implementation('org.springframework.mobile:spring-mobile-device:1.1.5.RELEASE')
+	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.9')
 	implementation('org.apache.commons:commons-lang3:3.13.0')
 	implementation('org.apache.commons:commons-text:1.10.0')
 	implementation('org.apache.lucene:lucene-analyzers-common:8.6.2')
@@ -192,5 +191,6 @@ war {
 	enabled = true
 }
 
+war.dependsOn copyUi
 copyUi.dependsOn deleteUi
 bootWar.dependsOn copyUi

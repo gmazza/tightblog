@@ -24,9 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mobile.device.Device;
-import org.springframework.mobile.device.DeviceType;
-import org.springframework.mobile.device.DeviceUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -60,7 +57,7 @@ public final class Utilities {
     private Utilities() {
     }
 
-    private static Logger log = LoggerFactory.getLogger(Utilities.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
 
     private static final Pattern TRAILING_SLASHES = Pattern.compile("/+$");
 
@@ -108,7 +105,7 @@ public final class Utilities {
     }
 
     public static String insertLineBreaksIfMissing(String text) {
-        log.debug("starting value: {}", text);
+        LOG.debug("starting value: {}", text);
 
         // first check if text already has <br> and/or <p> tags, if so, assume it has already been formatted.
         if (text.contains("<br>") || text.contains("<p>")) {
@@ -148,10 +145,10 @@ public final class Utilities {
             }
 
         } catch (Exception e) {
-            log.warn("trouble rendering text.", e);
+            LOG.warn("trouble rendering text.", e);
         }
 
-        log.debug("ending value:\n {}", buf.toString());
+        LOG.debug("ending value:\n {}", buf.toString());
         return buf.toString();
     }
 
@@ -308,31 +305,6 @@ public final class Utilities {
         return decodedStr;
     }
 
-    public static DeviceType getDeviceType(HttpServletRequest request) {
-        Device currentDevice = DeviceUtils.getCurrentDevice(request);
-        if (currentDevice != null) {
-            if (currentDevice.isMobile()) {
-                return DeviceType.MOBILE;
-            }
-            if (currentDevice.isTablet()) {
-                return DeviceType.TABLET;
-            }
-        }
-        return getDeviceType(currentDevice);
-    }
-
-    public static DeviceType getDeviceType(Device device) {
-        if (device != null) {
-            if (device.isMobile()) {
-                return DeviceType.MOBILE;
-            }
-            if (device.isTablet()) {
-                return DeviceType.TABLET;
-            }
-        }
-        return DeviceType.NORMAL;
-    }
-
     /**
      * Parse date as either 6-char or 8-char format.  Use current date if date not provided
      * in URL (e.g., a permalink), more than 30 days in the future, or not valid
@@ -371,7 +343,7 @@ public final class Utilities {
 
         // if the uri is only "/" then we are basically done
         if ("/".equals(request.getRequestURI())) {
-            log.debug("requestURI is only '/'. fullUrl: {}", requestURLString);
+            LOG.debug("requestURI is only '/'. fullUrl: {}", requestURLString);
             return TRAILING_SLASHES.matcher(requestURLString).replaceAll("");
         }
 

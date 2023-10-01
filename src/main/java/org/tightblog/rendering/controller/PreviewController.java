@@ -26,7 +26,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mobile.device.Device;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -85,7 +84,7 @@ public class PreviewController extends AbstractController {
     @GetMapping(path = "/{weblogId}/entry/{anchor}")
     @PreAuthorize("@securityService.hasAccess(#principal.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     ResponseEntity<Resource> getEntryPreview(@PathVariable String weblogId, @PathVariable String anchor,
-                                            Principal principal, Device device) throws IOException {
+                                            Principal principal) throws IOException {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         if (weblog == null) {
@@ -96,7 +95,6 @@ public class PreviewController extends AbstractController {
         incomingRequest.setNoIndex(true);
         incomingRequest.setWeblog(weblog);
         incomingRequest.setWeblogEntryAnchor(Utilities.decode(anchor));
-        incomingRequest.setDeviceType(Utilities.getDeviceType(device));
 
         WeblogEntry entry = weblogEntryManager.getWeblogEntryByAnchor(weblog,
                 incomingRequest.getWeblogEntryAnchor());
