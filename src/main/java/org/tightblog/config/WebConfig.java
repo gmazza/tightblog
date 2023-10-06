@@ -15,6 +15,7 @@
  */
 package org.tightblog.config;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -136,7 +137,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    @Scope("prototype")
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Set<Model> pageModelSet(UtilitiesModel utilitiesModel, URLModel urlModel) {
         Set<Model> models = new HashSet<>();
         models.add(utilitiesModel);

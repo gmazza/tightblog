@@ -132,17 +132,6 @@ public class UIController {
         return tilesModelAndView("login", myMap, null, null);
     }
 
-    @RequestMapping(value = "/tb-ui/app/unsubscribeNotifications")
-    public ModelAndView unsubscribe(@RequestParam String commentId) {
-
-        Pair<String, Boolean> results = weblogEntryManager.stopNotificationsForCommenter(commentId);
-        Map<String, Object> myMap = new HashMap<>();
-        myMap.put("found", results.getRight());
-        myMap.put("weblogEntryTitle", results.getLeft());
-
-        return thymeleafModelAndView("emails/UnsubscribeResults", myMap, null, null);
-    }
-
     // https://stackoverflow.com/a/59290035/1207540
     @RequestMapping(value = "/tb-ui2/app/**")
     public String redirect() {
@@ -290,12 +279,17 @@ public class UIController {
         return new ModelAndView("." + actionName, map);
     }
 
-    private ModelAndView thymeleafModelAndView(String htmlResource, Map<String, Object> map, User user, Weblog weblog) {
-        if (map == null) {
-            map = new HashMap<>();
-        }
-        map.putAll(getSessionInfo(user, weblog));
-        // per class WebConfig, Thymeleaf has /thymeleaf/ and .html already covered
-        return new ModelAndView(htmlResource, map);
+    @RequestMapping(value = "/tb-ui/app/unsubscribeNotifications")
+    public ModelAndView unsubscribe(@RequestParam String commentId) {
+        Pair<String, Boolean> results = weblogEntryManager.stopNotificationsForCommenter(commentId);
+        // populate the rendering model
+        Map<String, Object> initData = new HashMap<>();
+        initData.put("pageToUse", "UnsubscribeNotifications");
+        initData.put("pageTitleKey", "unsubscribed.header.title");
+        initData.put("tightblogVersion", environment.getRequiredProperty("weblogger.version"));
+        initData.put("found", results.getRight());
+        initData.put("weblogEntryTitle", results.getLeft());
+        initData.put("messages", messages);
+        return new ModelAndView("NoNavPage", initData);
     }
 }

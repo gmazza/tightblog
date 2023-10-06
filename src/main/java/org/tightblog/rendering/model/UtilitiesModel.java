@@ -45,9 +45,9 @@ import java.util.Map;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class UtilitiesModel implements Model {
 
-    private WebloggerPropertiesDao webloggerPropertiesDao;
-    private MessageSource messages;
-    private String systemVersion;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final MessageSource messages;
+    private final String systemVersion;
 
     private ZoneId zoneId;
     private Locale locale;

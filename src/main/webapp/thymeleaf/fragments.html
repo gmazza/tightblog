@@ -147,6 +147,20 @@
         </div>
     </div>
 
+    <div th:fragment="UnsubscribeNotifications" th:remove="tag">
+        <th:block th:if="${weblogEntryTitle != null}">
+            <h2>
+                <span th:text="${messages.getMessage('unsubscribed.title', weblogEntryTitle, null)}">xxx</span>
+            </h2>
+            <th:block th:switch="${found}">
+                <span th:case="true" th:text="${messages.getMessage('unsubscribed.success', null, null)}">xxx</span>
+                <span th:case="false" th:text="${messages.getMessage('unsubscribed.failure', null, null)}">xxx</span>
+            </th:block>
+        </th:block>
+
+        <span th:if="${weblogEntryTitle == null}" th:text="${messages.getMessage('unsubscribed.error', null, null)}">xxx</span>
+    </div>
+
     <div th:fragment="TagCloud(myTags)" th:remove="tag">
         <div id="tagcloud">
             <a th:each="tag : ${myTags}" th:class="|tag tc${tag.intensity}|"
