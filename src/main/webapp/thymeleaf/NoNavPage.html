@@ -1,0 +1,60 @@
+<!--
+Copyright 2023 The author or authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.ico">
+    <title th:text="${messages.getMessage(pageTitleKey, null, null)}">xxx</title>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" media="all" href="/tb-ui/styles/tbeditorui.css" />
+    <link rel="stylesheet" media="all" href="/tb-ui/styles/colors.css" /></head>
+<body>
+
+
+<div id="banner">
+    <div class="bannerStatusBox">
+        <table class="bannerStatusBox" border-collapse="collapse">
+            <tr>
+                <td class="bannerLeft">
+                    <span th:text="${messages.getMessage('product.name.version', tightblogVersion, null)}">xxx</span>
+                </td>
+                <td class="bannerRight">
+                    <span th:text="${messages.getMessage(pageTitleKey, null, null)}">xxx</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="content">
+    <div id="nosidebar_maincontent_wrap">
+        <div id="maincontent">
+            <div th:replace="fragments :: ${pageToUse}"></div>
+        </div>
+    </div>
+</div>
+
+<div id="footer">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</div>
+</body>
+</html>
