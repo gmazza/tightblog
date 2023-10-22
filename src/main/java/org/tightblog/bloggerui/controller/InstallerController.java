@@ -93,9 +93,9 @@ public class InstallerController {
         needsBootstrapping(false, "installer.tablesCreated"),
         bootstrapError(true, "installer.bootstrappingError");
 
-        boolean error;
+        final boolean error;
 
-        String descriptionKey;
+        final String descriptionKey;
 
         public boolean isError() {
             return error;
@@ -133,9 +133,9 @@ public class InstallerController {
             // is database schema present?
             if (StartupStatus.tablesMissing.equals(status)) {
                 LOG.info("TightBlog database needs creating, forwarding to creation page");
-                return new ModelAndView(".install", map);
+                return new ModelAndView("standard", map);
             } else if (StartupStatus.databaseVersionError.equals(status) || StartupStatus.bootstrapError.equals(status)) {
-                return new ModelAndView(".install", map);
+                return new ModelAndView("standard", map);
             }
 
             // all good, TightBlog ready to bootstrap
@@ -146,7 +146,7 @@ public class InstallerController {
             map.put("rootCauseException", e.getCause());
             map.put("rootCauseStackTrace", getRootCauseStackTrace(e.getCause()));
             messageList.add(e.getMessage());
-            return new ModelAndView(".install", map);
+            return new ModelAndView("standard", map);
         }
     }
 
@@ -213,7 +213,7 @@ public class InstallerController {
             map.put("status", StartupStatus.databaseCreateError);
         }
 
-        return new ModelAndView(".install", map);
+        return new ModelAndView("standard", map);
     }
 
     @RequestMapping(value = "/bootstrap")
@@ -244,11 +244,12 @@ public class InstallerController {
         }
 
         map.put("status", StartupStatus.bootstrapError);
-        return new ModelAndView(".install", map);
+        return new ModelAndView("standard", map);
     }
 
     private Map<String, Object> initializeMap() {
         Map<String, Object> map = new HashMap<>();
+        map.put("pageToUse", "install.jsp");
         map.put("pageTitleKey", "install.pageTitle");
         return map;
     }

@@ -39,7 +39,7 @@ import java.util.UUID;
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
-    private static Logger log = LoggerFactory.getLogger(GlobalControllerAdvice.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalControllerAdvice.class);
 
     @Autowired
     private MessageSource messages;
@@ -84,7 +84,7 @@ public class GlobalControllerAdvice {
     // ResponseStatus JavaDoc)
     public ResponseEntity<ValidationErrorResponse> handleException(final Exception ex, final Locale locale) {
         final UUID errorUUID = UUID.randomUUID();
-        log.error("Internal Server Error (ID: {}) processing REST call", errorUUID, ex);
+        LOG.error("Internal Server Error (ID: {}) processing REST call", errorUUID, ex);
 
         final ValidationErrorResponse error = new ValidationErrorResponse();
         error.getErrors().add(new Violation(messages.getMessage(

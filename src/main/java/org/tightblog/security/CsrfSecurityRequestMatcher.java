@@ -26,16 +26,16 @@ import java.util.regex.Pattern;
  * See http://blogs.sourceallies.com/2014/04/customizing-csrf-protection-in-spring-security/
  */
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
-    private static Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
-    private static RegexRequestMatcher unprotectedMatcher = new RegexRequestMatcher(".*/entrycomment/.*", null);
+    private static final Pattern UNPROTECTED_METHODS = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
+    private static final RegexRequestMatcher UNPROTECTED_MATCHER = new RegexRequestMatcher(".*/entrycomment/.*", null);
 
     @Override
-    /*
+    /**
      * Determine if CSRF checking needed for particular request
      * @param request request being processed
      * @return true if request subject to CSRF checking, false otherwise
      */
     public boolean matches(HttpServletRequest request) {
-        return !(allowedMethods.matcher(request.getMethod()).matches() || unprotectedMatcher.matches(request));
+        return !(UNPROTECTED_METHODS.matcher(request.getMethod()).matches() || UNPROTECTED_MATCHER.matches(request));
     }
 }

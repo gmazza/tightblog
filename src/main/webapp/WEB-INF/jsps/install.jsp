@@ -17,6 +17,8 @@
 --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 
+<h1><fmt:message key="${pageTitleKey}"/></h1>
+
 <c:choose>
     <c:when test="${status.error}">
         <h2><fmt:message key="installer.startupProblemMessage"/></h2>

@@ -23,9 +23,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
-import org.springframework.web.servlet.view.tiles3.TilesView;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -49,12 +47,11 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public UrlBasedViewResolver tilesViewResolver() {
-        UrlBasedViewResolver tilesViewResolver = new UrlBasedViewResolver();
-        tilesViewResolver.setViewClass(TilesView.class);
-        tilesViewResolver.setCacheUnresolved(false);
-        tilesViewResolver.setOrder(0);
-        return tilesViewResolver;
+    public InternalResourceViewResolver jspViewResolver() {
+        InternalResourceViewResolver jspViewResolver = new InternalResourceViewResolver("/WEB-INF/jsps/", ".jsp");
+        jspViewResolver.setCacheUnresolved(false);
+        jspViewResolver.setOrder(0);
+        return jspViewResolver;
     }
 
     @Bean
@@ -72,13 +69,6 @@ public class WebConfig implements WebMvcConfigurer {
         LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
         bean.setValidationMessageSource(messageSource);
         return bean;
-    }
-
-    @Bean
-    public TilesConfigurer tilesConfigurer() {
-        TilesConfigurer tconf = new TilesConfigurer();
-        tconf.setDefinitions("/WEB-INF/tiles.xml");
-        return tconf;
     }
 
     // To process resources in the webapp/thymeleaf folder: Atom feeds,
