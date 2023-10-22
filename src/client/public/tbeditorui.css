@@ -48,7 +48,6 @@ body, h1, h2, h3, h4, h5, h6 {
     to do the float and set the width.  margin, padding, borders, etc
     should be applied directly to the XXXcontent div.
 */
-/* used in tiles main templates */
 #nosidebar_maincontent_wrap {
     float: left;
     display: inline;

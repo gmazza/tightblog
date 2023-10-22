@@ -1,6 +1,6 @@
 <%--
   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  The ASF licenses this file to You
+  contributor license agreements.  The ASF licenses this file to You
   under the Apache License, Version 2.0 (the "License"); you may not
   use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,9 +18,10 @@
   Source file modified from the original ASF source; all changes made
   are also under Apache License.
 --%>
-
-<%-- Body of the login page, invoked from login.jsp --%>
 <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
+
+<h1><fmt:message key="${pageTitleKey}"/></h1>
 
 <%-- Success Message --%>
 <c:if test='${actionMessage != null && !"".equals(actionMessage)}'>

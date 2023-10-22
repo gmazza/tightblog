@@ -65,7 +65,7 @@ public class URLService {
      * Url to register page.
      */
     public String getRegisterURL() {
-        return dp.getAbsoluteUrl() + "/tb-ui/app/register";
+        return dp.getAbsoluteUrl() + "/tb-ui2/app/register";
     }
 
     /**

@@ -48,7 +48,7 @@ import java.io.IOException;
 @EnableConfigurationProperties(DynamicProperties.class)
 public class BootstrapFilter implements Filter {
 
-    private static Logger log = LoggerFactory.getLogger(BootstrapFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BootstrapFilter.class);
 
     @Autowired
     private DynamicProperties dp;
@@ -71,16 +71,16 @@ public class BootstrapFilter implements Filter {
             if (StringUtils.isBlank(dp.getAbsoluteUrl())) {
                 String absPath = Utilities.determineSiteUrl(request);
                 dp.setAbsoluteUrl(absPath);
-                log.info("Base site URL used to create links calculated to be {}, if desired " +
+                LOG.info("Base site URL used to create links calculated to be {}, if desired " +
                         "use site.absoluteUrl property to override", absPath);
             } else {
-                log.info("Base site URL of {} set via site.absoluteUrl property", dp.getAbsoluteUrl());
+                LOG.info("Base site URL of {} set via site.absoluteUrl property", dp.getAbsoluteUrl());
             }
             this.siteUrlInitialized = true;
         }
 
         if (!dp.isDatabaseReady() && !isInstallUrl(request.getRequestURI())) {
-            log.debug("Forwarding to install page");
+            LOG.debug("Forwarding to install page");
             // install page will check database connectivity & schema status and bootstrap if all OK.
             RequestDispatcher rd = context.getRequestDispatcher("/tb-ui/install/install");
             rd.forward(req, res);

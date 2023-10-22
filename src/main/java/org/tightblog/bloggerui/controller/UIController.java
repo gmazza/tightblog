@@ -103,6 +103,9 @@ public class UIController {
                               HttpServletRequest request) {
 
         Map<String, Object> myMap = new HashMap<>();
+        myMap.put("pageToUse", "login.jsp");
+        myMap.put("pageTitleKey", "login.title");
+        myMap.put("hasBanner", true);
 
         if (Boolean.TRUE.equals(error)) {
             Object maybeError = request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
@@ -129,7 +132,7 @@ public class UIController {
             }
 
         }
-        return tilesModelAndView("login", myMap, null, null);
+        return jspModelAndView("standard", myMap, null, null);
     }
 
     // https://stackoverflow.com/a/59290035/1207540
@@ -178,7 +181,7 @@ public class UIController {
                     response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.
-                    response.sendRedirect(request.getContextPath() + "/tb-ui2/#/admin/globalConfig");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui2/admin/globalConfig");
                 }
             }
         }
@@ -195,7 +198,7 @@ public class UIController {
             // new install?  Redirect to register or login page based on whether a user has already been created.
             long userCount = userDao.count();
             if (userCount == 0) {
-                path = "/tb-ui/app/register";
+                path = "/tb-ui2/app/register";
             } else {
                 path = "/tb-ui/app/login-redirect";
             }
@@ -270,13 +273,12 @@ public class UIController {
         return gcm;
     }
 
-    private ModelAndView tilesModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
+    private ModelAndView jspModelAndView(String actionName, Map<String, Object> map, User user, Weblog weblog) {
         if (map == null) {
             map = new HashMap<>();
         }
         map.putAll(getSessionInfo(user, weblog));
-        map.put("pageTitleKey", actionName + ".title");
-        return new ModelAndView("." + actionName, map);
+        return new ModelAndView(actionName, map);
     }
 
     @RequestMapping(value = "/tb-ui/app/unsubscribeNotifications")
