@@ -131,6 +131,7 @@ export default {
       templateData: {
         role: null,
       },
+      originalTemplateData: {},
       lastSavedName: null,
       successMessage: null,
       errorObj: {},
@@ -148,6 +149,12 @@ export default {
       // thru templates page which explicitly loads it
       getWeblog: "sessionInfo/weblog",
     }),
+    formIsDirty: function () {
+        return (
+            this.originalTemplateData.description !== this.templateData.description ||
+            this.originalTemplateData.template !== this.templateData.template
+        );
+    },
   },
   methods: {
     launchPage: function () {
@@ -175,6 +182,9 @@ export default {
       this.axios.get(urlStem).then((response) => {
         this.templateData = response.data;
         this.lastSavedName = this.templateData.name;
+        this.originalTemplateData = {
+            ...this.templateData
+        };
         this.templateLoaded = true;
       });
     },
@@ -208,12 +218,43 @@ export default {
       } else {
         this.errorObj = error.response.data;
       }
-    },
+  },
+  checkDirty(to, from, next) {
+      if (this.formIsDirty) {
+        this.$bvModal
+          .msgBoxConfirm(this.$t("common.confirmLeaveNoSave"), {
+            okTitle: this.$t("common.confirm"),
+            cancelTitle: this.$t("common.cancel"),
+            centered: true,
+          })
+          .then((value) => {
+            if (value) {
+              next();
+            }
+          });
+      } else {
+        next();
+      }
+  },
   },
   async created() {
     this.workingTemplateId = this.templateId;
     await this.loadTemplate();
     this.asyncDataStatus_fetched();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.path != from.path) {
+       this.checkDirty(to, from, next);
+    } else {
+       next();
+    }
+  },
+  beforeRouteUpdate(to, from, next) {
+    if (to.path != from.path) {
+       this.checkDirty(to, from, next);
+    } else {
+       next();
+    }
   },
 };
 </script>

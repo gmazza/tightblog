@@ -704,7 +704,7 @@ export default {
     checkDirty(to, from, next) {
       if (this.formIsDirty) {
         this.$bvModal
-          .msgBoxConfirm(this.$t("entryEdit.confirmLeaveNoSave"), {
+          .msgBoxConfirm(this.$t("common.confirmLeaveNoSave"), {
             okTitle: this.$t("common.confirm"),
             cancelTitle: this.$t("common.cancel"),
             centered: true,
@@ -736,10 +736,18 @@ export default {
     this.asyncDataStatus_fetched();
   },
   beforeRouteLeave(to, from, next) {
-    this.checkDirty(to, from, next);
+    if (to.path != from.path) {
+        this.checkDirty(to, from, next);
+    } else {
+        next();
+    }
   },
   beforeRouteUpdate(to, from, next) {
-    this.checkDirty(to, from, next);
+    if (to.path != from.path || (from.query.entryId && (to.query.entryId != from.query.entryId))) {
+        this.checkDirty(to, from, next);
+    } else {
+        next();
+    }
   },
 };
 </script>

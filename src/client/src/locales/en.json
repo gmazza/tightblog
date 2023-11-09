@@ -84,6 +84,7 @@
       "lastEntry": "Last Entry"
     },
     "confirm": "Confirm",
+    "confirmLeaveNoSave": "Unsaved changes detected, are you sure you wish to leave without saving?",
     "confirmDelete": "Confirm Delete",
     "delete": "Delete",
     "deleteSelected": "Delete selected",
@@ -181,8 +182,7 @@
     "hasComments": "Comments [{commentCount}]",
     "enclosureURL": "Atom Enclosure URL",
     "enclosureType": "Type",
-    "enclosureLength": "Length",
-    "confirmLeaveNoSave": "Unsaved changes detected, are you sure you wish to leave without saving?"
+    "enclosureLength": "Length"
   },
   "globalConfig": {
     "subtitle": "Set site-wide configuration settings.",
