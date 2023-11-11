@@ -17,11 +17,6 @@ const routes = [
       import(/* webpackChunkName: "myblogs" */ "../views/MyBlogs"),
   },
   {
-    path: "/app/login2",
-    name: "login",
-    component: () => import(/* webpackChunkName: "login" */ "../views/Login"),
-  },
-  {
     path: "/app/profile",
     name: "profile",
     component: () =>

@@ -105,14 +105,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map = new LinkedHashMap<>();
         // UI endpoints (also with defaultEntryPoint below), return login form if unauthorized
         map.put(new AntPathRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
-//        map.put(new AntPathRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui2/#/app/login2/"));
         // REST endpoints, want to return 401 if unauthorized
         map.put(new AntPathRequestMatcher("/tb-ui/admin/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
         map.put(new AntPathRequestMatcher("/tb-ui/authoring/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         final DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(map);
         entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
-//      entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui2/#/app/login2/"));
         return entryPoint;
     }
 
