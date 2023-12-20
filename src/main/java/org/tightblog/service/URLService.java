@@ -65,7 +65,7 @@ public class URLService {
      * Url to register page.
      */
     public String getRegisterURL() {
-        return dp.getAbsoluteUrl() + "/tb-ui2/app/register";
+        return dp.getAbsoluteUrl() + "/tb-ui/app/register";
     }
 
     /**
@@ -107,14 +107,14 @@ public class URLService {
      * Get a url to add a new weblog entry.
      */
     public String getNewEntryURL(String weblogId) {
-        return dp.getAbsoluteUrl() + "/tb-ui2/index.html#/app/entryEdit/" + weblogId;
+        return dp.getAbsoluteUrl() + "/tb-ui/index.html#/app/entryEdit/" + weblogId;
     }
 
     /**
      * Get a url to edit a specific weblog entry.
      */
     public String getEntryEditURL(WeblogEntry entry) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui2/index.html#/app/entryEdit/" + entry.getWeblog().getId();
+        String url = dp.getAbsoluteUrl() + "/tb-ui/index.html#/app/entryEdit/" + entry.getWeblog().getId();
         Map<String, String> params = new HashMap<>();
         params.put("entryId", entry.getId());
         return url + Utilities.getQueryString(params);
@@ -124,7 +124,7 @@ public class URLService {
      * Get a url to weblog config page.
      */
     public String getWeblogConfigURL(String weblogId) {
-        return dp.getAbsoluteUrl() + "/tb-ui2/index.html#/authoring/weblogConfig/" + weblogId;
+        return dp.getAbsoluteUrl() + "/tb-ui/index.html#/authoring/weblogConfig/" + weblogId;
     }
 
     /**

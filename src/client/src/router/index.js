@@ -157,7 +157,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: "history",
-  base: "/tb-ui2",
+  base: process.env.VUE_APP_PUBLIC_PATH,
   routes,
 });
 

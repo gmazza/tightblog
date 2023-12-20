@@ -136,16 +136,16 @@ public class UIController {
     }
 
     // https://stackoverflow.com/a/59290035/1207540
-    @RequestMapping(value = "/tb-ui2/app/**")
+    @RequestMapping(value = "/tb-ui/app/**")
     public String redirect() {
         // Forward to home page so that route is preserved.
-        return "forward:/tb-ui2/index.html";
+        return "forward:/tb-ui/index.html";
     }
 
-    @RequestMapping(value = "/tb-ui2/admin/**")
+    @RequestMapping(value = "/tb-ui/admin/**")
     public String redirectAdmin() {
         // Forward to home page so that route is preserved.
-        return "forward:/tb-ui2/index.html";
+        return "forward:/tb-ui/index.html";
     }
 
     @RequestMapping(value = "/tb-ui/app/logout")
@@ -165,23 +165,23 @@ public class UIController {
 
         if (principal == null) {
             // trigger call to login page
-            response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+            response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
         } else {
             User user = userDao.findEnabledByUserName(principal.getName());
 
             if (mfaEnabled && ((UsernamePasswordAuthenticationToken) principal).getAuthorities().stream().anyMatch(
                             role -> GlobalRole.MISSING_MFA_SECRET.name().equals(role.getAuthority()))) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui2/app/scanCode");
+                response.sendRedirect(request.getContextPath() + "/tb-ui/app/scanCode");
             } else if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+                response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
             } else {
                 List<UserWeblogRole> roles = userWeblogRoleDao.findByUser(user);
 
                 if (roles.size() > 0) {
-                    response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.
-                    response.sendRedirect(request.getContextPath() + "/tb-ui2/admin/globalConfig");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui/admin/globalConfig");
                 }
             }
         }
@@ -198,7 +198,7 @@ public class UIController {
             // new install?  Redirect to register or login page based on whether a user has already been created.
             long userCount = userDao.count();
             if (userCount == 0) {
-                path = "/tb-ui2/app/register";
+                path = "/tb-ui/app/register";
             } else {
                 path = "/tb-ui/app/login-redirect";
             }

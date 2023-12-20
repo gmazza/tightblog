@@ -36,7 +36,7 @@ distribution. --%> <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
         <c:choose>
           <c:when test="${authenticatedUser != null}">
             <c:if test="${userIsAdmin}">
-              <a href="<c:url value='/tb-ui2/index.html#/admin/globalConfig'/>"
+              <a href="<c:url value='/tb-ui/index.html#/admin/globalConfig'/>"
                 ><fmt:message key="mainMenu.globalAdmin"
               /></a>
               |
@@ -45,7 +45,7 @@ distribution. --%> <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
               ><fmt:message key="mainMenu.title"
             /></a>
             |
-            <a href="<c:url value='/tb-ui2/index.html#/app/profile'/>"
+            <a href="<c:url value='/tb-ui/index.html#/app/profile'/>"
               ><fmt:message key="mainMenu.editProfile"
             /></a>
             |
@@ -65,7 +65,7 @@ distribution. --%> <%@ include file="/WEB-INF/jsps/tightblog-taglibs.jsp" %>
 
             <c:if test="${registrationPolicy != 'DISABLED'}">
               |
-              <a href="<c:url value='/tb-ui2/app/register'/>"
+              <a href="<c:url value='/tb-ui/app/register'/>"
                 ><fmt:message key="navigationBar.register"
               /></a>
             </c:if>

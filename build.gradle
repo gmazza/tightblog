@@ -172,7 +172,7 @@ task npmBuildBloggerUI(type: NpmTask) {
 }
 
 task deleteUi(type: Delete) {
-  delete 'src/main/webapp/tb-ui2'
+  delete 'src/main/webapp/tb-ui'
   followSymlinks = false
 }
 
@@ -180,7 +180,7 @@ task copyUi(type: Copy) {
 	dependsOn npmBuildBloggerUI
 	into "src/main/webapp"
 
-	into("tb-ui2") {
+	into("tb-ui") {
 		from "${uiDir}/dist"
 	}
 }
