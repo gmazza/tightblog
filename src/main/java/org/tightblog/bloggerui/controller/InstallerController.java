@@ -235,7 +235,7 @@ public class InstallerController {
                 environment.getProperty("weblogger.revision", "Unknown"));
 
             // get-default-blog endpoint handles first user registration
-            response.sendRedirect("/tb-ui/app/get-default-blog");
+            response.sendRedirect(request.getContextPath() + "/tb-ui/app/get-default-blog");
             return null;
         } catch (Exception e) {
             LOG.error("Exception", e);

@@ -5,7 +5,7 @@ export default {
   namespaced: true,
   state: {
     items: [],
-    urlRoot: "/tb-ui/admin/rest/server/",
+    urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/server/",
   },
   getters: {},
   mutations: {

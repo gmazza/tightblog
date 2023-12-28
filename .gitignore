@@ -17,7 +17,7 @@ tightblog_data/*
 etc/sqlgen/.gradle/*
 etc/sqlgen/build/*
 
-src/main/webapp/tb-ui2/
+src/main/webapp/tb-ui/
 
 ### Editor directories and files ###
 .vscode

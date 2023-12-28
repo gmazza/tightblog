@@ -36,7 +36,7 @@
         <published th:utext="${model.formatIsoOffsetDateTime(entry.pubTime)}">xxx</published>
         <updated th:utext="${model.formatIsoOffsetDateTime(entry.updateTime)}">xxx</updated>
         <category th:attr="term=${#strings.escapeXml(entry.category.name)}" th:label="${#strings.escapeXml(entry.category.name)}" />
-        <category th:each="tag : ${entry.tags}" th:attr="term=${#strings.escapeXml(tag.name)}" scheme="http://tightblog.org/ns/tags/" />
+        <category th:each="tag : ${entry.tags}" th:attr="term=${#strings.escapeXml(tag)}" scheme="http://tightblog.org/ns/tags/" />
         <summary th:if="${!#strings.isEmpty(entry.summary)}" type="html" th:utext="${#strings.escapeXml(model.getTransformedSummary(entry))}">xxx</summary>
         <content th:if="${!#strings.isEmpty(entry.text)}" type="html" th:utext="${#strings.escapeXml(model.getTransformedText(entry))}">xxx</content>
         <link th:if="${entry.enclosureUrl != null && entry.enclosureLength != null && entry.enclosureType != null}"

@@ -135,6 +135,8 @@ public class WeblogEntry implements WeblogOwned {
     private String previewUrl;
     private Set<String> tags;
 
+    private String tagsAsString;
+
     public WeblogEntry() {
     }
 
@@ -383,6 +385,18 @@ public class WeblogEntry implements WeblogOwned {
 
     public void setTags(Set<String> tags) {
         this.tags = tags;
+    }
+
+    @Transient
+    public String getTagsAsString() {
+        if (tagsAsString == null) {
+            tagsAsString = String.join(" ", new HashSet<>(getTags()));
+        }
+        return tagsAsString;
+    }
+
+    public void setTagsAsString(String tagsAsString) {
+        this.tagsAsString = tagsAsString;
     }
 
     public void setWeblogEntryCommentDao(WeblogEntryCommentDao weblogEntryCommentDao) {

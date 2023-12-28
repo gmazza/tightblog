@@ -313,7 +313,7 @@ export default {
     }),
     loadTemplateData: function () {
       this.axios
-        .get("/tb-ui/authoring/rest/weblog/" + this.weblogId + "/templates")
+        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/templates")
         .then((response) => {
           this.weblogTemplateData = response.data;
           this.allFilesSelected = false;
@@ -332,7 +332,7 @@ export default {
       };
       this.axios
         .post(
-          "/tb-ui/authoring/rest/weblog/" + this.weblogId + "/templates",
+          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/templates",
           newData
         )
         .then((response) => {
@@ -364,7 +364,7 @@ export default {
           if (value) {
             this.axios
               .post(
-                "/tb-ui/authoring/rest/weblog/" +
+                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" +
                   this.weblogId +
                   "/switchtheme/" +
                   this.targetThemeId
@@ -414,7 +414,7 @@ export default {
 
             this.axios
               .post(
-                "/tb-ui/authoring/rest/weblog/" +
+                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" +
                   this.weblogId +
                   "/templates/delete",
                 selectedItems
@@ -436,7 +436,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

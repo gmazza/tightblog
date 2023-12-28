@@ -11,7 +11,7 @@ try {
 }
 
 module.exports = {
-  publicPath: "/tb-ui2/",
+  publicPath: process.env.VUE_APP_PUBLIC_PATH,
 
   chainWebpack: (config) => {
     config.plugins.delete("prefetch");

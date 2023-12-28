@@ -27,7 +27,7 @@ export default {
       if (!this.getLookupValues || this.getLookupValues.length === 0) {
         loadDataUsingAxios({
           commit: commit,
-          url: "/tb-ui/app/authoring/lookupvalues",
+          url: process.env.VUE_APP_PUBLIC_PATH + "/app/authoring/lookupvalues",
           setter: "setLookupValues",
         });
       }
@@ -36,7 +36,7 @@ export default {
       if (!this.getStartupConfig || this.getStartupConfig.length === 0) {
         loadDataUsingAxios({
           commit: commit,
-          url: "/tb-ui/app/authoring/startupconfig",
+          url: process.env.VUE_APP_PUBLIC_PATH + "/app/authoring/startupconfig",
           setter: "setStartupConfig",
         });
       }

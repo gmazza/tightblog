@@ -16,6 +16,8 @@
 package org.tightblog.bloggerui.controller;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
@@ -59,6 +61,8 @@ import java.util.Map;
 
 @Controller
 public class UIController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UIController.class);
 
     private final UserManager userManager;
     private final UserDao userDao;
@@ -135,19 +139,6 @@ public class UIController {
         return jspModelAndView("standard", myMap, null, null);
     }
 
-    // https://stackoverflow.com/a/59290035/1207540
-    @RequestMapping(value = "/tb-ui2/app/**")
-    public String redirect() {
-        // Forward to home page so that route is preserved.
-        return "forward:/tb-ui2/index.html";
-    }
-
-    @RequestMapping(value = "/tb-ui2/admin/**")
-    public String redirectAdmin() {
-        // Forward to home page so that route is preserved.
-        return "forward:/tb-ui2/index.html";
-    }
-
     @RequestMapping(value = "/tb-ui/app/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.getSession().invalidate();
@@ -165,26 +156,33 @@ public class UIController {
 
         if (principal == null) {
             // trigger call to login page
-            response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+            response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
         } else {
             User user = userDao.findEnabledByUserName(principal.getName());
 
             if (mfaEnabled && ((UsernamePasswordAuthenticationToken) principal).getAuthorities().stream().anyMatch(
                             role -> GlobalRole.MISSING_MFA_SECRET.name().equals(role.getAuthority()))) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui2/app/scanCode");
+                response.sendRedirect(request.getContextPath() + "/tb-ui/app/scanCode");
             } else if (!GlobalRole.ADMIN.equals(user.getGlobalRole())) {
-                response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+                response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
             } else {
                 List<UserWeblogRole> roles = userWeblogRoleDao.findByUser(user);
 
                 if (roles.size() > 0) {
-                    response.sendRedirect(request.getContextPath() + "/tb-ui2/index.html#/app/myBlogs");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.
-                    response.sendRedirect(request.getContextPath() + "/tb-ui2/admin/globalConfig");
+                    response.sendRedirect(request.getContextPath() + "/tb-ui/admin/globalConfig");
                 }
             }
         }
+    }
+
+    @RequestMapping(value = "/tb-ui/app/register")
+    public String redirect() {
+        // Forward to home page so that route is preserved.
+        LOG.info("Redirecting to Vue app for user registration");
+        return "forward:/tb-ui/index.html#/app/register";
     }
 
     @RequestMapping(value = "/tb-ui/app/get-default-blog")
@@ -198,7 +196,7 @@ public class UIController {
             // new install?  Redirect to register or login page based on whether a user has already been created.
             long userCount = userDao.count();
             if (userCount == 0) {
-                path = "/tb-ui2/app/register";
+                path = "/tb-ui/app/register";
             } else {
                 path = "/tb-ui/app/login-redirect";
             }
@@ -294,4 +292,20 @@ public class UIController {
         initData.put("messages", messages);
         return new ModelAndView("NoNavPage", initData);
     }
+
+    // catch-all endpoints to route to Vue API
+    // for URLs entered directly in the browser
+    // https://stackoverflow.com/a/59290035/1207540
+    @RequestMapping(value = "/tb-ui/admin/**")
+    public String redirectAdmin() {
+        // Forward to home page so that route is preserved.
+        return "forward:/tb-ui/index.html";
+    }
+
+    @RequestMapping(value = "/tb-ui/app/**")
+    public String redirectApp() {
+        // Forward to home page so that route is preserved.
+        return "forward:/tb-ui/index.html";
+    }
+
 }

@@ -236,10 +236,6 @@ export default {
     },
   },
   async created() {
-    console.log(
-      "in myblogs! values: " +
-        JSON.stringify(this.$router.currentRoute.meta, null, 4)
-    );
     if (this.webloggerProps === undefined || this.webloggerProps.length === 0) {
       await this.loadWebloggerProperties();
     }

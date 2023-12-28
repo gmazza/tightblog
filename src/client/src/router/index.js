@@ -108,6 +108,16 @@ const routes = [
     props: true,
   },
   {
+     path: '/logout',
+     name: "logout",
+     beforeEnter() {location.href = process.env.VUE_APP_PUBLIC_PATH + '/app/logout'}
+  },
+  {
+     path: '/login-redirect',
+     name: "loginRedirect",
+     beforeEnter() {location.href = process.env.VUE_APP_PUBLIC_PATH + '/app/login-redirect'}
+  },
+  {
     path: "/app/mediaFileEdit/:weblogId",
     name: "mediaFileEdit",
     component: () =>
@@ -157,7 +167,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: "history",
-  base: "/tb-ui2",
+  base: process.env.VUE_APP_PUBLIC_PATH,
   routes,
 });
 

@@ -352,7 +352,7 @@ import asyncDataStatus from "@/mixins/AsyncDataStatus";
 export default {
   data() {
     return {
-      urlRoot: "/tb-ui/admin/rest/useradmin/",
+      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/useradmin/",
       pendingList: {},
       userToEdit: null,
       userBeingEdited: null,
@@ -461,7 +461,7 @@ export default {
       }
       this.axios
         .post(
-          "/tb-ui/authoring/rest/weblog/" +
+          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" +
             weblogId +
             "/user/" +
             this.userBeingEdited.id +
@@ -490,7 +490,7 @@ export default {
       if (errorMsg) {
         this.errorObj[0] = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else if (error && error.response) {
         this.errorObj = error.response.data;
       } else if (error) {
