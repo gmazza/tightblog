@@ -34,28 +34,28 @@ export default {
     async loadWebloggerProperties({ commit }) {
       await loadDataUsingAxios({
         commit: commit,
-        url: "/tb-ui/app/any/webloggerproperties",
+        url: process.env.VUE_APP_PUBLIC_PATH + "/app/any/webloggerproperties",
         setter: "setWebloggerProperties",
       });
     },
     async loadWeblogList({ commit }) {
       await loadDataUsingAxios({
         commit: commit,
-        url: "/tb-ui/admin/rest/server/webloglist",
+        url: process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/server/webloglist",
         setter: "setWeblogList",
       });
     },
     async loadUserList({ commit }) {
       await loadDataUsingAxios({
         commit: commit,
-        url: "/tb-ui/admin/rest/useradmin/userlist",
+        url: process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/useradmin/userlist",
         setter: "setUserList",
       });
     },
     saveWebloggerProperties({ dispatch }, webloggerProps) {
       return new Promise((resolve, reject) => {
         axios
-          .post("/tb-ui/admin/rest/server/webloggerproperties", webloggerProps)
+          .post(process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/server/webloggerproperties", webloggerProps)
           .then(() => {
             resolve();
             dispatch("loadWebloggerProperties");

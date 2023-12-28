@@ -188,7 +188,7 @@ export default {
     },
     loadItems: function () {
       this.axios
-        .get("/tb-ui/authoring/rest/weblog/" + this.weblogId + "/bookmarks")
+        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/bookmarks")
         .then((response) => {
           this.items = response.data;
         })
@@ -212,7 +212,7 @@ export default {
             });
 
             this.axios
-              .post("/tb-ui/authoring/rest/bookmarks/delete", selectedLinkIds)
+              .post(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmarks/delete", selectedLinkIds)
               .then((response) => {
                 this.loadItems();
               });
@@ -236,8 +236,8 @@ export default {
         this.axios
           .put(
             this.itemToEdit.id
-              ? "/tb-ui/authoring/rest/bookmark/" + this.itemToEdit.id
-              : "/tb-ui/authoring/rest/bookmarks?weblogId=" + this.weblogId,
+              ? process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmark/" + this.itemToEdit.id
+              : process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmarks?weblogId=" + this.weblogId,
             this.itemToEdit
           )
           .then((response) => {
@@ -253,7 +253,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

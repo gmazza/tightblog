@@ -57,14 +57,14 @@ export default {
     loadSessionInfo({ commit }) {
       loadDataUsingAxios({
         commit: commit,
-        url: "/tb-ui/app/any/sessioninfo",
+        url: process.env.VUE_APP_PUBLIC_PATH + "/app/any/sessioninfo",
         setter: "setSessionInfo",
       });
     },
     loadUserWeblogRoles({ commit }) {
       loadDataUsingAxios({
         commit: commit,
-        url: "/tb-ui/authoring/rest/loggedinuser/weblogs",
+        url: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/loggedinuser/weblogs",
         setter: "setUserWeblogRoles",
       });
     },
@@ -79,7 +79,7 @@ export default {
     refreshWeblog({ commit }, weblogId) {
       return new Promise((resolve, reject) => {
         axios
-          .get("/tb-ui/authoring/rest/weblog/" + weblogId)
+          .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + weblogId)
           .then((response) => {
             const fetchedWeblog = response.data;
             commit("setItem", {
@@ -93,8 +93,8 @@ export default {
     },
     upsertWeblog({ commit, dispatch }, weblog) {
       const urlToUse = weblog.id
-        ? "/tb-ui/authoring/rest/weblog/" + weblog.id
-        : "/tb-ui/authoring/rest/weblogs";
+        ? process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + weblog.id
+        : process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogs";
       return new Promise((resolve, reject) => {
         axios
           .post(urlToUse, weblog)
@@ -110,7 +110,7 @@ export default {
     deleteWeblog({ commit, dispatch }, weblogId) {
       return new Promise((resolve, reject) => {
         axios
-          .delete("/tb-ui/authoring/rest/weblog/" + weblogId)
+          .delete(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + weblogId)
           .then(() => {
             commit("userWeblogs", {
               resource: "userWeblogs",
@@ -125,7 +125,7 @@ export default {
     detachUserFromWeblog({ dispatch }, weblogId) {
       return new Promise((resolve, reject) => {
         axios
-          .post("/tb-ui/authoring/rest/weblogrole/" + weblogId + "/detach")
+          .post(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogrole/" + weblogId + "/detach")
           .then(() => {
             dispatch("loadUserWeblogRoles");
             resolve();
@@ -137,7 +137,7 @@ export default {
       return new Promise((resolve, reject) => {
         axios
           .post(
-            "/tb-ui/authoring/rest/weblogrole/" +
+            process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogrole/" +
               role.id +
               "/emails/" +
               role.emailComments

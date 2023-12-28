@@ -165,6 +165,7 @@
 import asyncDataStatus from "@/mixins/AsyncDataStatus";
 
 export default {
+  mixins: [asyncDataStatus],
   props: {
     weblogId: {
       required: true,
@@ -179,13 +180,12 @@ export default {
       editModalCurrentTag: null,
       newTagName: null,
       pageNum: 0,
-      urlRoot: "/tb-ui/authoring/rest/tags/",
+      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/tags/",
       resultsMap: {},
       successMessage: "",
       errorObj: {},
     };
   },
-  mixins: [asyncDataStatus],
   computed: {
     tagsSelected: function () {
       return this.tagData.tags.filter((tag) => tag.selected).length > 0;
@@ -223,7 +223,7 @@ export default {
 
             this.axios
               .post(
-                "/tb-ui/authoring/rest/tags/weblog/" +
+                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/tags/weblog/" +
                   this.weblogId +
                   "/delete",
                 selectedTagNames
@@ -339,7 +339,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

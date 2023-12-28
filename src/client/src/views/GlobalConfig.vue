@@ -351,7 +351,7 @@ export default {
         this.errorMessage = errorMsg;
       } else if (error && error.response && error.response.status === 401) {
         console.log("Redirecting...");
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else if (error && error.response) {
         this.errorMessage = error.response.data.error;
       } else if (error) {

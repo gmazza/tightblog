@@ -50,21 +50,22 @@
                 }}</router-link>
                 |
               </span>
-              <a href="../../tb-ui/app/logout">{{
+              <router-link :to="{ name: 'logout' }">{{
                 $t("navigationBar.logout")
-              }}</a>
+              }}</router-link>
             </span>
 
             <span v-else>
               <a href="../..">{{ $t("navigationBar.homePage") }}</a> |
-              <a href="../../tb-ui/app/login-redirect">{{
+
+              <router-link :to="{ name: 'loginRedirect' }">{{
                 $t("navigationBar.login")
-              }}</a>
+              }}</router-link>
 
               <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
                 |
                 <router-link :to="{ name: 'register' }"
-                  >{{ $t("navigationBar.register") }} new</router-link
+                  >{{ $t("navigationBar.register") }}</router-link
                 >
               </span>
             </span>
@@ -102,12 +103,12 @@ export default {
   mounted: function () {
     this.loadStartupConfig();
     this.loadSessionInfo();
-  },
+  }, /*
   created: function () {
     Object.keys(this.$router.currentRoute.meta).forEach((prop, value) =>
       console.log(prop + " " + value)
     );
-  },
+  },*/
 };
 </script>
 

@@ -505,7 +505,9 @@ export default {
   data() {
     return {
       weblog: {},
-      entry: {},
+      entry: {
+        category: {},
+      },
       originalEntry: {},
       errorObj: {
         errors: [],
@@ -516,7 +518,7 @@ export default {
         DRAFT: {},
         PUBLISHED: {},
       },
-      urlRoot: "/tb-ui/authoring/rest/weblogentries/",
+      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogentries/",
     };
   },
   computed: {
@@ -621,7 +623,7 @@ export default {
               errors: [
                 {
                   message: this.$t("entryEdit.sessionTimedOut", {
-                    loginUrl: "/tb-ui/app/login-redirect",
+                    loginUrl: process.env.VUE_APP_PUBLIC_PATH + "/app/login-redirect",
                   }),
                 },
               ],
@@ -695,7 +697,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
         window.scrollTo(0, 0);

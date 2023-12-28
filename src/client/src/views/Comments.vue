@@ -279,7 +279,7 @@ export default {
       errorObj: {},
       selectedCommentId: null,
       pageNum: 0,
-      urlRoot: "/tb-ui/authoring/rest/comments/",
+      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/comments/",
     };
   },
   mixins: [asyncDataStatus],
@@ -416,7 +416,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = "/tb-ui/app/login";
+        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
       } else {
         this.errorMsg = error.response.data;
       }
