@@ -157,7 +157,7 @@ export default {
       userBeingEdited: {},
       userCredentials: {},
       hideButtons: false,
-      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/admin/rest/useradmin/",
+      urlRoot: import.meta.env.VITE_PUBLIC_PATH + "/admin/rest/useradmin/",
       successMessage: null,
       errorObj: {},
     };
@@ -193,7 +193,7 @@ export default {
     }),
     loadUser: function (userId) {
       this.axios
-        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/userprofile/" + userId)
+        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/userprofile/" + userId)
         .then((response) => {
           this.userBeingEdited = response.data;
           this.userCredentials = {};
@@ -205,9 +205,9 @@ export default {
       userData.user = this.userBeingEdited;
       userData.credentials = this.userCredentials;
       const urlToUse = this.sessionInfo.authenticatedUser
-        ? process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/userprofile/" +
+        ? import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/userprofile/" +
           this.sessionInfo.authenticatedUser.id
-        : process.env.VUE_APP_PUBLIC_PATH + "/register/rest/registeruser";
+        : import.meta.env.VITE_PUBLIC_PATH + "/register/rest/registeruser";
 
       this.axios
         .post(urlToUse, userData)
@@ -240,7 +240,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

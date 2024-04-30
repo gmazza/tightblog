@@ -518,7 +518,7 @@ export default {
         DRAFT: {},
         PUBLISHED: {},
       },
-      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogentries/",
+      urlRoot: import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblogentries/",
     };
   },
   computed: {
@@ -623,7 +623,7 @@ export default {
               errors: [
                 {
                   message: this.$t("entryEdit.sessionTimedOut", {
-                    loginUrl: process.env.VUE_APP_PUBLIC_PATH + "/app/login-redirect",
+                    loginUrl: import.meta.env.VITE_PUBLIC_PATH + "/app/login-redirect",
                   }),
                 },
               ],
@@ -697,7 +697,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
         window.scrollTo(0, 0);

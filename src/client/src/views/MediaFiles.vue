@@ -340,7 +340,7 @@ export default {
       };
       this.axios
         .put(
-          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/mediadirectories",
+          import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/mediadirectories",
           newFolder
         )
         .then((response) => {
@@ -353,7 +353,7 @@ export default {
     loadMediaFolders: function () {
       this.axios
         .get(
-          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/mediadirectories"
+          import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/mediadirectories"
         )
         .then((response) => {
           this.mediaDirectories = response.data;
@@ -368,7 +368,7 @@ export default {
       }
       this.axios
         .get(
-          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediadirectories/" +
+          import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediadirectories/" +
             this.currentFolderId +
             "/files"
         )
@@ -399,7 +399,7 @@ export default {
           if (value) {
             this.axios
               .delete(
-                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediadirectory/" + this.currentFolderId
+                import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediadirectory/" + this.currentFolderId
               )
               .then((response) => {
                 this.successMessage = this.$t("mediaFiles.deleteFolderSuccess");
@@ -436,7 +436,7 @@ export default {
 
             this.axios
               .post(
-                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediafiles/weblog/" + this.weblogId,
+                import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafiles/weblog/" + this.weblogId,
                 filesToDelete
               )
               .then((response) => {
@@ -477,7 +477,7 @@ export default {
 
             this.axios
               .post(
-                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediafiles/weblog/" +
+                import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafiles/weblog/" +
                   this.weblogId +
                   "/todirectory/" +
                   this.targetFolderId,
@@ -493,7 +493,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

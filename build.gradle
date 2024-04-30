@@ -5,7 +5,7 @@ plugins {
 	id "com.github.spotbugs" version "4.7.3"
 	// ./gradlew dependencyUpdates
 	id "com.github.ben-manes.versions" version "0.48.0"
-	id 'com.github.node-gradle.node' version '2.2.4'
+	id 'com.github.node-gradle.node' version '5.0.0'
 	id 'war'
 	id "org.springframework.boot" version "2.7.16"
 	id "checkstyle"
@@ -147,10 +147,10 @@ dependencies {
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
-def uiDir = 'src/client'
+def uiDir = 'src/client3'
 
 node {
-	version = '14.15.1'
+	version = '18.0.0'
 	npmVersion = '6.14.9'
 	download = true
 	// distBaseUrl = Custom artifactory location here for node/npm.

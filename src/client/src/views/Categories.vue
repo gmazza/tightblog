@@ -183,7 +183,7 @@ export default {
   methods: {
     loadItems: function () {
       this.axios
-        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/categories?weblogId=" + this.weblogId)
+        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/categories?weblogId=" + this.weblogId)
         .then((response) => {
           this.items = response.data;
         })
@@ -210,8 +210,8 @@ export default {
           this.axios
             .put(
               categoryId
-                ? process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/category"
-                : process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/categories?weblogId=" + this.weblogId,
+                ? import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/category"
+                : import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/categories?weblogId=" + this.weblogId,
               this.itemToEdit
             )
             .then((response) => {
@@ -231,7 +231,7 @@ export default {
         this.messageClear();
         this.axios
           .delete(
-            process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" +
+            import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" +
               this.weblogId +
               "/category/" +
               this.categoryToDelete.id +
@@ -247,7 +247,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else if (error.response.status === 409) {
         this.showUpdateErrorMessage = true;
       } else {

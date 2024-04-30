@@ -322,7 +322,7 @@ export default {
       },
       errorObj: {},
       pageNum: 0,
-      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblogentries/",
+      urlRoot: import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblogentries/",
     };
   },
   mixins: [asyncDataStatus],
@@ -415,7 +415,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorMsg = error.response.data;
       }
