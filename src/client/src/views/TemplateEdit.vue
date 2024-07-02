@@ -170,10 +170,10 @@ export default {
     loadTemplate: function () {
       let urlStem;
       if (this.workingTemplateId && this.workingTemplateId.indexOf(":") < 0) {
-        urlStem = process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/template/" + this.workingTemplateId;
+        urlStem = import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/template/" + this.workingTemplateId;
       } else {
         urlStem =
-          process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" +
+          import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" +
           this.weblogId +
           "/templatename/" +
           this.templateName +
@@ -191,7 +191,7 @@ export default {
     saveTemplate: function () {
       this.messageClear();
       const urlStem =
-        process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/templates";
+        import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/templates";
 
       this.axios
         .post(urlStem, this.templateData)
@@ -214,7 +214,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

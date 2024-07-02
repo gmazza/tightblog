@@ -11,7 +11,7 @@ try {
 }
 
 module.exports = {
-  publicPath: process.env.VUE_APP_PUBLIC_PATH,
+  publicPath: import.meta.env.VITE_PUBLIC_PATH,
 
   chainWebpack: (config) => {
     config.plugins.delete("prefetch");
@@ -26,7 +26,7 @@ module.exports = {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers":
-        "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With",
+      "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
     },
     // https://github.com/chimurai/http-proxy-middleware#tldr

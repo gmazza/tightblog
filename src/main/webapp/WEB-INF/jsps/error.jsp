@@ -26,7 +26,7 @@
 <link rel="stylesheet" media="all" href="<c:url value='/styles/tbeditorui.css'/>" />
 <link rel="stylesheet" media="all" href="<c:url value='/styles/colors.css'/>" />
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.14/dist/vue.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 

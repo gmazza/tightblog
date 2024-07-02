@@ -180,7 +180,7 @@ export default {
       editModalCurrentTag: null,
       newTagName: null,
       pageNum: 0,
-      urlRoot: process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/tags/",
+      urlRoot: import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/tags/",
       resultsMap: {},
       successMessage: "",
       errorObj: {},
@@ -223,7 +223,7 @@ export default {
 
             this.axios
               .post(
-                process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/tags/weblog/" +
+                import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/tags/weblog/" +
                   this.weblogId +
                   "/delete",
                 selectedTagNames
@@ -339,7 +339,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

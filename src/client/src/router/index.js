@@ -14,19 +14,19 @@ const routes = [
       userNeedsMFARegistration: true,
     },
     component: () =>
-      import(/* webpackChunkName: "myblogs" */ "../views/MyBlogs"),
+      import("../views/MyBlogs.vue"),
   },
   {
     path: "/app/profile",
     name: "profile",
     component: () =>
-      import(/* webpackChunkName: "useredit" */ "../views/UserEdit"),
+      import("../views/UserEdit.vue"),
   },
   {
     path: "/app/register",
     name: "register",
     component: () =>
-      import(/* webpackChunkName: "useredit" */ "../views/UserEdit"),
+      import("../views/UserEdit.vue"),
   },
   {
     path: "/app/scanCode",
@@ -35,26 +35,26 @@ const routes = [
       userNeedsMFARegistration: true,
     },
     component: () =>
-      import(/* webpackChunkName: "scanCode" */ "../views/ScanCode"),
+      import("../views/ScanCode.vue"),
   },
   {
     path: "/app/createWeblog",
     name: "createWeblog",
     component: () =>
-      import(/* webpackChunkName: "weblogconfig" */ "../views/WeblogConfig"),
+      import("../views/WeblogConfig.vue"),
   },
   {
     path: "/app/blogroll/:weblogId",
     name: "blogroll",
     component: () =>
-      import(/* webpackChunkName: "blogroll" */ "../views/Blogroll"),
+      import("../views/Blogroll.vue"),
     props: true,
   },
   {
     path: "/app/categories/:weblogId",
     name: "categories",
     component: () =>
-      import(/* webpackChunkName: "categories" */ "../views/Categories"),
+      import("../views/Categories.vue"),
     props: true,
   },
   {
@@ -64,14 +64,14 @@ const routes = [
       userNeedsMFARegistration: true,
     },
     component: () =>
-      import(/* webpackChunkName: "entries" */ "../views/Entries"),
+      import("../views/Entries.vue"),
     props: true,
   },
   {
     path: "/app/entryEdit/:weblogId",
     name: "entryEdit",
     component: () =>
-      import(/* webpackChunkName: "entryEdit" */ "../views/EntryEdit"),
+      import("../views/EntryEdit.vue"),
     props: (route) => ({
       weblogId: route.params.weblogId,
       entryId: route.query.entryId,
@@ -81,7 +81,7 @@ const routes = [
     path: "/app/comments/:weblogId",
     name: "comments",
     component: () =>
-      import(/* webpackChunkName: "comments" */ "../views/Comments"),
+      import("../views/Comments.vue"),
     props: (route) => ({
       weblogId: route.params.weblogId,
       entryId: route.query.entryId,
@@ -90,52 +90,52 @@ const routes = [
   {
     path: "/app/tags/:weblogId",
     name: "tags",
-    component: () => import(/* webpackChunkName: "tags" */ "../views/Tags"),
+    component: () => import("../views/Tags.vue"),
     props: true,
   },
   {
     path: "/app/templates/:weblogId",
     name: "templates",
     component: () =>
-      import(/* webpackChunkName: "templates" */ "../views/Templates"),
+      import("../views/Templates.vue"),
     props: true,
   },
   {
     path: "/app/mediaFiles/:weblogId",
     name: "mediaFiles",
     component: () =>
-      import(/* webpackChunkName: "mediaFiles" */ "../views/MediaFiles"),
+      import("../views/MediaFiles.vue"),
     props: true,
   },
   {
      path: '/logout',
      name: "logout",
-     beforeEnter() {location.href = process.env.VUE_APP_PUBLIC_PATH + '/app/logout'}
+     beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'}
   },
   {
      path: '/login-redirect',
      name: "loginRedirect",
-     beforeEnter() {location.href = process.env.VUE_APP_PUBLIC_PATH + '/app/login-redirect'}
+     beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'}
   },
   {
     path: "/app/mediaFileEdit/:weblogId",
     name: "mediaFileEdit",
     component: () =>
-      import(/* webpackChunkName: "mediaFileEdit" */ "../views/MediaFileEdit"),
+      import("../views/MediaFileEdit.vue"),
     props: true,
   },
   {
     path: "/app/templateEdit/:weblogId",
     name: "templateEdit",
     component: () =>
-      import(/* webpackChunkName: "templateEdit" */ "../views/TemplateEdit"),
+      import("../views/TemplateEdit.vue"),
     props: true,
   },
   {
     path: "/app/weblogConfig/:weblogId",
     name: "weblogConfig",
     component: () =>
-      import(/* webpackChunkName: "weblogconfig" */ "../views/WeblogConfig"),
+      import("../views/WeblogConfig.vue"),
     // https://router.vuejs.org/guide/essentials/passing-props.html#boolean-mode
     props: true,
   },
@@ -143,31 +143,32 @@ const routes = [
     path: "/admin/globalConfig",
     name: "globalConfig",
     component: () =>
-      import(/* webpackChunkName: "globalConfig" */ "../views/GlobalConfig"),
+      import("../views/GlobalConfig.vue"),
   },
   {
     path: "/admin/userAdmin",
     name: "userAdmin",
     component: () =>
-      import(/* webpackChunkName: "userAdmin" */ "../views/UserAdmin"),
+      import("../views/UserAdmin.vue"),
   },
   {
     path: "/admin/cachedData",
     name: "cachedData",
     component: () =>
-      import(/* webpackChunkName: "cachedData" */ "../views/CachedData"),
+      import("../views/CachedData.vue"),
   },
   {
     path: "*",
     name: "notFound",
     component: () =>
-      import(/* webpackChunkName: "notFound" */ "../views/NotFound"),
+      import("../views/NotFound.vue"),
   },
 ];
 
 const router = new VueRouter({
   mode: "history",
-  base: process.env.VUE_APP_PUBLIC_PATH,
+//  base: import.meta.env.VITE_PUBLIC_PATH,
+  base: import.meta.env.BASE_URL,
   routes,
 });
 

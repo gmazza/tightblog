@@ -188,7 +188,7 @@ export default {
     },
     loadItems: function () {
       this.axios
-        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/bookmarks")
+        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/weblog/" + this.weblogId + "/bookmarks")
         .then((response) => {
           this.items = response.data;
         })
@@ -212,7 +212,7 @@ export default {
             });
 
             this.axios
-              .post(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmarks/delete", selectedLinkIds)
+              .post(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/bookmarks/delete", selectedLinkIds)
               .then((response) => {
                 this.loadItems();
               });
@@ -236,8 +236,8 @@ export default {
         this.axios
           .put(
             this.itemToEdit.id
-              ? process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmark/" + this.itemToEdit.id
-              : process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/bookmarks?weblogId=" + this.weblogId,
+              ? import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/bookmark/" + this.itemToEdit.id
+              : import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/bookmarks?weblogId=" + this.weblogId,
             this.itemToEdit
           )
           .then((response) => {
@@ -253,7 +253,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

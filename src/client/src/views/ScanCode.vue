@@ -27,7 +27,7 @@
     <p class="pagetip" v-html="$t('scanCode.tip')"></p>
 
     <img v-bind:src="qrCode" />
-    <p v-html="$t('scanCode.relogin', { loginURL: process.env.VUE_APP_PUBLIC_PATH + '/app/relogin' })"></p>
+    <p v-html="$t('scanCode.relogin', { loginURL: loginUrl })"></p>
   </div>
 </template>
 
@@ -38,6 +38,7 @@ export default {
   data() {
     return {
       qrCode: null,
+      loginUrl: import.meta.env.VITE_PUBLIC_PATH + '/app/relogin',
       errorObj: {},
     };
   },
@@ -45,7 +46,7 @@ export default {
   methods: {
     loadQRCode: function () {
       this.axios
-        .get(process.env.VUE_APP_PUBLIC_PATH + "/newuser/rest/newqrcode")
+        .get(import.meta.env.VITE_PUBLIC_PATH + "/newuser/rest/newqrcode")
         .then((response) => {
           this.qrCode = response.data.qrCode;
         })
@@ -53,7 +54,7 @@ export default {
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
       } else {
         this.errorObj = error.response.data;
       }

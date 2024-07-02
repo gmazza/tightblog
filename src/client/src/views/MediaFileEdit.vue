@@ -233,7 +233,7 @@ export default {
   methods: {
     loadMediaFile: function () {
       this.axios
-        .get(process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediafile/" + this.mediaFileId)
+        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafile/" + this.mediaFileId)
         .then((response) => {
           this.mediaFileData = response.data;
         });
@@ -242,7 +242,7 @@ export default {
       this.myMediaFile = this.$refs.myMediaFile.files[0];
     },
     saveMediaFile: function () {
-      const uploadUrl = process.env.VUE_APP_PUBLIC_PATH + "/authoring/rest/mediafiles";
+      const uploadUrl = import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafiles";
       const fd = new FormData();
       fd.append(
         "mediaFileData",
@@ -262,7 +262,7 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            window.location.href = process.env.VUE_APP_PUBLIC_PATH + "/app/login";
+            window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
           } else {
             this.errorObj = error.response.data;
           }
