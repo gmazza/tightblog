@@ -60,9 +60,7 @@
                 </tr>
 
                 <tr>
-                  <td class="mm_subtable_label">
-                    {{ $t('myBlogs.emailComments') }}
-                  </td>
+                  <td class="mm_subtable_label">{{ $t('myBlogs.emailComments') }}</td>
                   <td>
                     <input
                       type="checkbox"
@@ -114,11 +112,11 @@
               <br />
 
               <!-- Only admins get access to theme and config settings -->
-              <span v-if="role.weblogRole == 'OWNER'">
-                <!-- And only show theme option if custom themes are enabled -->
-                <span v-if="this.webloggerProperties.usersCustomizeThemes">
-                  <img src="@/assets/layout.png" />
-                  <!--router-link
+              <!--span v-if="role.weblogRole == 'OWNER'"-->
+              <!-- And only show theme option if custom themes are enabled -->
+              <span v-if="this.webloggerProperties.usersCustomizeThemes">
+                <img src="@/assets/layout.png" />
+                <!--router-link
                     :to="{
                       name: 'templates',
                       params: {
@@ -127,19 +125,19 @@
                     }"
                     >{{ $t('myBlogs.theme') }}</router-link
                   -->
-                  <br />
-                </span>
-
-                <img src="@/assets/cog.png" />
-                <!--router-link
-                  :to="{
-                    name: 'weblogConfig',
-                    params: { weblogId: role.weblog.id }
-                  }"
-                  >{{ $t('weblogConfig.updateTitle') }}</router-link
-                -->
                 <br />
               </span>
+
+              <img src="@/assets/cog.png" />
+              <router-link
+                :to="{
+                  name: 'weblogConfig',
+                  params: { weblogId: role.weblog.id }
+                }"
+                >{{ $t('weblogConfig.updateTitle') }}</router-link
+              >
+              <br />
+              <!--/span-->
 
               <!-- disallow owners from resigning from blog -->
               <span v-if="role.weblogRole !== 'OWNER'">
@@ -165,7 +163,6 @@
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'
-//import asyncDataStatus from '@/mixins/AsyncDataStatus'
 
 export default {
   data: function () {
@@ -175,7 +172,6 @@ export default {
       isFetching: true
     }
   },
-  //  mixins: [asyncDataStatus],
   computed: {
     ...mapState(useSessionInfoStore, ['sessionInfo', 'userWeblogRoles']),
     ...mapState(useDynamicConfigStore, ['webloggerProperties'])

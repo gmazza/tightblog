@@ -436,7 +436,7 @@
     "deleteInstruction": "To delete weblog, type in its handle ({handle}):",
     "createWeblogButton": "Create Weblog",
     "createWeblogPrompt": "Use this form to create a new weblog.  Starred fields are required.  Most fields can be provided/changed after the blog is created.  Avoid HTML in fields unless otherwise specified.",
-    "updateWeblogPrompt": "Manage settings for weblog <span>{handle}</span> (* = required field)",
+    "updateWeblogPrompt": "Manage settings for weblog <strong>{handle}</strong> (* = required field)",
     "deleteWeblogButton": "Delete weblog...",
     "deleteWarning": "<b>WARNING</b>: Deleting a weblog will erase everything about the weblog: all of its entries, comments, templates and settings. <b>Weblog removal is NOT REVERSIBLE</b>.",
     "generalSettings": "General Settings",

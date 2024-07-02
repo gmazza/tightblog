@@ -6,7 +6,8 @@ import fs from 'fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  //  base: '/tb-ui/',
+  // see end of UIController.java for route-to-Vue method
+  base: '/tb-ui/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -28,9 +29,36 @@ export default defineConfig({
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
     },
     proxy: {
-      '/tb-ui': {
+      '/tb-ui/app': {
         target: 'https://localhost:8443/',
-        secure: false
+
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err)
+          })
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url)
+          })
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url)
+          })
+        }
+      },
+      '/tb-ui/authoring': {
+        target: 'https://localhost:8443/',
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err)
+          })
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url)
+          })
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url)
+          })
+        }
       }
     }
   }

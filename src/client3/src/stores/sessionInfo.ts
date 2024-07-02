@@ -24,7 +24,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
     },
     getWeblog({ userWeblogs }): (id: String) => Weblog | null {
       return (id: String): Weblog | null => {
-        const weblog = findById(userWeblogs, id)
+        const weblog = findById(this.userWeblogs, id)
         if (!weblog) return null
         return {
           ...weblog
@@ -36,7 +36,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
     async loadSessionInfo() {
       await api
         .loadSessionInfo()
-        .then((result) => (this.sessionInfo = result))
+        .then((result) => (this.sessionInfo = result.data))
         .catch((error: String) => console.log('load session info error: ', error))
     },
     async loadUserWeblogRoles() {
@@ -52,13 +52,16 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
       if (weblog != null) {
         return weblog
       } else {
-        return this.refreshWeblog(weblogId)
+        await this.refreshWeblog(weblogId)
+        return this.getWeblog(weblogId)
       }
     },
     async refreshWeblog(weblogId: String) {
       await api
         .fetchWeblog(weblogId)
-        .then((result) => upsert(this.userWeblogs, result))
+        .then((result) => {
+          upsert(this.userWeblogs, result.data)
+        })
         .catch((error: String) => console.log('fetch weblog error: ', error))
     },
     async upsertWeblog(weblog: Weblog) {
@@ -66,6 +69,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
         .upsertWeblog(weblog)
         .catch((error: String) => console.log('upsert weblog error: ', error))
       upsert(this.userWeblogs, updatedWeblog)
+      this.loadUserWeblogRoles()
     },
     async deleteWeblog(weblogId: String) {
       await api

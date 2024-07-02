@@ -9,6 +9,7 @@ type MessageSchema = typeof en
 
 const i18n = createI18n<[MessageSchema], 'en-US'>({
   locale: 'en-US',
+  warnHtmlInMessage: 'off',
   messages: {
     'en-US': en
   }

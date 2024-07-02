@@ -15,7 +15,28 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/MyBlogs.vue')
-    } /*
+    },
+    {
+      path: '/app/weblogConfig/:weblogId',
+      name: 'weblogConfig',
+      component: () => import('../views/WeblogConfig.vue'),
+      // https://router.vuejs.org/guide/essentials/passing-props.html#boolean-mode
+      props: true
+    },
+    {
+      path: '/app/createWeblog',
+      name: 'createWeblog',
+      component: () => import('../views/WeblogConfig.vue')
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      redirect: () => {
+        return import.meta.env.VITE_PUBLIC_PATH + '/app/logout'
+      }
+    },
+
+    /*
     {
       path: '/app/entryEdit/:weblogId',
       name: 'entryEdit',
@@ -24,10 +45,10 @@ const router = createRouter({
         weblogId: route.params.weblogId,
         entryId: route.query.entryId
       })
-    }, */,
+    }, */
     {
       // can delete
-      path: '/',
+      path: '/home',
       name: 'home',
       component: HomeView
     }

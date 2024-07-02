@@ -22,7 +22,7 @@ export default {
     )
   },
   // startupConfig
-  loadLookupValues(): Promise<LookupValues[]> {
+  loadLookupValues(): Promise<LookupValues> {
     return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/authoring/lookupvalues')
   },
   loadStartupConfig(): Promise<StartupConfig> {
@@ -50,7 +50,7 @@ export default {
   },
   // sessionInfo
   loadSessionInfo(): Promise<SessionInfo> {
-    return axios.get<SessionInfo>(import.meta.env.VITE_PUBLIC_PATH + '/app/any/sessioninfo')
+    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/sessioninfo')
   },
   loadUserWeblogRoles(): Promise<UserWeblogRole[]> {
     return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/loggedinuser/weblogs')
