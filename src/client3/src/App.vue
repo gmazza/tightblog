@@ -1,11 +1,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 
 export default defineComponent({
   name: 'App',
-  components: { HelloWorld, RouterLink, RouterView }
+  components: { RouterLink, RouterView }
 })
 </script>
 

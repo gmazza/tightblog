@@ -9,8 +9,7 @@
                 $t('navigationBar.productVersion', {
                   version: startupConfig.tightblogVersion
                 })
-              }}</span
-              >:123
+              }}</span>
 
               <span v-if="sessionInfo.authenticatedUser != null">
                 {{
@@ -29,9 +28,9 @@
             <td class="bannerRight">
               <span v-if="sessionInfo.authenticatedUser != null">
                 <span v-if="!sessionInfo.userNeedsMFARegistration">
-                  <!--router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{
+                  <router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{
                     $t('navigationBar.globalAdmin')
-                  }}</router-link-->
+                  }}</router-link>
                   |
                   <router-link :to="{ name: 'myBlogs' }">{{
                     $t('navigationBar.blogList')

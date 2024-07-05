@@ -19,62 +19,48 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready">
+  <div v-if="!this.isFetching">
     <AppTitleBar />
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
-      <AppSuccessMessageBox
-        :message="successMessage"
-        @close-box="successMessage = null"
-      />
-      <AppErrorMessageBox
-        :message="errorMessage"
-        @close-box="errorMessage = null"
-      />
+      <AppSuccessMessageBox :message="successMessage" @close-box="successMessage = null" />
+      <AppErrorMessageBox :message="errorMessage" @close-box="errorMessage = null" />
 
-      <p class="subtitle">{{ $t("globalConfig.subtitle") }}</p>
+      <p class="subtitle">{{ $t('globalConfig.subtitle') }}</p>
 
-      <p>{{ $t("globalConfig.prompt") }}</p>
+      <p>{{ $t('globalConfig.prompt') }}</p>
 
       <table v-if="webloggerProps != null" class="formtable">
         <thead>
           <tr>
             <td colspan="3">
-              <h2>{{ $t("globalConfig.siteSettings") }}</h2>
+              <h2>{{ $t('globalConfig.siteSettings') }}</h2>
             </td>
           </tr>
           <tr>
             <td class="label">
-              {{ $t("globalConfig.frontpageWeblogHandle") }}
+              {{ $t('globalConfig.frontpageWeblogHandle') }}
             </td>
             <td class="field">
               <select v-model="webloggerProps.mainBlogId" size="1">
-                <option
-                  v-for="(value, key) in visibleWeblogs"
-                  :key="key"
-                  :value="value.id"
-                >
+                <option v-for="(value, key) in visibleWeblogs" :key="key" :value="value.id">
                   {{ weblogDescription(value) }}
                 </option>
-                <option value="">{{ $t("globalConfig.none") }}</option>
+                <option value="">{{ $t('globalConfig.none') }}</option>
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.frontpageWeblogHandle") }}
+              {{ $t('globalConfig.tip.frontpageWeblogHandle') }}
             </td>
           </tr>
           <tr>
             <td class="label">
-              {{ $t("globalConfig.requiredRegistrationProcess") }}
+              {{ $t('globalConfig.requiredRegistrationProcess') }}
             </td>
             <td class="field">
-              <select
-                v-model="webloggerProps.registrationPolicy"
-                size="1"
-                required
-              >
+              <select v-model="webloggerProps.registrationPolicy" size="1" required>
                 <option
-                  v-for="(value, key) in lookupVals.registrationOptions"
+                  v-for="(value, key) in lookupValues.registrationOptions"
                   :key="key"
                   :value="key"
                 >
@@ -83,19 +69,16 @@
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.requiredRegistrationProcess") }}
+              {{ $t('globalConfig.tip.requiredRegistrationProcess') }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.newUsersCreateBlogs") }}</td>
+            <td class="label">{{ $t('globalConfig.newUsersCreateBlogs') }}</td>
             <td class="field">
-              <input
-                type="checkbox"
-                v-model="webloggerProps.usersCreateBlogs"
-              />
+              <input type="checkbox" v-model="webloggerProps.usersCreateBlogs" />
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.newUsersCreateBlogs") }}
+              {{ $t('globalConfig.tip.newUsersCreateBlogs') }}
             </td>
           </tr>
           <tr>
@@ -103,56 +86,45 @@
           </tr>
           <tr>
             <td colspan="3">
-              <h2>{{ $t("globalConfig.weblogSettings") }}</h2>
+              <h2>{{ $t('globalConfig.weblogSettings') }}</h2>
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.htmlSafelistLevel") }}</td>
+            <td class="label">{{ $t('globalConfig.htmlSafelistLevel') }}</td>
             <td class="field">
               <select v-model="webloggerProps.blogHtmlPolicy" size="1" required>
-                <option
-                  v-for="(value, key) in lookupVals.blogHtmlLevels"
-                  :key="key"
-                  :value="key"
-                >
+                <option v-for="(value, key) in lookupValues.blogHtmlLevels" :key="key" :value="key">
                   {{ $t(value) }}
                 </option>
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.htmlSafelistLevel") }}
+              {{ $t('globalConfig.tip.htmlSafelistLevel') }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.allowCustomTheme") }}</td>
+            <td class="label">{{ $t('globalConfig.allowCustomTheme') }}</td>
             <td class="field">
-              <input
-                type="checkbox"
-                v-model="webloggerProps.usersCustomizeThemes"
-              />
+              <input type="checkbox" v-model="webloggerProps.usersCustomizeThemes" />
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.allowCustomTheme") }}
+              {{ $t('globalConfig.tip.allowCustomTheme') }}
             </td>
           </tr>
           <tr v-if="startupConfig.showMediaFileTab">
             <td class="label">
-              {{ $t("globalConfig.maxMediaFileAllocationMb") }}
+              {{ $t('globalConfig.maxMediaFileAllocationMb') }}
             </td>
             <td class="field">
-              <input
-                type="number"
-                v-model="webloggerProps.maxFileUploadsSizeMb"
-                size="35"
-              />
+              <input type="number" v-model="webloggerProps.maxFileUploadsSizeMb" size="35" />
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.maxMediaFileAllocationMb") }}
+              {{ $t('globalConfig.tip.maxMediaFileAllocationMb') }}
             </td>
           </tr>
           <tr>
             <td class="label">
-              {{ $t("globalConfig.defaultAnalyticsTrackingCode") }}
+              {{ $t('globalConfig.defaultAnalyticsTrackingCode') }}
             </td>
             <td class="field">
               <textarea
@@ -162,21 +134,18 @@
               ></textarea>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.defaultAnalyticsTrackingCode") }}
+              {{ $t('globalConfig.tip.defaultAnalyticsTrackingCode') }}
             </td>
           </tr>
           <tr>
             <td class="label">
-              {{ $t("globalConfig.allowAnalyticsCodeOverride") }}
+              {{ $t('globalConfig.allowAnalyticsCodeOverride') }}
             </td>
             <td class="field">
-              <input
-                type="checkbox"
-                v-model="webloggerProps.usersOverrideAnalyticsCode"
-              />
+              <input type="checkbox" v-model="webloggerProps.usersOverrideAnalyticsCode" />
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.allowAnalyticsCodeOverride") }}
+              {{ $t('globalConfig.tip.allowAnalyticsCodeOverride') }}
             </td>
           </tr>
           <tr>
@@ -184,15 +153,15 @@
           </tr>
           <tr>
             <td colspan="3">
-              <h2>{{ $t("globalConfig.commentSettings") }}</h2>
+              <h2>{{ $t('globalConfig.commentSettings') }}</h2>
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.enableComments") }}</td>
+            <td class="label">{{ $t('globalConfig.enableComments') }}</td>
             <td class="field">
               <select v-model="webloggerProps.commentPolicy" size="1" required>
                 <option
-                  v-for="commentoption in lookupVals.commentOptionList"
+                  v-for="commentoption in lookupValues.commentOptionList"
                   :value="commentoption.constant"
                   :key="commentoption.constant"
                 >
@@ -206,16 +175,12 @@
         <thead v-show="webloggerProps.commentPolicy != 'NONE'">
           <tr>
             <td class="label">
-              {{ $t("globalConfig.commentHtmlSafelistLevel") }}
+              {{ $t('globalConfig.commentHtmlSafelistLevel') }}
             </td>
             <td class="field">
-              <select
-                v-model="webloggerProps.commentHtmlPolicy"
-                size="1"
-                required
-              >
+              <select v-model="webloggerProps.commentHtmlPolicy" size="1" required>
                 <option
-                  v-for="(value, key) in lookupVals.commentHtmlLevels"
+                  v-for="(value, key) in lookupValues.commentHtmlLevels"
                   :key="key"
                   :value="key"
                 >
@@ -224,15 +189,15 @@
               </select>
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.commentHtmlSafelistLevel") }}
+              {{ $t('globalConfig.tip.commentHtmlSafelistLevel') }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.spamPolicy") }}</td>
+            <td class="label">{{ $t('globalConfig.spamPolicy') }}</td>
             <td class="field">
               <select v-model="webloggerProps.spamPolicy" size="1" required>
                 <option
-                  v-for="spamoption in lookupVals.spamOptionList"
+                  v-for="spamoption in lookupValues.spamOptionList"
                   :key="spamoption.constant"
                   :value="spamoption.constant"
                 >
@@ -240,30 +205,23 @@
                 </option>
               </select>
             </td>
-            <td class="description">{{ $t("globalConfig.tip.spamPolicy") }}</td>
+            <td class="description">{{ $t('globalConfig.tip.spamPolicy') }}</td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.emailComments") }}</td>
+            <td class="label">{{ $t('globalConfig.emailComments') }}</td>
             <td class="field">
-              <input
-                type="checkbox"
-                v-model="webloggerProps.usersCommentNotifications"
-              />
+              <input type="checkbox" v-model="webloggerProps.usersCommentNotifications" />
             </td>
             <td class="description">
-              {{ $t("globalConfig.tip.emailComments") }}
+              {{ $t('globalConfig.tip.emailComments') }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ $t("globalConfig.ignoreUrls") }}</td>
+            <td class="label">{{ $t('globalConfig.ignoreUrls') }}</td>
             <td class="field">
-              <textarea
-                rows="7"
-                cols="80"
-                v-model="webloggerProps.globalSpamFilter"
-              ></textarea>
+              <textarea rows="7" cols="80" v-model="webloggerProps.globalSpamFilter"></textarea>
             </td>
-            <td class="description">{{ $t("globalConfig.tip.ignoreUrls") }}</td>
+            <td class="description">{{ $t('globalConfig.tip.ignoreUrls') }}</td>
           </tr>
         </thead>
         <thead>
@@ -275,7 +233,7 @@
 
       <div class="control">
         <button type="button" class="buttonBox" v-on:click="updateProperties()">
-          {{ $t("common.save") }}
+          {{ $t('common.save') }}
         </button>
       </div>
     </div>
@@ -283,8 +241,9 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from "vuex";
-import asyncDataStatus from "@/mixins/AsyncDataStatus";
+import { useStartupConfigStore } from '../stores/startupConfig'
+import { useDynamicConfigStore } from '../stores/dynamicConfig'
+import { mapState, mapActions } from 'pinia'
 
 export default {
   data() {
@@ -292,82 +251,73 @@ export default {
       successMessage: null,
       webloggerProps: null,
       errorMessage: null,
-    };
+      isFetching: true
+    }
   },
-  mixins: [asyncDataStatus],
   computed: {
-    ...mapState("dynamicConfig", {
-      weblogList: (state) => state.weblogList,
-      webloggerProperties: (state) => state.webloggerProperties,
-    }),
-    ...mapState("startupConfig", {
-      startupConfig: (state) => state.startupConfig,
-      lookupVals: (state) => state.lookupValues,
-    }),
-    visibleWeblogs() {
-      return this.weblogList.filter((w) => w.visible === true);
-    },
+    ...mapState(useStartupConfigStore, ['startupConfig', 'lookupValues']),
+    ...mapState(useDynamicConfigStore, ['weblogList', 'webloggerProperties']),
+    visibleWeblogs: function () {
+      return this.weblogList.filter((w) => w.visible === true)
+    }
   },
   methods: {
-    ...mapActions({
-      loadWebloggerProperties: "dynamicConfig/loadWebloggerProperties",
-      saveWebloggerProperties: "dynamicConfig/saveWebloggerProperties",
-      loadWeblogList: "dynamicConfig/loadWeblogList",
-      loadStartupConfig: "startupConfig/loadStartupConfig",
-      loadLookupValues: "startupConfig/loadLookupValues",
-    }),
+    ...mapActions(useDynamicConfigStore, [
+      'loadWebloggerProperties',
+      'saveWebloggerProperties',
+      'loadWeblogList'
+    ]),
+    ...mapActions(useStartupConfigStore, ['loadStartupConfig', 'loadLookupValues']),
     loadWebloggerProps: function () {
-      this.webloggerProps = JSON.parse(
-        JSON.stringify(this.webloggerProperties)
-      );
+      this.webloggerProps = JSON.parse(JSON.stringify(this.webloggerProperties))
     },
     loadMetadata: function () {
       this.loadStartupConfig().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
       this.loadLookupValues().then(
         () => {},
         (error) => this.commonErrorResponse(error, null)
-      );
+      )
     },
-    updateProperties: function () {
-      this.saveWebloggerProperties(this.webloggerProps).then(
-        () => {
-          this.loadWebloggerProperties();
-          this.loadWebloggerProps();
-          this.errorObj = {};
-          this.successMessage = this.$t("common.changesSaved");
-          window.scrollTo(0, 0);
-        },
-        (error) => this.commonErrorResponse(error, null)
-      );
+    updateProperties: async function () {
+      try {
+        await this.saveWebloggerProperties(this.webloggerProps)
+        await this.loadWebloggerProperties()
+        this.loadWebloggerProps()
+        this.errorObj = {}
+        this.successMessage = this.$t('common.changesSaved')
+        window.scrollTo(0, 0)
+      } catch (error) {
+        this.commonErrorResponse(error, null)
+      }
     },
     weblogDescription: function (weblogItem) {
-      return weblogItem.name + " (" + weblogItem.handle + ")";
+      return weblogItem.name + ' (' + weblogItem.handle + ')'
     },
     commonErrorResponse: function (error, errorMsg) {
       if (errorMsg) {
-        this.errorMessage = errorMsg;
+        this.errorMessage = errorMsg
       } else if (error && error.response && error.response.status === 401) {
-        console.log("Redirecting...");
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
+        console.log('Redirecting...')
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else if (error && error.response) {
-        this.errorMessage = error.response.data.error;
+        this.errorMessage = error.response.data.error
       } else if (error) {
-        this.errorMessage = error;
+        this.errorMessage = error
       } else {
-        this.errorMessage = "System error.";
+        this.errorMessage = 'System error.'
       }
-    },
+    }
   },
   async created() {
-    await this.loadWebloggerProperties();
-    await this.loadStartupConfig();
-    await this.loadWeblogList();
-    await this.loadLookupValues();
-    this.loadWebloggerProps();
-    this.asyncDataStatus_fetched();
-  },
-};
+    await this.loadWebloggerProperties()
+    await this.loadStartupConfig()
+    await this.loadWeblogList()
+    await this.loadLookupValues()
+    this.loadWebloggerProps()
+    this.isFetching = false
+  }
+}
 </script>
