@@ -35,18 +35,18 @@ export const useDynamicConfigStore = defineStore('dynamicConfig', {
     async loadWeblogList() {
       await api
         .loadWeblogList()
-        .then((result) => (this.weblogList = result))
+        .then((result) => (this.weblogList = result.data))
         .catch((error) => console.error('Load weblog list error', error))
     },
     async loadUserList() {
       await api
         .loadUserList()
-        .then((result) => (this.userList = result))
+        .then((result) => (this.userList = result.data))
         .catch((error) => console.error('Load user list error', error))
     },
     async saveWebloggerProperties(webloggerProps: WebloggerProperties) {
       await api.saveWebloggerProperties(webloggerProps)
-      this.loadWebloggerProperties()
+      await this.loadWebloggerProperties()
     }
   }
 })

@@ -29,6 +29,11 @@ const router = createRouter({
       component: () => import('../views/WeblogConfig.vue')
     },
     {
+      path: '/admin/globalConfig',
+      name: 'globalConfig',
+      component: () => import('../views/GlobalConfig.vue')
+    },
+    {
       path: '/logout',
       name: 'logout',
       redirect: () => {
