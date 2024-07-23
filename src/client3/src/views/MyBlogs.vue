@@ -159,7 +159,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'

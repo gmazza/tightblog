@@ -66,6 +66,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Required authorities listed are defined in class GlobalRole.
         http.authorizeRequests()
                 // API Calls
+                .antMatchers("/tb-ui/register/**").permitAll()
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
@@ -75,14 +76,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // UI Calls
                 .antMatchers("/tb-ui/app/register").permitAll()
                 .antMatchers("/tb-ui/app/login").permitAll()
+                .antMatchers("/tb-ui/app/logout").permitAll()
                 .antMatchers("/tb-ui/app/*.css").permitAll()
                 .antMatchers("/tb-ui/app/*.ico").permitAll()
                 .antMatchers("/tb-ui/assets/**").permitAll()
                 .antMatchers("/styles/*.css").permitAll()
-                .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN") // needed to trigger login
-                .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR") // needed to trigger login
-                .antMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET") // needed to trigger login
-                .antMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // needed to trigger login
+                // below are UI calls that require authentication
+                .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
+                .antMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
+                .antMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                .antMatchers("/tb-ui/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // default (= myBlogs on UI)
                 // All remaining, everyone can see
                 .anyRequest().permitAll()
                 .and()

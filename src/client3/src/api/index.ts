@@ -6,6 +6,7 @@ import type {
   SessionInfo,
   StartupConfig,
   User,
+  UserData,
   UserWeblogRole,
   WebloggerProperties,
   Weblog
@@ -35,8 +36,20 @@ export default {
   loadWeblogList(): Promise<Weblog[]> {
     return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/webloglist')
   },
+  loadUser(userId: String): Promise<User> {
+    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId)
+  },
   loadUserList(): Promise<User[]> {
     return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/useradmin/userlist')
+  },
+  saveUser(userId: String, user: UserData): Promise<User> {
+    return axios.post(
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId,
+      user
+    )
+  },
+  registerUser(user: UserData) {
+    return axios.post(import.meta.env.VITE_PUBLIC_PATH + '/register/rest/registeruser', user)
   },
   saveWebloggerProperties(webloggerProps: WebloggerProperties) {
     axios

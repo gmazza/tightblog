@@ -16,6 +16,13 @@ export type User = {
   screenName: string
 }
 
+export type Credentials = {}
+
+export type UserData = {
+  user: User
+  credentials: Credentials
+}
+
 export type UserWeblogRole = {
   id: String
   emailComments: boolean

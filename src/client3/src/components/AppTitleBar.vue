@@ -36,9 +36,9 @@
                     $t('navigationBar.blogList')
                   }}</router-link>
                   |
-                  <!--router-link :to="{ name: 'profile' }">{{
+                  <router-link :to="{ name: 'profile' }">{{
                     $t('navigationBar.viewProfile')
-                  }}</router-link-->
+                  }}</router-link>
                   |
                 </span>
                 <router-link :to="{ name: 'logout' }">{{ $t('navigationBar.logout') }}</router-link>
@@ -51,11 +51,11 @@
                 $t('navigationBar.login')
               }}</router-link-->
 
-                <span v-if="startupConfig.registrationPolicy != 'DISABLED'">
+                <span v-if="this.startupConfig.registrationPolicy != 'DISABLED'">
                   |
-                  <!--router-link :to="{ name: 'register' }">{{
-                  $t('navigationBar.register')
-                }}</router-link-->
+                  <router-link :to="{ name: 'register' }">{{
+                    $t('navigationBar.register')
+                  }}</router-link>
                 </span>
               </span>
             </td>

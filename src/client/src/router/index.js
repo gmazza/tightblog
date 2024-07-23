@@ -17,18 +17,6 @@ const routes = [
       import("../views/MyBlogs.vue"),
   },
   {
-    path: "/app/profile",
-    name: "profile",
-    component: () =>
-      import("../views/UserEdit.vue"),
-  },
-  {
-    path: "/app/register",
-    name: "register",
-    component: () =>
-      import("../views/UserEdit.vue"),
-  },
-  {
     path: "/app/scanCode",
     name: "register",
     meta: {

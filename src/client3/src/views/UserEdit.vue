@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready">
+  <div v-if="!this.isFetching">
     <AppTitleBar />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -36,7 +36,7 @@
       <table class="formtable">
         <tr>
           <td class="label">
-            <label for="userName">{{ $t("userEdit.username") }}</label>
+            <label for="userName">{{ $t('userEdit.username') }}</label>
           </td>
           <td class="field">
             <span v-if="sessionInfo.authenticatedUser == null">
@@ -64,7 +64,7 @@
 
         <tr>
           <td class="label">
-            <label for="screenName">{{ $t("userEdit.screenname") }}</label>
+            <label for="screenName">{{ $t('userEdit.screenname') }}</label>
           </td>
           <td class="field">
             <input
@@ -76,12 +76,12 @@
               maxlength="30"
             />
           </td>
-          <td class="description">{{ $t("userEdit.tip.screenname") }}</td>
+          <td class="description">{{ $t('userEdit.tip.screenname') }}</td>
         </tr>
 
         <tr>
           <td class="label">
-            <label for="emailAddress">{{ $t("userEdit.email") }}</label>
+            <label for="emailAddress">{{ $t('userEdit.email') }}</label>
           </td>
           <td class="field">
             <input
@@ -92,12 +92,12 @@
               maxlength="40"
             />
           </td>
-          <td class="description">{{ $t("userEdit.tip.email") }}</td>
+          <td class="description">{{ $t('userEdit.tip.email') }}</td>
         </tr>
 
         <tr>
           <td class="label">
-            <label for="passwordText">{{ $t("userEdit.password") }}</label>
+            <label for="passwordText">{{ $t('userEdit.password') }}</label>
           </td>
           <td class="field">
             <input
@@ -114,9 +114,7 @@
         </tr>
         <tr>
           <td class="label">
-            <label for="passwordConfirm">{{
-              $t("userEdit.passwordConfirm")
-            }}</label>
+            <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
           </td>
           <td class="field">
             <input
@@ -140,16 +138,17 @@
           {{ $t(varText.saveButtonText) }}
         </button>
         <button type="button" class="buttonBox" v-on:click="cancelChanges()">
-          {{ $t("common.cancel") }}
+          {{ $t('common.cancel') }}
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from "vuex";
-import asyncDataStatus from "@/mixins/AsyncDataStatus";
+<script lang="ts">
+import { useSessionInfoStore } from '../stores/sessionInfo'
+import { mapState, mapActions } from 'pinia'
+import api from '@/api'
 
 export default {
   data: function () {
@@ -157,101 +156,96 @@ export default {
       userBeingEdited: {},
       userCredentials: {},
       hideButtons: false,
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + "/admin/rest/useradmin/",
       successMessage: null,
       errorObj: {},
-    };
+      isFetching: true
+    }
   },
-  mixins: [asyncDataStatus],
   computed: {
-    ...mapState("sessionInfo", {
-      sessionInfo: (state) => state.items,
-    }),
+    ...mapState(useSessionInfoStore, ['sessionInfo']),
     varText: function () {
       if (this.sessionInfo.authenticatedUser == null) {
         return {
-          usernameTipKey: "userAdd.tip.username",
-          passwordTipKey: "userAdd.tip.password",
-          saveButtonText: "userAdd.saveButton",
-          pageTitleKey: "userAdd.title",
-          subtitleKey: "userAdd.subtitle",
-        };
+          usernameTipKey: 'userAdd.tip.username',
+          passwordTipKey: 'userAdd.tip.password',
+          saveButtonText: 'userAdd.saveButton',
+          pageTitleKey: 'userAdd.title',
+          subtitleKey: 'userAdd.subtitle'
+        }
       } else {
         return {
-          usernameTipKey: "userEdit.tip.username",
-          passwordTipKey: "userEdit.tip.password",
-          saveButtonText: "common.save",
-          pageTitleKey: "userEdit.title",
-          subtitleKey: "userEdit.subtitle",
-        };
+          usernameTipKey: 'userEdit.tip.username',
+          passwordTipKey: 'userEdit.tip.password',
+          saveButtonText: 'common.save',
+          pageTitleKey: 'userEdit.title',
+          subtitleKey: 'userEdit.subtitle'
+        }
       }
-    },
+    }
   },
   methods: {
-    ...mapActions({
-      loadSessionInfo: "sessionInfo/loadSessionInfo",
-    }),
-    loadUser: function (userId) {
-      this.axios
-        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/userprofile/" + userId)
-        .then((response) => {
-          this.userBeingEdited = response.data;
-          this.userCredentials = {};
-        });
+    ...mapActions(useSessionInfoStore, ['loadSessionInfo']),
+    loadUser: async function (userId) {
+      try {
+        const response = await api.loadUser(userId)
+        this.userBeingEdited = response.data
+        this.userCredentials = {}
+      } catch (error) {
+        this.commonErrorResponse(error)
+      }
     },
-    updateUser: function () {
-      this.messageClear();
-      const userData = {};
-      userData.user = this.userBeingEdited;
-      userData.credentials = this.userCredentials;
-      const urlToUse = this.sessionInfo.authenticatedUser
-        ? import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/userprofile/" +
-          this.sessionInfo.authenticatedUser.id
-        : import.meta.env.VITE_PUBLIC_PATH + "/register/rest/registeruser";
-
-      this.axios
-        .post(urlToUse, userData)
-        .then((response) => {
-          this.userBeingEdited = response.data.user;
-          if (!this.sessionInfo.authenticatedUser) {
-            // user registration, hide the save/cancel buttons now
-            this.hideButtons = true;
-            if (this.userBeingEdited.status === "ENABLED") {
-              this.successMessage = this.$t("userEdit.userCanLogIn");
-            } else if (this.userBeingEdited.status === "REGISTERED") {
-              this.successMessage = this.$t("userEdit.userNotActivated");
-            }
-          } else {
-            // user profile update
-            this.successMessage = this.$t("common.changesSaved");
+    updateUser: async function () {
+      this.messageClear()
+      const userData = {
+        user: this.userBeingEdited,
+        credentials: this.userCredentials
+      }
+      try {
+        const response =
+          this.sessionInfo.authenticatedUser != null
+            ? await api.saveUser(this.sessionInfo.authenticatedUser.id, userData)
+            : await api.registerUser(userData)
+        this.userBeingEdited = response.data.user
+        if (!this.sessionInfo.authenticatedUser) {
+          // user registration, hide the save/cancel buttons now
+          this.hideButtons = true
+          if (this.userBeingEdited.status === 'ENABLED') {
+            this.successMessage = this.$t('userEdit.userCanLogIn')
+          } else if (this.userBeingEdited.status === 'REGISTERED') {
+            this.successMessage = this.$t('userEdit.userNotActivated')
           }
-          this.userCredentials = {};
-        })
-        .catch((error) => this.commonErrorResponse(error));
+        } else {
+          // user profile update
+          this.successMessage = this.$t('common.changesSaved')
+        }
+        this.userCredentials = {}
+      } catch (error) {
+        this.commonErrorResponse(error)
+      }
     },
     cancelChanges: function () {
-      this.messageClear();
-      this.userBeingEdited = null;
-      this.credentials = {};
+      this.messageClear()
+      this.userBeingEdited = null
+      this.credentials = {}
     },
     messageClear: function () {
-      this.errorObj = {};
-      this.showSuccessMessage = false;
+      this.errorObj = {}
+      this.showSuccessMessage = false
     },
     commonErrorResponse: function (error) {
       if (error.response.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
-        this.errorObj = error.response.data;
+        this.errorObj = error.response.data
       }
-    },
+    }
   },
   async created() {
-    await this.loadSessionInfo();
+    await this.loadSessionInfo()
     if (this.sessionInfo.authenticatedUser != null) {
-      await this.loadUser(this.sessionInfo.authenticatedUser.id);
+      await this.loadUser(this.sessionInfo.authenticatedUser.id)
     }
-    this.asyncDataStatus_fetched();
-  },
-};
+    this.isFetching = false
+  }
+}
 </script>
