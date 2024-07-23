@@ -102,7 +102,7 @@ public class RequestMappingFilter implements Filter {
         // figure out potential weblog handle
         String pathInfo = null;
 
-        /* Following if block checks if the root URL for the web application is being accessed, if so
+        /* Following block checks if the root URL for the web application is being accessed, if so
            returns false to activate the welcome-file-list in the web.xml (which is used to forward to
            the default front-page blog defined for the installation.)
 

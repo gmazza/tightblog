@@ -50,7 +50,8 @@ export default defineConfig({
     proxy: {
       '/tb-ui/app': createProxyConfiguration(),
       '/tb-ui/authoring': createProxyConfiguration(),
-      '/tb-ui/admin': createProxyConfiguration()
+      '/tb-ui/admin': createProxyConfiguration(),
+      '/tb-ui/register': createProxyConfiguration(),
     }
   }
 })

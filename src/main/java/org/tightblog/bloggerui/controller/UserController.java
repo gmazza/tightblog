@@ -200,39 +200,39 @@ public class UserController {
 
     @PostMapping(value = "/tb-ui/register/rest/registeruser")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserData newData, Locale locale, HttpServletResponse response) {
+        WebloggerProperties.RegistrationPolicy option = webloggerPropertiesDao.findOrNull().getRegistrationPolicy();
+        if (WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         List<Violation> errors = validateUser(null, newData, true, locale);
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             return ValidationErrorResponse.badRequest(errors);
         }
 
         long userCount = userDao.count();
-        WebloggerProperties.RegistrationPolicy option = webloggerPropertiesDao.findOrNull().getRegistrationPolicy();
-        if (userCount == 0 || !WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
-            boolean mustActivate = userCount > 0;
-            if (mustActivate) {
-                newData.user().setActivationCode(UUID.randomUUID().toString());
-                newData.user().setStatus(UserStatus.REGISTERED);
-            } else {
-                // initial user is the Admin, is automatically enabled.
-                newData.user().setStatus(UserStatus.ENABLED);
-            }
-
-            User user = new User();
-            user.setUserName(newData.user().getUserName());
-            user.setDateCreated(Instant.now());
-
-            ResponseEntity<UserData> re = saveUser(user, newData, null, response, true);
-
-            if (re.getStatusCode() == HttpStatus.OK && mustActivate) {
-                UserData data = re.getBody();
-                if (data != null) {
-                    emailService.sendUserActivationEmail(data.user());
-                }
-            }
-            return re;
+        boolean mustActivate = userCount > 0;
+        if (mustActivate) {
+            newData.user().setActivationCode(UUID.randomUUID().toString());
+            newData.user().setStatus(UserStatus.REGISTERED);
         } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            // initial user is the Admin, is automatically enabled.
+            newData.user().setStatus(UserStatus.ENABLED);
         }
+
+        User user = new User();
+        user.setUserName(newData.user().getUserName());
+        user.setDateCreated(Instant.now());
+
+        ResponseEntity<UserData> re = saveUser(user, newData, null, response, true);
+
+        if (re.getStatusCode() == HttpStatus.OK && mustActivate) {
+            UserData data = re.getBody();
+            if (data != null) {
+                emailService.sendUserActivationEmail(data.user());
+            }
+        }
+        return re;
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/userprofile/{id}")

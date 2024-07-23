@@ -1,5 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,12 +33,22 @@ const router = createRouter({
       component: () => import('../views/GlobalConfig.vue')
     },
     {
-      path: '/logout',
+      path: '/app/logout',
       name: 'logout',
-      redirect: () => {
-        return import.meta.env.VITE_PUBLIC_PATH + '/app/logout'
+      beforeEnter: () => {
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'
       }
+    } as unknown as RouteRecordRaw,
+    {
+      path: '/app/profile',
+      name: 'profile',
+      component: () => import('../views/UserEdit.vue')
     },
+    {
+      path: '/app/register',
+      name: 'register',
+      component: () => import('../views/UserEdit.vue')
+    }
 
     /*
     {
@@ -51,12 +60,6 @@ const router = createRouter({
         entryId: route.query.entryId
       })
     }, */
-    {
-      // can delete
-      path: '/home',
-      name: 'home',
-      component: HomeView
-    }
   ]
 })
 
