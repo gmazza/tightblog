@@ -19,13 +19,13 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <AppTitleBar />
     <AppUserNav />
     <div id="sidebar_maincontent_wrap" style="text-align: left; padding: 20px">
       <AppErrorListMessageBox
-        :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
+        v-bind:inErrorObj="errorObj"
+        @close-box="errorObj.errors = []"
       ></AppErrorListMessageBox>
       <h2>
         {{ entryId ? $t('entryEdit.editTitle') : $t('entryEdit.addTitle') }}
@@ -55,15 +55,15 @@
           <td v-cloak>
             <span v-show="entry.status == 'PUBLISHED'" style="color: green; font-weight: bold">
               {{ $t('entryEdit.published') }} ({{ $t('entryEdit.updateTime') }}
-              {{ entry.updateTime | standard_datetime }})
+              {{ formatDateTime(entry.updateTime) }})
             </span>
             <span v-show="entry.status == 'DRAFT'" style="color: orange; font-weight: bold">
               {{ $t('entryEdit.draft') }} ({{ $t('entryEdit.updateTime') }}
-              {{ entry.updateTime | standard_datetime }})
+              {{ formatDateTime(entry.updateTime) }})
             </span>
             <span v-show="entry.status == 'SCHEDULED'" style="color: orange; font-weight: bold">
               {{ $t('entryEdit.scheduled') }} ({{ $t('entryEdit.updateTime') }}
-              {{ entry.updateTime | standard_datetime }})
+              {{ formatDateTime(entry.updateTime) }})
             </span>
             <span v-show="!entry.status" style="color: red; font-weight: bold">
               {{ $t('entryEdit.unsaved') }}
@@ -106,7 +106,7 @@
             <label for="tags">{{ $t('common.tags') }}</label>
           </td>
           <td>
-            <b-form-tags input-id="tags" v-model="entry.tags"></b-form-tags>
+            <input id="tags" v-model="entry.tags" />
           </td>
         </tr>
 
@@ -116,7 +116,7 @@
           </td>
           <td v-cloak>
             <select v-model="entry.editFormat" size="1" required>
-              <option v-for="(value, key) in lookupVals.editFormats" :value="key" :key="key">
+              <option v-for="(value, key) in lookupValues.editFormats" :value="key" :key="key">
                 {{ $t(value) }}
               </option>
             </select>
@@ -128,73 +128,99 @@
 
       <p class="toplabel"></p>
 
-      <div class="accordion" role="tablist">
-        <b-card no-body class="mb-1">
-          <b-card-header header-tag="header" class="p-1" role="tab">
-            <b-button block v-b-toggle.accordion-1 variant="info">{{
-              $t('entryEdit.content')
-            }}</b-button>
-          </b-card-header>
-          <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-              <div>
-                <textarea
-                  id="edit_content"
-                  cols="75"
-                  rows="25"
-                  style="width: 100%"
-                  v-model="entry.text"
-                ></textarea>
-              </div>
-            </b-card-body>
-          </b-collapse>
-        </b-card>
-
-        <b-card no-body class="mb-1">
-          <b-card-header header-tag="header" class="p-1" role="tab">
-            <b-button block v-b-toggle.accordion-2 variant="info"
-              >{{ $t('entryEdit.summary') }}
+      <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseOne"
+              aria-expanded="true"
+              aria-controls="collapseOne"
+            >
+              {{ $t('entryEdit.content') }}
+            </button>
+          </h2>
+          <div
+            id="collapseOne"
+            class="accordion-collapse collapse show"
+            aria-labelledby="headingOne"
+            data-bs-parent="#accordionExample"
+          >
+            <div class="accordion-body">
+              <textarea
+                id="edit_content"
+                cols="75"
+                rows="25"
+                style="width: 100%"
+                v-model="entry.text"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseTwo"
+              aria-expanded="false"
+              aria-controls="collapseTwo"
+            >
+              {{ $t('entryEdit.summary') }}
               <AppHelpPopup :helpText="$t('entryEdit.tooltip.summary')" />
-            </b-button>
-          </b-card-header>
-          <b-collapse id="accordion-2" visible accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-              <div>
-                <textarea
-                  id="edit_summary"
-                  cols="75"
-                  rows="10"
-                  style="width: 100%"
-                  v-model="entry.summary"
-                ></textarea>
-              </div>
-            </b-card-body>
-          </b-collapse>
-        </b-card>
-
-        <b-card no-body class="mb-1">
-          <b-card-header header-tag="header" class="p-1" role="tab">
-            <b-button block v-b-toggle.accordion-3 variant="info"
-              >{{ $t('entryEdit.notes') }}
+            </button>
+          </h2>
+          <div
+            id="collapseTwo"
+            class="accordion-collapse collapse"
+            aria-labelledby="headingTwo"
+            data-bs-parent="#accordionExample"
+          >
+            <div class="accordion-body">
+              <textarea
+                id="edit_summary"
+                cols="75"
+                rows="10"
+                style="width: 100%"
+                v-model="entry.summary"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingThree">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseThree"
+              aria-expanded="false"
+              aria-controls="collapseThree"
+            >
+              {{ $t('entryEdit.notes') }}
               <AppHelpPopup :helpText="$t('entryEdit.tooltip.notes')" />
-            </b-button>
-          </b-card-header>
-          <b-collapse id="accordion-3" visible accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-              <div>
-                <div>
-                  <textarea
-                    id="edit_notes"
-                    cols="75"
-                    rows="10"
-                    style="width: 100%"
-                    v-model="entry.notes"
-                  ></textarea>
-                </div>
-              </div>
-            </b-card-body>
-          </b-collapse>
-        </b-card>
+            </button>
+          </h2>
+          <div
+            id="collapseThree"
+            class="accordion-collapse collapse"
+            aria-labelledby="headingThree"
+            data-bs-parent="#accordionExample"
+          >
+            <div class="accordion-body">
+              <textarea
+                id="edit_notes"
+                cols="75"
+                rows="10"
+                style="width: 100%"
+                v-model="entry.notes"
+              ></textarea>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- advanced settings  -->
@@ -209,12 +235,12 @@
         :
         <input type="number" min="0" max="59" step="1" v-model="entry.minutes" />
         &nbsp;&nbsp;
-        <b-form-datepicker
+        <!--b-form-datepicker
           id="publish-date-picker"
           v-model="entry.dateString"
           class="mb-2"
           reset-button
-        ></b-form-datepicker>
+        ></b-form-datepicker-->
         {{ weblog.timeZone }}
       </div>
       <br />
@@ -222,7 +248,7 @@
       <span v-show="commentingActive">
         {{ $t('entryEdit.allowComments') }} {{ $t('entryEdit.commentDays') }}
         <select id="commentDaysId" v-model="entry.commentDays" size="1" required>
-          <option v-for="(value, key) in lookupVals.commentDayOptions" :value="key" :key="key">
+          <option v-for="(value, key) in lookupValues.commentDayOptions" :value="key" :key="key">
             {{ $t(value) }}
           </option>
         </select>
@@ -293,7 +319,7 @@
         </span>
 
         <span style="float: right" v-show="entryId">
-          <button type="button" v-on:click="deleteWeblogEntry(entry)">
+          <button type="button" v-on:click="confirmDeleteDialog.reveal">
             {{ $t('entryEdit.deleteEntry') }}
           </button>
         </span>
@@ -309,7 +335,7 @@
                 <h3>{{ $t('entryEdit.comments') }}</h3>
 
                 <div v-show="entry.commentCountIncludingUnapproved > 0">
-                  <router-link
+                  <!--router-link
                     :to="{
                       name: 'comments',
                       params: {
@@ -320,8 +346,7 @@
                       }
                     }"
                     >{{ commentCountMsg }}</router-link
-                  >
-                </div>
+                --></div>
                 <div v-show="entry.commentCountIncludingUnapproved == 0">
                   {{ $t('common.none') }}
                 </div>
@@ -336,8 +361,7 @@
                     <span class="entryEditSidebarLink">
                       <img
                         src="@/assets/table_edit.png"
-                        align="absmiddle"
-                        border="0"
+                        class="edit-icon"
                         alt="icon"
                         title="Edit"
                       />
@@ -368,8 +392,7 @@
                     <span class="entryEditSidebarLink">
                       <img
                         src="@/assets/table_edit.png"
-                        align="absmiddle"
-                        border="0"
+                        class="edit-icon"
                         alt="icon"
                         title="Edit"
                       />
@@ -400,8 +423,7 @@
                     <span class="entryEditSidebarLink">
                       <img
                         src="@/assets/table_edit.png"
-                        align="absmiddle"
-                        border="0"
+                        class="edit-icon"
                         alt="icon"
                         title="Edit"
                       />
@@ -429,11 +451,81 @@
         </div>
       </div>
     </div>
+    <Teleport to="#modal-div">
+      <div v-if="confirmDeleteDialog.isRevealed.value" class="vueuse-modal-layout">
+        <div class="vueuse-modal">
+          <div class="modal-header">
+            <h5
+              class="modal-title"
+              v-html="
+                $t('entryEdit.confirmDeleteTmpl', {
+                  title: entry.title
+                })
+              "
+            ></h5>
+            <button
+              @click="confirmDeleteDialog.cancel"
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-footer">
+            <button @click="deleteWeblogEntry()">{{ $t('common.confirm') }}</button>
+            <button @click="confirmDeleteDialog.cancel">{{ $t('common.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+    <Teleport to="#modal-div">
+      <div v-if="confirmLeaveNoSaveDialog.isRevealed.value" class="vueuse-modal-layout">
+        <div class="vueuse-modal">
+          <div class="modal-header">
+            <h5 class="modal-title" v-html="$t('common.confirmLeaveNoSave')"></h5>
+            <button
+              @click="confirmLeaveNoSaveDialog.cancel"
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-footer">
+            <button @click="next()">{{ $t('common.confirm') }}</button>
+            <button @click="confirmLeaveNoSaveDialog.cancel">{{ $t('common.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
+<script lang="ts">
+import type {
+  PublishStatus,
+  RecentWeblogEntry,
+  Weblog,
+  WeblogEntry,
+  ErrorObj
+} from '@/types/interfaces'
+import { createDefaultWeblogEntry } from '../helpers/factories'
+import { useSessionInfoStore } from '../stores/sessionInfo'
+import { useStartupConfigStore } from '../stores/startupConfig'
+import { useDynamicConfigStore } from '../stores/dynamicConfig'
+import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+import { AxiosError } from 'axios'
+import { mapState, mapActions } from 'pinia'
+import { format } from 'date-fns'
+import api from '@/api'
+import { useConfirmDialog } from '@vueuse/core'
+
+const confirmLeaveNoSaveDialogObj = useConfirmDialog()
+const confirmDeleteDialogObj = useConfirmDialog()
+
+interface RecentEntries {
+  SCHEDULED: RecentWeblogEntry[]
+  DRAFT: RecentWeblogEntry[]
+  PUBLISHED: RecentWeblogEntry[]
+}
 
 export default {
   props: {
@@ -448,43 +540,36 @@ export default {
   },
   data() {
     return {
-      weblog: {},
+      weblog: {} as Weblog,
       entry: {
         category: {}
-      },
-      originalEntry: {},
+      } as WeblogEntry,
+      originalEntry: {} as WeblogEntry,
       errorObj: {
         errors: []
-      },
-      commentCountMsg: null,
+      } as ErrorObj,
+      commentCountMsg: '',
       recentEntries: {
         SCHEDULED: {},
         DRAFT: {},
         PUBLISHED: {}
-      },
-      isFetching: true,
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblogentries/'
+      } as RecentEntries,
+      isFetching: true
     }
   },
   computed: {
-    /*    ...mapState("sessionInfo", {
-      sessionInfo: (state) => state.items,
-    }), */
-    ...mapState('startupConfig', {
-      lookupVals: (state) => state.lookupValues
-    }),
-    ...mapState('dynamicConfig', {
-      webloggerProps: (state) => state.webloggerProperties
-    }),
+    ...mapState(useStartupConfigStore, ['lookupValues']),
+    ...mapState(useDynamicConfigStore, ['webloggerProperties']),
     commentingActive: function () {
-      return this.webloggerProps.commentPolicy !== 'NONE' && this.weblog.allowComments !== 'NONE'
+      return (
+        this.webloggerProperties.commentPolicy !== 'NONE' && this.weblog.allowComments !== 'NONE'
+      )
     },
     formIsDirty: function () {
       return (
         this.originalEntry.title !== this.entry.title ||
-        this.originalEntry.categoryName !== this.entry.category.name ||
         this.originalEntry.editFormat !== this.entry.editFormat ||
-        this.originalEntry.content !== this.entry.content ||
+        this.originalEntry.text !== this.entry.text ||
         this.originalEntry.summary !== this.entry.summary ||
         this.originalEntry.notes !== this.entry.notes ||
         this.originalEntry.tags !== this.entry.tags ||
@@ -494,6 +579,12 @@ export default {
         this.originalEntry.searchDescription !== this.entry.searchDescription ||
         this.originalEntry.enclosureUrl !== this.entry.enclosureUrl
       )
+    },
+    confirmLeaveNoSaveDialog: function () {
+      return confirmLeaveNoSaveDialogObj
+    },
+    confirmDeleteDialog: function () {
+      return confirmDeleteDialogObj
     }
   },
   watch: {
@@ -511,100 +602,82 @@ export default {
     }
   },
   methods: {
-    ...mapActions({
-      fetchWeblog: 'sessionInfo/fetchWeblog',
-      loadWebloggerProperties: 'dynamicConfig/loadWebloggerProperties',
-      loadLookupValues: 'startupConfig/loadLookupValues'
-    }),
-    getEntry: function () {
-      this.axios.get(this.urlRoot + this.entryId).then((response) => {
-        this.entry = response.data
+    ...mapActions(useDynamicConfigStore, ['loadWebloggerProperties']),
+    ...mapActions(useSessionInfoStore, ['fetchWeblog']),
+    ...mapActions(useStartupConfigStore, ['loadLookupValues']),
+    formatDateTime: function (date: Date) {
+      return date == undefined ? '' : format(date, 'yyyy-MM-dd HH:mm:ss')
+    },
+    getEntry: async function () {
+      try {
+        this.entry = await api.loadWeblogEntry(this.entryId!)
         this.commentCountMsg = this.$t('entryEdit.hasComments', {
           commentCount: this.entry.commentCountIncludingUnapproved
         })
-        this.entry.commentDays = '' + this.entry.commentDays
         this.originalEntry = {
-          ...this.entry,
-          categoryName: this.entry.category.name
+          ...this.entry
         }
-      })
+      } catch (error) {
+        this.commonErrorResponse(error as AxiosError)
+      }
     },
-    getRecentEntries: function (entryType) {
-      this.axios
-        .get(this.urlRoot + this.weblogId + '/recententries/' + entryType)
-        .then((response) => {
-          this.recentEntries[entryType] = response.data
-        })
+    getRecentEntries: async function (entryType: PublishStatus) {
+      try {
+        console.log('weblogId:', this.weblogId)
+        const response = await api.loadRecentEntries(this.weblogId, entryType)
+        this.recentEntries[entryType] = response
+      } catch (error) {
+        this.commonErrorResponse(error as AxiosError)
+      }
     },
-    saveEntry: function (saveType) {
+    saveEntry: async function (saveType: PublishStatus) {
       this.messageClear()
-      const urlStem = this.weblogId + '/entries'
 
       const oldStatus = this.entry.status
       this.entry.status = saveType
 
-      this.axios
-        .post(this.urlRoot + urlStem, this.entry)
-        .then((response) => {
-          if (!this.entry.id) {
-            this.$router.push({
-              name: 'entryEdit',
-              params: { weblogId: this.weblogId },
-              query: { entryId: response.data }
-            })
-          } else {
-            this.getEntry()
-            this.loadRecentEntries()
-            window.scrollTo(0, 0)
-          }
-        })
-        .catch((error) => {
-          this.entry.status = oldStatus
-          if (error.response.status === 401) {
+      try {
+        const response = await api.saveWeblogEntry(this.weblogId, this.entry)
+        if (!this.entry.id) {
+          this.$router.push({
+            name: 'entryEdit',
+            params: { weblogId: this.weblogId },
+            query: { entryId: response }
+          })
+        } else {
+          this.getEntry()
+          this.loadRecentEntries()
+          window.scrollTo(0, 0)
+        }
+      } catch (error: unknown) {
+        this.entry.status = oldStatus
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
             this.errorObj = {
               errors: [
-                {
-                  message: this.$t('entryEdit.sessionTimedOut', {
-                    loginUrl: import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
-                  })
-                }
+                this.$t('entryEdit.sessionTimedOut', {
+                  loginUrl: import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
+                })
               ]
             }
             window.scrollTo(0, 0)
           } else {
             this.commonErrorResponse(error)
           }
-        })
+        }
+      }
     },
     deleteWeblogEntry: function () {
       this.messageClear()
-      const h = this.$createElement
-      const messageVNode = h('div', {
-        domProps: {
-          innerHTML: this.$t('entryEdit.confirmDeleteTmpl', {
-            title: this.entry.title
+      api
+        .deleteWeblogEntry(this.entryId!)
+        .then(() => {
+          this.$router.push({
+            name: 'entryEdit',
+            params: { weblogId: this.weblogId }
           })
-        }
-      })
-      this.$bvModal
-        .msgBoxConfirm([messageVNode], {
-          okTitle: this.$t('common.confirm'),
-          cancelTitle: this.$t('common.cancel'),
-          centered: true
         })
-        .then((value) => {
-          if (value) {
-            this.axios
-              .delete(this.urlRoot + this.entryId)
-              .then(() => {
-                this.$router.push({
-                  name: 'entryEdit',
-                  params: { weblogId: this.weblogId }
-                })
-              })
-              .catch((error) => this.commonErrorResponse(error))
-          }
-        })
+        .catch((error) => this.commonErrorResponse(error))
     },
     loadRecentEntries: function () {
       this.getRecentEntries('DRAFT')
@@ -614,49 +687,59 @@ export default {
     previewEntry: function () {
       window.open(this.entry.previewUrl)
     },
-    updateTags: function (tagsString) {
+    updateTags: function (tagsString: string) {
       this.entry.tagsAsString = tagsString
     },
-    updatePublishDate: function (date) {
+    updatePublishDate: function (date: string) {
       this.entry.dateString = date
     },
     messageClear: function () {
-      this.errorObj = {}
+      this.errorObj = { errors: [] }
     },
     initializeNewEntry: function () {
-      this.entry = {
-        commentCountIncludingUnapproved: 0,
-        commentDays: '' + this.weblog.defaultCommentDays,
-        editFormat: this.weblog.editFormat,
-        category: {}
-      }
+      this.entry = createDefaultWeblogEntry()
+      this.entry.commentCountIncludingUnapproved = 0
+      this.entry.commentDays = this.weblog.defaultCommentDays
+      this.entry.editFormat = this.weblog.editFormat
+      this.entry.category = { id: '', name: '' }
       this.entry.category.name = this.weblog.weblogCategoryNames[0]
       this.originalEntry = {
-        ...this.entry,
-        categoryName: this.entry.category.name
+        ...this.entry
       }
       window.scrollTo(0, 0)
     },
-    commonErrorResponse: function (error) {
-      if (error.response.status === 401) {
+    commonErrorResponse: function (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
-        this.errorObj = error.response.data
+        if (error instanceof AxiosError) {
+          this.errorObj = error.response?.data
+        } else {
+          this.errorObj = { errors: ['An unknown error occurred'] }
+        }
         window.scrollTo(0, 0)
       }
     },
-    checkDirty(to, from, next) {
+    checkDirty(
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) {
       if (this.formIsDirty) {
-        this.$bvModal
-          .msgBoxConfirm(this.$t('common.confirmLeaveNoSave'), {
-            okTitle: this.$t('common.confirm'),
-            cancelTitle: this.$t('common.cancel'),
-            centered: true
+        confirmLeaveNoSaveDialogObj
+          .reveal({
+            title: this.$t('common.confirm'),
+            message: this.$t('common.confirmLeaveNoSave'),
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel'
           })
-          .then((value) => {
-            if (value) {
+          .then((confirmed) => {
+            if (confirmed) {
               next()
             }
+          })
+          .catch(() => {
+            // Handle the case where the user cancels the dialog
           })
       } else {
         next()
@@ -664,8 +747,6 @@ export default {
     }
   },
   async created() {
-    // indicate requests via Ajax calls, so auth problems return 401s vs. login redirects
-    this.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
     await this.loadWebloggerProperties()
     await this.loadLookupValues()
     await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
@@ -677,7 +758,7 @@ export default {
     } else {
       this.initializeNewEntry()
     }
-    this.asyncDataStatus_fetched()
+    this.isFetching = false
   },
   beforeRouteLeave(to, from, next) {
     if (to.path != from.path) {
@@ -696,4 +777,9 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+.edit-icon {
+  vertical-align: middle;
+  border: none;
+}
+</style>

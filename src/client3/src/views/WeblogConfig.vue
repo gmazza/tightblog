@@ -19,20 +19,20 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <AppTitleBar />
     <div v-if="weblogId">
       <AppUserNav />
     </div>
     <div id="weblogConfig" style="text-align: left; padding: 20px">
-      <AppSuccessMessageBox :message="successMessage" @close-box="successMessage = null" />
+      <AppSuccessMessageBox :message="successMessage" @close-box="successMessage = ''" />
       <AppErrorListMessageBox
         :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
+        @close-box="errorObj.errors = []"
       ></AppErrorListMessageBox>
 
       <h2 v-if="!weblogId">{{ $t(varText.pageTitleKey) }}</h2>
-      <p class="subtitle">{{ $t(varText.subtitlePrompt, { handle: this.weblog.handle }) }}</p>
+      <p class="subtitle">{{ $t(varText.subtitlePrompt, { handle: weblog.handle }) }}</p>
       <table class="formtable">
         <tbody>
           <tr>
@@ -71,7 +71,7 @@
                 :readonly="weblogId == null ? false : true"
               />
               <br />
-              <span style="text-size: 70%">
+              <span style="font-size: 70%">
                 {{ $t('weblogConfig.weblogUrl') }}:&nbsp; {{ startupConfig.absoluteSiteURL }}/<span
                   style="color: red"
                   >{{ weblog.handle }}</span
@@ -271,7 +271,7 @@
         </span>
 
         <span v-if="weblogId" style="float: right">
-          <button @click="this.deleteDialog.reveal">
+          <button @click="deleteDialog.reveal">
             {{ $t('weblogConfig.deleteWeblogButton') }}
           </button>
         </span>
@@ -280,7 +280,7 @@
 
     <!-- Delete weblog modal -->
     <Teleport to="#modal-div">
-      <div v-if="this.deleteDialog.isRevealed.value" class="vueuse-modal-layout">
+      <div v-if="deleteDialog.isRevealed.value" class="vueuse-modal-layout">
         <div class="vueuse-modal">
           <div class="modal-header">
             <h5
@@ -288,7 +288,7 @@
               v-html="$t('weblogConfig.deleteConfirm', { handle: weblog.handle })"
             ></h5>
             <button
-              @click="this.deleteDialog.cancel"
+              @click="deleteDialog.cancel"
               type="button"
               class="btn-close"
               aria-label="Close"
@@ -311,7 +311,7 @@
           </div>
           <div class="modal-footer">
             <button @click="removeWeblog()">{{ $t('common.delete') }}</button>
-            <button @click="this.deleteDialog.cancel">{{ $t('common.cancel') }}</button>
+            <button @click="deleteDialog.cancel">{{ $t('common.cancel') }}</button>
           </div>
         </div>
       </div>
@@ -319,11 +319,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { Weblog, ErrorObj } from '@/types/interfaces'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useStartupConfigStore } from '../stores/startupConfig'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'
+import { AxiosError } from 'axios'
 import { useConfirmDialog } from '@vueuse/core'
 
 const deleteDialogObj = useConfirmDialog()
@@ -347,14 +349,16 @@ export default {
         visible: true,
         entriesPerPage: 12,
         defaultCommentDays: -1
-      },
+      } as Weblog,
       deleteDialogTitle: null,
       deleteDialogWarning: null,
       deleteDialogInstruction: null,
       deleteHandle: '',
-      successMessage: null,
+      successMessage: '',
       isFetching: true,
-      errorObj: {}
+      errorObj: {
+        errors: []
+      } as ErrorObj
     }
   },
   computed: {
@@ -372,7 +376,7 @@ export default {
     filteredSpamOptions: function () {
       if (this.lookupValues && this.lookupValues.spamOptionList) {
         return this.lookupValues.spamOptionList.filter(
-          (item) => item.level >= this.webloggerProperties.spamPolicyLevel
+          (item: { level: number }) => item.level >= this.webloggerProperties.spamPolicyLevel
         )
       } else {
         return []
@@ -381,7 +385,7 @@ export default {
     filteredCommentOptions: function () {
       if (this.lookupValues && this.lookupValues.commentOptionList) {
         return this.lookupValues.commentOptionList.filter(
-          (item) => item.level <= this.webloggerProperties.commentPolicyLevel
+          (item: { level: number }) => item.level <= this.webloggerProperties.commentPolicyLevel
         )
       } else {
         return []
@@ -433,11 +437,18 @@ export default {
         this.weblog.id &&
         this.weblog.handle.toUpperCase() === this.deleteHandle.toUpperCase().trim()
       ) {
-        this.deleteWeblog(this.weblogId)
+        this.deleteWeblog(this.weblog.id)
           .then(() => {
             this.$router.push({ name: 'myBlogs' })
           })
           .catch((error) => this.commonErrorResponse(error))
+      }
+    },
+    loadWeblog: function () {
+      if (this.weblogId) {
+        this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+          this.weblog = fetchedWeblog
+        })
       }
     },
     cancelChanges: function () {
@@ -449,17 +460,21 @@ export default {
         this.$router.push({ name: 'myBlogs' })
       }
     },
-    commonErrorResponse: function (error) {
-      if (error.response.status === 401) {
+    commonErrorResponse: function (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
-        this.errorObj = error.response.data
+        if (error instanceof AxiosError) {
+          this.errorObj = error.response?.data
+        } else {
+          this.errorObj = { errors: ['An unknown error occurred'] }
+        }
         window.scrollTo(0, 0)
       }
     },
     messageClear: function () {
-      this.errorObj = {}
-      this.successMessage = null
+      this.errorObj = { errors: [] }
+      this.successMessage = ''
     }
   },
   async created() {
@@ -467,9 +482,7 @@ export default {
     await this.loadStartupConfig()
     await this.loadLookupValues()
     if (this.weblogId) {
-      await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
-        this.weblog = fetchedWeblog
-      })
+      this.loadWeblog()
     }
     this.isFetching = false
   }

@@ -351,6 +351,7 @@ table.mm_table {
 }
 td.mm_table_actions {
   padding-left: 4px;
+  text-align: left;
 }
 td.mm_subtable_label {
   width: 160px;

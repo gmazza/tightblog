@@ -1,11 +1,11 @@
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <div>
       <div class="bannerStatusBox">
         <table v-if="sessionInfo != null" class="bannerStatusBox" cellpadding="0" cellspacing="0">
           <tr>
             <td class="bannerLeft">
-              <span>{{
+              <span class="spaced-span" v-if="startupConfig">{{
                 $t('navigationBar.productVersion', {
                   version: startupConfig.tightblogVersion
                 })
@@ -51,7 +51,7 @@
                 $t('navigationBar.login')
               }}</router-link-->
 
-                <span v-if="this.startupConfig.registrationPolicy != 'DISABLED'">
+                <span v-if="startupConfig?.registrationPolicy != 'DISABLED'">
                   |
                   <router-link :to="{ name: 'register' }">{{
                     $t('navigationBar.register')
@@ -119,5 +119,8 @@ div.bannerStatusBox {
 .bannerRight {
   padding: 4px 10px 4px 15px;
   text-align: right;
+}
+.spaced-span {
+  margin-right: 4px;
 }
 </style>

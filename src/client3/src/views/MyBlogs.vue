@@ -79,9 +79,9 @@
               </table>
             </td>
 
-            <td class="mm_table_actions" width="20%" align="left">
+            <td class="mm_table_actions" width="20%">
               <img src="@/assets/table_edit.png" />
-              <!--router-link
+              <router-link
                 :to="{
                   name: 'entryEdit',
                   params: {
@@ -89,7 +89,7 @@
                   }
                 }"
                 >{{ $t('common.newEntry') }}</router-link
-              -->
+              >
               <br />
 
               <img src="@/assets/table_multiple.png" />
