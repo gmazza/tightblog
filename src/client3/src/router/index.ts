@@ -48,9 +48,7 @@ const router = createRouter({
       path: '/app/register',
       name: 'register',
       component: () => import('../views/UserEdit.vue')
-    }
-
-    /*
+    },
     {
       path: '/app/entryEdit/:weblogId',
       name: 'entryEdit',
@@ -59,7 +57,7 @@ const router = createRouter({
         weblogId: route.params.weblogId,
         entryId: route.query.entryId
       })
-    }, */
+    }
   ]
 })
 

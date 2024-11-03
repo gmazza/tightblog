@@ -6,30 +6,24 @@
     v-show="inErrorObj.errors && inErrorObj.errors.length > 0"
     v-cloak
   >
-    <button
-      type="button"
-      class="close"
-      v-on:click="$emit('close-box')"
-      aria-label="Close"
-    >
+    <button type="button" class="close" v-on:click="$emit('close-box')" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-      <li
-        v-for="(item, index) in inErrorObj.errors"
-        v-html="item.message"
-        :key="`${index}`"
-      ></li>
+      <li v-for="(item, index) in inErrorObj.errors" v-html="item.message" :key="`${index}`"></li>
     </ul>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from 'vue'
+import type { ErrorObj } from '@/types/interfaces'
+
 export default {
   props: {
     inErrorObj: {
-      type: Object,
-      default: () => ({})
+      type: Object as PropType<ErrorObj>,
+      default: () => ({ errors: [] })
     }
   }
 }
