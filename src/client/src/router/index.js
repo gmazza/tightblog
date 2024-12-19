@@ -46,26 +46,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/entries/:weblogId",
-    name: "entries",
-    meta: {
-      userNeedsMFARegistration: true,
-    },
-    component: () =>
-      import("../views/Entries.vue"),
-    props: true,
-  },
-  {
-    path: "/app/entryEdit/:weblogId",
-    name: "entryEdit",
-    component: () =>
-      import("../views/EntryEdit.vue"),
-    props: (route) => ({
-      weblogId: route.params.weblogId,
-      entryId: route.query.entryId,
-    }),
-  },
-  {
     path: "/app/comments/:weblogId",
     name: "comments",
     component: () =>
@@ -118,20 +98,6 @@ const routes = [
     component: () =>
       import("../views/TemplateEdit.vue"),
     props: true,
-  },
-  {
-    path: "/app/weblogConfig/:weblogId",
-    name: "weblogConfig",
-    component: () =>
-      import("../views/WeblogConfig.vue"),
-    // https://router.vuejs.org/guide/essentials/passing-props.html#boolean-mode
-    props: true,
-  },
-  {
-    path: "/admin/globalConfig",
-    name: "globalConfig",
-    component: () =>
-      import("../views/GlobalConfig.vue"),
   },
   {
     path: "/admin/userAdmin",

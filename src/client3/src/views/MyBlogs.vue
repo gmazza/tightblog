@@ -19,15 +19,15 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <AppTitleBar />
     <div style="text-align: left; padding: 20px">
       <h1>{{ $t('myBlogs.title') }}</h1>
-      <span v-show="this.userWeblogRoles.length == 0">
+      <span v-show="userWeblogRoles.length == 0">
         <p>{{ $t('myBlogs.noblogs') }}</p>
       </span>
 
-      <div v-for="role in this.userWeblogRoles" :key="role.weblog.id">
+      <div v-for="role in userWeblogRoles" :key="role.weblog.id">
         <span class="mm_weblog_name"
           ><img src="@/assets/folder.png" />&nbsp;{{ role.weblog.name }}</span
         >
@@ -93,9 +93,9 @@
               <br />
 
               <img src="@/assets/table_multiple.png" />
-              <!--router-link :to="{ name: 'entries', params: { weblogId: role.weblog.id } }">{{
+              <router-link :to="{ name: 'entries', params: { weblogId: role.weblog.id } }">{{
                 $t('common.entries')
-              }}</router-link-->
+              }}</router-link>
               <br />
 
               <img src="@/assets/page_white_edit.png" />
@@ -105,7 +105,7 @@
               <span v-if="role.weblog.unapprovedComments > 0">
                 {{
                   $t('weblogConfig.deleteConfirm', {
-                    count: unapprovedCommentCount
+                    count: role.weblog.unapprovedComments
                   })
                 }}
               </span>
@@ -114,7 +114,7 @@
               <!-- Only admins get access to theme and config settings -->
               <!--span v-if="role.weblogRole == 'OWNER'"-->
               <!-- And only show theme option if custom themes are enabled -->
-              <span v-if="this.webloggerProperties.usersCustomizeThemes">
+              <span v-if="webloggerProperties.usersCustomizeThemes">
                 <img src="@/assets/layout.png" />
                 <!--router-link
                     :to="{
@@ -141,16 +141,42 @@
 
               <!-- disallow owners from resigning from blog -->
               <span v-if="role.weblogRole !== 'OWNER'">
-                <button type="button" v-on:click="resignWeblog(role)">
+                <button type="button" v-on:click="confirmResignDialog.reveal">
                   <img src="@/assets/delete.png" /> {{ $t('myBlogs.resign') }}
                 </button>
               </span>
             </td>
           </tr>
         </table>
+        <Teleport to="#modal-div">
+          <div v-if="confirmResignDialog.isRevealed.value" class="vueuse-modal-layout">
+            <div class="vueuse-modal">
+              <div class="modal-header">
+                <h5
+                  class="modal-title"
+                  v-html="
+                    $t('myBlogs.confirmResignation', {
+                      weblogName: role.weblog.name
+                    })
+                  "
+                ></h5>
+                <button
+                  @click="confirmResignDialog.cancel"
+                  type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-footer">
+                <button @click="detachUserFromWeblog(role.id)">{{ $t('common.confirm') }}</button>
+                <button @click="confirmResignDialog.cancel">{{ $t('common.cancel') }}</button>
+              </div>
+            </div>
+          </div>
+        </Teleport>
       </div>
 
-      <form v-if="this.sessionInfo.userCanCreateBlogs" @submit.stop.prevent="createWeblog()">
+      <form v-if="sessionInfo.userCanCreateBlogs" @submit.stop.prevent="createWeblog()">
         <div class="control clearfix">
           <input type="submit" :value="$t('myBlogs.createWeblog')" />
         </div>
@@ -163,6 +189,10 @@
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'
+import { useConfirmDialog } from '@vueuse/core'
+import api from '@/api'
+
+const confirmResignDialogObj = useConfirmDialog()
 
 export default {
   data: function () {
@@ -174,7 +204,10 @@ export default {
   },
   computed: {
     ...mapState(useSessionInfoStore, ['sessionInfo', 'userWeblogRoles']),
-    ...mapState(useDynamicConfigStore, ['webloggerProperties'])
+    ...mapState(useDynamicConfigStore, ['webloggerProperties']),
+    confirmResignDialog: function () {
+      return confirmResignDialogObj
+    }
   },
   methods: {
     ...mapActions(useSessionInfoStore, [
@@ -187,34 +220,11 @@ export default {
     createWeblog: function () {
       this.$router.push({ name: 'createWeblog' })
     },
-    getRoleText: function (weblogRole) {
+    getRoleText: function (weblogRole: string) {
       if (weblogRole === 'POST') {
         return 'PUBLISHER'
       } // else 'OWNER'
       return weblogRole
-    },
-    resignWeblog: function (role) {
-      // https://bootstrap-vue.org/docs/components/modal#message-box-advanced-usage
-      const h = this.$createElement
-      const messageVNode = h('div', {
-        domProps: {
-          innerHTML: this.$t('myBlogs.confirmResignation', {
-            weblogName: role.weblog.name
-          })
-        }
-      })
-      this.$bvModal
-        .msgBoxConfirm([messageVNode], {
-          title: this.$t('myBlogs.confirmResignationTitle'),
-          okTitle: this.$t('common.confirm'),
-          cancelTitle: this.$t('common.cancel'),
-          centered: true
-        })
-        .then((value) => {
-          if (value) {
-            this.detachUserFromWeblog(role.id)
-          }
-        })
     }
   },
   async created() {

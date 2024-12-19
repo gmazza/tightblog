@@ -128,9 +128,6 @@ public class WeblogEntry implements WeblogOwned {
 
     // temporary non-persisted fields used for form entry & retrieving associated data
     private WeblogEntryCommentDao weblogEntryCommentDao;
-    private int hours;
-    private int minutes;
-    private String dateString;
     private String permalink;
     private String previewUrl;
     private Set<String> tags;
@@ -438,33 +435,6 @@ public class WeblogEntry implements WeblogOwned {
     @Transient
     public boolean isPublished() {
         return PubStatus.PUBLISHED.equals(getStatus());
-    }
-
-    @Transient
-    public int getHours() {
-        return hours;
-    }
-
-    public void setHours(int hours) {
-        this.hours = hours;
-    }
-
-    @Transient
-    public int getMinutes() {
-        return minutes;
-    }
-
-    public void setMinutes(int minutes) {
-        this.minutes = minutes;
-    }
-
-    @Transient
-    public String getDateString() {
-        return dateString;
-    }
-
-    public void setDateString(String dateString) {
-        this.dateString = dateString;
     }
 
     @Transient

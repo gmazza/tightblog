@@ -231,16 +231,13 @@
 
       <label for="link">{{ $t('entryEdit.specifyPubTime') }}:</label>
       <div>
-        <input type="number" min="0" max="23" step="1" v-model="entry.hours" />
-        :
-        <input type="number" min="0" max="59" step="1" v-model="entry.minutes" />
-        &nbsp;&nbsp;
-        <!--b-form-datepicker
-          id="publish-date-picker"
-          v-model="entry.dateString"
-          class="mb-2"
-          reset-button
-        ></b-form-datepicker-->
+        <VueDatePicker
+          v-model="entry.pubTime"
+          :enable-time-picker="true"
+          :format="formatDateToMinute"
+          :clear-button="true"
+          :reset-button="true"
+        />
         {{ weblog.timeZone }}
       </div>
       <br />
@@ -490,7 +487,7 @@
             ></button>
           </div>
           <div class="modal-footer">
-            <button @click="next()">{{ $t('common.confirm') }}</button>
+            <button @click="confirmLeaveNoSaveDialog.confirm">{{ $t('common.confirm') }}</button>
             <button @click="confirmLeaveNoSaveDialog.cancel">{{ $t('common.cancel') }}</button>
           </div>
         </div>
@@ -514,9 +511,11 @@ import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import { AxiosError } from 'axios'
 import { mapState, mapActions } from 'pinia'
-import { format } from 'date-fns'
+import { formatDateToMinute, formatDateTime } from '../helpers'
 import api from '@/api'
 import { useConfirmDialog } from '@vueuse/core'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const confirmLeaveNoSaveDialogObj = useConfirmDialog()
 const confirmDeleteDialogObj = useConfirmDialog()
@@ -528,6 +527,9 @@ interface RecentEntries {
 }
 
 export default {
+  components: {
+    VueDatePicker
+  },
   props: {
     weblogId: {
       required: true,
@@ -573,8 +575,7 @@ export default {
         this.originalEntry.summary !== this.entry.summary ||
         this.originalEntry.notes !== this.entry.notes ||
         this.originalEntry.tags !== this.entry.tags ||
-        this.originalEntry.minutes !== this.entry.minutes ||
-        this.originalEntry.dateString !== this.entry.dateString ||
+        this.originalEntry.pubTime !== this.entry.pubTime ||
         this.originalEntry.commentDays !== this.entry.commentDays ||
         this.originalEntry.searchDescription !== this.entry.searchDescription ||
         this.originalEntry.enclosureUrl !== this.entry.enclosureUrl
@@ -605,9 +606,6 @@ export default {
     ...mapActions(useDynamicConfigStore, ['loadWebloggerProperties']),
     ...mapActions(useSessionInfoStore, ['fetchWeblog']),
     ...mapActions(useStartupConfigStore, ['loadLookupValues']),
-    formatDateTime: function (date: Date) {
-      return date == undefined ? '' : format(date, 'yyyy-MM-dd HH:mm:ss')
-    },
     getEntry: async function () {
       try {
         this.entry = await api.loadWeblogEntry(this.entryId!)
@@ -620,6 +618,12 @@ export default {
       } catch (error) {
         this.commonErrorResponse(error as AxiosError)
       }
+    },
+    formatDateToMinute: function (date: Date) {
+      return formatDateToMinute(date)
+    },
+    formatDateTime(date: Date) {
+      return formatDateTime(date)
     },
     getRecentEntries: async function (entryType: PublishStatus) {
       try {
@@ -689,9 +693,6 @@ export default {
     },
     updateTags: function (tagsString: string) {
       this.entry.tagsAsString = tagsString
-    },
-    updatePublishDate: function (date: string) {
-      this.entry.dateString = date
     },
     messageClear: function () {
       this.errorObj = { errors: [] }

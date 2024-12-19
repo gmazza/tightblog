@@ -57,6 +57,15 @@ const router = createRouter({
         weblogId: route.params.weblogId,
         entryId: route.query.entryId
       })
+    },
+    {
+      path: '/app/entries/:weblogId',
+      name: 'entries',
+      meta: {
+        userNeedsMFARegistration: true
+      },
+      component: () => import('../views/BlogEntries.vue'),
+      props: true
     }
   ]
 })

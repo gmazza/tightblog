@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@vuepic/vue-datepicker": "^10.0.0",
     "@vueuse/core": "^10.11.0",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",

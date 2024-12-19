@@ -10,7 +10,7 @@
       <span aria-hidden="true">&times;</span>
     </button>
     <ul class="list-unstyled">
-      <li v-for="(item, index) in inErrorObj.errors" v-html="item.message" :key="`${index}`"></li>
+      <li v-for="(item, index) in inErrorObj.errors" v-html="item" :key="`${index}`"></li>
     </ul>
   </div>
 </template>
