@@ -13,7 +13,9 @@ import type {
   UserWeblogRole,
   WebloggerProperties,
   Weblog,
+  WeblogEntriesData,
   WeblogEntry,
+  WeblogEntryQueryParams,
   RecentWeblogEntry
 } from '@/types/interfaces'
 
@@ -71,6 +73,21 @@ export default {
         entryType
     )
   },
+  async loadEntries(
+    weblogId: string,
+    pageNum: number,
+    queryParams: WeblogEntryQueryParams
+  ): Promise<WeblogEntriesData> {
+    const response: AxiosResponse<WeblogEntriesData> = await axios.post(
+      import.meta.env.VITE_PUBLIC_PATH +
+        '/authoring/rest/weblogentries/' +
+        weblogId +
+        '/page/' +
+        pageNum,
+      queryParams
+    )
+    return response.data
+  },
   saveWeblogEntry(weblogId: string, entry: WeblogEntry): Promise<string> {
     return axios
       .post(
@@ -80,7 +97,9 @@ export default {
       .then((response) => response.data)
   },
   deleteWeblogEntry(entryId: string) {
-    return axios.delete(import.meta.env.VITE_PUBLIC_PATH + '/' + entryId)
+    return axios.delete(
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblogentries/' + entryId
+    )
   },
   saveWebloggerProperties(webloggerProps: WebloggerProperties) {
     axios

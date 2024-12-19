@@ -83,9 +83,6 @@ export interface WeblogEntry {
   category: WeblogCategory
   tags: Array<string>
   tagsAsString: string
-  hours: number
-  minutes: number
-  dateString: string
   permalink: string
   previewUrl: string
   status: PublishStatus
@@ -95,7 +92,21 @@ export interface WeblogEntry {
   enclosureLength: number
   commentCountIncludingUnapproved: number
   editFormat: string
+  pubTime: Date
   updateTime: Date
+}
+
+export interface WeblogEntriesData {
+  entries: Array<WeblogEntry>
+  hasMore: boolean
+}
+
+export interface WeblogEntryQueryParams {
+  categoryName?: string
+  sortBy?: 'PUBLICATION_TIME' | 'UPDATE_TIME'
+  status?: PublishStatus
+  startDate?: Date
+  endDate?: Date
 }
 
 export interface WebloggerProperties {

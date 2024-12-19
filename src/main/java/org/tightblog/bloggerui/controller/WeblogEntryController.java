@@ -59,9 +59,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +71,6 @@ import java.util.stream.Collectors;
 public class WeblogEntryController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryController.class);
-
-    private static final DateTimeFormatter PUB_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final WeblogDao weblogDao;
     private final WeblogEntryDao weblogEntryDao;
@@ -133,12 +128,7 @@ public class WeblogEntryController {
         entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
 
         if (entry.getPubTime() != null) {
-            LOG.debug("entry pubtime is {}", entry.getPubTime());
-            ZonedDateTime zdt = entry.getPubTime().atZone(entry.getWeblog().getZoneId());
-            entry.setHours(zdt.getHour());
-            entry.setMinutes(zdt.getMinute());
             entry.setCreator(null);
-            entry.setDateString(PUB_DATE_FORMAT.format(zdt.toLocalDate()));
         }
 
         return entry;
@@ -232,8 +222,7 @@ public class WeblogEntryController {
             }
 
             entry.setUpdateTime(Instant.now());
-            Instant pubTime = calculatePubTime(entryData);
-            entry.setPubTime((pubTime != null) ? pubTime : entry.getUpdateTime());
+            entry.setPubTime((entryData.getPubTime() != null) ? entryData.getPubTime() : entry.getUpdateTime());
 
             if (PubStatus.PUBLISHED.equals(entryData.getStatus()) &&
                     entry.getPubTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
@@ -291,24 +280,6 @@ public class WeblogEntryController {
         } else {
             return ResponseEntity.status(403).body(messages.getMessage("error.title.403", null, locale));
         }
-    }
-
-    private static Instant calculatePubTime(WeblogEntry entry) {
-        Instant pubtime = null;
-
-        String dateString = entry.getDateString();
-        if (!StringUtils.isEmpty(dateString)) {
-            try {
-                LocalDate newDate = LocalDate.parse(dateString, PUB_DATE_FORMAT);
-
-                // Now handle the time from the hour, minute and second combos
-                pubtime = newDate.atTime(entry.getHours(), entry.getMinutes())
-                        .atZone(entry.getWeblog().getZoneId()).toInstant();
-            } catch (Exception e) {
-                LOG.error("Error calculating pubtime", e);
-            }
-        }
-        return pubtime;
     }
 
     @DeleteMapping(value = "/{id}")
