@@ -66,6 +66,15 @@ const router = createRouter({
       },
       component: () => import('../views/BlogEntries.vue'),
       props: true
+    },
+    {
+      path: '/app/comments/:weblogId',
+      name: 'comments',
+      component: () => import('../views/EntryComments.vue'),
+      props: (route) => ({
+        weblogId: route.params.weblogId,
+        entryId: route.query.entryId || null
+      })
     }
   ]
 })

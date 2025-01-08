@@ -46,16 +46,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/comments/:weblogId",
-    name: "comments",
-    component: () =>
-      import("../views/Comments.vue"),
-    props: (route) => ({
-      weblogId: route.params.weblogId,
-      entryId: route.query.entryId,
-    }),
-  },
-  {
     path: "/app/tags/:weblogId",
     name: "tags",
     component: () => import("../views/Tags.vue"),

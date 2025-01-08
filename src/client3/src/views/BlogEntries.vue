@@ -145,7 +145,7 @@
       </span>
       <br /><br />
 
-      <span v-if="pageNum > 0 || entriesData.hasMore" class="centered-buttons">
+      <span v-if="pageNum > 0 || entriesData.hasMore" v-cloak class="centered-buttons">
         &laquo;
         <button type="button" v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
           {{ $t('common.previousPage') }}
@@ -300,9 +300,9 @@ import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useStartupConfigStore } from '../stores/startupConfig'
 import { formatDateTime } from '../helpers'
 import { useConfirmDialog } from '@vueuse/core'
+import api from '@/api'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import api from '@/api'
 
 const confirmDeleteDialogObj = useConfirmDialog()
 

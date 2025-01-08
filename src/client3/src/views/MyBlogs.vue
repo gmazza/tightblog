@@ -99,12 +99,12 @@
               <br />
 
               <img src="@/assets/page_white_edit.png" />
-              <!--router-link :to="{ name: 'comments', params: { weblogId: role.weblog.id } }">{{
-                $t('common.comments')
-              }}</router-link-->
+              <router-link :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
+                >{{ $t('common.comments') }}
+              </router-link>
               <span v-if="role.weblog.unapprovedComments > 0">
                 {{
-                  $t('weblogConfig.deleteConfirm', {
+                  $t('myBlogs.haveUnapprovedComments', {
                     count: role.weblog.unapprovedComments
                   })
                 }}

@@ -5,6 +5,9 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
 import type {
   CacheItem,
+  Comment,
+  CommentsData,
+  EntryCommentsQueryParams,
   LookupValues,
   SessionInfo,
   StartupConfig,
@@ -64,15 +67,6 @@ export default {
     )
     return response.data
   },
-  loadRecentEntries(weblogId: string, entryType: string): Promise<RecentWeblogEntry[]> {
-    return axios.get(
-      import.meta.env.VITE_PUBLIC_PATH +
-        '/authoring/rest/weblogentries/' +
-        weblogId +
-        '/recententries/' +
-        entryType
-    )
-  },
   async loadEntries(
     weblogId: string,
     pageNum: number,
@@ -100,6 +94,53 @@ export default {
     return axios.delete(
       import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblogentries/' + entryId
     )
+  },
+  loadRecentEntries(weblogId: string, entryType: string): Promise<RecentWeblogEntry[]> {
+    return axios.get(
+      import.meta.env.VITE_PUBLIC_PATH +
+        '/authoring/rest/weblogentries/' +
+        weblogId +
+        '/recententries/' +
+        entryType
+    )
+  },
+  async loadComments(
+    weblogId: string,
+    pageNum: number,
+    queryParams: EntryCommentsQueryParams,
+    entryId?: string
+  ): Promise<CommentsData> {
+    let url =
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/' + weblogId + '/page/' + pageNum
+    if (entryId) {
+      url += '?entryId=' + entryId
+    }
+    const response: AxiosResponse<CommentsData> = await axios.post(url, queryParams)
+    return response.data
+  },
+  saveComment(comment: Comment): Promise<Comment> {
+    return axios
+      .put(
+        import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/' + comment.id + '/content',
+        comment.content,
+        {
+          headers: { 'Content-Type': 'text/plain' }
+        }
+      )
+      .then((response) => response.data)
+  },
+  approveComment(commentId: string) {
+    return axios.post(
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/' + commentId + '/approve'
+    )
+  },
+  hideComment(commentId: string) {
+    return axios.post(
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/' + commentId + '/hide'
+    )
+  },
+  deleteComment(commentId: string) {
+    return axios.delete(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/' + commentId)
   },
   saveWebloggerProperties(webloggerProps: WebloggerProperties) {
     axios

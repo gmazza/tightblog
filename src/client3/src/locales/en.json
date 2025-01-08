@@ -307,7 +307,7 @@
     "confirmResignationTitle": "Confirm Resignation",
     "createWeblog": "Add a new weblog",
     "confirmResignation": "Are you sure you wish to leave weblog <b>{weblogName}</b>?  Blog will remain visible, unless deleted or hidden from the settings page.  (Blog admins are able to attach ",
-    "haveUnapprovedComments": "{count} needing review"
+    "haveUnapprovedComments": " {count} needing review"
   },
   "navigationBar": {
     "productVersion": "TightBlog {version}",
