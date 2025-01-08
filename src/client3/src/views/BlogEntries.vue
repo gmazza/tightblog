@@ -145,7 +145,7 @@
       </span>
       <br /><br />
 
-      <span v-if="pageNum > 0 || entriesData.hasMore" class="centered-buttons">
+      <span v-if="pageNum > 0 || entriesData.hasMore" v-cloak class="centered-buttons">
         &laquo;
         <button type="button" v-bind:disabled="pageNum <= 0" v-on:click="previousPage()">
           {{ $t('common.previousPage') }}

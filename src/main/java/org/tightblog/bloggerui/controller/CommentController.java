@@ -46,8 +46,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -160,16 +161,17 @@ public class CommentController {
 
     @PutMapping(value = "/{id}/content")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
-    public WeblogEntryComment updateComment(@PathVariable String id, Principal p, HttpServletRequest request)
+    public WeblogEntryComment updateComment(@PathVariable String id, Principal p, @RequestBody String content)
             throws IOException {
 
         WeblogEntryComment wec = weblogEntryCommentDao.getById(id);
-        String content = Utilities.apiValueToFormSubmissionValue(request.getInputStream());
+        String fixedContent = Utilities.apiValueToFormSubmissionValue(new
+                ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 
         // Validate content
         HTMLSanitizer.Level sanitizerLevel = webloggerPropertiesDao.findOrNull().getCommentHtmlPolicy();
         Safelist commentHTMLSafelist = sanitizerLevel.getSafelist();
-        wec.setContent(Jsoup.clean(content, commentHTMLSafelist));
+        wec.setContent(Jsoup.clean(fixedContent, commentHTMLSafelist));
 
         weblogEntryManager.saveComment(wec, true);
         return wec;

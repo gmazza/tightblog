@@ -1,6 +1,36 @@
 export interface CacheItem {}
 
+export interface Comment {
+  id: string
+  postTime: Date
+  status: CommentStatus
+  weblogEntry: WeblogEntry
+  name: string
+  email: string
+  url: string
+  content: string
+  originalContent: string
+  editable: boolean
+  remoteHost: string
+}
+
 export interface Credentials {}
+
+export interface EntryCommentsQueryParams {
+  categoryName?: string
+  searchText?: string
+  status?: CommentStatus | ''
+  startDate?: Date
+  endDate?: Date
+}
+
+export type CommentStatus = 'PENDING' | 'APPROVED' | 'DISAPPROVED' | 'SPAM'
+
+export interface CommentsData {
+  entryTitle: string
+  comments: Array<Comment>
+  hasMore: boolean
+}
 
 export interface ErrorObj {
   errors: Array<string>

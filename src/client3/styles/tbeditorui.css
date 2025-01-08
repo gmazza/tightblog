@@ -231,9 +231,8 @@ div.sideformrow {
   width: 100%;
 }
 label.sideformrow {
-  float: left;
   text-align: left;
-  width: 30%;
+  width: 40%;
   padding-right: 1em;
   padding-top: 1em;
   font-size: smaller;

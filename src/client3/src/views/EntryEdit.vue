@@ -332,7 +332,7 @@
                 <h3>{{ $t('entryEdit.comments') }}</h3>
 
                 <div v-show="entry.commentCountIncludingUnapproved > 0">
-                  <!--router-link
+                  <router-link
                     :to="{
                       name: 'comments',
                       params: {
@@ -343,7 +343,8 @@
                       }
                     }"
                     >{{ commentCountMsg }}</router-link
-                --></div>
+                  >
+                </div>
                 <div v-show="entry.commentCountIncludingUnapproved == 0">
                   {{ $t('common.none') }}
                 </div>
@@ -778,9 +779,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.edit-icon {
-  vertical-align: middle;
-  border: none;
-}
-</style>
+<style scoped></style>

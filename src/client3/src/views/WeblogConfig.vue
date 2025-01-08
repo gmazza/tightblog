@@ -32,7 +32,7 @@
       ></AppErrorListMessageBox>
 
       <h2 v-if="!weblogId">{{ $t(varText.pageTitleKey) }}</h2>
-      <p class="subtitle">{{ $t(varText.subtitlePrompt, { handle: weblog.handle }) }}</p>
+      <p class="subtitle" v-html="getSubtitlePrompt(weblog.handle)"></p>
       <table class="formtable">
         <tbody>
           <tr>
@@ -411,6 +411,10 @@ export default {
     ...mapActions(useSessionInfoStore, ['fetchWeblog', 'upsertWeblog', 'deleteWeblog']),
     ...mapActions(useDynamicConfigStore, ['loadWebloggerProperties']),
     ...mapActions(useStartupConfigStore, ['loadStartupConfig', 'loadLookupValues']),
+    getSubtitlePrompt(param: string): string {
+      // Replace the placeholder with the actual parameter
+      return this.$t(this.varText.subtitlePrompt, { handle: param })
+    },
     updateWeblog: function () {
       this.messageClear()
       const isNew = !this.weblogId
