@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import type { ErrorObj } from '@/types/interfaces'
+import type { ErrorObj } from '@/types'
 
 export default {
   props: {

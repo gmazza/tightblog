@@ -69,13 +69,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/mediaFiles/:weblogId",
-    name: "mediaFiles",
-    component: () =>
-      import("../views/MediaFiles.vue"),
-    props: true,
-  },
-  {
      path: '/logout',
      name: "logout",
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'}

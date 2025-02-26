@@ -72,7 +72,7 @@
               />
               <br />
               <span style="font-size: 70%">
-                {{ $t('weblogConfig.weblogUrl') }}:&nbsp; {{ startupConfig.absoluteSiteURL }}/<span
+                {{ $t('weblogConfig.weblogUrl') }}:&nbsp; {{ startupConfig?.absoluteSiteURL }}/<span
                   style="color: red"
                   >{{ weblog.handle }}</span
                 >
@@ -95,16 +95,20 @@
             </td>
             <td class="field">
               <select id="theme" v-model="weblog.theme" size="1">
-                <option v-for="(theme, key) in lookupValues.sharedThemeMap" :value="key" :key="key">
+                <option
+                  v-for="(theme, key) in lookupValues?.sharedThemeMap"
+                  :value="key"
+                  :key="key"
+                >
                   {{ theme.name }}
                 </option>
               </select>
-              <div v-if="false" style="height: 400px">
-                <p>{{ lookupValues.sharedThemeMap[weblog.theme].description }}</p>
+              <div v-if="startupConfig" style="height: 400px">
+                <p>{{ lookupValues?.sharedThemeMap[weblog.theme].description }}</p>
                 <img
                   v-bind:src="
                     startupConfig.absoluteSiteURL +
-                    lookupValues.sharedThemeMap[weblog.theme].previewPath
+                    lookupValues?.sharedThemeMap[weblog.theme].previewImagePath
                   "
                 />
               </div>
@@ -116,7 +120,7 @@
             <td class="label">{{ $t('weblogConfig.editFormat') }}</td>
             <td class="field">
               <select v-model="weblog.editFormat" size="1" required>
-                <option v-for="(value, key) in lookupValues.editFormats" :value="key" :key="key">
+                <option v-for="(value, key) in lookupValues?.editFormats" :value="key" :key="key">
                   {{ $t(value) }}
                 </option>
               </select>
@@ -150,7 +154,7 @@
             <td class="label">{{ $t('weblogConfig.locale') }}*</td>
             <td class="field">
               <select v-model="weblog.locale" size="1">
-                <option v-for="(value, key) in lookupValues.locales" :key="key" :value="key">
+                <option v-for="(value, key) in lookupValues?.locales" :key="key" :value="key">
                   {{ value }}
                 </option>
               </select>
@@ -162,7 +166,7 @@
             <td class="label">{{ $t('weblogConfig.timezone') }}*</td>
             <td class="field">
               <select v-model="weblog.timeZone" size="1">
-                <option v-for="(value, key) in lookupValues.timezones" :key="key" :value="key">
+                <option v-for="(value, key) in lookupValues?.timezones" :key="key" :value="key">
                   {{ value }}
                 </option>
               </select>
@@ -201,8 +205,8 @@
               <select v-model="weblog.allowComments" size="1">
                 <option
                   v-for="commentoption in filteredCommentOptions"
-                  :value="commentoption.constant"
-                  :key="commentoption.constant"
+                  :value="commentoption.level"
+                  :key="commentoption.level"
                 >
                   {{ $t(commentoption.label) }}
                 </option>
@@ -217,11 +221,11 @@
             <td class="field">
               <select v-model="weblog.defaultCommentDays" size="1">
                 <option
-                  v-for="(value, key) in lookupValues.commentDayOptions"
+                  v-for="(value, key) in lookupValues?.commentDayOptions"
                   :key="key"
                   :value="key"
                 >
-                  {{ $t(value) }}
+                  {{ $t(String(value)) }}
                 </option>
               </select>
             </td>
@@ -240,8 +244,8 @@
               <select v-model="weblog.spamPolicy" size="1">
                 <option
                   v-for="spamoption in filteredSpamOptions"
-                  :key="spamoption.constant"
-                  :value="spamoption.constant"
+                  :key="spamoption.level"
+                  :value="spamoption.level"
                 >
                   {{ $t(spamoption.label) }}
                 </option>
@@ -320,7 +324,7 @@
 </template>
 
 <script lang="ts">
-import type { Weblog, ErrorObj } from '@/types/interfaces'
+import type { Weblog, ErrorObj } from '@/types'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useStartupConfigStore } from '../stores/startupConfig'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
@@ -340,6 +344,11 @@ export default {
   data: function () {
     return {
       weblog: {
+        name: '',
+        tagline: '',
+        about: '',
+        handle: '',
+        applyCommentDefaults: false,
         theme: 'rolling',
         locale: 'en',
         timeZone: 'America/New_York',
@@ -451,7 +460,11 @@ export default {
     loadWeblog: function () {
       if (this.weblogId) {
         this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
-          this.weblog = fetchedWeblog
+          if (fetchedWeblog == null) {
+            this.errorObj = { errors: ['Weblog not found'] }
+            return
+          }
+          this.weblog = { ...fetchedWeblog }
         })
       }
     },

@@ -190,14 +190,14 @@ import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'
 import { useConfirmDialog } from '@vueuse/core'
-import api from '@/api'
+import type { UserWeblogRole, WeblogRole } from '@/types'
 
 const confirmResignDialogObj = useConfirmDialog()
 
 export default {
   data: function () {
     return {
-      roles: [],
+      roles: [] as UserWeblogRole[],
       errorObj: {},
       isFetching: true
     }
@@ -220,7 +220,7 @@ export default {
     createWeblog: function () {
       this.$router.push({ name: 'createWeblog' })
     },
-    getRoleText: function (weblogRole: string) {
+    getRoleText: function (weblogRole: WeblogRole) {
       if (weblogRole === 'POST') {
         return 'PUBLISHER'
       } // else 'OWNER'
@@ -228,7 +228,7 @@ export default {
     }
   },
   async created() {
-    if (this.webloggerProperties === undefined || this.webloggerProperties.length === 0) {
+    if (this.webloggerProperties === undefined) {
       await this.loadWebloggerProperties()
     }
     if (!this.sessionInfo.authenticatedUser) {

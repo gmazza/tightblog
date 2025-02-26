@@ -75,6 +75,12 @@ const router = createRouter({
         weblogId: route.params.weblogId,
         entryId: route.query.entryId || null
       })
+    },
+    {
+      path: '/app/mediaFiles/:weblogId',
+      name: 'mediaFiles',
+      component: () => import('../views/MediaFiles.vue'),
+      props: true
     }
   ]
 })

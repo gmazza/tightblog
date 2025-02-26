@@ -116,7 +116,7 @@
           </td>
           <td v-cloak>
             <select v-model="entry.editFormat" size="1" required>
-              <option v-for="(value, key) in lookupValues.editFormats" :value="key" :key="key">
+              <option v-for="(value, key) in lookupValues?.editFormats" :value="key" :key="key">
                 {{ $t(value) }}
               </option>
             </select>
@@ -245,8 +245,8 @@
       <span v-show="commentingActive">
         {{ $t('entryEdit.allowComments') }} {{ $t('entryEdit.commentDays') }}
         <select id="commentDaysId" v-model="entry.commentDays" size="1" required>
-          <option v-for="(value, key) in lookupValues.commentDayOptions" :value="key" :key="key">
-            {{ $t(value) }}
+          <option v-for="(value, key) in lookupValues?.commentDayOptions" :value="key" :key="key">
+            {{ $t(String(value)) }}
           </option>
         </select>
         <br />
@@ -498,13 +498,7 @@
 </template>
 
 <script lang="ts">
-import type {
-  PublishStatus,
-  RecentWeblogEntry,
-  Weblog,
-  WeblogEntry,
-  ErrorObj
-} from '@/types/interfaces'
+import type { PublishStatus, RecentWeblogEntry, Weblog, WeblogEntry, ErrorObj } from '@/types'
 import { createDefaultWeblogEntry } from '../helpers/factories'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useStartupConfigStore } from '../stores/startupConfig'
@@ -752,6 +746,10 @@ export default {
     await this.loadWebloggerProperties()
     await this.loadLookupValues()
     await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+      if (fetchedWeblog == null) {
+        this.errorObj = { errors: ['Weblog not found'] }
+        return
+      }
       this.weblog = { ...fetchedWeblog }
     })
     await this.loadRecentEntries()

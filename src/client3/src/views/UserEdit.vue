@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <AppTitleBar />
     <div style="text-align: left; padding: 20px">
       <AppSuccessMessageBox
@@ -28,7 +28,7 @@
       ></AppSuccessMessageBox>
       <AppErrorListMessageBox
         :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
+        @close-box="errorObj.errors = []"
       ></AppErrorListMessageBox>
 
       <h1>{{ $t(varText.pageTitleKey) }}</h1>
@@ -146,18 +146,22 @@
 </template>
 
 <script lang="ts">
+import type { ErrorObj, User, UserCredentials } from '@/types'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { mapState, mapActions } from 'pinia'
 import api from '@/api'
+import { AxiosError } from 'axios'
 
 export default {
   data: function () {
     return {
-      userBeingEdited: {},
-      userCredentials: {},
+      userBeingEdited: {} as User,
+      userCredentials: {} as UserCredentials,
       hideButtons: false,
-      successMessage: null,
-      errorObj: {},
+      successMessage: null as string | null,
+      errorObj: {
+        errors: []
+      } as ErrorObj,
       isFetching: true
     }
   },
@@ -185,10 +189,10 @@ export default {
   },
   methods: {
     ...mapActions(useSessionInfoStore, ['loadSessionInfo']),
-    loadUser: async function (userId) {
+    loadUser: async function (userId: string) {
       try {
         const response = await api.loadUser(userId)
-        this.userBeingEdited = response.data
+        this.userBeingEdited = response
         this.userCredentials = {}
       } catch (error) {
         this.commonErrorResponse(error)
@@ -205,7 +209,7 @@ export default {
           this.sessionInfo.authenticatedUser != null
             ? await api.saveUser(this.sessionInfo.authenticatedUser.id, userData)
             : await api.registerUser(userData)
-        this.userBeingEdited = response.data.user
+        this.userBeingEdited = 'data' in response ? response.data.user : response
         if (!this.sessionInfo.authenticatedUser) {
           // user registration, hide the save/cancel buttons now
           this.hideButtons = true
@@ -225,18 +229,21 @@ export default {
     },
     cancelChanges: function () {
       this.messageClear()
-      this.userBeingEdited = null
-      this.credentials = {}
+      this.userBeingEdited = {} as User
+      this.userCredentials = {}
     },
     messageClear: function () {
-      this.errorObj = {}
-      this.showSuccessMessage = false
+      this.errorObj = { errors: [] }
     },
-    commonErrorResponse: function (error) {
-      if (error.response.status === 401) {
+    commonErrorResponse: function (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
-        this.errorObj = error.response.data
+        if (error instanceof AxiosError) {
+          this.errorObj = error.response?.data
+        } else {
+          this.errorObj = { errors: ['An unknown error occurred'] }
+        }
       }
     }
   },

@@ -61,7 +61,7 @@
                 <div>
                   <select id="status" v-model="searchParams.status" size="1" required>
                     <option
-                      v-for="(value, key) in lookupValues.commentApprovalStatuses"
+                      v-for="(value, key) in lookupValues?.commentApprovalStatuses"
                       :key="key"
                       :value="key"
                     >
@@ -228,7 +228,7 @@ import type {
   CommentsData,
   EntryCommentsQueryParams,
   ErrorObj
-} from '@/types/interfaces'
+} from '@/types'
 import { mapState, mapActions } from 'pinia'
 import { AxiosError } from 'axios'
 import { formatDateTime } from '../helpers'

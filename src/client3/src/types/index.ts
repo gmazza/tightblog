@@ -1,3 +1,5 @@
+export * from './interfaces/mediafiles'
+
 export interface CacheItem {}
 
 export interface Comment {
@@ -36,12 +38,33 @@ export interface ErrorObj {
   errors: Array<string>
 }
 
-export interface LookupValues {}
+export interface LookupValues {
+  dateSortByOptions: Array<LookupDateSortBy>
+  entryStatusOptions: Array<PublishStatus>
+  commentApprovalStatuses: Array<CommentStatus>
+  commentDayOptions: Array<number>
+  editFormats: Array<EditFormat>
+  locales: { [key: string]: string }
+  timezones: { [key: string]: string }
+  sharedThemeMap: { [key: string]: SharedTheme }
+  spamOptionList: Array<SpamPolicy>
+  commentOptionList: Array<CommentPolicy>
+}
+
+export type LookupDateSortBy = 'PUBLICATION_TIME' | 'UPDATE_TIME'
 
 export interface RecentWeblogEntry {
   id: string
   title: string
   entryEditURL: string
+}
+
+export interface SharedTheme {
+  id: string
+  name: string
+  description: string
+  previewImagePath: string
+  lastModified: Date
 }
 
 export interface SessionInfo {
@@ -50,15 +73,28 @@ export interface SessionInfo {
   actionWeblogURL?: string
   userNeedsMFARegistration?: boolean
   userIsAdmin?: boolean
+  userCanCreateBlogs: boolean
 }
 
 export interface StartupConfig {
-  tightblogVersion?: string
-  registrationPolicy?: string
+  tightblogVersion: string
+  registrationPolicy: string
+  absoluteSiteURL: string
 }
 
 export interface User {
+  id: string
   screenName: string
+  userName: string
+  emailAddress: string
+  status: UserStatus
+}
+
+export type UserStatus = 'ENABLED' | 'REGISTERED'
+
+export interface UserCredentials {
+  passwordText?: string
+  passwordConfirm?: string
 }
 
 export interface UserData {
@@ -69,16 +105,18 @@ export interface UserData {
 export interface UserWeblogRole {
   id: String
   emailComments: boolean
-  weblogRole: String
+  weblogRole: WeblogRole
   weblog: Weblog
 }
 
+export type WeblogRole = 'OWNER' | 'POST'
+
 export interface Weblog {
-  id: string
+  id?: string
   name: string
   tagline: string
   about: string
-  absoluteURL: string
+  absoluteURL?: string
   handle: string
   theme: string
   locale: string
@@ -86,14 +124,32 @@ export interface Weblog {
   visible: boolean
   entriesPerPage: number
   defaultCommentDays: number
-  spamPolicy: 'DONT_CHECK' | 'MARK_SPAM' | 'NO_EMAIL' | 'JUST_DELETE'
-  editFormat: 'HTML' | 'COMMONMARK'
-  allowComments: 'NONE' | 'MODERATE_NONPUB' | 'MODERATE_NONAUTH'
+  spamPolicy: SpamPolicyLabel
+  editFormat: EditFormat
+  allowComments: CommentPolicyLabel
   applyCommentDefaults: boolean
   weblogCategoryNames: Array<string>
+  hitsToday: number
+  unapprovedComments: number
   analyticsCode: string
   blacklist: string
 }
+
+export interface CommentPolicy {
+  level: number
+  label: CommentPolicyLabel
+}
+
+export interface SpamPolicy {
+  level: number
+  label: SpamPolicyLabel
+}
+
+export type SpamPolicyLabel = 'DONT_CHECK' | 'MARK_SPAM' | 'NO_EMAIL' | 'JUST_DELETE'
+
+export type CommentPolicyLabel = 'NONE' | 'MODERATE_NONPUB' | 'MODERATE_NONAUTH'
+
+export type EditFormat = 'HTML' | 'COMMONMARK'
 
 export interface WeblogCategory {
   id: string
@@ -140,5 +196,9 @@ export interface WeblogEntryQueryParams {
 }
 
 export interface WebloggerProperties {
-  usersCustomizeThemes?: boolean
+  usersCustomizeThemes: boolean
+  commentPolicy: CommentPolicyLabel
+  commentPolicyLevel: number
+  spamPolicyLevel: number
+  usersOverrideAnalyticsCode: boolean
 }

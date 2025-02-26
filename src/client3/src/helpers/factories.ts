@@ -1,4 +1,4 @@
-import type { WeblogEntry } from '@/types/interfaces'
+import type { WeblogEntry } from '@/types'
 
 export function createDefaultWeblogEntry(): WeblogEntry {
   return {

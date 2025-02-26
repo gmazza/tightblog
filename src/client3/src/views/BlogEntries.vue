@@ -85,7 +85,7 @@
                   <div>
                     <select id="status" v-model="searchParams.status" size="1" required>
                       <option
-                        v-for="(value, key) in lookupValues.entryStatusOptions"
+                        v-for="(value, key) in lookupValues?.entryStatusOptions"
                         :value="key"
                         :key="key"
                       >
@@ -100,7 +100,7 @@
                     {{ $t('entries.label.sortBy') }}: <br /><br />
                   </label>
                   <div>
-                    <div v-for="(value, key) in lookupValues.dateSortByOptions" :key="key">
+                    <div v-for="(value, key) in lookupValues?.dateSortByOptions" :key="key">
                       <input
                         type="radio"
                         name="sortBy"
@@ -293,7 +293,7 @@ import type {
   WeblogEntryQueryParams,
   WeblogEntry,
   WeblogEntriesData
-} from '@/types/interfaces'
+} from '@/types'
 import { mapState, mapActions } from 'pinia'
 import { AxiosError } from 'axios'
 import { useSessionInfoStore } from '../stores/sessionInfo'
@@ -410,6 +410,10 @@ export default {
   async created() {
     await this.loadLookupValues()
     await this.fetchWeblog(this.weblogId).then((fetchedWeblog) => {
+      if (fetchedWeblog == null) {
+        this.errorObj = { errors: ['Weblog not found'] }
+        return
+      }
       this.weblog = { ...fetchedWeblog }
     })
     await this.loadEntries()
