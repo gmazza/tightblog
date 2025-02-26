@@ -41,6 +41,7 @@ export default defineConfig({
     },
     host: 'localhost',
     // https://stackoverflow.com/q/62944640/1207540
+    port: 5173,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers':
@@ -51,7 +52,7 @@ export default defineConfig({
       '/tb-ui/app': createProxyConfiguration(),
       '/tb-ui/authoring': createProxyConfiguration(),
       '/tb-ui/admin': createProxyConfiguration(),
-      '/tb-ui/register': createProxyConfiguration(),
+      '/tb-ui/register': createProxyConfiguration()
     }
   }
 })

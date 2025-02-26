@@ -1,5 +1,7 @@
 import axios, { type AxiosResponse } from 'axios'
 
+export * from './modules/mediafiles'
+
 // indicate requests via Ajax calls, so auth problems return 401s vs. login redirects
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
@@ -20,7 +22,9 @@ import type {
   WeblogEntry,
   WeblogEntryQueryParams,
   RecentWeblogEntry
-} from '@/types/interfaces'
+} from '@/types'
+
+export * from './modules/mediafiles'
 
 export default {
   // caches

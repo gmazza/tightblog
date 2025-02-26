@@ -19,7 +19,7 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="!this.isFetching">
+  <div v-if="!isFetching">
     <AppTitleBar />
     <AppAdminNav />
     <div style="text-align: left; padding: 20px">
@@ -240,17 +240,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { ErrorObj, Weblog, WebloggerProperties } from '../types'
 import { useStartupConfigStore } from '../stores/startupConfig'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
+import { AxiosError } from 'axios'
 import { mapState, mapActions } from 'pinia'
 
 export default {
   data() {
     return {
-      successMessage: null,
-      webloggerProps: null,
-      errorMessage: null,
+      successMessage: null as string | null,
+      webloggerProps: null as WebloggerProperties | null,
+      errorMessage: null as string | null,
+      errorObj: {
+        errors: []
+      } as ErrorObj,
       isFetching: true
     }
   },
@@ -258,7 +263,7 @@ export default {
     ...mapState(useStartupConfigStore, ['startupConfig', 'lookupValues']),
     ...mapState(useDynamicConfigStore, ['weblogList', 'webloggerProperties']),
     visibleWeblogs: function () {
-      return this.weblogList.filter((w) => w.visible === true)
+      return this.weblogList.filter((w: Weblog) => w.visible === true)
     }
   },
   methods: {
@@ -283,29 +288,31 @@ export default {
     },
     updateProperties: async function () {
       try {
-        await this.saveWebloggerProperties(this.webloggerProps)
+        if (this.webloggerProps) {
+          await this.saveWebloggerProperties(this.webloggerProps)
+        }
         await this.loadWebloggerProperties()
         this.loadWebloggerProps()
-        this.errorObj = {}
+        this.errorObj = { errors: [] }
         this.successMessage = this.$t('common.changesSaved')
         window.scrollTo(0, 0)
       } catch (error) {
         this.commonErrorResponse(error, null)
       }
     },
-    weblogDescription: function (weblogItem) {
+    weblogDescription: function (weblogItem: Weblog) {
       return weblogItem.name + ' (' + weblogItem.handle + ')'
     },
-    commonErrorResponse: function (error, errorMsg) {
+    commonErrorResponse: function (error: unknown, errorMsg: string | null) {
       if (errorMsg) {
         this.errorMessage = errorMsg
-      } else if (error && error.response && error.response.status === 401) {
+      } else if (error instanceof AxiosError && error.response?.status === 401) {
         console.log('Redirecting...')
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
-      } else if (error && error.response) {
+      } else if (error instanceof AxiosError && error.response) {
         this.errorMessage = error.response.data.error
       } else if (error) {
-        this.errorMessage = error
+        this.errorMessage = String(error)
       } else {
         this.errorMessage = 'System error.'
       }

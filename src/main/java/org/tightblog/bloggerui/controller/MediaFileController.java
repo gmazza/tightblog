@@ -212,7 +212,7 @@ public class MediaFileController {
         weblogManager.saveWeblog(weblog, false);
    }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}")
+    @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}/deletefiles")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
     public void deleteMediaFiles(@PathVariable String weblogId, @RequestBody List<String> fileIdsToDelete,
                                  Principal p, HttpServletResponse response) {
