@@ -81,6 +81,16 @@ const router = createRouter({
       name: 'mediaFiles',
       component: () => import('../views/MediaFiles.vue'),
       props: true
+    },
+    {
+      path: '/app/mediaFileEdit/:weblogId',
+      name: 'mediaFileEdit',
+      component: () => import('../views/MediaFileEdit.vue'),
+      props: (route) => ({
+        weblogId: route.params.weblogId,
+        folderId: route.query.folderId,
+        mediaFileId: route.query.mediaFileId || null
+      })
     }
   ]
 })

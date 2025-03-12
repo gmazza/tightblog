@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
+import org.tightblog.domain.UserCredentials;
 import org.tightblog.service.MediaManager;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
@@ -232,16 +233,18 @@ public class MediaFileController {
         }
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}/todirectory/{directoryId}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void moveMediaFiles(@PathVariable String weblogId, @PathVariable String directoryId,
-                               @RequestBody List<String> fileIdsToMove, Principal p, HttpServletResponse response) {
+    public record MediaFileRelocation(List<String> fileIdsToMove, String destinationFolderId) { }
 
-        if (fileIdsToMove != null && fileIdsToMove.size() > 0) {
+    @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}/movefiles")
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
+    public void moveMediaFiles(@PathVariable String weblogId,
+                               @RequestBody MediaFileRelocation mfr, Principal p, HttpServletResponse response) {
+
+        if (mfr.fileIdsToMove() != null && !mfr.fileIdsToMove.isEmpty()) {
             Weblog weblog = weblogDao.getById(weblogId);
-            MediaDirectory targetDirectory = mediaDirectoryDao.findByIdOrNull(directoryId);
+            MediaDirectory targetDirectory = mediaDirectoryDao.findByIdOrNull(mfr.destinationFolderId());
             if (targetDirectory != null && weblog.equals(targetDirectory.getWeblog())) {
-                for (String fileId : fileIdsToMove) {
+                for (String fileId : mfr.fileIdsToMove()) {
                     MediaFile mediaFile = mediaFileDao.findByIdOrNull(fileId);
                     if (mediaFile != null && weblog.equals(mediaFile.getDirectory().getWeblog())) {
                         mediaManager.moveMediaFiles(Collections.singletonList(mediaFile), targetDirectory);

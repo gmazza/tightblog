@@ -10,6 +10,13 @@ export interface MediaFile {
   titleText: string
   altText: string
   permalink: string
+  contentType: string
+  length: number
+  width: number
+  height: number
+  notes: string
+  directory?: MediaFolder
+  thumbnailURL: string
   imageFile: boolean
   selected: boolean
 }

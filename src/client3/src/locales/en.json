@@ -262,7 +262,7 @@
     "addFolder": "Add New Folder",
     "create": "Create",
     "folderEmpty": "Folder is empty.",
-    "add": "Add media file",
+    "addMediaFile": "Add media file",
     "confirmDeleteFilesTmpl": "Delete <strong>{count}</strong> selected media file(s)?",
     "confirmDeleteFolderTmpl": "Delete folder <strong>{folderName}</strong> including its <strong>{count}</strong> media file(s)?",
     "confirmMoveFilesTmpl": "Move <strong>{count}</strong> selected media file(s) to folder <strong>{targetFolderName}</strong>?",
