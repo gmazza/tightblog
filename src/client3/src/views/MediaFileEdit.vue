@@ -19,31 +19,23 @@
   are also under Apache License.
 -->
 <template>
-  <div v-if="asyncDataStatus_ready" style="text-align: left; padding: 20px">
+  <div v-if="!isFetching" style="text-align: left; padding: 20px">
     <AppTitleBar />
     <AppErrorListMessageBox
-      :in-error-obj="errorObj"
-      @close-box="errorObj.errors = null"
+      v-bind:inErrorObj="errorObj"
+      @close-box="errorObj.errors = []"
     ></AppErrorListMessageBox>
     <h2>
-      {{
-        $t(mediaFileId == null ? "mediaFileAdd.title" : "mediaFileEdit.title")
-      }}
+      {{ $t(mediaFileId == null ? 'mediaFileAdd.title' : 'mediaFileEdit.title') }}
     </h2>
     <p
       class="pagetip"
-      v-html="
-        $t(
-          mediaFileId == null ? 'mediaFileAdd.pageTip' : 'mediaFileEdit.pageTip'
-        )
-      "
+      v-html="$t(mediaFileId == null ? 'mediaFileAdd.pageTip' : 'mediaFileEdit.pageTip')"
     ></p>
     <table class="entryEditTable" cellpadding="0" cellspacing="0" width="100%">
       <tr>
         <td class="entryEditFormLabel">
-          <label for="fileControl">{{
-            $t("mediaFileEdit.fileLocation")
-          }}</label>
+          <label for="fileControl">{{ $t('mediaFileEdit.fileLocation') }}</label>
         </td>
         <td>
           <input
@@ -52,14 +44,14 @@
             ref="myMediaFile"
             size="30"
             v-on:change="handleFileUpload()"
-            v-bind:required="myMediaFile.id == null"
+            v-bind:required="myMediaFile == null"
           />
         </td>
       </tr>
 
       <tr>
         <td class="entryEditFormLabel">
-          <label for="name">{{ $t("common.name") }}</label>
+          <label for="name">{{ $t('common.name') }}</label>
         </td>
         <td>
           <input
@@ -76,7 +68,7 @@
       <tr>
         <td class="entryEditFormLabel">
           <label for="altText"
-            >{{ $t("mediaFileEdit.altText") }}
+            >{{ $t('mediaFileEdit.altText') }}
             <AppHelpPopup :helpText="$t('mediaFileEdit.tooltip.altText')"
           /></label>
         </td>
@@ -94,7 +86,7 @@
       <tr>
         <td class="entryEditFormLabel">
           <label for="titleText"
-            >{{ $t("mediaFileEdit.titleText") }}
+            >{{ $t('mediaFileEdit.titleText') }}
             <AppHelpPopup :helpText="$t('mediaFileEdit.tooltip.titleText')"
           /></label>
         </td>
@@ -112,54 +104,42 @@
       <tr>
         <td class="entryEditFormLabel">
           <label for="anchor"
-            >{{ $t("mediaFileEdit.anchor") }}
+            >{{ $t('mediaFileEdit.anchor') }}
             <AppHelpPopup :helpText="$t('mediaFileEdit.tooltip.anchor')"
           /></label>
         </td>
         <td>
-          <input
-            id="anchor"
-            type="text"
-            v-model="mediaFileData.anchor"
-            size="80"
-            maxlength="255"
-          />
+          <input id="anchor" type="text" v-model="mediaFileData.anchor" size="80" maxlength="255" />
         </td>
       </tr>
 
       <tr>
         <td class="entryEditFormLabel">
-          <label for="notes">{{ $t("common.notes") }}</label>
+          <label for="notes">{{ $t('common.notes') }}</label>
         </td>
         <td>
-          <input
-            id="notes"
-            type="text"
-            v-model="mediaFileData.notes"
-            size="80"
-            maxlength="255"
-          />
+          <input id="notes" type="text" v-model="mediaFileData.notes" size="80" maxlength="255" />
         </td>
       </tr>
       <tr v-if="mediaFileId != null">
         <td class="entryEditFormLabel">
-          {{ $t("mediaFileEdit.fileInfo") }}
+          {{ $t('mediaFileEdit.fileInfo') }}
         </td>
         <td>
-          <b>{{ $t("mediaFileEdit.fileType") }}</b
+          <b>{{ $t('mediaFileEdit.fileType') }}</b
           >:
           {{ mediaFileData.contentType }}
-          <b>{{ $t("mediaFileEdit.fileSize") }}</b
+          <b>{{ $t('mediaFileEdit.fileSize') }}</b
           >:
           {{ mediaFileData.length }}
-          <b>{{ $t("mediaFileEdit.fileDimensions") }}</b
+          <b>{{ $t('mediaFileEdit.fileDimensions') }}</b
           >: {{ mediaFileData.width }} x {{ mediaFileData.height }} pixels
         </td>
       </tr>
 
       <tr v-if="mediaFileId != null">
         <td class="entryEditFormLabel">
-          <label for="permalink">{{ $t("mediaFileEdit.permalink") }}</label>
+          <label for="permalink">{{ $t('mediaFileEdit.permalink') }}</label>
         </td>
         <td>
           <input
@@ -174,14 +154,14 @@
 
       <tr v-if="mediaFileId != null">
         <td class="entryEditFormLabel">
-          <label for="directoryId">{{ $t("mediaFileEdit.folder") }}</label>
+          <label for="directoryId">{{ $t('mediaFileEdit.folder') }}</label>
         </td>
         <td>
           <input
             id="directoryId"
             type="text"
             size="30"
-            v-bind:value="mediaFileData.directory.name"
+            v-bind:value="mediaFileData.directory?.name"
             readonly
           />
         </td>
@@ -191,100 +171,99 @@
     <br />
     <div class="control">
       <button type="button" v-on:click="saveMediaFile()">
-        {{ $t("common.save") }}
+        {{ $t('common.save') }}
       </button>
       <button type="button" @click="returnToMediaFileFolder()">
-        {{ $t("common.cancel") }}
+        {{ $t('common.cancel') }}
       </button>
     </div>
   </div>
 </template>
 
-<script>
-import asyncDataStatus from "@/mixins/AsyncDataStatus";
+<script lang="ts">
+import type { MediaFile, ErrorObj } from '@/types'
+import * as api from '@/api'
 
 export default {
   props: {
     weblogId: {
       required: true,
-      type: String,
+      type: String
     },
     folderId: {
       required: true,
-      type: String,
+      type: String
     },
     mediaFileId: {
       required: false,
-      type: String,
-    },
+      type: String
+    }
   },
   data() {
     return {
       mediaFileData: {
         directory: {
-          id: this.folderId,
-        },
-      },
-      myMediaFile: {},
-      errorObj: {},
-    };
+          id: this.folderId
+        }
+      } as MediaFile,
+      myMediaFile: null as File | null,
+      errorObj: {
+        errors: []
+      } as ErrorObj,
+      isFetching: true
+    }
   },
-  mixins: [asyncDataStatus],
   methods: {
     loadMediaFile: function () {
-      this.axios
-        .get(import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafile/" + this.mediaFileId)
-        .then((response) => {
-          this.mediaFileData = response.data;
-        });
+      api.loadMediaFile(this.mediaFileId!!).then((response) => {
+        this.mediaFileData = response.data
+      })
     },
     handleFileUpload: function () {
-      this.myMediaFile = this.$refs.myMediaFile.files[0];
+      this.myMediaFile = (this.$refs.myMediaFile as HTMLInputElement).files![0]
     },
     saveMediaFile: function () {
-      const uploadUrl = import.meta.env.VITE_PUBLIC_PATH + "/authoring/rest/mediafiles";
-      const fd = new FormData();
+      const fd = new FormData()
       fd.append(
-        "mediaFileData",
+        'mediaFileData',
         new Blob([JSON.stringify(this.mediaFileData)], {
-          type: "application/json",
+          type: 'application/json'
         })
-      );
+      )
       if (this.myMediaFile) {
-        fd.append("uploadFile", this.myMediaFile);
+        fd.append('uploadFile', this.myMediaFile)
       }
-      this.axios
-        .post(uploadUrl, fd, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((response) => {
-          this.returnToMediaFileFolder();
+      api
+        .saveMediaFile(fd)
+        .then(() => {
+          this.returnToMediaFileFolder()
         })
         .catch((error) => {
-          if (error.response.status === 401) {
-            window.location.href = import.meta.env.VITE_PUBLIC_PATH + "/app/login";
+          if (error.response?.status === 401) {
+            window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
           } else {
-            this.errorObj = error.response.data;
+            this.errorObj = error.response?.data
           }
-        });
+        })
     },
     messageClear: function () {
-      this.errorObj = null;
+      this.errorObj = { errors: [] }
     },
     returnToMediaFileFolder() {
       this.$router.push({
-        name: "mediaFiles",
-        params: { weblogId: this.weblogId, folderId: this.folderId },
-      });
-    },
+        name: 'mediaFiles',
+        params: { weblogId: this.weblogId },
+        query: { folderId: this.folderId }
+      })
+    }
   },
   async created() {
     if (this.mediaFileId) {
-      await this.loadMediaFile();
+      await this.loadMediaFile()
     }
-    this.asyncDataStatus_fetched();
-  },
-};
+    this.isFetching = false
+  }
+}
 </script>
 
 <style></style>

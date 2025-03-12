@@ -16,6 +16,16 @@ export function loadMediaFolders(weblogId: string): Promise<AxiosResponse<Array<
   return axios.get(`${VITE_PUBLIC_PATH}/authoring/rest/weblog/${weblogId}/mediadirectories`)
 }
 
+export function loadMediaFile(fileId: string): Promise<AxiosResponse<MediaFile>> {
+  return axios.get(`${VITE_PUBLIC_PATH}/authoring/rest/mediafile/${fileId}`)
+}
+
+export function saveMediaFile(formData: FormData): Promise<AxiosResponse<MediaFile>> {
+  return axios.post(`${VITE_PUBLIC_PATH}/authoring/rest/mediafiles`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
 export function loadMediaFiles(folderId: string): Promise<AxiosResponse<Array<MediaFile>>> {
   return axios.get(`${VITE_PUBLIC_PATH}/authoring/rest/mediadirectories/${folderId}/files`)
 }
@@ -42,6 +52,7 @@ export function moveFiles(
   fileIds: Array<string>
 ): Promise<AxiosResponse<void>> {
   return axios.post(`${VITE_PUBLIC_PATH}/authoring/rest/mediafiles/weblog/${weblogId}/movefiles`, {
-    data: { folderId, fileIds }
+    fileIdsToMove: fileIds,
+    destinationFolderId: folderId
   })
 }

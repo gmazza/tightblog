@@ -79,13 +79,6 @@ const routes = [
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'}
   },
   {
-    path: "/app/mediaFileEdit/:weblogId",
-    name: "mediaFileEdit",
-    component: () =>
-      import("../views/MediaFileEdit.vue"),
-    props: true,
-  },
-  {
     path: "/app/templateEdit/:weblogId",
     name: "templateEdit",
     component: () =>

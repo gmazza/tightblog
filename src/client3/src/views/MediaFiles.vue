@@ -67,11 +67,13 @@
             :key="mediaFile.id"
           >
             <div class="mediaObject">
-              <!--router-link
+              <router-link
                 :to="{
                   name: 'mediaFileEdit',
                   params: {
-                    weblogId,
+                    weblogId
+                  },
+                  query: {
                     folderId: currentFolderId,
                     mediaFileId: mediaFile.id
                   }
@@ -90,7 +92,7 @@
                   v-bind:alt="mediaFile.altText"
                   style="padding: 40px 50px"
                 />
-              </router-link-->
+              </router-link>
             </div>
 
             <div class="mediaObjectInfo">
@@ -122,20 +124,20 @@
 
       <div class="control clearfix" style="margin-top: 15px">
         <span style="padding-left: 7px">
-          <!--router-link
+          <router-link
             :to="{
               name: 'mediaFileEdit',
               params: {
-                weblogId,
-                folderId: currentFolderId
-              }
+                weblogId
+              },
+              query: { folderId: currentFolderId }
             }"
           >
             <button type="button">
               <img src="@/assets/image_add.png" class="icon" alt="icon" />
-              {{ $t('mediaFiles.add') }}
+              {{ $t('mediaFiles.addMediaFile') }}
             </button>
-          </router-link-->
+          </router-link>
 
           <span v-show="mediaFiles.length > 0">
             <button
@@ -453,6 +455,7 @@ export default {
       api
         .deleteMediaFiles(this.weblogId, filesToDelete)
         .then(() => {
+          this.confirmDeleteFilesDialog.cancel()
           this.successMessage = this.$t('mediaFiles.deleteFileSuccess')
           this.loadMediaFiles()
         })
@@ -470,6 +473,7 @@ export default {
       api
         .moveFiles(this.weblogId, this.targetFolderId, filesToMove)
         .then(() => {
+          this.confirmMoveFilesDialog.cancel()
           this.successMessage = this.$t('mediaFiles.moveSuccess')
           this.loadMediaFiles()
         })
