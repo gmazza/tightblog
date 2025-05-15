@@ -284,7 +284,7 @@
 </template>
 
 <script lang="ts">
-import type { ErrorObj, MediaFile, MediaFolder } from '../types'
+import type { ErrorObj, MediaFile, MediaFolder, ErrorItem } from '../types'
 import { AxiosError } from 'axios'
 import { useConfirmDialog } from '@vueuse/core'
 import * as api from '@/api'
@@ -484,7 +484,11 @@ export default {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
-          this.errorObj = error.response?.data
+          this.errorObj.errors.push(
+            ...Object.values(error.response?.data.errors as Record<string, ErrorItem>)
+              .map((errorItem: ErrorItem) => errorItem.message)
+              .filter((message) => message !== null)
+          )
         } else {
           this.errorObj = { errors: ['An unknown error occurred'] }
         }

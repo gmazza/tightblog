@@ -1,4 +1,6 @@
 export * from './interfaces/mediafiles'
+export * from './interfaces/users'
+import type { User, GlobalRole, UserStatus } from './interfaces/users'
 
 export interface CacheItem {}
 
@@ -15,8 +17,6 @@ export interface Comment {
   editable: boolean
   remoteHost: string
 }
-
-export interface Credentials {}
 
 export interface EntryCommentsQueryParams {
   categoryName?: string
@@ -38,6 +38,12 @@ export interface ErrorObj {
   errors: Array<string>
 }
 
+// AxiosError: response.data.errors contains array of these objects
+export interface ErrorItem {
+  fieldName: string
+  message: string | null
+}
+
 export interface LookupValues {
   dateSortByOptions: Array<LookupDateSortBy>
   entryStatusOptions: Array<PublishStatus>
@@ -49,6 +55,8 @@ export interface LookupValues {
   sharedThemeMap: { [key: string]: SharedTheme }
   spamOptionList: Array<SpamPolicy>
   commentOptionList: Array<CommentPolicy>
+  globalRoles: Array<GlobalRole>
+  userStatuses: Array<UserStatus>
 }
 
 export type LookupDateSortBy = 'PUBLICATION_TIME' | 'UPDATE_TIME'
@@ -80,26 +88,7 @@ export interface StartupConfig {
   tightblogVersion: string
   registrationPolicy: string
   absoluteSiteURL: string
-}
-
-export interface User {
-  id: string
-  screenName: string
-  userName: string
-  emailAddress: string
-  status: UserStatus
-}
-
-export type UserStatus = 'ENABLED' | 'REGISTERED'
-
-export interface UserCredentials {
-  passwordText?: string
-  passwordConfirm?: string
-}
-
-export interface UserData {
-  user: User
-  credentials: Credentials
+  mfaEnabled: boolean
 }
 
 export interface UserWeblogRole {
@@ -133,6 +122,12 @@ export interface Weblog {
   unapprovedComments: number
   analyticsCode: string
   blacklist: string
+}
+
+export interface UserWeblogRole {
+  user: User
+  weblog: Weblog
+  weblogRole: WeblogRole
 }
 
 export interface CommentPolicy {

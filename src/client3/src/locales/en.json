@@ -387,7 +387,7 @@
     "decline": "decline",
     "tip": {
       "screenName": "User's screen name (with no HTML).",
-      "password": "User's password.  Fill in only if you are changing it.  Between 8 and 20 characters, with at least one uppercase, one lowercase, one number and one special character (any of @#$%^&+=).",
+      "password": "User's password.  Fill in only if you are changing it.  Between 8 and 20 characters, with at least one uppercase, one lowercase, one number and one special character.",
       "passwordConfirm": "Re-type password, again only if changing.",
       "globalRole": "Lone difference between BLOGGER and BLOGCREATOR is that the latter can create new blogs. ADMIN provides full TightBlog control (the rights you have).",
       "mfaSecret": "The Multifactor Authentication (MFA) secret is used with a smartphone authenticator app.  If true, can be erased if the user wishes to re-register with the authenticator app upon next login (has a new smartphone, for example).",

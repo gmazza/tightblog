@@ -233,7 +233,7 @@ import { mapState, mapActions } from 'pinia'
 import { AxiosError } from 'axios'
 import { formatDateTime } from '../helpers'
 import { useStartupConfigStore } from '../stores/startupConfig'
-import api from '@/api'
+import * as api from '@/api'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
