@@ -498,7 +498,14 @@
 </template>
 
 <script lang="ts">
-import type { PublishStatus, RecentWeblogEntry, Weblog, WeblogEntry, ErrorObj } from '@/types'
+import type {
+  PublishStatus,
+  RecentWeblogEntry,
+  Weblog,
+  WeblogEntry,
+  ErrorObj,
+  ErrorItem
+} from '@/types'
 import { createDefaultWeblogEntry } from '../helpers/factories'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useStartupConfigStore } from '../stores/startupConfig'
@@ -622,7 +629,6 @@ export default {
     },
     getRecentEntries: async function (entryType: PublishStatus) {
       try {
-        console.log('weblogId:', this.weblogId)
         const response = await api.loadRecentEntries(this.weblogId, entryType)
         this.recentEntries[entryType] = response
       } catch (error) {
@@ -709,7 +715,11 @@ export default {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
-          this.errorObj = error.response?.data
+          this.errorObj.errors.push(
+            ...Object.values(error.response?.data.errors as Record<string, ErrorItem>)
+              .map((errorItem: ErrorItem) => errorItem.message)
+              .filter((message) => message !== null)
+          )
         } else {
           this.errorObj = { errors: ['An unknown error occurred'] }
         }

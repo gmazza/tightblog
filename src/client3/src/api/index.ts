@@ -1,6 +1,7 @@
 import axios, { type AxiosResponse } from 'axios'
 
 export * from './modules/mediafiles'
+export * from './modules/users'
 
 // indicate requests via Ajax calls, so auth problems return 401s vs. login redirects
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'

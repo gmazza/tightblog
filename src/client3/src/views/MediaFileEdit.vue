@@ -181,7 +181,7 @@
 </template>
 
 <script lang="ts">
-import type { MediaFile, ErrorObj } from '@/types'
+import type { MediaFile, ErrorObj, ErrorItem } from '@/types'
 import * as api from '@/api'
 
 export default {
@@ -242,7 +242,11 @@ export default {
           if (error.response?.status === 401) {
             window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
           } else {
-            this.errorObj = error.response?.data
+            this.errorObj.errors.push(
+              ...Object.values(error.response?.data.errors as Record<string, ErrorItem>)
+                .map((errorItem: ErrorItem) => errorItem.message)
+                .filter((message) => message !== null)
+            )
           }
         })
     },

@@ -86,12 +86,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/admin/userAdmin",
-    name: "userAdmin",
-    component: () =>
-      import("../views/UserAdmin.vue"),
-  },
-  {
     path: "/admin/cachedData",
     name: "cachedData",
     component: () =>

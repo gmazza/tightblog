@@ -33,6 +33,11 @@ const router = createRouter({
       component: () => import('../views/GlobalConfig.vue')
     },
     {
+      path: '/admin/userAdmin',
+      name: 'userAdmin',
+      component: () => import('../views/UserAdmin.vue')
+    },
+    {
       path: '/app/logout',
       name: 'logout',
       beforeEnter: () => {
