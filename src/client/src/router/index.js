@@ -7,16 +7,6 @@ Vue.use(VueRouter);
 // to limit access to them based on auth status and auth user roles
 const routes = [
   {
-    path: "/",
-    alias: ["/app/myBlogs", "/index.html"],
-    name: "myBlogs",
-    meta: {
-      userNeedsMFARegistration: true,
-    },
-    component: () =>
-      import("../views/MyBlogs.vue"),
-  },
-  {
     path: "/app/scanCode",
     name: "register",
     meta: {
@@ -24,12 +14,6 @@ const routes = [
     },
     component: () =>
       import("../views/ScanCode.vue"),
-  },
-  {
-    path: "/app/createWeblog",
-    name: "createWeblog",
-    component: () =>
-      import("../views/WeblogConfig.vue"),
   },
   {
     path: "/app/blogroll/:weblogId",
@@ -46,26 +30,9 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/comments/:weblogId",
-    name: "comments",
-    component: () =>
-      import("../views/Comments.vue"),
-    props: (route) => ({
-      weblogId: route.params.weblogId,
-      entryId: route.query.entryId,
-    }),
-  },
-  {
     path: "/app/tags/:weblogId",
     name: "tags",
     component: () => import("../views/Tags.vue"),
-    props: true,
-  },
-  {
-    path: "/app/templates/:weblogId",
-    name: "templates",
-    component: () =>
-      import("../views/Templates.vue"),
     props: true,
   },
   {

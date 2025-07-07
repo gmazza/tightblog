@@ -1,4 +1,5 @@
 export * from './interfaces/mediafiles'
+export * from './interfaces/templates'
 export * from './interfaces/users'
 import type { User, GlobalRole, UserStatus } from './interfaces/users'
 
@@ -72,6 +73,7 @@ export interface SharedTheme {
   name: string
   description: string
   previewImagePath: string
+  previewPath: string
   lastModified: Date
 }
 
@@ -79,9 +81,10 @@ export interface SessionInfo {
   authenticatedUser?: User
   actionWeblog?: Weblog
   actionWeblogURL?: string
+  absoluteUrl?: string
   userNeedsMFARegistration?: boolean
   userIsAdmin?: boolean
-  userCanCreateBlogs: boolean
+  userCanCreateBlogs?: boolean
 }
 
 export interface StartupConfig {
@@ -191,9 +194,9 @@ export interface WeblogEntryQueryParams {
 }
 
 export interface WebloggerProperties {
-  usersCustomizeThemes: boolean
-  commentPolicy: CommentPolicyLabel
-  commentPolicyLevel: number
-  spamPolicyLevel: number
-  usersOverrideAnalyticsCode: boolean
+  usersCustomizeThemes?: boolean
+  commentPolicy?: CommentPolicyLabel
+  commentPolicyLevel?: number
+  spamPolicyLevel?: number
+  usersOverrideAnalyticsCode?: boolean
 }

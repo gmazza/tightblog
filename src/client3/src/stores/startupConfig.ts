@@ -18,7 +18,7 @@ export const useStartupConfigStore = defineStore('startupConfig', {
         await api
           .loadLookupValues()
           .then((result) => {
-            this.lookupValues = result.data
+            this.lookupValues = result
           })
           .catch((error) => console.log('load lookup vals error: ', error))
       }
@@ -28,7 +28,7 @@ export const useStartupConfigStore = defineStore('startupConfig', {
         await api
           .loadStartupConfig()
           .then((result) => {
-            this.startupConfig = result.data
+            this.startupConfig = result
           })
           .catch((error) => console.log('load startup config error: ', error))
       }

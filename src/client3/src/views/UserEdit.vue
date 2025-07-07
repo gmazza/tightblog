@@ -146,10 +146,10 @@
 </template>
 
 <script lang="ts">
-import type { User, UserCredentials, ErrorObj, ErrorItem } from '@/types'
-import { useSessionInfoStore } from '../stores/sessionInfo'
 import { mapState, mapActions } from 'pinia'
-import api from '@/api'
+import { useSessionInfoStore } from '../stores/sessionInfo'
+import type { User, UserCredentials, ErrorObj, ErrorItem } from '@/types'
+import * as api from '@/api'
 import { AxiosError } from 'axios'
 
 export default {

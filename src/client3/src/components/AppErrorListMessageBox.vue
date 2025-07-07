@@ -6,12 +6,19 @@
     v-show="inErrorObj.errors && inErrorObj.errors.length > 0"
     v-cloak
   >
-    <button type="button" class="close" v-on:click="$emit('close-box')" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    <ul class="list-unstyled">
-      <li v-for="(item, index) in inErrorObj.errors" v-html="item" :key="`${index}`"></li>
-    </ul>
+    <div class="d-flex align-items-center">
+      <ul class="list-unstyled">
+        <li v-for="(item, index) in inErrorObj.errors" v-html="item" :key="`${index}`"></li>
+      </ul>
+      <button
+        type="button"
+        class="btn-close ms-auto"
+        v-on:click="$emit('close-box')"
+        aria-label="Close"
+      >
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
   </div>
 </template>
 

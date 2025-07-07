@@ -96,6 +96,12 @@ const router = createRouter({
         folderId: route.query.folderId,
         mediaFileId: route.query.mediaFileId || null
       })
+    },
+    {
+      path: '/app/templates/:weblogId',
+      name: 'templates',
+      component: () => import('../views/BlogTemplates.vue'),
+      props: true
     }
   ]
 })

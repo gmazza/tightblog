@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import api from '@/api'
+import api2 from '@/api'
+import * as api from '@/api'
 import type { User, Weblog, WebloggerProperties } from '@/types'
 
 type State = {
@@ -27,25 +28,25 @@ export const useDynamicConfigStore = defineStore('dynamicConfig', {
   },
   actions: {
     async loadWebloggerProperties() {
-      await api
+      await api2
         .loadWebloggerProperties()
-        .then((result) => (this.webloggerProperties = result.data))
+        .then((result) => (this.webloggerProperties = result))
         .catch((error) => console.error('Load weblogger properties error', error))
     },
     async loadWeblogList() {
-      await api
+      await api2
         .loadWeblogList()
-        .then((result) => (this.weblogList = result.data))
+        .then((result) => (this.weblogList = result))
         .catch((error) => console.error('Load weblog list error', error))
     },
     async loadUserList() {
       await api
         .loadUserList()
-        .then((result) => (this.userList = result.data))
+        .then((result) => (this.userList = result))
         .catch((error) => console.error('Load user list error', error))
     },
     async saveWebloggerProperties(webloggerProps: WebloggerProperties) {
-      await api.saveWebloggerProperties(webloggerProps)
+      await api2.saveWebloggerProperties(webloggerProps)
       await this.loadWebloggerProperties()
     }
   }

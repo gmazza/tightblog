@@ -233,7 +233,7 @@ import { mapState, mapActions } from 'pinia'
 import { AxiosError } from 'axios'
 import { formatDateTime } from '../helpers'
 import { useStartupConfigStore } from '../stores/startupConfig'
-import * as api from '@/api'
+import api2 from '@/api'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -295,7 +295,7 @@ export default {
         delete queryParams.status
       }
 
-      await api
+      await api2
         .loadComments(this.weblogId, this.pageNum, queryParams, this.entryId)
         .then((response) => {
           this.commentData.comments = response.comments
@@ -336,12 +336,12 @@ export default {
       }
       comment.editable = false
 
-      api.saveComment(comment).catch((error) => this.commonErrorResponse(error))
+      api2.saveComment(comment).catch((error) => this.commonErrorResponse(error))
     },
     approveComment: function (comment: Comment) {
       this.messageClear()
       try {
-        api.approveComment(comment.id)
+        api2.approveComment(comment.id)
         comment.status = 'APPROVED'
       } catch (error) {
         this.commonErrorResponse(error)
@@ -350,7 +350,7 @@ export default {
     hideComment: function (comment: Comment) {
       this.messageClear()
       try {
-        api.hideComment(comment.id)
+        api2.hideComment(comment.id)
         comment.status = 'DISAPPROVED'
       } catch (error) {
         this.commonErrorResponse(error)
@@ -359,7 +359,7 @@ export default {
     deleteComment: function (comment: Comment) {
       this.messageClear()
       try {
-        api.deleteComment(comment.id)
+        api2.deleteComment(comment.id)
         this.loadComments()
       } catch (error) {
         this.commonErrorResponse(error)
