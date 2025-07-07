@@ -216,7 +216,7 @@
           <button
             @click="confirmMoveFilesDialog.cancel"
             type="button"
-            class="btn-close"
+            class="btn-close ms-auto"
             aria-label="Close"
           ></button>
         </div>
@@ -242,7 +242,7 @@
           <button
             @click="confirmDeleteFilesDialog.cancel"
             type="button"
-            class="btn-close"
+            class="btn-close ms-auto"
             aria-label="Close"
           ></button>
         </div>
@@ -270,7 +270,7 @@
           <button
             @click="confirmDeleteFolderDialog.cancel"
             type="button"
-            class="btn-close"
+            class="btn-close ms-auto"
             aria-label="Close"
           ></button>
         </div>

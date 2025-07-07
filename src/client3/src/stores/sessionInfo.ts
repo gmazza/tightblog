@@ -22,7 +22,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
     getUserWeblogRoles(): UserWeblogRole[] {
       return this.userWeblogRoles
     },
-    getWeblog({ userWeblogs }): (id: String) => Weblog | null {
+    getWeblog(): (id: String) => Weblog | null {
       return (id: String): Weblog | null => {
         const weblog = findById(this.userWeblogs, id)
         if (!weblog) return null
@@ -36,18 +36,18 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
     async loadSessionInfo() {
       await api
         .loadSessionInfo()
-        .then((result) => (this.sessionInfo = result.data))
+        .then((result) => (this.sessionInfo = result))
         .catch((error: String) => console.log('load session info error: ', error))
     },
     async loadUserWeblogRoles() {
       await api
         .loadUserWeblogRoles()
         .then((result) => {
-          this.userWeblogRoles = result.data
+          this.userWeblogRoles = result
         })
         .catch((error: String) => console.log('load user weblog roles error: ', error))
     },
-    async fetchWeblog(weblogId: String) {
+    async fetchWeblog(weblogId: string): Promise<Weblog | null> {
       const weblog = this.getWeblog(weblogId)
       if (weblog != null) {
         return weblog
@@ -56,13 +56,14 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
         return this.getWeblog(weblogId)
       }
     },
-    async refreshWeblog(weblogId: String) {
+    async refreshWeblog(weblogId: string): Promise<Weblog | null> {
       await api
         .fetchWeblog(weblogId)
         .then((result) => {
-          upsert(this.userWeblogs, result.data)
+          upsert(this.userWeblogs, result)
         })
         .catch((error: String) => console.log('fetch weblog error: ', error))
+      return this.getWeblog(weblogId)
     },
     async upsertWeblog(weblog: Weblog) {
       const updatedWeblog = await api
@@ -71,7 +72,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
       upsert(this.userWeblogs, updatedWeblog)
       this.loadUserWeblogRoles()
     },
-    async deleteWeblog(weblogId: String) {
+    async deleteWeblog(weblogId: string) {
       await api
         .deleteWeblog(weblogId)
         .catch((error: String) => console.log('delete weblog ' + weblogId + ' error: ', error))
@@ -83,7 +84,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
       }
       this.loadUserWeblogRoles()
     },
-    async detachUserFromWeblog(weblogId: String) {
+    async detachUserFromWeblog(weblogId: string) {
       await api
         .detachUserFromWeblog(weblogId)
         .catch((error: String) => console.log('detach user from ' + weblogId + ' error: ', error))

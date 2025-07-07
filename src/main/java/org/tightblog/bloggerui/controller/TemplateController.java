@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
+import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.service.ThemeManager;
@@ -65,6 +66,7 @@ public class TemplateController {
     private final WeblogManager weblogManager;
     private final ThemeManager themeManager;
     private final MessageSource messages;
+    private final WebloggerPropertiesDao webloggerPropertiesDao;
 
     private record TemplateRole(String constant, String readableName, String descriptionProperty) { }
     private record WeblogThemeData(List<SharedTheme> themes, List<? extends Template> templates,
@@ -72,11 +74,13 @@ public class TemplateController {
 
     @Autowired
     public TemplateController(WeblogDao weblogDao, WeblogTemplateDao weblogTemplateDao,
-                              WeblogManager weblogManager, ThemeManager themeManager, MessageSource messages) {
+                              WeblogManager weblogManager, ThemeManager themeManager,
+                              WebloggerPropertiesDao webloggerPropertiesDao, MessageSource messages) {
         this.weblogDao = weblogDao;
         this.weblogTemplateDao = weblogTemplateDao;
         this.weblogManager = weblogManager;
         this.themeManager = themeManager;
+        this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.messages = messages;
     }
 
@@ -138,49 +142,55 @@ public class TemplateController {
     public ResponseEntity<?> postTemplate(@PathVariable String weblogId, @Valid @RequestBody WeblogTemplate templateData,
                                       Principal p, Locale locale) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
-        WeblogTemplate templateToSave = weblogTemplateDao.findByWeblogIdAndId(weblog.getId(), templateData.getId());
+        if (webloggerPropertiesDao.findOrNull().isUsersCustomizeThemes()) {
+            Weblog weblog = weblogDao.getReferenceById(weblogId);
+            WeblogTemplate templateToSave = weblogTemplateDao.findByWeblogIdAndId(weblog.getId(), templateData.getId());
 
-        String originalName = null;
-        // create new?
-        if (templateToSave == null) {
-            templateToSave = new WeblogTemplate();
-            if (templateData.getRole() != null) {
-                templateToSave.setRole(templateData.getRole());
-            } else {
-                templateToSave.setRole(Template.Role.valueOf(templateData.getRoleName()));
-            }
-            templateToSave.setName(templateData.getName());
-            templateToSave.setWeblog(weblog);
-        } else {
-            originalName = templateToSave.getName();
-            if (Template.Derivation.SPECIFICBLOG.equals(templateToSave.getDerivation())) {
+            String originalName = null;
+            // create new?
+            if (templateToSave == null) {
+                templateToSave = new WeblogTemplate();
+                if (templateData.getRole() != null) {
+                    templateToSave.setRole(templateData.getRole());
+                } else {
+                    templateToSave.setRole(Template.Role.valueOf(templateData.getRoleName()));
+                }
                 templateToSave.setName(templateData.getName());
+                templateToSave.setWeblog(weblog);
+            } else {
+                originalName = templateToSave.getName();
+                if (Template.Derivation.SPECIFICBLOG.equals(templateToSave.getDerivation())) {
+                    templateToSave.setName(templateData.getName());
+                }
             }
+
+            templateToSave.setTemplate(templateData.getTemplate());
+            templateToSave.setLastModified(Instant.now());
+
+            // some properties relevant only for certain template roles
+            if (!templateToSave.getRole().isSingleton()) {
+                templateToSave.setDescription(templateData.getDescription());
+            }
+
+            List<Violation> violations = validateTemplates(templateToSave, locale);
+            if (!violations.isEmpty()) {
+                return ValidationErrorResponse.badRequest(violations);
+            }
+
+            weblogTemplateDao.save(templateToSave);
+            weblogManager.evictWeblogTemplateCaches(templateToSave.getWeblog(), templateToSave.getName(),
+                    templateToSave.getRole());
+            if (originalName != null) {
+                weblogTemplateDao.evictWeblogTemplateByName(templateToSave.getWeblog(), originalName);
+            }
+            weblogManager.saveWeblog(templateToSave.getWeblog(), true);
+
+            return SuccessResponse.textMessage(templateToSave.getId());
+        } else {
+            LOG.warn("User {} attempted to create or update a template for weblog {} but this is not allowed.",
+                    p.getName(), weblogId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        templateToSave.setTemplate(templateData.getTemplate());
-        templateToSave.setLastModified(Instant.now());
-
-        // some properties relevant only for certain template roles
-        if (!templateToSave.getRole().isSingleton()) {
-            templateToSave.setDescription(templateData.getDescription());
-        }
-
-        List<Violation> violations = validateTemplates(templateToSave, locale);
-        if (violations.size() > 0) {
-            return ValidationErrorResponse.badRequest(violations);
-        }
-
-        weblogTemplateDao.save(templateToSave);
-        weblogManager.evictWeblogTemplateCaches(templateToSave.getWeblog(), templateToSave.getName(),
-                templateToSave.getRole());
-        if (originalName != null) {
-            weblogTemplateDao.evictWeblogTemplateByName(templateToSave.getWeblog(), originalName);
-        }
-        weblogManager.saveWeblog(templateToSave.getWeblog(), true);
-
-        return SuccessResponse.textMessage(templateToSave.getId());
     }
 
     private List<Violation> validateTemplates(WeblogTemplate templateToCheck, Locale locale) {
@@ -207,8 +217,14 @@ public class TemplateController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
     public void deleteTemplates(@PathVariable String weblogId, @RequestBody List<String> ids, Principal p,
                                 HttpServletResponse response) {
-        for (String id : ids) {
-            deleteTemplate(weblogId, id, response);
+        if (webloggerPropertiesDao.findOrNull().isUsersCustomizeThemes()) {
+            for (String id : ids) {
+                deleteTemplate(weblogId, id, response);
+            }
+        } else {
+            LOG.warn("User {} attempted to delete templates for weblog {} but this is not allowed.",
+                    p.getName(), weblogId);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
@@ -232,38 +248,44 @@ public class TemplateController {
     public ResponseEntity<?> switchTheme(@PathVariable String weblogId, @PathVariable String newThemeId, Principal p,
                                          Locale locale) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
-        SharedTheme newTheme;
-        try {
-            newTheme = themeManager.getSharedTheme(newThemeId);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        List<Violation> errors = validateTheme(weblog, newTheme, locale);
-        if (errors.size() > 0) {
-            return ValidationErrorResponse.badRequest(errors);
-        }
-
-        // Remove old template overrides
-        List<WeblogTemplate> oldTemplates = weblogTemplateDao.getWeblogTemplateMetadata(weblog);
-
-        for (WeblogTemplate template : oldTemplates) {
-            if (template.getDerivation() == Template.Derivation.OVERRIDDEN) {
-                weblogTemplateDao.deleteById(template.getId());
+        if (webloggerPropertiesDao.findOrNull().isUsersCustomizeThemes()) {
+            Weblog weblog = weblogDao.getById(weblogId);
+            SharedTheme newTheme;
+            try {
+                newTheme = themeManager.getSharedTheme(newThemeId);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            weblogManager.evictWeblogTemplateCaches(weblog, template.getName(), template.getRole());
+
+            List<Violation> errors = validateTheme(weblog, newTheme, locale);
+            if (errors.size() > 0) {
+                return ValidationErrorResponse.badRequest(errors);
+            }
+
+            // Remove old template overrides
+            List<WeblogTemplate> oldTemplates = weblogTemplateDao.getWeblogTemplateMetadata(weblog);
+
+            for (WeblogTemplate template : oldTemplates) {
+                if (template.getDerivation() == Template.Derivation.OVERRIDDEN) {
+                    weblogTemplateDao.deleteById(template.getId());
+                }
+                weblogManager.evictWeblogTemplateCaches(weblog, template.getName(), template.getRole());
+            }
+
+            weblog.setTheme(newThemeId);
+
+            LOG.debug("Switching to theme {} for weblog {}", newThemeId, weblog.getHandle());
+
+            // save updated weblog so its cached pages will expire
+            weblogManager.saveWeblog(weblog, true);
+            weblogTemplateDao.evictWeblogTemplates(weblog);
+
+            return ResponseEntity.noContent().build();
+        } else {
+            LOG.warn("User {} attempted to switch theme for weblog {} but this is not allowed.",
+                    p.getName(), weblogId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        weblog.setTheme(newThemeId);
-
-        LOG.debug("Switching to theme {} for weblog {}", newThemeId, weblog.getHandle());
-
-        // save updated weblog so its cached pages will expire
-        weblogManager.saveWeblog(weblog, true);
-        weblogTemplateDao.evictWeblogTemplates(weblog);
-
-        return ResponseEntity.noContent().build();
     }
 
     private List<Violation> validateTheme(Weblog weblog, SharedTheme newTheme, Locale locale) {

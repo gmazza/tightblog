@@ -263,7 +263,7 @@
                 <button
                   @click="confirmDeleteDialog.cancel"
                   type="button"
-                  class="btn-close"
+                  class="btn-close ms-auto"
                   aria-label="Close"
                 ></button>
               </div>

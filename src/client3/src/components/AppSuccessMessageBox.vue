@@ -1,20 +1,17 @@
 <template>
-  <div
-    id="successMessageDiv"
-    class="alert alert-success"
-    role="alert"
-    v-show="message"
-    v-cloak
-  >
-    {{ message }}
-    <button
-      type="button"
-      class="close"
-      v-on:click="$emit('close-box')"
-      aria-label="Close"
-    >
-      <span aria-hidden="true">&times;</span>
-    </button>
+  <div id="successMessageDiv" class="alert alert-success" role="alert" v-show="message" v-cloak>
+    <div class="d-flex align-items-center">
+      <span class="flex-grow-1">{{ message }}</span>
+      <button
+        type="button"
+        v-show="message"
+        class="btn-close ms-auto"
+        v-on:click="$emit('close-box')"
+        aria-label="Close"
+      >
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -29,3 +26,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.d-flex {
+  display: flex; /* Remove !important */
+}
+</style>

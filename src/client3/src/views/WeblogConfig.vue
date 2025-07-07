@@ -108,7 +108,7 @@
                 <img
                   v-bind:src="
                     startupConfig.absoluteSiteURL +
-                    lookupValues?.sharedThemeMap[weblog.theme].previewImagePath
+                    lookupValues?.sharedThemeMap[weblog.theme].previewPath
                   "
                 />
               </div>
@@ -294,7 +294,7 @@
             <button
               @click="deleteDialog.cancel"
               type="button"
-              class="btn-close"
+              class="btn-close ms-auto"
               aria-label="Close"
             ></button>
           </div>

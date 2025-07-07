@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
-import org.tightblog.domain.UserCredentials;
 import org.tightblog.service.MediaManager;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;

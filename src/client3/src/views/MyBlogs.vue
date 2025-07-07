@@ -116,15 +116,15 @@
               <!-- And only show theme option if custom themes are enabled -->
               <span v-if="webloggerProperties.usersCustomizeThemes">
                 <img src="@/assets/layout.png" />
-                <!--router-link
-                    :to="{
-                      name: 'templates',
-                      params: {
-                        weblogId: role.weblog.id
-                      }
-                    }"
-                    >{{ $t('myBlogs.theme') }}</router-link
-                  -->
+                <router-link
+                  :to="{
+                    name: 'templates',
+                    params: {
+                      weblogId: role.weblog.id
+                    }
+                  }"
+                  >{{ $t('myBlogs.theme') }}</router-link
+                >
                 <br />
               </span>
 
@@ -163,7 +163,7 @@
                 <button
                   @click="confirmResignDialog.cancel"
                   type="button"
-                  class="btn-close"
+                  class="btn-close ms-auto"
                   aria-label="Close"
                 ></button>
               </div>
@@ -228,7 +228,7 @@ export default {
     }
   },
   async created() {
-    if (this.webloggerProperties === undefined) {
+    if (this.webloggerProperties?.usersCustomizeThemes === undefined) {
       await this.loadWebloggerProperties()
     }
     if (!this.sessionInfo.authenticatedUser) {

@@ -1,6 +1,7 @@
 import axios, { type AxiosResponse } from 'axios'
 
 export * from './modules/mediafiles'
+export * from './modules/templates'
 export * from './modules/users'
 
 // indicate requests via Ajax calls, so auth problems return 401s vs. login redirects
@@ -14,8 +15,6 @@ import type {
   LookupValues,
   SessionInfo,
   StartupConfig,
-  User,
-  UserData,
   UserWeblogRole,
   WebloggerProperties,
   Weblog,
@@ -24,8 +23,6 @@ import type {
   WeblogEntryQueryParams,
   RecentWeblogEntry
 } from '@/types'
-
-export * from './modules/mediafiles'
 
 export default {
   // caches
@@ -39,32 +36,25 @@ export default {
   },
   // startupConfig
   loadLookupValues(): Promise<LookupValues> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/authoring/lookupvalues')
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/app/authoring/lookupvalues')
+      .then((response) => response.data)
   },
   loadStartupConfig(): Promise<StartupConfig> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/authoring/startupconfig')
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/app/authoring/startupconfig')
+      .then((response) => response.data)
   },
   // dynamicConfig
   loadWebloggerProperties(): Promise<WebloggerProperties> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/webloggerproperties')
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/webloggerproperties')
+      .then((response) => response.data)
   },
   loadWeblogList(): Promise<Weblog[]> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/webloglist')
-  },
-  loadUser(userId: string): Promise<User> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId)
-  },
-  loadUserList(): Promise<User[]> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/useradmin/userlist')
-  },
-  saveUser(userId: string, user: UserData): Promise<User> {
-    return axios.post(
-      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId,
-      user
-    )
-  },
-  registerUser(user: UserData) {
-    return axios.post(import.meta.env.VITE_PUBLIC_PATH + '/register/rest/registeruser', user)
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/webloglist')
+      .then((response) => response.data)
   },
   async loadWeblogEntry(entryId: string): Promise<WeblogEntry> {
     const response: AxiosResponse<WeblogEntry> = await axios.get(
@@ -159,13 +149,21 @@ export default {
   },
   // sessionInfo
   loadSessionInfo(): Promise<SessionInfo> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/sessioninfo')
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/sessioninfo')
+      .then((response) => response.data)
   },
-  loadUserWeblogRoles(): Promise<UserWeblogRole[]> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/loggedinuser/weblogs')
+  async loadUserWeblogRoles(): Promise<UserWeblogRole[]> {
+    return axios
+      .get<
+        UserWeblogRole[]
+      >(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/loggedinuser/weblogs')
+      .then((response) => response.data)
   },
   fetchWeblog(weblogId: string): Promise<Weblog> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblog/' + weblogId)
+    return axios
+      .get<Weblog>(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblog/' + weblogId)
+      .then((response) => response.data)
   },
   upsertWeblog(weblog: Weblog) {
     const urlToUse = weblog.id
