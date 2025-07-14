@@ -2,7 +2,7 @@ import axios, { type AxiosResponse } from 'axios'
 
 const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest'
 
-import type { WeblogTemplateData } from '@/types'
+import type { Template, WeblogTemplateData } from '@/types'
 
 export function loadTemplateData(weblogId: string): Promise<WeblogTemplateData> {
   return axios
@@ -22,6 +22,25 @@ export function addTemplate(
   }
 
   return axios.post<void>(`${VITE_PUBLIC_PATH}/weblog/${weblogId}/templates`, newData)
+}
+
+export function loadTemplateByName(weblogId: string, templateName: string): Promise<Template> {
+  return axios
+    .get<Template>(`${VITE_PUBLIC_PATH}/weblog/${weblogId}/templatename/${templateName}/`)
+    .then((response) => response.data)
+}
+
+export function loadTemplateById(templateId: string): Promise<Template> {
+  return axios
+    .get<Template>(`${VITE_PUBLIC_PATH}/template/${templateId}`)
+    .then((response) => response.data)
+}
+
+export function saveTemplate(
+  weblogId: string,
+  updatedTemplate: Template
+): Promise<AxiosResponse<string>> {
+  return axios.post<string>(`${VITE_PUBLIC_PATH}/weblog/${weblogId}/templates`, updatedTemplate)
 }
 
 export function switchTheme(weblogId: string, themeId: string): Promise<AxiosResponse<void>> {

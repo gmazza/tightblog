@@ -46,13 +46,6 @@ const routes = [
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'}
   },
   {
-    path: "/app/templateEdit/:weblogId",
-    name: "templateEdit",
-    component: () =>
-      import("../views/TemplateEdit.vue"),
-    props: true,
-  },
-  {
     path: "/admin/cachedData",
     name: "cachedData",
     component: () =>

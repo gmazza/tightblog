@@ -102,6 +102,20 @@ const router = createRouter({
       name: 'templates',
       component: () => import('../views/BlogTemplates.vue'),
       props: true
+    },
+    {
+      path: '/app/templateEdit/:weblogId',
+      name: 'templateEdit',
+      component: () => import('../views/TemplateEdit.vue'),
+      props: (route) => {
+        const props = {
+          weblogId: route.params.weblogId,
+          templateId: route.query.templateId || null,
+          templateName: route.query.templateName || null
+        }
+        console.log('templateEdit props:', props)
+        return props
+      }
     }
   ]
 })

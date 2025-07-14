@@ -97,18 +97,19 @@
 
             <td style="vertical-align: middle">
               <span>
-                <!--router-link
+                <router-link
                   :to="{
                     name: 'templateEdit',
                     params: {
-                      weblogId,
+                      weblogId
+                    },
+                    query: {
                       templateId: tpl.id,
                       templateName: tpl.name
                     }
                   }"
                   >{{ tpl.name }}</router-link
-              -->
-                {{ tpl.name }}
+                >
               </span>
             </td>
 
