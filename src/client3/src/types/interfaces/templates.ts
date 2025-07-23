@@ -1,5 +1,3 @@
-import type { ResolvedTypeReferenceDirectiveWithFailedLookupLocations } from 'typescript'
-
 export interface WeblogTemplateData {
   themes: Array<SharedTheme>
   templates: Array<SharedTemplate>
@@ -11,6 +9,8 @@ export interface SharedTheme {
   name: string
   description: string
   previewImagePath: string
+  previewPath: string
+  lastModified: Date
 }
 
 export interface TemplateRole {
