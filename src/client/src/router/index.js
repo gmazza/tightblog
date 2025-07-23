@@ -23,13 +23,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/categories/:weblogId",
-    name: "categories",
-    component: () =>
-      import("../views/Categories.vue"),
-    props: true,
-  },
-  {
     path: "/app/tags/:weblogId",
     name: "tags",
     component: () => import("../views/Tags.vue"),

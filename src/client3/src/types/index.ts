@@ -2,6 +2,7 @@ export * from './interfaces/mediafiles'
 export * from './interfaces/templates'
 export * from './interfaces/users'
 import type { User, GlobalRole, UserStatus } from './interfaces/users'
+import type { SharedTheme } from './interfaces/templates'
 
 export interface CacheItem {}
 
@@ -66,15 +67,6 @@ export interface RecentWeblogEntry {
   id: string
   title: string
   entryEditURL: string
-}
-
-export interface SharedTheme {
-  id: string
-  name: string
-  description: string
-  previewImagePath: string
-  previewPath: string
-  lastModified: Date
 }
 
 export interface SessionInfo {
@@ -150,8 +142,9 @@ export type CommentPolicyLabel = 'NONE' | 'MODERATE_NONPUB' | 'MODERATE_NONAUTH'
 export type EditFormat = 'HTML' | 'COMMONMARK'
 
 export interface WeblogCategory {
-  id: string
+  id?: string
   name: string
+  position?: number
 }
 
 export type PublishStatus = 'PUBLISHED' | 'DRAFT' | 'SCHEDULED'

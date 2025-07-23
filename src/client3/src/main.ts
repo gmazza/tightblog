@@ -17,6 +17,18 @@ import AppErrorMessageBox from './components/AppErrorMessageBox.vue'
 
 const app = createApp(App)
 
+app.mixin({
+  methods: {
+    globalHelper: function () {
+      alert('Hello world')
+    },
+    // lodash replacements: https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore
+    globalSortBy: (key: string) => {
+      return (a: any, b: any) => (a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0)
+    }
+  }
+})
+
 app.use(pinia)
 app.use(router)
 app.use(i18n)

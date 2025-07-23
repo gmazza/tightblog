@@ -43,16 +43,16 @@ public class SharedTheme {
 
     private Instant lastModified;
 
-    private Set<SharedTemplate> templates = new HashSet<>();
+    private final Set<SharedTemplate> templates = new HashSet<>();
 
     // the filesystem directory where we should read this theme from
     private String themeDir;
 
     // we keep templates in a Map for faster lookups by name
-    private Map<String, Template> templatesByName = new HashMap<>();
+    private final Map<String, Template> templatesByName = new HashMap<>();
 
     // we keep templates in a Map for faster lookups by action
-    private Map<Role, Template> templatesByRole = new HashMap<>();
+    private final Map<Role, Template> templatesByRole = new HashMap<>();
 
     public SharedTheme() {
     }
