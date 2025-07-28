@@ -102,7 +102,7 @@ public class TagController {
                 currentTagName, newTagName);
 
         Map<String, Integer> results = weblogManager.addTag(weblog, currentTagName, newTagName);
-        if (!isAdd) {
+        if (!isAdd && !currentTagName.equals(newTagName)) {
             weblogManager.removeTag(weblog, currentTagName);
         }
         return results;
