@@ -103,10 +103,10 @@
 
         <tr>
           <td class="entryEditFormLabel">
-            <label for="tags">{{ $t('common.tags') }}</label>
+            <label for="tagsAsString">{{ $t('common.tags') }}</label>
           </td>
           <td>
-            <input id="tags" v-model="entry.tags" />
+            <input id="tagsAsString" v-model="entry.tagsAsString" />
           </td>
         </tr>
 
@@ -576,7 +576,7 @@ export default {
         this.originalEntry.text !== this.entry.text ||
         this.originalEntry.summary !== this.entry.summary ||
         this.originalEntry.notes !== this.entry.notes ||
-        this.originalEntry.tags !== this.entry.tags ||
+        this.originalEntry.tagsAsString !== this.entry.tagsAsString ||
         this.originalEntry.pubTime !== this.entry.pubTime ||
         this.originalEntry.commentDays !== this.entry.commentDays ||
         this.originalEntry.searchDescription !== this.entry.searchDescription ||

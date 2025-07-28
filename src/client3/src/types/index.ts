@@ -147,6 +147,25 @@ export interface WeblogCategory {
   position?: number
 }
 
+export interface WeblogEntryTag {
+  id?: string
+  name: string
+  total: number
+  firstEntry: Date | null
+  lastEntry: Date | null
+  selected?: boolean
+}
+
+export interface TagUpdateResults {
+  updated: number
+  unchanged: number
+}
+
+export interface WeblogTagSummaryData {
+  tags: Array<WeblogEntryTag>
+  hasMore: boolean
+}
+
 export type PublishStatus = 'PUBLISHED' | 'DRAFT' | 'SCHEDULED'
 
 export interface WeblogEntry {

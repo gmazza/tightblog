@@ -88,6 +88,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/app/tags/:weblogId',
+      name: 'tags',
+      component: () => import('../views/Tags.vue'),
+      props: true
+    },
+    {
       path: '/app/mediaFiles/:weblogId',
       name: 'mediaFiles',
       component: () => import('../views/MediaFiles.vue'),

@@ -23,12 +23,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/app/tags/:weblogId",
-    name: "tags",
-    component: () => import("../views/Tags.vue"),
-    props: true,
-  },
-  {
      path: '/logout',
      name: "logout",
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'}

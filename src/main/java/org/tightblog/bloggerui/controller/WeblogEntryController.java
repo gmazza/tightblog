@@ -61,6 +61,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -235,6 +236,9 @@ public class WeblogEntryController {
             entry.setText(entryData.getText());
             entry.setSummary(entryData.getSummary());
             entry.setNotes(entryData.getNotes());
+            entryData.setTags(Arrays.stream(entryData.getTagsAsString().split("\\s+"))
+                    .filter(StringUtils::isNotEmpty)
+                    .collect(Collectors.toSet()));
             entry.updateTags(entryData.getTags());
             entry.setSearchDescription(entryData.getSearchDescription());
             entry.setEnclosureUrl(entryData.getEnclosureUrl());

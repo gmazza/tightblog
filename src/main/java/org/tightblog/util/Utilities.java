@@ -282,11 +282,9 @@ public final class Utilities {
      */
     public static String encode(String str) {
         String encodedStr = str;
-        try {
-            if (encodedStr != null) {
-                encodedStr = URLEncoder.encode(str, "UTF-8");
-            }
-        } catch (UnsupportedEncodingException ignored) {
+        if (encodedStr != null) {
+            encodedStr = URLEncoder.encode(str, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
         }
         return encodedStr;
     }
