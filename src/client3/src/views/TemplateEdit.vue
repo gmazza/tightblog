@@ -41,9 +41,9 @@
               size="50"
               maxlength="255"
               :style="{
-                background: templateData.derivation == 'Added' ? 'white' : 'lightgrey'
+                background: templateData.derivation == 'SPECIFICBLOG' ? 'white' : 'lightgrey'
               }"
-              :readonly="templateData.derivation != 'Added'"
+              :readonly="templateData.derivation != 'SPECIFICBLOG'"
             />
             <span v-if="templateLoaded && templateData.role.accessibleViaUrl">
               <br />
