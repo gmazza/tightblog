@@ -25,7 +25,7 @@
     <div style="text-align: left; padding: 20px">
       <AppErrorListMessageBox
         :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
+        @close-box="errorObj.errors = []"
       ></AppErrorListMessageBox>
       <h2>{{ $t('categories.title') }}</h2>
       <p class="pagetip">{{ $t('categories.rootPrompt') }}</p>
@@ -87,7 +87,7 @@
                 {{ $t('categories.errorDuplicateName') }}<br />
               </span>
               <label for="category-name">{{ $t('common.name') }}:</label>
-              <input id="category-name" v-model="itemToEdit.name" maxlength="80" size="40" />
+              <input id="category-name" v-model="itemToEdit!.name" maxlength="80" size="40" />
             </div>
             <div class="modal-footer">
               <button @click="upsertItem()">{{ $t('common.confirm') }}</button>
@@ -107,7 +107,7 @@
               <h5
                 v-html="
                   $t('categories.deleteCategory', {
-                    categoryName: categoryToDelete.name
+                    categoryName: categoryToDelete!.name
                   })
                 "
               ></h5>
@@ -263,7 +263,6 @@ export default {
         window.scrollTo(0, 0)
       }
     },
-
     messageClear: function () {
       this.showUpdateErrorMessage = false
       this.errorObj = {

@@ -145,6 +145,9 @@ export interface WeblogCategory {
   id?: string
   name: string
   position?: number
+  numEntries?: number
+  firstEntry?: Date | null
+  lastEntry?: Date | null
 }
 
 export interface WeblogEntryTag {
@@ -153,6 +156,16 @@ export interface WeblogEntryTag {
   total: number
   firstEntry: Date | null
   lastEntry: Date | null
+  viewUrl?: string
+  selected?: boolean
+}
+
+export interface WeblogBookmark {
+  id?: string
+  name: string
+  description: string
+  url: string
+  position?: number
   selected?: boolean
 }
 

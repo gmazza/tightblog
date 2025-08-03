@@ -84,13 +84,19 @@ const router = createRouter({
     {
       path: '/app/categories/:weblogId',
       name: 'categories',
-      component: () => import('../views/Categories.vue'),
+      component: () => import('../views/CategoriesView.vue'),
       props: true
     },
     {
       path: '/app/tags/:weblogId',
       name: 'tags',
-      component: () => import('../views/Tags.vue'),
+      component: () => import('../views/TagsView.vue'),
+      props: true
+    },
+    {
+      path: '/app/blogroll/:weblogId',
+      name: 'blogroll',
+      component: () => import('../views/BlogrollView.vue'),
       props: true
     },
     {

@@ -1,8 +1,9 @@
 import axios, { type AxiosResponse } from 'axios'
 
+export * from './modules/blogroll'
 export * from './modules/categories'
-export * from './modules/tags'
 export * from './modules/mediafiles'
+export * from './modules/tags'
 export * from './modules/templates'
 export * from './modules/users'
 

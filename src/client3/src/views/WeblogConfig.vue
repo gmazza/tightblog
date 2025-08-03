@@ -385,7 +385,7 @@ export default {
     filteredSpamOptions: function () {
       if (this.lookupValues && this.lookupValues.spamOptionList) {
         return this.lookupValues.spamOptionList.filter(
-          (item: { level: number }) => item.level >= this.webloggerProperties.spamPolicyLevel
+          (item: { level: number }) => item.level >= this.webloggerProperties.spamPolicyLevel!
         )
       } else {
         return []
@@ -394,7 +394,7 @@ export default {
     filteredCommentOptions: function () {
       if (this.lookupValues && this.lookupValues.commentOptionList) {
         return this.lookupValues.commentOptionList.filter(
-          (item: { level: number }) => item.level <= this.webloggerProperties.commentPolicyLevel
+          (item: { level: number }) => item.level <= this.webloggerProperties.commentPolicyLevel!
         )
       } else {
         return []

@@ -26,7 +26,7 @@
       <AppSuccessMessageBox :message="successMessage" @close-box="successMessage = null" />
       <AppErrorListMessageBox
         :in-error-obj="errorObj"
-        @close-box="errorObj.errors = null"
+        @close-box="errorObj.errors = []"
       ></AppErrorListMessageBox>
       <h2>{{ $t('tags.title') }}</h2>
       <p class="pagetip">{{ $t('tags.prompt') }}</p>
@@ -204,7 +204,7 @@ export default {
       pageNum: 0,
       urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/tags/',
       resultsMap: {} as TagUpdateResults,
-      successMessage: '',
+      successMessage: '' as string | null,
       errorObj: {
         errors: []
       } as ErrorObj,

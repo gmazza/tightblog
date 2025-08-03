@@ -150,8 +150,8 @@ dependencies {
 def uiDir = 'src/client3'
 
 node {
-	version = '18.0.0'
-	npmVersion = '6.14.9'
+	version = '20.19.0'
+	npmVersion = '10.5.0'
 	download = true
 	// distBaseUrl = Custom artifactory location here for node/npm.
 }

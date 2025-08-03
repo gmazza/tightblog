@@ -16,13 +16,6 @@ const routes = [
       import("../views/ScanCode.vue"),
   },
   {
-    path: "/app/blogroll/:weblogId",
-    name: "blogroll",
-    component: () =>
-      import("../views/Blogroll.vue"),
-    props: true,
-  },
-  {
      path: '/logout',
      name: "logout",
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'}

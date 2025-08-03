@@ -168,7 +168,9 @@
                 ></button>
               </div>
               <div class="modal-footer">
-                <button @click="detachUserFromWeblog(role.id)">{{ $t('common.confirm') }}</button>
+                <button @click="detachUserFromWeblog(role.weblog.id!)">
+                  {{ $t('common.confirm') }}
+                </button>
                 <button @click="confirmResignDialog.cancel">{{ $t('common.cancel') }}</button>
               </div>
             </div>
