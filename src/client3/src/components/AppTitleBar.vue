@@ -3,63 +3,67 @@
     <div>
       <div class="bannerStatusBox">
         <table v-if="sessionInfo != null" class="bannerStatusBox" cellpadding="0" cellspacing="0">
-          <tr>
-            <td class="bannerLeft">
-              <span class="spaced-span" v-if="startupConfig">{{
-                $t('navigationBar.productVersion', {
-                  version: startupConfig.tightblogVersion
-                })
-              }}</span>
-
-              <span v-if="sessionInfo.authenticatedUser != null">
-                {{
-                  $t('navigationBar.loggedInAs', {
-                    screenName: sessionInfo.authenticatedUser.screenName
+          <tbody>
+            <tr>
+              <td class="bannerLeft">
+                <span class="spaced-span" v-if="startupConfig">{{
+                  $t('navigationBar.productVersion', {
+                    version: startupConfig.tightblogVersion
                   })
-                }}
+                }}</span>
 
-                <span v-if="sessionInfo.actionWeblog != null"
-                  ><b>{{ -$t('navigationBar.activeBlog') }}</b>
-                  <a :href="sessionInfo.actionWeblogURL">{{ sessionInfo.actionWeblog.handle }}</a>
+                <span v-if="sessionInfo.authenticatedUser != null">
+                  {{
+                    $t('navigationBar.loggedInAs', {
+                      screenName: sessionInfo.authenticatedUser.screenName
+                    })
+                  }}
+
+                  <span v-if="sessionInfo.actionWeblog != null"
+                    ><b>{{ -$t('navigationBar.activeBlog') }}</b>
+                    <a :href="sessionInfo.actionWeblogURL">{{ sessionInfo.actionWeblog.handle }}</a>
+                  </span>
                 </span>
-              </span>
-            </td>
+              </td>
 
-            <td class="bannerRight">
-              <span v-if="sessionInfo.authenticatedUser != null">
-                <span v-if="!sessionInfo.userNeedsMFARegistration">
-                  <router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{
-                    $t('navigationBar.globalAdmin')
+              <td class="bannerRight">
+                <span v-if="sessionInfo.authenticatedUser != null">
+                  <span v-if="!sessionInfo.userNeedsMFARegistration">
+                    <router-link v-if="sessionInfo.userIsAdmin" :to="{ name: 'globalConfig' }">{{
+                      $t('navigationBar.globalAdmin')
+                    }}</router-link>
+                    |
+                    <router-link :to="{ name: 'myBlogs' }">{{
+                      $t('navigationBar.blogList')
+                    }}</router-link>
+                    |
+                    <router-link :to="{ name: 'profile' }">{{
+                      $t('navigationBar.viewProfile')
+                    }}</router-link>
+                    |
+                  </span>
+                  <router-link :to="{ name: 'logout' }">{{
+                    $t('navigationBar.logout')
                   }}</router-link>
-                  |
-                  <router-link :to="{ name: 'myBlogs' }">{{
-                    $t('navigationBar.blogList')
-                  }}</router-link>
-                  |
-                  <router-link :to="{ name: 'profile' }">{{
-                    $t('navigationBar.viewProfile')
-                  }}</router-link>
-                  |
                 </span>
-                <router-link :to="{ name: 'logout' }">{{ $t('navigationBar.logout') }}</router-link>
-              </span>
 
-              <span v-else>
-                <a href="../..">{{ $t('navigationBar.homePage') }}</a> |
+                <span v-else>
+                  <a href="../..">{{ $t('navigationBar.homePage') }}</a> |
 
-                <!--router-link :to="{ name: 'loginRedirect' }">{{
+                  <!--router-link :to="{ name: 'loginRedirect' }">{{
                 $t('navigationBar.login')
               }}</router-link-->
 
-                <span v-if="startupConfig?.registrationPolicy != 'DISABLED'">
-                  |
-                  <router-link :to="{ name: 'register' }">{{
-                    $t('navigationBar.register')
-                  }}</router-link>
+                  <span v-if="startupConfig?.registrationPolicy != 'DISABLED'">
+                    |
+                    <router-link :to="{ name: 'register' }">{{
+                      $t('navigationBar.register')
+                    }}</router-link>
+                  </span>
                 </span>
-              </span>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>

@@ -30,12 +30,17 @@ import type {
 export default {
   // caches
   loadCaches(): Promise<CacheItem[]> {
-    return axios.get(import.meta.env.VITE_PUBLIC_PATH + 'caches')
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/caches')
+      .then((response) => response.data)
   },
   clearCacheEntry(cacheItem: CacheItem) {
     return axios.post(
       import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/cache/' + cacheItem + '/clear'
     )
+  },
+  resetHitCount(): Promise<void> {
+    return axios.post(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/resethitcount')
   },
   // startupConfig
   loadLookupValues(): Promise<LookupValues> {
@@ -115,6 +120,14 @@ export default {
     }
     const response: AxiosResponse<CommentsData> = await axios.post(url, queryParams)
     return response.data
+  },
+  reindexWeblog(weblogHandle: string): Promise<void> {
+    return axios.post(
+      import.meta.env.VITE_PUBLIC_PATH +
+        '/admin/rest/server/weblog/' +
+        weblogHandle +
+        '/rebuildindex'
+    )
   },
   saveComment(comment: Comment): Promise<Comment> {
     return axios

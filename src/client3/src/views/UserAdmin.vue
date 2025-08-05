@@ -55,157 +55,163 @@
       </span>
 
       <table class="formtable" v-if="userBeingEdited" v-cloak>
-        <tr>
-          <td class="label">{{ $t('userEdit.username') }}</td>
-          <td class="field">
-            <input
-              type="text"
-              size="30"
-              maxlength="30"
-              v-model="userBeingEdited.userName"
-              readonly
-              cssStyle="background: #e5e5e5"
-            />
-          </td>
-          <td class="description">
-            {{ $t('userEdit.tip.username') }}
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <td class="label">{{ $t('userEdit.username') }}</td>
+            <td class="field">
+              <input
+                type="text"
+                size="30"
+                maxlength="30"
+                v-model="userBeingEdited.userName"
+                readonly
+                cssStyle="background: #e5e5e5"
+              />
+            </td>
+            <td class="description">
+              {{ $t('userEdit.tip.username') }}
+            </td>
+          </tr>
 
-        <tr>
-          <td class="label">{{ $t('userEdit.accountCreateDate') }}</td>
-          <td class="field">
-            {{ formatDateTime(userBeingEdited.dateCreated) }}
-          </td>
-          <td class="description"></td>
-        </tr>
+          <tr>
+            <td class="label">{{ $t('userEdit.accountCreateDate') }}</td>
+            <td class="field">
+              {{ formatDateTime(userBeingEdited.dateCreated) }}
+            </td>
+            <td class="description"></td>
+          </tr>
 
-        <tr>
-          <td class="label">{{ $t('userEdit.lastLogin') }}</td>
-          <td class="field">
-            {{ formatDateTime(userBeingEdited.lastLogin) }}
-          </td>
-          <td class="description"></td>
-        </tr>
+          <tr>
+            <td class="label">{{ $t('userEdit.lastLogin') }}</td>
+            <td class="field">
+              {{ formatDateTime(userBeingEdited.lastLogin) }}
+            </td>
+            <td class="description"></td>
+          </tr>
 
-        <tr>
-          <td class="label">
-            <label for="screenName">{{ $t('userEdit.screenname') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="screenName"
-              type="text"
-              size="30"
-              v-model="userBeingEdited.screenName"
-              minlength="3"
-              maxlength="30"
-              required
-            />
-          </td>
-          <td class="description">{{ $t('userAdmin.tip.screenName') }}</td>
-        </tr>
+          <tr>
+            <td class="label">
+              <label for="screenName">{{ $t('userEdit.screenname') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="screenName"
+                type="text"
+                size="30"
+                v-model="userBeingEdited.screenName"
+                minlength="3"
+                maxlength="30"
+                required
+              />
+            </td>
+            <td class="description">{{ $t('userAdmin.tip.screenName') }}</td>
+          </tr>
 
-        <tr>
-          <td class="label">
-            <label for="emailAddress">{{ $t('userEdit.email') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="emailAddress"
-              type="email"
-              size="40"
-              v-model="userBeingEdited.emailAddress"
-              maxlength="40"
-              required
-            />
-          </td>
-          <td class="description">{{ $t('userEdit.tip.email') }}</td>
-        </tr>
+          <tr>
+            <td class="label">
+              <label for="emailAddress">{{ $t('userEdit.email') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="emailAddress"
+                type="email"
+                size="40"
+                v-model="userBeingEdited.emailAddress"
+                maxlength="40"
+                required
+              />
+            </td>
+            <td class="description">{{ $t('userEdit.tip.email') }}</td>
+          </tr>
 
-        <tr v-if="userBeingEdited.status == 'ENABLED'">
-          <td class="label">
-            <label for="passwordText">{{ $t('userEdit.password') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="passwordText"
-              type="password"
-              size="20"
-              v-model="userCredentials!!.passwordText"
-              minlength="8"
-              maxlength="20"
-            />
-          </td>
+          <tr v-if="userBeingEdited.status == 'ENABLED'">
+            <td class="label">
+              <label for="passwordText">{{ $t('userEdit.password') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="passwordText"
+                type="password"
+                size="20"
+                v-model="userCredentials!!.passwordText"
+                minlength="8"
+                maxlength="20"
+              />
+            </td>
 
-          <td class="description">{{ $t('userAdmin.tip.password') }}</td>
-        </tr>
-        <tr v-if="userBeingEdited.status == 'ENABLED'">
-          <td class="label">
-            <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="passwordConfirm"
-              type="password"
-              size="20"
-              v-model="userCredentials!!.passwordConfirm"
-              minlength="8"
-              maxlength="20"
-              autocomplete="new-password"
-            />
-          </td>
+            <td class="description">{{ $t('userAdmin.tip.password') }}</td>
+          </tr>
+          <tr v-if="userBeingEdited.status == 'ENABLED'">
+            <td class="label">
+              <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="passwordConfirm"
+                type="password"
+                size="20"
+                v-model="userCredentials!!.passwordConfirm"
+                minlength="8"
+                maxlength="20"
+                autocomplete="new-password"
+              />
+            </td>
 
-          <td class="description">{{ $t('userAdmin.tip.passwordConfirm') }}</td>
-        </tr>
+            <td class="description">{{ $t('userAdmin.tip.passwordConfirm') }}</td>
+          </tr>
 
-        <tr>
-          <td class="label">
-            <label for="userStatus">{{ $t('userAdmin.userStatus') }}</label>
-          </td>
-          <td class="field">
-            <select id="userStatus" v-model="userBeingEdited.status" size="1">
-              <option v-for="(value, key) in lookupValues!!.userStatuses" :value="key" :key="key">
-                {{ value }}
-              </option>
-            </select>
-          </td>
-          <td class="description">{{ $t('userAdmin.tip.userStatus') }}</td>
-        </tr>
+          <tr>
+            <td class="label">
+              <label for="userStatus">{{ $t('userAdmin.userStatus') }}</label>
+            </td>
+            <td class="field">
+              <select id="userStatus" v-model="userBeingEdited.status" size="1">
+                <option v-for="(value, key) in lookupValues!!.userStatuses" :value="key" :key="key">
+                  {{ value }}
+                </option>
+              </select>
+            </td>
+            <td class="description">{{ $t('userAdmin.tip.userStatus') }}</td>
+          </tr>
 
-        <tr>
-          <td class="label">
-            <label for="globalRole">{{ $t('userAdmin.globalRole') }}</label>
-          </td>
-          <td class="field">
-            <select id="globalRole" v-model="userBeingEdited.globalRole" size="1">
-              <option v-for="(value, key) in lookupValues!!.globalRoles" :value="key" :key="key">
-                {{ value }}
-              </option>
-            </select>
-          </td>
-          <td class="description">{{ $t('userAdmin.tip.globalRole') }}</td>
-        </tr>
+          <tr>
+            <td class="label">
+              <label for="globalRole">{{ $t('userAdmin.globalRole') }}</label>
+            </td>
+            <td class="field">
+              <select id="globalRole" v-model="userBeingEdited.globalRole" size="1">
+                <option v-for="(value, key) in lookupValues!!.globalRoles" :value="key" :key="key">
+                  {{ value }}
+                </option>
+              </select>
+            </td>
+            <td class="description">{{ $t('userAdmin.tip.globalRole') }}</td>
+          </tr>
 
-        <tr v-if="startupConfig!!.mfaEnabled">
-          <td class="label">
-            <label for="hasMfaSecret">{{ $t('userAdmin.hasMfaSecret') }}</label>
-          </td>
-          <td class="field">
-            <input
-              type="text"
-              size="5"
-              maxlength="5"
-              v-model="userCredentials!!.hasMfaSecret"
-              readonly
-            />
-            <span v-show="userCredentials!!.hasMfaSecret == true">
-              <input type="checkbox" id="eraseSecret" v-model="userCredentials!!.eraseMfaSecret" />
-              <label for="eraseSecret">{{ $t('userAdmin.mfaSecret.erase') }}</label>
-            </span>
-          </td>
-          <td class="description">{{ $t('userAdmin.tip.mfaSecret') }}</td>
-        </tr>
+          <tr v-if="startupConfig!!.mfaEnabled">
+            <td class="label">
+              <label for="hasMfaSecret">{{ $t('userAdmin.hasMfaSecret') }}</label>
+            </td>
+            <td class="field">
+              <input
+                type="text"
+                size="5"
+                maxlength="5"
+                v-model="userCredentials!!.hasMfaSecret"
+                readonly
+              />
+              <span v-show="userCredentials!!.hasMfaSecret == true">
+                <input
+                  type="checkbox"
+                  id="eraseSecret"
+                  v-model="userCredentials!!.eraseMfaSecret"
+                />
+                <label for="eraseSecret">{{ $t('userAdmin.mfaSecret.erase') }}</label>
+              </span>
+            </td>
+            <td class="description">{{ $t('userAdmin.tip.mfaSecret') }}</td>
+          </tr>
+        </tbody>
       </table>
 
       <br />
