@@ -38,6 +38,11 @@ const router = createRouter({
       component: () => import('../views/UserAdmin.vue')
     },
     {
+      path: '/admin/cachedData',
+      name: 'cachedData',
+      component: () => import('../views/CachedData.vue')
+    },
+    {
       path: '/app/logout',
       name: 'logout',
       beforeEnter: () => {

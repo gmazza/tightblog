@@ -26,12 +26,6 @@ const routes = [
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'}
   },
   {
-    path: "/admin/cachedData",
-    name: "cachedData",
-    component: () =>
-      import("../views/CachedData.vue"),
-  },
-  {
     path: "*",
     name: "notFound",
     component: () =>
