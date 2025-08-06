@@ -33,120 +33,122 @@
         >
 
         <table class="mm_table" width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td valign="top">
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="mm_subtable_label">
-                    {{ $t('myBlogs.weblogLink') }}
-                  </td>
-                  <td>
-                    <a v-bind:href="role.weblog.absoluteURL" target="_blank">{{
-                      role.weblog.absoluteURL
-                    }}</a>
-                  </td>
-                </tr>
+          <tbody>
+            <tr>
+              <td valign="top">
+                <table cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td class="mm_subtable_label">
+                      {{ $t('myBlogs.weblogLink') }}
+                    </td>
+                    <td>
+                      <a v-bind:href="role.weblog.absoluteURL" target="_blank">{{
+                        role.weblog.absoluteURL
+                      }}</a>
+                    </td>
+                  </tr>
 
-                <tr>
-                  <td class="mm_subtable_label">
-                    {{ $t('common.description') }}
-                  </td>
-                  <td>{{ role.weblog.about }}</td>
-                </tr>
+                  <tr>
+                    <td class="mm_subtable_label">
+                      {{ $t('common.description') }}
+                    </td>
+                    <td>{{ role.weblog.about }}</td>
+                  </tr>
 
-                <tr>
-                  <td class="mm_subtable_label">{{ $t('common.role') }}</td>
-                  <td>{{ getRoleText(role.weblogRole) }}</td>
-                </tr>
+                  <tr>
+                    <td class="mm_subtable_label">{{ $t('common.role') }}</td>
+                    <td>{{ getRoleText(role.weblogRole) }}</td>
+                  </tr>
 
-                <tr>
-                  <td class="mm_subtable_label">{{ $t('myBlogs.emailComments') }}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      v-model="role.emailComments"
-                      v-on:change="setReceiveCommentsForWeblog(role)"
-                    />
-                  </td>
-                </tr>
+                  <tr>
+                    <td class="mm_subtable_label">{{ $t('myBlogs.emailComments') }}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        v-model="role.emailComments"
+                        v-on:change="setReceiveCommentsForWeblog(role)"
+                      />
+                    </td>
+                  </tr>
 
-                <tr>
-                  <td class="mm_subtable_label">
-                    {{ $t('myBlogs.todaysHits') }}
-                  </td>
-                  <td>{{ role.weblog.hitsToday }}</td>
-                </tr>
-              </table>
-            </td>
+                  <tr>
+                    <td class="mm_subtable_label">
+                      {{ $t('myBlogs.todaysHits') }}
+                    </td>
+                    <td>{{ role.weblog.hitsToday }}</td>
+                  </tr>
+                </table>
+              </td>
 
-            <td class="mm_table_actions" width="20%">
-              <img src="@/assets/table_edit.png" />
-              <router-link
-                :to="{
-                  name: 'entryEdit',
-                  params: {
-                    weblogId: role.weblog.id
-                  }
-                }"
-                >{{ $t('common.newEntry') }}</router-link
-              >
-              <br />
-
-              <img src="@/assets/table_multiple.png" />
-              <router-link :to="{ name: 'entries', params: { weblogId: role.weblog.id } }">{{
-                $t('common.entries')
-              }}</router-link>
-              <br />
-
-              <img src="@/assets/page_white_edit.png" />
-              <router-link :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
-                >{{ $t('common.comments') }}
-              </router-link>
-              <span v-if="role.weblog.unapprovedComments > 0">
-                {{
-                  $t('myBlogs.haveUnapprovedComments', {
-                    count: role.weblog.unapprovedComments
-                  })
-                }}
-              </span>
-              <br />
-
-              <!-- Only admins get access to theme and config settings -->
-              <!--span v-if="role.weblogRole == 'OWNER'"-->
-              <!-- And only show theme option if custom themes are enabled -->
-              <span v-if="webloggerProperties.usersCustomizeThemes">
-                <img src="@/assets/layout.png" />
+              <td class="mm_table_actions" width="20%">
+                <img src="@/assets/table_edit.png" />
                 <router-link
                   :to="{
-                    name: 'templates',
+                    name: 'entryEdit',
                     params: {
                       weblogId: role.weblog.id
                     }
                   }"
-                  >{{ $t('myBlogs.theme') }}</router-link
+                  >{{ $t('common.newEntry') }}</router-link
                 >
                 <br />
-              </span>
 
-              <img src="@/assets/cog.png" />
-              <router-link
-                :to="{
-                  name: 'weblogConfig',
-                  params: { weblogId: role.weblog.id }
-                }"
-                >{{ $t('weblogConfig.updateTitle') }}</router-link
-              >
-              <br />
-              <!--/span-->
+                <img src="@/assets/table_multiple.png" />
+                <router-link :to="{ name: 'entries', params: { weblogId: role.weblog.id } }">{{
+                  $t('common.entries')
+                }}</router-link>
+                <br />
 
-              <!-- disallow owners from resigning from blog -->
-              <span v-if="role.weblogRole !== 'OWNER'">
-                <button type="button" v-on:click="confirmResignDialog.reveal">
-                  <img src="@/assets/delete.png" /> {{ $t('myBlogs.resign') }}
-                </button>
-              </span>
-            </td>
-          </tr>
+                <img src="@/assets/page_white_edit.png" />
+                <router-link :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
+                  >{{ $t('common.comments') }}
+                </router-link>
+                <span v-if="role.weblog.unapprovedComments > 0">
+                  {{
+                    $t('myBlogs.haveUnapprovedComments', {
+                      count: role.weblog.unapprovedComments
+                    })
+                  }}
+                </span>
+                <br />
+
+                <!-- Only admins get access to theme and config settings -->
+                <!--span v-if="role.weblogRole == 'OWNER'"-->
+                <!-- And only show theme option if custom themes are enabled -->
+                <span v-if="webloggerProperties.usersCustomizeThemes">
+                  <img src="@/assets/layout.png" />
+                  <router-link
+                    :to="{
+                      name: 'templates',
+                      params: {
+                        weblogId: role.weblog.id
+                      }
+                    }"
+                    >{{ $t('myBlogs.theme') }}</router-link
+                  >
+                  <br />
+                </span>
+
+                <img src="@/assets/cog.png" />
+                <router-link
+                  :to="{
+                    name: 'weblogConfig',
+                    params: { weblogId: role.weblog.id }
+                  }"
+                  >{{ $t('weblogConfig.updateTitle') }}</router-link
+                >
+                <br />
+                <!--/span-->
+
+                <!-- disallow owners from resigning from blog -->
+                <span v-if="role.weblogRole !== 'OWNER'">
+                  <button type="button" v-on:click="confirmResignDialog.reveal">
+                    <img src="@/assets/delete.png" /> {{ $t('myBlogs.resign') }}
+                  </button>
+                </span>
+              </td>
+            </tr>
+          </tbody>
         </table>
         <Teleport to="#modal-div">
           <div v-if="confirmResignDialog.isRevealed.value" class="vueuse-modal-layout">

@@ -139,6 +139,11 @@ const router = createRouter({
         console.log('templateEdit props:', props)
         return props
       }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      component: () => import('../views/NotFound.vue')
     }
   ]
 })
