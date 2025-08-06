@@ -24,13 +24,7 @@ const routes = [
      path: '/login-redirect',
      name: "loginRedirect",
      beforeEnter() {location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'}
-  },
-  {
-    path: "*",
-    name: "notFound",
-    component: () =>
-      import("../views/NotFound.vue"),
-  },
+  }
 ];
 
 const router = new VueRouter({
