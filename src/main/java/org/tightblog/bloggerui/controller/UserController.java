@@ -59,6 +59,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.RollbackException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -166,7 +167,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/tb-ui/newuser/rest/newqrcode")
-    public QRCodeData getNewQRCode(Principal principal) {
+    public QRCodeData getNewQRCode(Principal principal) throws IOException {
         User user = userDao.findEnabledByUserName(principal.getName());
         String qrCode = userManager.generateMFAQRUrl(user);
         return new QRCodeData(qrCode);

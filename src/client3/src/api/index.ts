@@ -203,5 +203,10 @@ export default {
         '/emails/' +
         role.emailComments
     )
+  },
+  loadQRCode(): Promise<string> {
+    return axios
+      .get(import.meta.env.VITE_PUBLIC_PATH + '/newuser/rest/newqrcode')
+      .then((response) => response.data.qrCode)
   }
 }

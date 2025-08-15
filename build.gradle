@@ -134,6 +134,7 @@ dependencies {
 	implementation('com.atlassian.commonmark:commonmark:0.17.0')
 	implementation('commons-fileupload:commons-fileupload:1.5')
 	implementation('org.apache.derby:derbyclient:10.15.2.0')
+	implementation("io.nayuki:qrcodegen:1.8.0")
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 

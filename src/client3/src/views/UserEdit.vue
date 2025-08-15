@@ -34,101 +34,103 @@
       <h1>{{ $t(varText.pageTitleKey) }}</h1>
       <p class="subtitle">{{ $t(varText.subtitleKey) }}</p>
       <table class="formtable">
-        <tr>
-          <td class="label">
-            <label for="userName">{{ $t('userEdit.username') }}</label>
-          </td>
-          <td class="field">
-            <span v-if="sessionInfo.authenticatedUser == null">
+        <tbody>
+          <tr>
+            <td class="label">
+              <label for="userName">{{ $t('userEdit.username') }}</label>
+            </td>
+            <td class="field">
+              <span v-if="sessionInfo.authenticatedUser == null">
+                <input
+                  id="userName"
+                  type="text"
+                  size="30"
+                  v-model="userBeingEdited.userName"
+                  minlength="5"
+                  maxlength="25"
+                />
+              </span>
+              <span v-else>
+                <input
+                  id="userName"
+                  type="text"
+                  size="30"
+                  v-model="userBeingEdited.userName"
+                  readonly
+                />
+              </span>
+            </td>
+            <td class="description">{{ $t(varText.usernameTipKey) }}</td>
+          </tr>
+
+          <tr>
+            <td class="label">
+              <label for="screenName">{{ $t('userEdit.screenname') }}</label>
+            </td>
+            <td class="field">
               <input
-                id="userName"
+                id="screenName"
                 type="text"
                 size="30"
-                v-model="userBeingEdited.userName"
-                minlength="5"
-                maxlength="25"
+                v-model="userBeingEdited.screenName"
+                minlength="3"
+                maxlength="30"
               />
-            </span>
-            <span v-else>
+            </td>
+            <td class="description">{{ $t('userEdit.tip.screenname') }}</td>
+          </tr>
+
+          <tr>
+            <td class="label">
+              <label for="emailAddress">{{ $t('userEdit.email') }}</label>
+            </td>
+            <td class="field">
               <input
-                id="userName"
-                type="text"
-                size="30"
-                v-model="userBeingEdited.userName"
-                readonly
+                id="emailAddress"
+                type="email"
+                size="40"
+                v-model="userBeingEdited.emailAddress"
+                maxlength="40"
               />
-            </span>
-          </td>
-          <td class="description">{{ $t(varText.usernameTipKey) }}</td>
-        </tr>
+            </td>
+            <td class="description">{{ $t('userEdit.tip.email') }}</td>
+          </tr>
 
-        <tr>
-          <td class="label">
-            <label for="screenName">{{ $t('userEdit.screenname') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="screenName"
-              type="text"
-              size="30"
-              v-model="userBeingEdited.screenName"
-              minlength="3"
-              maxlength="30"
-            />
-          </td>
-          <td class="description">{{ $t('userEdit.tip.screenname') }}</td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            <label for="emailAddress">{{ $t('userEdit.email') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="emailAddress"
-              type="email"
-              size="40"
-              v-model="userBeingEdited.emailAddress"
-              maxlength="40"
-            />
-          </td>
-          <td class="description">{{ $t('userEdit.tip.email') }}</td>
-        </tr>
-
-        <tr>
-          <td class="label">
-            <label for="passwordText">{{ $t('userEdit.password') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="passwordText"
-              type="password"
-              size="20"
-              v-model="userCredentials.passwordText"
-              minlength="8"
-              maxlength="20"
-              autocomplete="new-password"
-            />
-          </td>
-          <td class="description">{{ $t(varText.passwordTipKey) }}</td>
-        </tr>
-        <tr>
-          <td class="label">
-            <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
-          </td>
-          <td class="field">
-            <input
-              id="passwordConfirm"
-              type="password"
-              size="20"
-              v-model="userCredentials.passwordConfirm"
-              minlength="8"
-              maxlength="20"
-              autocomplete="new-password"
-            />
-          </td>
-          <td class="description"></td>
-        </tr>
+          <tr>
+            <td class="label">
+              <label for="passwordText">{{ $t('userEdit.password') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="passwordText"
+                type="password"
+                size="20"
+                v-model="userCredentials.passwordText"
+                minlength="8"
+                maxlength="20"
+                autocomplete="new-password"
+              />
+            </td>
+            <td class="description">{{ $t(varText.passwordTipKey) }}</td>
+          </tr>
+          <tr>
+            <td class="label">
+              <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
+            </td>
+            <td class="field">
+              <input
+                id="passwordConfirm"
+                type="password"
+                size="20"
+                v-model="userCredentials.passwordConfirm"
+                minlength="8"
+                maxlength="20"
+                autocomplete="new-password"
+              />
+            </td>
+            <td class="description"></td>
+          </tr>
+        </tbody>
       </table>
 
       <br />

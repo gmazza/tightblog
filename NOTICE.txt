@@ -19,3 +19,7 @@ OTHER NOTICES
 
 * Octicon "clippy" (copy to clipboard) icon used:
   GitHub [MIT (http://opensource.org/licenses/mit-license.php)]
+
+* This product includes QR Code Generator
+  (https://github.com/nayuki/QR-Code-generator/tree/master/java - MIT-Licensed)
+

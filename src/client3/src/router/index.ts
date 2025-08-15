@@ -43,10 +43,35 @@ const router = createRouter({
       component: () => import('../views/CachedData.vue')
     },
     {
+      path: '/app/scanCode',
+      name: 'scanCode',
+      meta: {
+        userNeedsMFARegistration: true
+      },
+      component: () => import('../views/ScanCode.vue')
+    },
+    {
       path: '/app/logout',
       name: 'logout',
       beforeEnter: () => {
+        console.log('Redirecting from /app/logout...')
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'
+      }
+    } as unknown as RouteRecordRaw,
+    {
+      path: '/app/login-redirect',
+      name: 'loginRedirect',
+      beforeEnter: () => {
+        console.log('Redirecting to login from /login-redirect...')
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
+      }
+    } as unknown as RouteRecordRaw,
+    {
+      path: '/app/login-redirect',
+      name: 'loginRedirect',
+      beforeEnter: () => {
+        console.log('Redirecting to login from /app/login-redirect...')
+        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
       }
     } as unknown as RouteRecordRaw,
     {

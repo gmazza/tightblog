@@ -20,6 +20,7 @@
  */
 package org.tightblog.service;
 
+import io.nayuki.qrcodegen.QrCode;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,8 +37,12 @@ import org.tightblog.dao.UserCredentialsDao;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Objects;
 
 /**
  * User and weblog role management.
@@ -157,8 +162,7 @@ public class UserManager {
      * @param user User to obtain QA code for
      * @return url Image URL for the QR code
      */
-    public String generateMFAQRUrl(User user) {
-        String url = "";
+    public String generateMFAQRUrl(User user) throws IOException {
         UserCredentials uc = userCredentialsDao.findByUserName(user.getUserName());
 
         if (uc != null) {
@@ -166,13 +170,43 @@ public class UserManager {
                 uc.setMfaSecret(Base32.random());
                 userCredentialsDao.saveAndFlush(uc);
             }
-            url = "https://chart.googleapis.com/chart?chs=200x200&chld=M%%7C0&cht=qr&chl="
-                    + URLEncoder.encode(String.format(
-                    "otpauth://totp/%s:%s?secret=%s&issuer=%s",
-                    "TightBlog", user.getEmailAddress(), uc.getMfaSecret(), "TightBlog"),
-                    StandardCharsets.UTF_8);
+
+            QrCode qr0 = QrCode.encodeText(String.format(
+                            "otpauth://totp/%s:%s?secret=%s&issuer=%s",
+                            "TightBlog", user.getEmailAddress(), uc.getMfaSecret(), "TightBlog"),
+                    QrCode.Ecc.MEDIUM);
+
+            BufferedImage img = toImage(qr0, 4, 10);
+
+            // Convert BufferedImage to Base64
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
+            return Base64.getEncoder().encodeToString(imageBytes);
         }
 
-        return url;
+        return null;
     }
+
+    // from io.nayuki.qrcodegen.QrCodeGeneratorDemo, MIT licensed
+    private static BufferedImage toImage(QrCode qr, int scale, int border) {
+        Objects.requireNonNull(qr);
+        if (scale <= 0 || border < 0) {
+            throw new IllegalArgumentException("Value out of range");
+        }
+        if (border > Integer.MAX_VALUE / 2 || qr.size + border * 2L > Integer.MAX_VALUE / scale) {
+            throw new IllegalArgumentException("Scale or border too large");
+        }
+
+        BufferedImage result = new BufferedImage((qr.size + border * 2) * scale,
+                (qr.size + border * 2) * scale, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < result.getHeight(); y++) {
+            for (int x = 0; x < result.getWidth(); x++) {
+                boolean color = qr.getModule(x / scale - border, y / scale - border);
+                result.setRGB(x, y, color ? 0x000000 : 0xFFFFFF);
+            }
+        }
+        return result;
+    }
+
 }
