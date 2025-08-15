@@ -76,15 +76,20 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // UI Calls
                 .antMatchers("/tb-ui/app/register").permitAll()
                 .antMatchers("/tb-ui/app/login").permitAll()
+                .antMatchers("/tb-ui/app/relogin").permitAll()
                 .antMatchers("/tb-ui/app/logout").permitAll()
-                .antMatchers("/tb-ui/app/*.css").permitAll()
-                .antMatchers("/tb-ui/app/*.ico").permitAll()
+                .antMatchers("/tb-ui/styles/*.css").permitAll()
+                .antMatchers("/tb-ui/*.ico").permitAll()
                 .antMatchers("/tb-ui/assets/**").permitAll()
-                .antMatchers("/styles/*.css").permitAll()
+                // .antMatchers("/styles/*.css").permitAll()
                 // below are UI calls that require authentication
                 .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
                 .antMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
+                .antMatchers("/tb-ui/app/any/sessioninfo").hasAnyAuthority("ADMIN",
+                        "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
+                .antMatchers("/tb-ui/app/authoring/startupconfig").hasAnyAuthority("ADMIN",
+                        "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
                 .antMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .antMatchers("/tb-ui/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // default (= myBlogs on UI)
                 // All remaining, everyone can see
