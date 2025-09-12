@@ -37,11 +37,11 @@ import org.tightblog.rendering.service.WeblogEntryListGenerator;
 @EnableConfigurationProperties(DynamicProperties.class)
 public class FeedModel {
 
-    private WeblogEntryListGenerator weblogEntryListGenerator;
-    private WeblogEntryManager weblogEntryManager;
-    private URLService urlService;
-    private int numEntriesPerPage;
-    private String systemVersion;
+    private final WeblogEntryListGenerator weblogEntryListGenerator;
+    private final WeblogEntryManager weblogEntryManager;
+    private final URLService urlService;
+    private final int numEntriesPerPage;
+    private final String systemVersion;
 
     @Autowired
     FeedModel(WeblogEntryListGenerator weblogEntryListGenerator, WeblogEntryManager weblogEntryManager,

@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +143,7 @@ public class UIController {
     @RequestMapping(value = "/tb-ui/app/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.getSession().invalidate();
-        response.sendRedirect(request.getContextPath() + "/");
+        response.sendRedirect(request.getContextPath() + "/?nocache=" + new Date());
     }
 
     @RequestMapping(value = "/tb-ui/app/relogin")
@@ -191,7 +192,7 @@ public class UIController {
         String path;
 
         if (defaultBlog != null) {
-            path = '/' + defaultBlog.getHandle();
+            path = '/' + defaultBlog.getHandle() + "/?nocache=" + new Date().getTime();
         } else {
             // new install?  Redirect to register or login page based on whether a user has already been created.
             long userCount = userDao.count();

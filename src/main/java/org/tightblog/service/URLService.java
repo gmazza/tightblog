@@ -107,14 +107,14 @@ public class URLService {
      * Get a url to add a new weblog entry.
      */
     public String getNewEntryURL(String weblogId) {
-        return dp.getAbsoluteUrl() + "/tb-ui/index.html#/app/entryEdit/" + weblogId;
+        return dp.getAbsoluteUrl() + "/tb-ui/app/entryEdit/" + weblogId;
     }
 
     /**
      * Get a url to edit a specific weblog entry.
      */
     public String getEntryEditURL(WeblogEntry entry) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/index.html#/app/entryEdit/" + entry.getWeblog().getId();
+        String url = dp.getAbsoluteUrl() + "/tb-ui/app/entryEdit/" + entry.getWeblog().getId();
         Map<String, String> params = new HashMap<>();
         params.put("entryId", entry.getId());
         return url + Utilities.getQueryString(params);

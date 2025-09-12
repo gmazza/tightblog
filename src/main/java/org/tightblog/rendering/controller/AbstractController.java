@@ -46,6 +46,11 @@ public abstract class AbstractController implements ApplicationContextAware {
     }
 
     static long getBrowserCacheExpireDate(HttpServletRequest request) {
+        // Check for the "nocache" parameter
+        if (request.getParameter("nocache") != null) {
+            return -1; // Force bypassing the cache
+        }
+
         long sinceDate = -1;
         try {
             sinceDate = request.getDateHeader("If-Modified-Since");
