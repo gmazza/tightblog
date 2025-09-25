@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,7 +30,7 @@ public class InstantConverterTest {
     @Test
     public void convertToDatabaseColumn() {
         Instant now = Instant.now(Clock.systemUTC());
-        LocalDateTime ldt = LocalDateTime.now(Clock.systemUTC());
+        LocalDateTime ldt = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
 
         InstantConverter converter = new InstantConverter();
         LocalDateTime test = converter.convertToDatabaseColumn(now);
@@ -40,7 +41,7 @@ public class InstantConverterTest {
     @Test
     public void convertToEntityAttribute() {
         Instant now = Instant.now(Clock.systemUTC());
-        LocalDateTime ldt = LocalDateTime.now(Clock.systemUTC());
+        LocalDateTime ldt = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
 
         InstantConverter converter = new InstantConverter();
         Instant test = converter.convertToEntityAttribute(ldt);

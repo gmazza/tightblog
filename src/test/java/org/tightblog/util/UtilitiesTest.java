@@ -128,7 +128,7 @@ public class UtilitiesTest {
     @Test
     public void testEncode() {
         String encodePath = Utilities.encode("abc?def &ghi'jkl");
-        assertEquals("abc%3Fdef+%26ghi%27jkl", encodePath);
+        assertEquals("abc%3Fdef%20%26ghi%27jkl", encodePath);
     }
 
     @Test

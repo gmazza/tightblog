@@ -49,8 +49,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.service.LuceneIndexer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 /**

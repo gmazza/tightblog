@@ -17,7 +17,7 @@ package org.tightblog.security;
 
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class CustomWebAuthenticationDetails extends WebAuthenticationDetails {
 

@@ -19,19 +19,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.util.pattern.PathPatternParser;
 import org.tightblog.security.CsrfSecurityRequestMatcher;
 import org.tightblog.security.CustomAuthenticationSuccessHandler;
 import org.tightblog.security.CustomWebAuthenticationDetailsSource;
@@ -41,11 +43,12 @@ import java.util.LinkedHashMap;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration {
 
     private final MultiFactorAuthenticationProvider multiFactorAuthenticationProvider;
     private final CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final PathPatternParser parser = new PathPatternParser();
 
     @Autowired
     public WebSecurityConfiguration(CustomWebAuthenticationDetailsSource customWebAuthenticationDetailsSource,
@@ -56,72 +59,81 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.multiFactorAuthenticationProvider = multiFactorAuthenticationProvider;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(multiFactorAuthenticationProvider);
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.authenticationProvider(multiFactorAuthenticationProvider);
+        return authBuilder.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Required authorities listed are defined in class GlobalRole.
-        http.authorizeRequests()
+        http.authorizeHttpRequests(auth -> auth
                 // API Calls
-                .antMatchers("/tb-ui/register/**").permitAll()
-                .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
-                .antMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/login-redirect")
-                .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/unsubscribeNotifications").permitAll()
+                .requestMatchers("/tb-ui/register/**").permitAll()
+                .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                .requestMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
+                .requestMatchers("/tb-ui/app/login-redirect")
+                        .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
+                .requestMatchers("/tb-ui/app/unsubscribeNotifications").permitAll()
                 // UI Calls
-                .antMatchers("/tb-ui/app/register").permitAll()
-                .antMatchers("/tb-ui/app/login").permitAll()
-                .antMatchers("/tb-ui/app/relogin").permitAll()
-                .antMatchers("/tb-ui/app/logout").permitAll()
-                .antMatchers("/tb-ui/styles/*.css").permitAll()
-                .antMatchers("/tb-ui/*.ico").permitAll()
-                .antMatchers("/tb-ui/assets/**").permitAll()
-                // .antMatchers("/styles/*.css").permitAll()
+                .requestMatchers("/tb-ui/app/register").permitAll()
+                .requestMatchers("/tb-ui/app/login").permitAll()
+                .requestMatchers("/tb-ui/app/relogin").permitAll()
+                .requestMatchers("/tb-ui/app/logout").permitAll()
+                .requestMatchers("/tb-ui/styles/*.css").permitAll()
+                .requestMatchers("/tb-ui/*.ico").permitAll()
+                .requestMatchers("/tb-ui/assets/**").permitAll()
+                // .requestMatchers("/styles/*.css").permitAll()
                 // below are UI calls that require authentication
-                .antMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
-                .antMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/any/sessioninfo").hasAnyAuthority("ADMIN",
+                .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
+                .requestMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
+                .requestMatchers("/tb-ui/app/any/sessioninfo").hasAnyAuthority("ADMIN",
                         "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/authoring/startupconfig").hasAnyAuthority("ADMIN",
+                .requestMatchers("/tb-ui/app/authoring/startupconfig").hasAnyAuthority("ADMIN",
                         "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .antMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
-                .antMatchers("/tb-ui/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // default (= myBlogs on UI)
+                .requestMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                .requestMatchers("/tb-ui/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // default (= myBlogs on UI)
                 // All remaining, everyone can see
                 .anyRequest().permitAll()
-                .and()
-            .formLogin()
+            )
+            .formLogin(form -> form
                 .loginPage("/tb-ui/app/login")
                 .failureForwardUrl("/tb-ui/app/login?error=true")
                 .authenticationDetailsSource(customWebAuthenticationDetailsSource)
                 .loginProcessingUrl("/tb_j_security_check")
                 .successHandler(customAuthenticationSuccessHandler)
-                .and()
-            .csrf()
+            )
+            .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher())
-                .and()
+            )
             // if unauthorized, go to delegatingEntryPoint to determine login-redirect or 401 status code.
-            .exceptionHandling().authenticationEntryPoint(delegatingEntryPoint());
+            .exceptionHandling(exceptions ->
+                    exceptions.authenticationEntryPoint(delegatingEntryPoint())
+            );
+        return http.build();
     }
 
     @Bean
     public AuthenticationEntryPoint delegatingEntryPoint() {
         final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map = new LinkedHashMap<>();
         // UI endpoints (also with defaultEntryPoint below), return login form if unauthorized
-        map.put(new AntPathRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
+        map.put(createPathPatternRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
         // REST endpoints, want to return 401 if unauthorized
-        map.put(new AntPathRequestMatcher("/tb-ui/admin/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-        map.put(new AntPathRequestMatcher("/tb-ui/authoring/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        map.put(createPathPatternRequestMatcher("/tb-ui/admin/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        map.put(createPathPatternRequestMatcher("/tb-ui/authoring/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         final DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(map);
         entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
         return entryPoint;
+    }
+
+    private PathPatternRequestMatcher createPathPatternRequestMatcher(String pattern) {
+        return PathPatternRequestMatcher.withPathPatternParser(parser).matcher(pattern);
     }
 
     @Bean

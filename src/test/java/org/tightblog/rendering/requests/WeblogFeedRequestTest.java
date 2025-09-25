@@ -24,7 +24,7 @@ import org.tightblog.rendering.service.WeblogEntryListGenerator.WeblogEntryListD
 import org.tightblog.rendering.model.FeedModel;
 import org.tightblog.service.URLService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -108,8 +108,8 @@ public class WeblogFeedRequestTest {
         weblog.setLastModified(twoDaysAgo);
 
         String test = feedRequest.getLastUpdated();
-        assertEquals("weblog last updated not read for a feed",
-                feedRequest.formatIsoOffsetDateTime(twoDaysAgo), test);
+        assertEquals(feedRequest.formatIsoOffsetDateTime(twoDaysAgo), test,
+                "weblog last updated not read for a feed");
     }
 
     @Test

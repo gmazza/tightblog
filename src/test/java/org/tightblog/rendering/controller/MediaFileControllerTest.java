@@ -30,9 +30,9 @@ import org.tightblog.domain.Weblog;
 import org.tightblog.rendering.cache.LazyExpiringCache;
 import org.tightblog.dao.WeblogDao;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;

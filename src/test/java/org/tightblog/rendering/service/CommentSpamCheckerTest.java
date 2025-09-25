@@ -195,7 +195,7 @@ public class CommentSpamCheckerTest {
                 "&permalink=http://www.foo.com/entry/bar&comment_type=comment" +
                 "&comment_author=bob&comment_author_email=bob@email.com" +
                 "&comment_author_url=http://www.bobsite.com&comment_content=Hello from Bob!";
-        assertEquals("Akismet API call malformed", expected, apiCall);
+        assertEquals(expected, apiCall, "Akismet API call malformed");
     }
 
     @Test

@@ -24,7 +24,7 @@ import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.WeblogDao;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;

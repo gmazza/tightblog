@@ -33,10 +33,10 @@ import org.tightblog.dao.MediaDirectoryDao;
 import org.tightblog.dao.MediaFileDao;
 
 import javax.imageio.ImageIO;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;

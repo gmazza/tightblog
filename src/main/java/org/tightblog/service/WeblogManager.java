@@ -48,9 +48,9 @@ import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WeblogTemplateDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;

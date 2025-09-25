@@ -53,7 +53,7 @@ public class DBConfig extends JpaBaseConfiguration {
     }
 
     @Override
-    protected Map<String, Object> getVendorProperties() {
+    protected Map<String, Object> getVendorProperties(DataSource dataSource) {
 
         // Turn off dynamic weaving to disable LTW (Load Time Weaving) lookup in static weaving mode
         Map<String, Object> vendorProperties = new HashMap<>();
