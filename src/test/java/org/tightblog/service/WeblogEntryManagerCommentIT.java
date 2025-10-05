@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.WeblogEntryComment;
@@ -43,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test Comment related business operations.
  */
+@Transactional
 public class WeblogEntryManagerCommentIT extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;

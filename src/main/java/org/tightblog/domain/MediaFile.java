@@ -341,6 +341,7 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
 
     @Override
     @JsonIgnore
+    @Transient
     public Weblog getWeblog() {
         return directory.getWeblog();
     }

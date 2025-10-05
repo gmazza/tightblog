@@ -28,6 +28,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.tightblog.config.DynamicProperties;
+import org.tightblog.domain.CategoryStats;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogBookmark;
@@ -144,7 +145,7 @@ public class WeblogManager {
         mediaManager.removeAllFiles(weblog);
 
         List<WeblogEntry> entryList = weblogEntryDao.findByWeblog(weblog);
-        entryList.forEach(e -> weblogEntryCommentDao.deleteByWeblogEntry(e));
+        entryList.forEach(weblogEntryCommentDao::deleteByWeblogEntry);
         weblogEntryDao.deleteByWeblog(weblog);
         userWeblogRoleDao.deleteByWeblog(weblog);
 
@@ -260,7 +261,7 @@ public class WeblogManager {
      */
     @Scheduled(cron = "${cron.update.hit.counters}")
     public void updateHitCounters() {
-        if (hitsTally.size() > 0) {
+        if (!hitsTally.isEmpty()) {
             // Make a reference to the current queue
             Map<String, Long> hitsTallyCopy = hitsTally;
 
@@ -291,7 +292,7 @@ public class WeblogManager {
         List<WeblogCategoryData> wcdList = new ArrayList<>(categories.size());
 
         // obtain usage stats
-        String queryString = "SELECT new org.tightblog.service.WeblogManager.CategoryStats(we.category, " +
+        String queryString = "SELECT new org.tightblog.domain.CategoryStats(we.category, " +
                 "min(we.pubTime), max(we.pubTime), count(we)) " +
                 "FROM WeblogEntry we WHERE we.weblog.id = ?1 GROUP BY we.category";
         TypedQuery<CategoryStats> query = entityManager.createQuery(queryString, CategoryStats.class);
@@ -300,11 +301,12 @@ public class WeblogManager {
         List<CategoryStats> stats = query.getResultList();
 
         for (WeblogCategory cat : categories) {
-            Optional<CategoryStats> maybeStats = stats.stream().filter(s -> cat.getId().equals(s.category.getId())).findFirst();
+            Optional<CategoryStats> maybeStats = stats.stream().filter(cs ->
+                    cat.getId().equals(cs.getCategory().getId())).findFirst();
             if (maybeStats.isPresent()) {
                 CategoryStats stat = maybeStats.get();
                 wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
-                        stat.firstEntry, stat.lastEntry, stat.numEntries));
+                        stat.getFirstEntry(), stat.getLastEntry(), stat.getNumEntries()));
             } else {
                 wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
                         null, null, 0));
@@ -314,21 +316,26 @@ public class WeblogManager {
         return wcdList;
     }
 
-     public static class CategoryStats {
-         public CategoryStats(WeblogCategory category, Instant firstEntry, Instant lastEntry, Long numEntries) {
-             this.category = category;
-             this.numEntries = numEntries.intValue();
-             this.firstEntry = firstEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
-             this.lastEntry = lastEntry.atZone(category.getWeblog().getZoneId()).toLocalDate();
-         }
+    public void resetWeblogHitCounts() {
+        int blogsUpdated = 0;
+        int hitsRemoved = 0;
+        List<Weblog> weblogs = weblogDao.findAll();
+        for (Weblog weblog : weblogs) {
+            if (weblog.getHitsToday() > 0) {
+                hitsRemoved += weblog.getHitsToday();
+                blogsUpdated++;
+            }
+            weblog.setHitsToday(0);
+            weblog.setLastModified(Instant.now());
+            weblogDao.save(weblog);
+        }
+        if (blogsUpdated > 0) {
+            LOG.info("Reset hit counts for {} blogs, removing {} hits", blogsUpdated, hitsRemoved);
+            dp.updateLastSitewideChange();
+        }
+    }
 
-         WeblogCategory category;
-         private final int numEntries;
-         private final LocalDate firstEntry;
-         private final LocalDate lastEntry;
-     }
-
-    /**
+     /**
      * Get list of WeblogEntryTagAggregate objects for the tags comprising a weblog.
      *
      * @param weblog    Weblog or null to get for all weblogs.
@@ -353,7 +360,7 @@ public class WeblogManager {
             queryString.append(" AND wtag.weblog.id = ?").append(size);
         }
 
-        if (startsWith != null && startsWith.length() > 0) {
+        if (startsWith != null && !startsWith.isEmpty()) {
             params.add(size++, startsWith + '%');
             queryString.append(" AND wtag.name LIKE ?").append(size);
         }
@@ -378,11 +385,11 @@ public class WeblogManager {
         if (limit != -1) {
             query.setMaxResults(limit);
         }
-        List queryResults = query.getResultList();
-
+        List<WeblogEntryTagAggregate> queryResults = query.getResultList();
+/*
         List<WeblogEntryTagAggregate> results = new ArrayList<>();
         if (queryResults != null) {
-            for (Object obj : queryResults) {
+            for (WeblogEntryTagAggregate obj : queryResults) {
                 Object[] row = (Object[]) obj;
                 WeblogEntryTagAggregate ce = new WeblogEntryTagAggregate();
                 ce.setName((String) row[0]);
@@ -395,14 +402,14 @@ public class WeblogManager {
                 results.add(ce);
             }
         }
-
+*/
         if (sortByName) {
-            results.sort(WeblogEntryTagAggregate.NAME_COMPARATOR);
+            queryResults.sort(WeblogEntryTagAggregate.NAME_COMPARATOR);
         } else {
-            results.sort(WeblogEntryTagAggregate.COUNT_COMPARATOR);
+            queryResults.sort(WeblogEntryTagAggregate.COUNT_COMPARATOR);
         }
 
-        return results;
+        return queryResults;
     }
 
     /**
@@ -503,7 +510,7 @@ public class WeblogManager {
 
      @Scheduled(cron = "${cron.reset.hit.counts}")
      public void resetHitCounts() {
-         LOG.info("Resetting daily hit counts...");
-         weblogDao.resetDailyHitCounts();
+         LOG.info("Resetting daily hit counts via scheduled timer...");
+         resetWeblogHitCounts();
      }
 }

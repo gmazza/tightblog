@@ -104,6 +104,7 @@ task integrationTest(type: Test) {
 	classpath = sourceSets.integrationTest.runtimeClasspath
 	outputs.upToDateWhen { false }
 	mustRunAfter test
+    useJUnitPlatform()
 }
 
 check.dependsOn integrationTest
@@ -113,9 +114,7 @@ spotbugs {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
-		exclude group: "org.hibernate", module: "hibernate-entitymanager"
-	}
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation('org.springframework.boot:spring-boot-starter-security')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-web')
@@ -123,7 +122,6 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
 	implementation('org.springframework.security:spring-security-taglibs')
-	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.9')
 	implementation('org.apache.commons:commons-lang3:3.13.0')
 	implementation('org.apache.commons:commons-text:1.10.0')
 	implementation('org.apache.lucene:lucene-analyzers-common:8.6.2')
@@ -135,13 +133,14 @@ dependencies {
 	implementation('org.jboss.aerogear:aerogear-otp-java:1.0.0')
 	implementation('com.atlassian.commonmark:commonmark:0.17.0')
 	implementation('commons-fileupload:commons-fileupload:1.5')
-	implementation('org.apache.derby:derbyclient:10.15.2.0')
+	implementation('org.apache.derby:derbyclient:10.17.1.0')
 	implementation("io.nayuki:qrcodegen:1.8.0")
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.junit.jupiter:junit-jupiter:5.10.2')
 
-	runtimeOnly('org.apache.derby:derby:10.16.1.1')
+	runtimeOnly('org.apache.derby:derby:10.17.1.0')
+    integrationTestRuntimeOnly 'org.apache.derby:derby:10.17.1.0'
 
 	// PostgreSQL JDBC jar, can remove if using other databases.
 	runtimeOnly('org.postgresql:postgresql')

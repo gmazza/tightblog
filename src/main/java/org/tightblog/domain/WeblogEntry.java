@@ -338,6 +338,8 @@ public class WeblogEntry implements WeblogOwned {
         return tagSet;
     }
 
+    // due to orphanRemoval = true, best not to use this setter but
+    // instead manipulate the existing set (clear, addAll, etc.)
     public void setTagSet(Set<WeblogEntryTag> tagSet) {
         this.tagSet = tagSet;
     }
@@ -369,19 +371,13 @@ public class WeblogEntry implements WeblogOwned {
             }
         }
         // will erase tags not in the new list, JPA will delete them from DB.
-        setTagSet(newTagSet);
+        getTagSet().clear();
+        getTagSet().addAll(newTagSet);
     }
 
     @Transient
     public Set<String> getTags() {
-        if (tags == null) {
-            tags = getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
-        }
-        return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
+        return getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
     }
 
     @Transient

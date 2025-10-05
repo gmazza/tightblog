@@ -64,12 +64,14 @@ import java.util.stream.Collectors;
 public class Weblog implements WeblogOwned {
 
     private String id = Utilities.generateUUID();
-    private int hashCode;
+
     @NotBlank(message = "{weblogConfig.error.handleNull}")
     @Pattern(regexp = "[a-z0-9\\-]*", message = "{weblogConfig.error.invalidHandle}")
     private String handle;
+
     @NotBlank(message = "{weblogConfig.error.nameNull}")
     private String name;
+
     private String tagline;
     private EditFormat editFormat = EditFormat.HTML;
     private String blacklist;
@@ -77,6 +79,7 @@ public class Weblog implements WeblogOwned {
     private int defaultCommentDays = -1;
     private boolean applyCommentDefaults;
     private SpamPolicy spamPolicy = SpamPolicy.NO_EMAIL;
+
     @NotBlank(message = "{weblogConfig.error.themeNull}")
     private String theme;
     private String locale;
@@ -87,6 +90,7 @@ public class Weblog implements WeblogOwned {
     private Instant lastModified = Instant.now();
     private String about;
     private User creator;
+
     private String analyticsCode;
     private int hitsToday;
 
@@ -99,6 +103,9 @@ public class Weblog implements WeblogOwned {
     private Locale localeInstance;
 
     private String absoluteURL;
+
+    @Transient
+    private int hashCode;
 
     public enum EditFormat {
         HTML("weblogConfig.editFormatType.html"),
@@ -440,6 +447,7 @@ public class Weblog implements WeblogOwned {
         this.weblogCategories = cats;
     }
 
+    @Transient
     public List<String> getWeblogCategoryNames() {
         return getWeblogCategories().stream().map(WeblogCategory::getName).collect(Collectors.toList());
     }
@@ -571,6 +579,7 @@ public class Weblog implements WeblogOwned {
 
     @Override
     @JsonIgnore
+    @Transient
     public Weblog getWeblog() {
         return this;
     }

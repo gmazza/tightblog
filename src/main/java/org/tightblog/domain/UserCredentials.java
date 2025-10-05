@@ -88,7 +88,8 @@ public class UserCredentials {
         this.userName = userName;
     }
 
-    @Column(name = "encr_password", nullable = false)
+    @Column(name = "encr_password")
+    @NotBlank
     @JsonIgnore
     public String getPassword() {
         return this.password;

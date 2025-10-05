@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.User;
@@ -62,6 +62,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Test WeblogEntry related business operations.
  */
+@Transactional
 public class WeblogEntryManagerIT extends WebloggerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManagerIT.class);
@@ -369,7 +370,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             assertEquals(2, entry.getTags().size());
 
             entry = weblogEntryDao.findByIdOrNull(id);
-            entry.setTags(Collections.emptySet());
+            entry.getTagSet().clear();
             weblogEntryManager.saveWeblogEntry(entry);
 
             entry = weblogEntryDao.findByIdOrNull(id);
