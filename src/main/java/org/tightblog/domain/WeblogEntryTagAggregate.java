@@ -23,6 +23,7 @@ package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 
@@ -33,7 +34,7 @@ public class WeblogEntryTagAggregate {
 
     private String name;
     private Weblog weblog;
-    private int total;
+    private long total;
     private int intensity;
 
     // temporary non-persisted fields
@@ -42,6 +43,13 @@ public class WeblogEntryTagAggregate {
     private LocalDate lastEntry;
 
     public WeblogEntryTagAggregate() {
+    }
+
+    public WeblogEntryTagAggregate(String name, Long total, Instant firstEntry, Instant lastEntry) {
+        this.name = name;
+        this.total = total;
+        this.firstEntry = firstEntry != null ? LocalDate.ofInstant(firstEntry, java.time.ZoneId.systemDefault()) : null;
+        this.lastEntry = lastEntry != null ? LocalDate.ofInstant(lastEntry, java.time.ZoneId.systemDefault()) : null;
     }
 
     public Weblog getWeblog() {
@@ -60,11 +68,11 @@ public class WeblogEntryTagAggregate {
         this.name = name;
     }
 
-    public int getTotal() {
+    public long getTotal() {
         return this.total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(long total) {
         this.total = total;
     }
 
@@ -110,7 +118,7 @@ public class WeblogEntryTagAggregate {
 
     public static final Comparator<WeblogEntryTagAggregate> COUNT_COMPARATOR = (weta1, weta2) -> {
         // higher numbers first for counts
-        int compVal = Integer.compare(weta2.getTotal(), weta1.getTotal());
+        int compVal = Long.compare(weta2.getTotal(), weta1.getTotal());
 
         // still alpha order if tied
         if (compVal == 0) {

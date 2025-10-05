@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -236,10 +236,9 @@ public class WeblogEntryController {
             entry.setText(entryData.getText());
             entry.setSummary(entryData.getSummary());
             entry.setNotes(entryData.getNotes());
-            entryData.setTags(Arrays.stream(entryData.getTagsAsString().split("\\s+"))
+            entry.updateTags(Arrays.stream(entryData.getTagsAsString().split("\\s+"))
                     .filter(StringUtils::isNotEmpty)
                     .collect(Collectors.toSet()));
-            entry.updateTags(entryData.getTags());
             entry.setSearchDescription(entryData.getSearchDescription());
             entry.setEnclosureUrl(entryData.getEnclosureUrl());
             WeblogCategory category = weblogCategoryDao.findByWeblogAndName(weblog, entryData.getCategory().getName());

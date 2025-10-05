@@ -22,3 +22,5 @@ src/main/webapp/tb-ui/
 ### Editor directories and files ###
 .vscode
 node_modules
+
+errortxt.txt

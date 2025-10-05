@@ -47,9 +47,9 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -464,15 +464,16 @@ public class WeblogEntryManager {
 
         // Use only the first 4 words
         StringTokenizer toker = new StringTokenizer(base);
-        String tmp = null;
+        StringBuilder sb = new StringBuilder();
         int count = 0;
         while (toker.hasMoreTokens() && count < 5) {
-            String s = toker.nextToken();
-            s = s.toLowerCase();
-            tmp = (tmp == null) ? s : tmp + "-" + s;
+            if (count > 0) {
+                sb.append("-");
+            }
+            sb.append(toker.nextToken().toLowerCase());
             count++;
         }
-        base = tmp;
+        base = sb.toString();
 
         return base;
     }
@@ -531,7 +532,7 @@ public class WeblogEntryManager {
         return cqd;
     }
 
-    private static class QueryData {
+    private static final class QueryData {
         String queryString;
         List<Object> params = new ArrayList<>();
     }

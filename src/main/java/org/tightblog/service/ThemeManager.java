@@ -36,10 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ServletContextAware;
 import org.tightblog.dao.WeblogTemplateDao;
 
-import javax.activation.FileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
+import jakarta.activation.FileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

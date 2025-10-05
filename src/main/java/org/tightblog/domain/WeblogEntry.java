@@ -24,21 +24,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.util.Utilities;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -338,6 +338,8 @@ public class WeblogEntry implements WeblogOwned {
         return tagSet;
     }
 
+    // due to orphanRemoval = true, best not to use this setter but
+    // instead manipulate the existing set (clear, addAll, etc.)
     public void setTagSet(Set<WeblogEntryTag> tagSet) {
         this.tagSet = tagSet;
     }
@@ -369,19 +371,13 @@ public class WeblogEntry implements WeblogOwned {
             }
         }
         // will erase tags not in the new list, JPA will delete them from DB.
-        setTagSet(newTagSet);
+        getTagSet().clear();
+        getTagSet().addAll(newTagSet);
     }
 
     @Transient
     public Set<String> getTags() {
-        if (tags == null) {
-            tags = getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
-        }
-        return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
+        return getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
     }
 
     @Transient

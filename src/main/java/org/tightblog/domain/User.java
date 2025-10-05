@@ -21,18 +21,19 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.tightblog.util.Utilities;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -40,12 +41,17 @@ import java.util.Objects;
 @Table(name = "weblogger_user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
+    @Id
     private String id = Utilities.generateUUID();
+
+    @Transient
     private int hashCode;
 
     @NotBlank(message = "{error.add.user.missingUserName}")
     @Pattern(regexp = "[a-z0-9]*", message = "{error.add.user.badUserName}")
     private String userName;
+
+    @Column(name = "global_role", nullable = false)
     private GlobalRole globalRole;
 
     @NotBlank(message = "{Register.error.screenNameNull}")
@@ -55,6 +61,8 @@ public class User {
     @NotBlank(message = "{Register.error.emailAddressNull}")
     @Email(message = "{error.add.user.badEmail}")
     private String emailAddress;
+
+    @Column
     private Instant dateCreated;
     private String activationCode;
     private Instant lastLogin;

@@ -18,7 +18,7 @@
 
 package org.tightblog.rendering.service;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * If configured, the Comment Authenticator is the first-round test a non-logged in commentor must do before his

@@ -20,8 +20,8 @@ import org.tightblog.domain.WeblogOwned;
 import org.tightblog.domain.WeblogRole;
 import org.tightblog.service.UserManager;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Component
 public class SecurityService {

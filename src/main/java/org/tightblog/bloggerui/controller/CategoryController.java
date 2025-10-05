@@ -40,7 +40,7 @@ import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.dao.WeblogDao;
 import org.tightblog.service.WeblogManager.WeblogCategoryData;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class CategoryController {

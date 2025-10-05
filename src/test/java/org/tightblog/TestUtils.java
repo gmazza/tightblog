@@ -16,12 +16,11 @@
 package org.tightblog;
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -40,9 +39,6 @@ public class TestUtils {
     public static final String BLOG_HANDLE = "myblog";
     public static final String ENTRY_ANCHOR = "entry-anchor";
 
-    @Captor
-    private static ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
-
     public static HttpServletRequest createMockServletRequestForWeblogEntryRequest() {
         return createBaseMockServletRequest(addBlogHandle("page/%s/entry/" + ENTRY_ANCHOR));
     }
@@ -59,17 +55,23 @@ public class TestUtils {
         return String.format("/tb-ui/rendering/" + urlPath, BLOG_HANDLE);
     }
 
+    @SuppressWarnings("unchecked")
     public static WeblogPageRequest extractWeblogPageRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
         throws IOException {
-        verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
-        Map<String, Object> results = stringObjectMapCaptor.getValue();
+        ArgumentCaptor<Map<String, Object>> captor = (ArgumentCaptor<Map<String, Object>>) (ArgumentCaptor<?>)
+                ArgumentCaptor.forClass(Map.class);
+        verify(mockRenderer).render(any(), captor.capture());
+        Map<String, Object> results = captor.getValue();
         return (WeblogPageRequest) results.get("model");
     }
 
+    @SuppressWarnings("unchecked")
     public static WeblogSearchRequest extractWeblogSearchRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
             throws IOException {
-        verify(mockRenderer).render(any(), stringObjectMapCaptor.capture());
-        Map<String, Object> results = stringObjectMapCaptor.getValue();
+        ArgumentCaptor<Map<String, Object>> captor = (ArgumentCaptor<Map<String, Object>>) (ArgumentCaptor<?>)
+                ArgumentCaptor.forClass(Map.class);
+        verify(mockRenderer).render(any(), captor.capture());
+        Map<String, Object> results = captor.getValue();
         return (WeblogSearchRequest) results.get("model");
     }
 

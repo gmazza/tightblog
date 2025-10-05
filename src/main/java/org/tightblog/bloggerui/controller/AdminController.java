@@ -45,7 +45,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+import org.tightblog.service.WeblogManager;
 
 /**
  * Controller for weblogger backend tasks, e.g., cache and system runtime configuration.
@@ -64,13 +65,15 @@ public class AdminController {
     private final CommentSpamChecker commentValidator;
     private final WeblogDao weblogDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
+    private final WeblogManager weblogManager;
 
     private record WeblogData(String id, String name, String handle, boolean visible) { }
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
                            CommentSpamChecker commentValidator, WeblogDao weblogDao,
-                           WebloggerPropertiesDao webloggerPropertiesDao) {
+                           WebloggerPropertiesDao webloggerPropertiesDao, WeblogManager weblogManager) {
+        this.weblogManager = weblogManager;
         this.cacheSet = cacheSet;
         this.luceneIndexer = luceneIndexer;
         this.commentValidator = commentValidator;
@@ -94,8 +97,8 @@ public class AdminController {
     @PostMapping(value = "/resethitcount")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetHitCount() {
-        weblogDao.resetDailyHitCounts();
-        LOG.info("daily hit counts manually reset by administrator");
+        LOG.info("administrator manually resetting hit counts...");
+        weblogManager.resetWeblogHitCounts();
     }
 
     @GetMapping(value = "/webloglist")

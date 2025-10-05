@@ -28,6 +28,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
@@ -44,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test Weblog related business operations.
  */
+@Transactional
 public class WeblogManagerIT extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
@@ -228,7 +230,7 @@ public class WeblogManagerIT extends WebloggerTest {
             assertEquals(20, blog2.getHitsToday());
 
             // reset all counts
-            weblogDao.resetDailyHitCounts();
+            weblogManager.resetWeblogHitCounts();
 
             blog1 = weblogDao.findByIdOrNull(blog1.getId());
             blog2 = weblogDao.findByIdOrNull(blog2.getId());

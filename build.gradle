@@ -1,24 +1,25 @@
 // tasks: spotbugsMain, spotbugsTest, spotbugsIntegrationTest or "check" for all
 plugins {
 	id 'java-library'
-	id "io.spring.dependency-management" version "1.1.3"
-	id "com.github.spotbugs" version "4.7.3"
+	id "io.spring.dependency-management" version "1.1.7"
+	// spotbugs not yet jdk 25 compatible
+    // id "com.github.spotbugs" version "6.4.2"
 	// ./gradlew dependencyUpdates
-	id "com.github.ben-manes.versions" version "0.48.0"
+	id "com.github.ben-manes.versions" version "0.52.0"
 	id 'com.github.node-gradle.node' version '5.0.0'
 	id 'war'
-	id "org.springframework.boot" version "2.7.16"
+	id "org.springframework.boot" version "3.5.5"
 	id "checkstyle"
 	// run jacoco via gradle jacocoTestReport, report in build/reports
 	id 'jacoco'
 }
 
 group = 'org.tightblog'
-version = '4.0.0'
+version = '4.1.0'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
 
@@ -94,7 +95,9 @@ configurations {
 	integrationTestRuntimeOnly.extendsFrom runtimeOnly
 	// using log4j2 instead of logback
 	// global excludes: http://mrhaki.blogspot.com/2012/10/gradle-goodness-exclude-transitive.html
-	all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	all {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 }
 
 task integrationTest(type: Test) {
@@ -102,18 +105,19 @@ task integrationTest(type: Test) {
 	classpath = sourceSets.integrationTest.runtimeClasspath
 	outputs.upToDateWhen { false }
 	mustRunAfter test
+    useJUnitPlatform()
 }
 
 check.dependsOn integrationTest
 
+/* spotbugs not yet jdk 25 compatible
 spotbugs {
 	excludeFilter = file("$rootProject.projectDir/etc/buildconfig/spotbugsExcludes.xml")
 }
+*/
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
-		exclude group: "org.hibernate", module: "hibernate-entitymanager"
-	}
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation('org.springframework.boot:spring-boot-starter-security')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-web')
@@ -121,7 +125,6 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
 	implementation('org.springframework.security:spring-security-taglibs')
-	implementation('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.9')
 	implementation('org.apache.commons:commons-lang3:3.13.0')
 	implementation('org.apache.commons:commons-text:1.10.0')
 	implementation('org.apache.lucene:lucene-analyzers-common:8.6.2')
@@ -133,12 +136,14 @@ dependencies {
 	implementation('org.jboss.aerogear:aerogear-otp-java:1.0.0')
 	implementation('com.atlassian.commonmark:commonmark:0.17.0')
 	implementation('commons-fileupload:commons-fileupload:1.5')
-	implementation('org.apache.derby:derbyclient:10.15.2.0')
+	implementation('org.apache.derby:derbyclient:10.17.1.0')
 	implementation("io.nayuki:qrcodegen:1.8.0")
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.junit.jupiter:junit-jupiter:5.10.2')
 
-	runtimeOnly('org.apache.derby:derby:10.16.1.1')
+	runtimeOnly('org.apache.derby:derby:10.17.1.0')
+    integrationTestRuntimeOnly 'org.apache.derby:derby:10.17.1.0'
 
 	// PostgreSQL JDBC jar, can remove if using other databases.
 	runtimeOnly('org.postgresql:postgresql')
@@ -184,6 +189,10 @@ task copyUi(type: Copy) {
 	into("tb-ui") {
 		from "${uiDir}/dist"
 	}
+}
+
+test {
+    useJUnitPlatform()
 }
 
 war {

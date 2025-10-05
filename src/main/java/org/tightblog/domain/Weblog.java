@@ -27,22 +27,22 @@ import org.tightblog.domain.WebloggerProperties.SpamPolicy;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.util.Utilities;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -64,12 +64,14 @@ import java.util.stream.Collectors;
 public class Weblog implements WeblogOwned {
 
     private String id = Utilities.generateUUID();
-    private int hashCode;
+
     @NotBlank(message = "{weblogConfig.error.handleNull}")
     @Pattern(regexp = "[a-z0-9\\-]*", message = "{weblogConfig.error.invalidHandle}")
     private String handle;
+
     @NotBlank(message = "{weblogConfig.error.nameNull}")
     private String name;
+
     private String tagline;
     private EditFormat editFormat = EditFormat.HTML;
     private String blacklist;
@@ -77,6 +79,7 @@ public class Weblog implements WeblogOwned {
     private int defaultCommentDays = -1;
     private boolean applyCommentDefaults;
     private SpamPolicy spamPolicy = SpamPolicy.NO_EMAIL;
+
     @NotBlank(message = "{weblogConfig.error.themeNull}")
     private String theme;
     private String locale;
@@ -87,6 +90,7 @@ public class Weblog implements WeblogOwned {
     private Instant lastModified = Instant.now();
     private String about;
     private User creator;
+
     private String analyticsCode;
     private int hitsToday;
 
@@ -99,6 +103,9 @@ public class Weblog implements WeblogOwned {
     private Locale localeInstance;
 
     private String absoluteURL;
+
+    @Transient
+    private int hashCode;
 
     public enum EditFormat {
         HTML("weblogConfig.editFormatType.html"),
@@ -440,6 +447,7 @@ public class Weblog implements WeblogOwned {
         this.weblogCategories = cats;
     }
 
+    @Transient
     public List<String> getWeblogCategoryNames() {
         return getWeblogCategories().stream().map(WeblogCategory::getName).collect(Collectors.toList());
     }
@@ -571,6 +579,7 @@ public class Weblog implements WeblogOwned {
 
     @Override
     @JsonIgnore
+    @Transient
     public Weblog getWeblog() {
         return this;
     }

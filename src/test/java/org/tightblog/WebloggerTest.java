@@ -161,7 +161,8 @@ public abstract class WebloggerTest {
     }
 
     protected WeblogEntry setupWeblogEntry(String anchor, Weblog weblog, User user) {
-        return setupWeblogEntry(anchor, weblog.getWeblogCategories()
+        Weblog weblogInSession = weblogDao.findByIdOrNull(weblog.getId());
+        return setupWeblogEntry(anchor, weblogInSession.getWeblogCategories()
                         .iterator().next(), WeblogEntry.PubStatus.PUBLISHED, weblog, user);
     }
 

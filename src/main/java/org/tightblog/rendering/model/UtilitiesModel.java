@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.tightblog.domain.WebloggerProperties;
@@ -81,7 +82,7 @@ public class UtilitiesModel implements Model {
     public String msg(String key) {
         try {
             return messages.getMessage(key, null, locale);
-        } catch (NullPointerException e) {
+        } catch (NoSuchMessageException e) {
             return "???" + key + "???";
         }
     }

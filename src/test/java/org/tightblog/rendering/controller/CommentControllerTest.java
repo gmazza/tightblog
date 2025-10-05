@@ -49,11 +49,11 @@ import org.tightblog.dao.WeblogDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.util.HTMLSanitizer;
 
-import javax.persistence.EntityManager;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -323,10 +323,10 @@ public class CommentControllerTest {
 
         WeblogEntryComment wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.LIMITED);
 
-        assertEquals("Content not processed correctly (text, safelist filtering of tags, and adding paragraph tags)",
-                "<p>Enjoy My Link from Bob!</p>", wec.getContent());
+        assertEquals("<p>Enjoy My Link from Bob!</p>", wec.getContent(),
+                "Content not processed correctly (text, safelist filtering of tags, and adding paragraph tags)");
         assertEquals("Sam", wec.getName());
-        assertEquals("https:// not added to URL", "https://www.foo.com", wec.getUrl());
+        assertEquals("https://www.foo.com", wec.getUrl(), "https:// not added to URL");
         assertTrue(wec.getNotify());
         assertEquals("sam@yopmail.com", wec.getEmail());
         assertEquals("https://www.duckduckgo.com", wec.getRemoteHost());
@@ -337,8 +337,8 @@ public class CommentControllerTest {
         when(mockRequest.getParameter("notify")).thenReturn(null);
         wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.BASIC);
         assertFalse(wec.getNotify());
-        assertEquals("Content not processed correctly (text and safelist filtering of tags)",
-                "<p>Enjoy <a href=\"http://www.abc.com\" rel=\"nofollow\">My Link</a> from Bob!</p>", wec.getContent());
+        assertEquals("<p>Enjoy <a href=\"http://www.abc.com\" rel=\"nofollow\">My Link</a> from Bob!</p>", wec.getContent(),
+                "Content not processed correctly (text and safelist filtering of tags)");
 
         // test other cases
         when(mockRequest.getParameter("url")).thenReturn("http://www.foo.com");
