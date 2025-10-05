@@ -464,15 +464,16 @@ public class WeblogEntryManager {
 
         // Use only the first 4 words
         StringTokenizer toker = new StringTokenizer(base);
-        String tmp = null;
+        StringBuilder sb = new StringBuilder();
         int count = 0;
         while (toker.hasMoreTokens() && count < 5) {
-            String s = toker.nextToken();
-            s = s.toLowerCase();
-            tmp = (tmp == null) ? s : tmp + "-" + s;
+            if (count > 0) {
+                sb.append("-");
+            }
+            sb.append(toker.nextToken().toLowerCase());
             count++;
         }
-        base = tmp;
+        base = sb.toString();
 
         return base;
     }

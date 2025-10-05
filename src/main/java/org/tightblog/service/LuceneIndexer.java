@@ -92,29 +92,27 @@ public class LuceneIndexer {
         this.indexComments = indexComments;
         this.searchEnabled = searchEnabled;
         this.indexDir = indexDir;
+        this.indexConsistencyMarker = null;
+        this.serviceScheduler = null;
 
         if (!searchEnabled) {
-            indexComments = false;
-        }
-
-        log.info("Lucene search enabled: {} {}", searchEnabled,
-                searchEnabled ? "(If not using internal search capability, can increase performance by disabling in" +
-                        " TightBlog properties file)" : "(Can be activated in TightBlog properties file)");
-
-        if (searchEnabled) {
-            log.info("Include comment text as part of blog search? {}", indexComments);
-
-            serviceScheduler = Executors.newCachedThreadPool();
-
+            this.indexComments = false;
+        } else {
             if (indexDir == null) {
                 throw new IllegalStateException("Check tightblog properties file -- If search.enabled = true, " +
                         "search.index.dir must also be provided.");
             }
 
+            serviceScheduler = Executors.newCachedThreadPool();
             String test = indexDir + File.separator + ".index-inconsistent";
             indexConsistencyMarker = new File(test);
             log.info("search index dir: {}", indexDir);
+            log.info("Include comment text as part of blog search? {}", indexComments);
         }
+
+        log.info("Lucene search enabled: {} {}", searchEnabled,
+                searchEnabled ? "(If not using internal search capability, can increase performance by disabling in" +
+                        " TightBlog properties file)" : "(Can be activated in TightBlog properties file)");
     }
 
     /**

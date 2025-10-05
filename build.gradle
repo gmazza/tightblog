@@ -2,7 +2,8 @@
 plugins {
 	id 'java-library'
 	id "io.spring.dependency-management" version "1.1.7"
-	id "com.github.spotbugs" version "6.4.2"
+	// spotbugs not yet jdk 25 compatible
+    // id "com.github.spotbugs" version "6.4.2"
 	// ./gradlew dependencyUpdates
 	id "com.github.ben-manes.versions" version "0.52.0"
 	id 'com.github.node-gradle.node' version '5.0.0'
@@ -109,9 +110,11 @@ task integrationTest(type: Test) {
 
 check.dependsOn integrationTest
 
+/* spotbugs not yet jdk 25 compatible
 spotbugs {
 	excludeFilter = file("$rootProject.projectDir/etc/buildconfig/spotbugsExcludes.xml")
 }
+*/
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
