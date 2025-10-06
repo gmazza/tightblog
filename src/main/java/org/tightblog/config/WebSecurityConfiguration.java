@@ -72,6 +72,7 @@ public class WebSecurityConfiguration {
         http.authorizeHttpRequests(auth -> auth
                 // API Calls
                 .requestMatchers("/tb-ui/register/**").permitAll()
+                .requestMatchers("/tb-ui/install/**").permitAll()
                 .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
                 .requestMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
                 .requestMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
