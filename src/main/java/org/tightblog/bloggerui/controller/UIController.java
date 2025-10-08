@@ -23,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.tightblog.bloggerui.model.StartupConfiguration;
@@ -138,6 +139,19 @@ public class UIController {
 
         }
         return jspModelAndView("standard", myMap, null, null);
+    }
+
+    // return the CSRF token for inclusion in REST headers
+    // used by Vue app
+    @GetMapping("/tb-ui/app/csrf")
+    @ResponseBody
+    public Map<String, String> csrfToken(HttpServletRequest request) {
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token.getToken());
+        tokenMap.put("headerName", token.getHeaderName());
+        tokenMap.put("parameterName", token.getParameterName());
+        return tokenMap;
     }
 
     @RequestMapping(value = "/tb-ui/app/logout")

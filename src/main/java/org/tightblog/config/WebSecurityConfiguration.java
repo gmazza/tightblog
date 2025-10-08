@@ -84,7 +84,10 @@ public class WebSecurityConfiguration {
                 .requestMatchers("/tb-ui/app/login").permitAll()
                 .requestMatchers("/tb-ui/app/relogin").permitAll()
                 .requestMatchers("/tb-ui/app/logout").permitAll()
+                .requestMatchers("/tb-ui/app/csrf").permitAll()
                 .requestMatchers("/tb-ui/styles/*.css").permitAll()
+                .requestMatchers("/tb-ui/styles/*.css").permitAll()
+                .requestMatchers("/tb_j_security_check").permitAll()
                 .requestMatchers("/tb-ui/*.ico").permitAll()
                 .requestMatchers("/tb-ui/assets/**").permitAll()
                 // .requestMatchers("/styles/*.css").permitAll()
@@ -109,7 +112,7 @@ public class WebSecurityConfiguration {
                 .successHandler(customAuthenticationSuccessHandler)
             )
             .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher())
             )
             // if unauthorized, go to delegatingEntryPoint to determine login-redirect or 401 status code.
