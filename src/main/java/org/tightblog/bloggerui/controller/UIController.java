@@ -206,7 +206,7 @@ public class UIController {
         String path;
 
         if (defaultBlog != null) {
-            path = '/' + defaultBlog.getHandle() + "/?nocache=" + new Date().getTime();
+            path = '/' + defaultBlog.getHandle();
         } else {
             // new install?  Redirect to register or login page based on whether a user has already been created.
             long userCount = userDao.count();

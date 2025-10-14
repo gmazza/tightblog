@@ -70,55 +70,45 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Required authorities listed are defined in class GlobalRole.
         http.authorizeHttpRequests(auth -> auth
-                // API Calls
-                .requestMatchers("/tb-ui/register/**").permitAll()
-                .requestMatchers("/tb-ui/install/**").permitAll()
-                .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
-                .requestMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
-                .requestMatchers("/tb-ui/app/login-redirect")
+                        // API Calls
+                        .requestMatchers("/tb-ui/install/**").permitAll()
+                        .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/tb-ui/authoring/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                        .requestMatchers("/tb-ui/newuser/**").hasAnyAuthority("MISSING_MFA_SECRET")
+                        .requestMatchers("/tb-ui/app/login-redirect")
                         .hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .requestMatchers("/tb-ui/app/unsubscribeNotifications").permitAll()
-                // UI Calls
-                .requestMatchers("/tb-ui/app/register").permitAll()
-                .requestMatchers("/tb-ui/app/login").permitAll()
-                .requestMatchers("/tb-ui/app/relogin").permitAll()
-                .requestMatchers("/tb-ui/app/logout").permitAll()
-                .requestMatchers("/tb-ui/app/csrf").permitAll()
-                .requestMatchers("/tb-ui/styles/*.css").permitAll()
-                .requestMatchers("/tb-ui/styles/*.css").permitAll()
-                .requestMatchers("/tb_j_security_check").permitAll()
-                .requestMatchers("/tb-ui/*.ico").permitAll()
-                .requestMatchers("/tb-ui/assets/**").permitAll()
-                // .requestMatchers("/styles/*.css").permitAll()
-                // below are UI calls that require authentication
-                .requestMatchers("/tb-ui/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
-                .requestMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
-                .requestMatchers("/tb-ui/app/any/sessioninfo").hasAnyAuthority("ADMIN",
-                        "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .requestMatchers("/tb-ui/app/authoring/startupconfig").hasAnyAuthority("ADMIN",
-                        "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
-                .requestMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
-                .requestMatchers("/tb-ui/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER") // default (= myBlogs on UI)
-                // All remaining, everyone can see
-                .anyRequest().permitAll()
-            )
-            .formLogin(form -> form
-                .loginPage("/tb-ui/app/login")
-                .failureForwardUrl("/tb-ui/app/login?error=true")
-                .authenticationDetailsSource(customWebAuthenticationDetailsSource)
-                .loginProcessingUrl("/tb_j_security_check")
-                .successHandler(customAuthenticationSuccessHandler)
-            )
-            .csrf(csrf -> csrf
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
-                .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher())
-            )
-            // if unauthorized, go to delegatingEntryPoint to determine login-redirect or 401 status code.
-            .exceptionHandling(exceptions ->
-                    exceptions.authenticationEntryPoint(delegatingEntryPoint())
-            );
+                        .requestMatchers("/tb-ui/app/unsubscribeNotifications").permitAll()
+                        // UI Calls
+                        .requestMatchers("/tb-ui/app/get-default-blog").permitAll()
+                        .requestMatchers("/tb-ui/app/login", "/tb-ui/app/logout", "/tb-ui/app/register",
+                                "/tb-ui/app/relogin").permitAll()
+                        .requestMatchers("/tb-ui/app/csrf", "/tb_j_security_check").permitAll()
+                        .requestMatchers("/tb-ui/styles/*.css", "/tb-ui/*.ico", "/tb-ui/assets/**").permitAll()
+                        // below are UI calls that require authentication
+                        .requestMatchers("/tb-ui/app/createWeblog").hasAnyAuthority("ADMIN", "BLOGCREATOR")
+                        .requestMatchers("/tb-ui/app/scanCode").hasAnyAuthority("MISSING_MFA_SECRET")
+                        .requestMatchers("/tb-ui/app/any/sessioninfo").hasAnyAuthority("ADMIN",
+                                "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
+                        .requestMatchers("/tb-ui/app/authoring/startupconfig").hasAnyAuthority("ADMIN",
+                                "BLOGCREATOR", "BLOGGER", "MISSING_MFA_SECRET")
+                        .requestMatchers("/tb-ui/app/**").hasAnyAuthority("ADMIN", "BLOGCREATOR", "BLOGGER")
+                        .anyRequest().permitAll()
+                )
+                .formLogin(form -> form
+                        .loginPage("/tb-ui/app/login")
+                        .failureForwardUrl("/tb-ui/app/login?error=true")
+                        .authenticationDetailsSource(customWebAuthenticationDetailsSource)
+                        .loginProcessingUrl("/tb_j_security_check")
+                        .successHandler(customAuthenticationSuccessHandler)
+                )
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(new CookieCsrfTokenRepository())
+                        .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher())
+                )
+                // if unauthorized, go to delegatingEntryPoint to determine login-redirect or 401 status code.
+                .exceptionHandling(exceptions ->
+                        exceptions.authenticationEntryPoint(delegatingEntryPoint())
+                );
         return http.build();
     }
 
