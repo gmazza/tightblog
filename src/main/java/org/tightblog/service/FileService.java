@@ -306,7 +306,8 @@ public class FileService {
         File weblogDir = new File(this.storageDir + weblogHandle);
         if (!weblogDir.exists()) {
             if (!weblogDir.mkdirs()) {
-                throw new IOException("Cannot create directory " + weblogDir.getAbsolutePath());
+                throw new IOException("Cannot create directory " + weblogDir.getAbsolutePath() + "; canonical file = " +
+                        weblogDir.getCanonicalFile());
             }
         }
 
