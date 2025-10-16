@@ -22,4 +22,8 @@ import org.tightblog.domain.WeblogBookmark;
 @Repository
 public interface BlogrollLinkDao extends JpaRepository<WeblogBookmark, String> {
 
+    default WeblogBookmark findByIdOrNull(String id) {
+        return findById(id).orElse(null);
+    }
+
 }

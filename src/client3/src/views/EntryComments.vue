@@ -338,28 +338,28 @@ export default {
 
       api2.saveComment(comment).catch((error) => this.commonErrorResponse(error))
     },
-    approveComment: function (comment: Comment) {
+    approveComment: async function (comment: Comment) {
       this.messageClear()
       try {
-        api2.approveComment(comment.id)
+        await api2.approveComment(comment.id)
         comment.status = 'APPROVED'
       } catch (error) {
         this.commonErrorResponse(error)
       }
     },
-    hideComment: function (comment: Comment) {
+    hideComment: async function (comment: Comment) {
       this.messageClear()
       try {
-        api2.hideComment(comment.id)
+        await api2.hideComment(comment.id)
         comment.status = 'DISAPPROVED'
       } catch (error) {
         this.commonErrorResponse(error)
       }
     },
-    deleteComment: function (comment: Comment) {
+    deleteComment: async function (comment: Comment) {
       this.messageClear()
       try {
-        api2.deleteComment(comment.id)
+        await api2.deleteComment(comment.id)
         this.loadComments()
       } catch (error) {
         this.commonErrorResponse(error)

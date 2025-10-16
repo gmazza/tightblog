@@ -15,6 +15,8 @@
 */
 package org.tightblog.bloggerui.service;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.tightblog.domain.WeblogOwned;
 import org.tightblog.domain.WeblogRole;
@@ -25,6 +27,8 @@ import jakarta.persistence.PersistenceContext;
 
 @Component
 public class SecurityService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -37,6 +41,10 @@ public class SecurityService {
 
     public boolean hasAccess(String username, Class<WeblogOwned> clazz, String id, String weblogRole) {
         WeblogOwned wo = entityManager.find(clazz, id);
+        if (wo == null) {
+            LOG.warn("User {} trying to access unavailable {} entity with id {}", username, clazz.getSimpleName(), id);
+            return false;
+        }
         WeblogRole role = WeblogRole.valueOf(weblogRole);
         return userManager.checkWeblogRole(username, wo, role);
     }

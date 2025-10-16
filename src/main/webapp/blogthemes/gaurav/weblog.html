@@ -4,10 +4,10 @@
     <span th:replace="${model.getTemplateIdByName('common_html_head')}"></span>
     <title th:utext="|${model.weblog.name}: ${model.weblog.tagline}|">xxx</title>
     <link rel="shortcut icon" th:href="|${url.getSiteHome()}/favicon.ico|">
-    <span th:replace="fragments :: AutoDiscoveryLinks"></span>
+    <span th:replace="~{fragments :: AutoDiscoveryLinks}"></span>
     <meta th:if="${model.noIndex}" name="robots" content="noindex">
     <span th:utext="${model.analyticsTrackingCode}" th:remove="tag"></span>
-    <span th:replace="fragments :: MetaDescription"></span>
+    <span th:replace="~{fragments :: MetaDescription}"></span>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
 	  	
 		  	<!-- BODY MAIN-->
 		   	<div class="col-lg-8">
-                <div th:replace="fragments :: WeblogEntriesPager"></div>
+                <div th:replace="~{fragments :: WeblogEntriesPager}"></div>
 
 				<ul class="pager" th:with="pager = ${model.getWeblogEntriesPager()}">
 	        		<li th:if="${!#strings.isEmpty(pager.prevLink)}" class="previous">
@@ -69,7 +69,7 @@
 							<div class="card-body">
 							   <p class="text-muted">Below are the most often used tags in the blog. Hover over a tag to
 								   see a count of entries, click a tag to see the most recent posts with the tag.</p>
-							   <span th:replace="fragments :: TagCloud(${myTags})"></span>
+							   <span th:replace="~{fragments :: TagCloud(${myTags})}"></span>
 							</div>
 						</div>
 					</th:block>

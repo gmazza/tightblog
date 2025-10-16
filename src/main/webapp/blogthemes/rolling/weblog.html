@@ -26,9 +26,9 @@
         </th:block>
         <th:block th:case="${false}">
             <title th:utext="${(model.permalink ? model.weblogEntry.title + ' | ' : '') + model.weblog.name}">Weblog Name - Title Bar</title>
-            <span th:replace="fragments :: AutoDiscoveryLinks"></span>
+            <span th:replace="~{fragments :: AutoDiscoveryLinks}"></span>
             <span th:utext="${model.analyticsTrackingCode}" th:remove="tag"></span>
-            <span th:replace="fragments :: MetaDescription"></span>
+            <span th:replace="~{fragments :: MetaDescription}"></span>
         </th:block>
     </th:block>
 </head>
@@ -42,25 +42,25 @@
                     <h1 th:utext="${model.weblog.name}">xxx</h1>
 
                     <center>
-                        <span th:replace="fragments :: WeblogCategoryBar"></span>
+                        <span th:replace="~{fragments :: WeblogCategoryBar}"></span>
                     </center>
                 </div>
 
                 <div th:switch="${model.searchResults}" class="next-previous-links">
-                    <span th:case="${false}" th:replace="fragments :: PreviousNextPager"></span>
+                    <span th:case="${false}" th:replace="~{fragments :: PreviousNextPager}"></span>
                     <th:block th:case="${true}">
                         <h5 th:if="${model.resultCount == 0}" th:utext="${utils.msg('searchSummary.noEntriesFound', model.searchPhrase)}">xxx</h5>
                         <th:block th:if="${model.resultCount > 0}">
-                            <div th:replace="fragments :: PreviousNextSearchPager"></div>
+                            <div th:replace="~{fragments :: PreviousNextSearchPager}"></div>
                         </th:block>
                     </th:block>
                 </div>
 
-                <div th:replace="fragments :: WeblogEntriesPager"></div>
+                <div th:replace="~{fragments :: WeblogEntriesPager}"></div>
 
                 <div th:if="${model.permalink}" th:remove="tag">
-                    <div th:replace="fragments :: WeblogEntryComments"></div>
-                    <div th:replace="fragments :: WeblogEntryCommentForm"></div>
+                    <div th:replace="~{fragments :: WeblogEntryComments}"></div>
+                    <div th:replace="~{fragments :: WeblogEntryCommentForm}"></div>
                 </div>
                 <br/>
             </div>

@@ -85,7 +85,7 @@ public class WeblogController {
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public ResponseEntity getWeblogData(@PathVariable String id, Principal p) {
-        Weblog weblog = weblogDao.getById(id);
+        Weblog weblog = weblogDao.findByIdOrNull(id);
         return ResponseEntity.ok(weblog);
     }
 
@@ -116,7 +116,7 @@ public class WeblogController {
     @PostMapping(value = "/tb-ui/authoring/rest/weblog/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public ResponseEntity<Weblog> updateWeblog(@PathVariable String id, @Valid @RequestBody Weblog newData, Principal p) {
-        Weblog weblog = weblogDao.getById(id);
+        Weblog weblog = weblogDao.findByIdOrNull(id);
         return saveWeblog(weblog, newData, false);
     }
 
@@ -170,7 +170,7 @@ public class WeblogController {
     @DeleteMapping(value = "/tb-ui/authoring/rest/weblog/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public ResponseEntity<String> deleteWeblog(@PathVariable String id, Principal p) {
-        Weblog weblog = weblogDao.getById(id);
+        Weblog weblog = weblogDao.findByIdOrNull(id);
         weblogManager.removeWeblog(weblog);
         return ResponseEntity.noContent().build();
     }

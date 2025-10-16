@@ -267,7 +267,7 @@ public class UserController {
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/members")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
     public List<UserWeblogRole> getWeblogMembers(@PathVariable String weblogId, Principal p) {
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.getReferenceById(weblogId);
         return userWeblogRoleDao.findByWeblog(weblog);
     }
 

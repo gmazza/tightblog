@@ -24,7 +24,7 @@ export async function initializeCsrfToken(): Promise<void> {
 
         if (csrfToken && csrfHeader) {
             axios.defaults.headers.common[csrfHeader] = csrfToken;
-            console.info(`CSRF token initialized: ${csrfHeader}=${csrfToken}`);
+            console.info(`CSRF token initialized`);
         } else {
             console.warn('CSRF token or header name is missing from the response');
         }

@@ -123,7 +123,7 @@ public class WeblogEntryController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
     public WeblogEntry getWeblogEntry(@PathVariable String id, Principal p) {
 
-        WeblogEntry entry = weblogEntryDao.getById(id);
+        WeblogEntry entry = weblogEntryDao.findByIdOrNull(id);
         entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
         entry.setPermalink(urlService.getWeblogEntryURL(entry));
         entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
@@ -140,7 +140,7 @@ public class WeblogEntryController {
     public WeblogEntryData getWeblogEntries(@PathVariable String weblogId, @PathVariable int page,
                                             @RequestBody WeblogEntrySearchCriteria criteria, Principal p) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
 
         criteria.setWeblog(weblog);
         criteria.setOffset(page * ITEMS_PER_PAGE);
@@ -166,7 +166,7 @@ public class WeblogEntryController {
     public List<RecentWeblogEntryData> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
                                               Principal p) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
 
         List<RecentWeblogEntryData> entries = new ArrayList<>();
         if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.POST)) {

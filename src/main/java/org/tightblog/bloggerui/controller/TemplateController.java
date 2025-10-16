@@ -87,7 +87,7 @@ public class TemplateController {
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/templates")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public WeblogThemeData getWeblogTemplates(@PathVariable String id, Principal p) {
-        Weblog weblog = weblogDao.getById(id);
+        Weblog weblog = weblogDao.findByIdOrNull(id);
         WeblogTheme theme = new WeblogTheme(weblogTemplateDao, weblog, themeManager.getSharedTheme(weblog.getTheme()));
 
         // build list of template role types that may be added
@@ -110,7 +110,7 @@ public class TemplateController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogTemplate), #id, 'OWNER')")
     public WeblogTemplate getWeblogTemplate(@PathVariable String id, Principal p) {
 
-        WeblogTemplate template = weblogTemplateDao.getById(id);
+        WeblogTemplate template = weblogTemplateDao.findByIdOrNull(id);
 
         if (themeManager.getSharedTheme(template.getWeblog().getTheme()).getTemplateByName(template.getName()) != null) {
             template.setDerivation(Template.Derivation.OVERRIDDEN);
@@ -127,7 +127,7 @@ public class TemplateController {
     public WeblogTemplate getWeblogTemplateByName(@PathVariable String weblogId, @PathVariable String templateName, Principal p,
                                                   HttpServletResponse response) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         SharedTheme sharedTheme = themeManager.getSharedTheme(weblog.getTheme());
         Template sharedTemplate = sharedTheme.getTemplateByName(templateName);
         if (sharedTemplate != null) {
@@ -249,7 +249,7 @@ public class TemplateController {
                                          Locale locale) {
 
         if (webloggerPropertiesDao.findOrNull().isUsersCustomizeThemes()) {
-            Weblog weblog = weblogDao.getById(weblogId);
+            Weblog weblog = weblogDao.findByIdOrNull(weblogId);
             SharedTheme newTheme;
             try {
                 newTheme = themeManager.getSharedTheme(newThemeId);

@@ -60,4 +60,8 @@ public interface WeblogTemplateDao extends JpaRepository<WeblogTemplate, String>
     @CacheEvict(value = "weblogTemplatesByRole")
     default void evictWeblogTemplateByRole(Weblog weblog, Template.Role role) {
     }
+
+    default WeblogTemplate findByIdOrNull(String id) {
+        return findById(id).orElse(null);
+    }
 }

@@ -5,7 +5,7 @@
     <title th:utext="|${model.weblog.name}: ${model.weblog.tagline}|">xxx</title>
     <meta th:if="${model.noIndex}" name="robots" content="noindex">
     <span th:utext="${model.analyticsTrackingCode}" th:remove="tag"></span>
-    <span th:replace="fragments :: MetaDescription"></span>
+    <span th:replace="~{fragments :: MetaDescription}"></span>
 </head>
 <body>
 
@@ -26,7 +26,7 @@
 	  	<div class="row">
 	  	<!-- BODY MAIN-->
 			<div class="col-lg-8" th:with="entry = ${model.weblogEntriesPager.entries.get(model.weblogEntriesPager.entries.keySet().iterator().next()).get(0)}">
-                <div th:replace="fragments :: WeblogEntriesPager"></div>
+                <div th:replace="~{fragments :: WeblogEntriesPager}"></div>
 
                 <div class="d-flex justify-content-between" th:with="pager = ${model.getWeblogEntriesPager()}">
                     <span th:if="${!#strings.isEmpty(pager.prevLink)}" style="text-align:left">

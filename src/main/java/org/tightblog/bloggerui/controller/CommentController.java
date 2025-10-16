@@ -31,6 +31,7 @@ import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.Weblog;
+import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
 import org.tightblog.dao.WeblogEntryCommentDao;
@@ -98,11 +99,12 @@ public class CommentController {
                                          @RequestParam(required = false) String entryId,
                                          @RequestBody CommentSearchCriteria criteria, Principal p) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
-
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         criteria.setWeblog(weblog);
+
         if (entryId != null) {
-            criteria.setEntry(weblogEntryDao.getById(entryId));
+            WeblogEntry entry = weblogEntryDao.findByIdOrNull(entryId);
+            criteria.setEntry(entry);
         }
         criteria.setOffset(page * ITEMS_PER_PAGE);
         criteria.setMaxResults(ITEMS_PER_PAGE + 1);
@@ -124,7 +126,7 @@ public class CommentController {
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id,  'POST')")
     public void deleteComment(@PathVariable String id, Principal p) {
-        WeblogEntryComment itemToRemove = weblogEntryCommentDao.getById(id);
+        WeblogEntryComment itemToRemove = weblogEntryCommentDao.findByIdOrNull(id);
         weblogEntryManager.removeComment(itemToRemove);
         luceneIndexer.updateIndex(itemToRemove.getWeblogEntry(), false);
         dp.updateLastSitewideChange();
@@ -146,7 +148,7 @@ public class CommentController {
 
     private void changeApprovalStatus(@PathVariable String id, ApprovalStatus newStatus) {
 
-        WeblogEntryComment comment = weblogEntryCommentDao.getById(id);
+        WeblogEntryComment comment = weblogEntryCommentDao.findByIdOrNull(id);
         ApprovalStatus oldStatus = comment.getStatus();
         comment.setStatus(newStatus);
         // send approval notification only first time, not after any subsequent hide and approves.
@@ -164,7 +166,7 @@ public class CommentController {
     public WeblogEntryComment updateComment(@PathVariable String id, Principal p, @RequestBody String content)
             throws IOException {
 
-        WeblogEntryComment wec = weblogEntryCommentDao.getById(id);
+        WeblogEntryComment wec = weblogEntryCommentDao.findByIdOrNull(id);
         String fixedContent = Utilities.apiValueToFormSubmissionValue(new
                 ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 

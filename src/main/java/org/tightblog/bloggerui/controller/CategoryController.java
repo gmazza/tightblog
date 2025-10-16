@@ -62,7 +62,7 @@ public class CategoryController {
     @GetMapping(value = "/tb-ui/authoring/rest/categories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
     public List<WeblogCategoryData> getWeblogCategoryData(@RequestParam(name = "weblogId") String weblogId, Principal p) {
-        return weblogManager.getWeblogCategoryData(weblogDao.getById(weblogId));
+        return weblogManager.getWeblogCategoryData(weblogDao.findByIdOrNull(weblogId));
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/categories")
@@ -70,7 +70,7 @@ public class CategoryController {
     public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategoryData newCategory,
                             Principal p, HttpServletResponse response) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
 
         if (weblog.getWeblogCategories().stream().anyMatch(c -> newCategory.name().equals(c.getName()))) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);

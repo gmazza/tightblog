@@ -41,9 +41,9 @@
 				</div>
 				<th:block th:switch="${model.resultCount > 0}">
 					<div th:case="${true}">
-						 <div th:replace="fragments :: PreviousNextSearchPager"></div>
+						 <div th:replace="~{fragments :: PreviousNextSearchPager}"></div>
 
-						 <div th:replace="fragments :: WeblogEntriesPager"></div>
+						 <div th:replace="~{fragments :: WeblogEntriesPager}"></div>
 						 <ul class="pager" th:with="pager=${model.getWeblogEntriesPager()}">
 							<li th:if="${pager.prevLink != null}" class="previous"><a th:href="${pager.prevLink}" th:utext="|← ${pager.prevLabel}|"}>xxx</a></li>
 							<li th:if="${pager.nextLink != null}" class="next"><a th:href="${pager.nextLink}" th:utext="|${pager.nextLabel} →|">xxx</a></li>

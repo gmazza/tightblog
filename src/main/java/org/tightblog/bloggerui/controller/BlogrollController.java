@@ -65,7 +65,7 @@ public class BlogrollController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
     public List<WeblogBookmark> getBookmarks(@PathVariable String id, Principal p) {
 
-        return weblogDao.getById(id).getBookmarks()
+        return weblogDao.findByIdOrNull(id).getBookmarks()
                 .stream()
                 .peek(bkmk -> bkmk.setWeblog(null))
                 .collect(Collectors.toList());
@@ -76,7 +76,7 @@ public class BlogrollController {
     public void addBookmark(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogBookmark newData,
                             Principal p) {
 
-        Weblog weblog = weblogDao.getById(weblogId);
+        Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         WeblogBookmark bookmark = new WeblogBookmark(weblog, newData.getName(),
                 newData.getUrl(), newData.getDescription());
         weblog.addBookmark(bookmark);
@@ -87,7 +87,7 @@ public class BlogrollController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogBookmark), #id, 'OWNER')")
     public void updateBookmark(@PathVariable String id, @RequestBody WeblogBookmark newData, Principal p) {
 
-        WeblogBookmark bookmark = blogrollLinkDao.getById(id);
+        WeblogBookmark bookmark = blogrollLinkDao.findByIdOrNull(id);
         bookmark.setName(newData.getName());
         bookmark.setUrl(newData.getUrl());
         bookmark.setDescription(newData.getDescription());

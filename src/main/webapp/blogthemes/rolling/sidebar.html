@@ -2,7 +2,7 @@
     <div class="card">
         <h5 class="card-header">Calendar</h5>
         <div class="card-body">
-            <center><span th:replace="fragments :: Calendar(false)"></span></center>
+            <center><span th:replace="~{fragments :: Calendar(false)}"></span></center>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
         <h5 class="card-header">Blog Search</h5>
         <div class="card-body">
             <div>
-                <span th:replace="fragments :: WeblogSearchForm"></span>
+                <span th:replace="~{fragments :: WeblogSearchForm}"></span>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
     <div class="card">
         <h5 class="card-header">Links</h5><div>
         <div class="card-body">
-            <span th:replace="fragments :: Blogroll"></span>
+            <span th:replace="~{fragments :: Blogroll}"></span>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
     <div class="card">
         <h5 class="card-header">Feeds</h5>
         <div class="card-body">
-            <span th:replace="fragments :: AtomFeedsList"></span>
+            <span th:replace="~{fragments :: AtomFeedsList}"></span>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
             <div class="card">
                 <h5 class="card-header">Tags</h5>
                 <div class="card-body">
-                    <span th:replace="fragments :: TagCloud(${myTags})"></span>
+                    <span th:replace="~{fragments :: TagCloud(${myTags})}"></span>
                 </div>
             </div>
         </th:block>
@@ -71,7 +71,7 @@
     <div class="card">
         <h5 class="card-header">Navigation</h5>
         <div class="card-body">
-            <span th:replace="fragments :: PageMenu(true)"></span>
+            <span th:replace="~{fragments :: PageMenu(true)}"></span>
         </div>
     </div>
 </div>
