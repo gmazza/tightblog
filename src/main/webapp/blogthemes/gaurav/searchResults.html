@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="noindex">
-	<span th:replace="${model.getTemplateIdByName('common_html_head')}"></span>
+	<span th:replace="~{${model.getTemplateIdByName('common_html_head')}}"></span>
 	<title th:utext="|${model.weblog.name}: Search Results for ${model.searchPhrase}|">xxx</title>
 	<th:block th:if="${model.resultCount > 0}">
 		<script type="application/x-javascript" th:src="|${url.getSiteHome()}/scripts/searchhi.js|"></script>
@@ -18,7 +18,7 @@
 <body onload="loadSearchHighlight()">
 
 	<header>
-    	<span th:replace="${model.getTemplateIdByName('standard_header')}"></span>
+    	<span th:replace="~{${model.getTemplateIdByName('standard_header')}}"></span>
 	</header>
 
 	<div class="container">
@@ -83,7 +83,7 @@
 	</div> <!-- /.container -->
 
 	<footer>
-    	<span th:replace="${model.getTemplateIdByName('standard_footer')}">xxx</span>
+    	<span th:replace="~{${model.getTemplateIdByName('standard_footer')}}">xxx</span>
 	</footer>
 	
 </body>

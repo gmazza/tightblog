@@ -305,9 +305,11 @@ public class FileService {
         // make sure uploads area exists for this weblog
         File weblogDir = new File(this.storageDir + weblogHandle);
         if (!weblogDir.exists()) {
+            log.info("Process owner cannot find weblog uploads dir {} (if directory already exists process " +
+                            "owner needs execute permission on all parent folders in order to view it), attempting to create it",
+                    weblogDir.getAbsolutePath());
             if (!weblogDir.mkdirs()) {
-                throw new IOException("Cannot create directory " + weblogDir.getAbsolutePath() + "; canonical file = " +
-                        weblogDir.getCanonicalFile());
+                throw new IOException("Cannot create directory " + weblogDir.getAbsolutePath());
             }
         }
 

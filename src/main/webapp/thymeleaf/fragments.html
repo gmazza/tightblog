@@ -69,7 +69,7 @@
     <!--/* replace/insert within a fragment seems to work only with th:block */-->
     <th:block th:fragment="WeblogEntriesPager"
               th:each="day : ${model.weblogEntriesPager.getEntries().keySet()}"
-              th:insert="${model.getTemplateIdByName('day')}">
+              th:insert="~{${model.getTemplateIdByName('day')}}">
     </th:block>
     <div th:fragment="AtomFeedsList" th:remove="tag">
         <ul class="list-group list-group-flush">
