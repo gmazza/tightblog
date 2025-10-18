@@ -22,6 +22,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -66,6 +67,17 @@ public class GlobalControllerAdvice {
         for (final ConstraintViolation<?> violation : e.getConstraintViolations()) {
             error.getErrors().add(new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
         }
+        return error;
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ValidationErrorResponse handleNoResourceFoundException(NoResourceFoundException ex, Locale locale) {
+        LOG.warn("No resource found: {}", ex.getResourcePath());
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        error.getErrors().add(new Violation(null, messages.getMessage(
+                "generic.resource.not.found", new Object[] {}, locale)));
         return error;
     }
 
