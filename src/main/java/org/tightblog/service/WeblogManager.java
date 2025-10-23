@@ -277,7 +277,7 @@ public class WeblogManager {
                     weblog.setHitsToday(weblog.getHitsToday() + entry.getValue().intValue());
                     saveWeblog(weblog, true);
                     totalHitsProcessed += entry.getValue();
-                    LOG.info("Updated blog hits, {} total extra hits from {} blogs", totalHitsProcessed, hitsTallyCopy.size());
+                    LOG.debug("Updated blog hits, {} total extra hits from {} blogs", totalHitsProcessed, hitsTallyCopy.size());
                 }
             }
         }
