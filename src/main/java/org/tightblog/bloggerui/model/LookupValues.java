@@ -56,6 +56,7 @@ public class LookupValues {
     private Map<String, String> timezones;
     private Map<Integer, String> commentDayOptions;
 
+    
     public Map<String, String> getUserStatuses() {
         if (userStatuses == null) {
             userStatuses = new HashMap<>();
