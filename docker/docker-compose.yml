@@ -13,11 +13,29 @@ services:
 # TightBlog configured to require SSL, uses port 8443 internally, 443 externally
 #  (i.e., can view on host at https://localhost/tightblog)
         - "443:8443"
-
+      links:
+        - tightblog-db
       volumes:
 # TightBlog uses a named volume to store media images and the blog search index
 # Subfolders for both are configured in the web/application-tbcustom.properties file.
         - tightblog-data:/tightblog-data
+      depends_on:
+        - "tightblog-db"
+    tightblog-db:
+      image: mysql:8.0
+      environment:
+# Change credentials as desired if this is intended for production use :)
+        MYSQL_ROOT_PASSWORD: tiger
+        MYSQL_DATABASE: tightblog
+        MYSQL_USER: scott
+        MYSQL_PASSWORD: tiger
+      expose:
+        - "3306"
+      ports:
+# Optional, allows one to view the MySQL database at port 3307 with a SQL client running on the host
+        - "3307:3306"
+      volumes:
+        - tightblog-data:/var/lib/mysql
 
 
 

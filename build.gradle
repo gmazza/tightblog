@@ -145,6 +145,9 @@ dependencies {
 
 	runtimeOnly('org.apache.derby:derby:10.17.1.0')
     integrationTestRuntimeOnly 'org.apache.derby:derby:10.17.1.0'
+    
+    // MySQL JDBC driver for Docker deployments
+    runtimeOnly('mysql:mysql-connector-java:8.0.33')
 
 
 
