@@ -146,8 +146,7 @@ dependencies {
 	runtimeOnly('org.apache.derby:derby:10.17.1.0')
     integrationTestRuntimeOnly 'org.apache.derby:derby:10.17.1.0'
 
-	// PostgreSQL JDBC jar, can remove if using other databases.
-	runtimeOnly('org.postgresql:postgresql')
+
 
 	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.11')
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file

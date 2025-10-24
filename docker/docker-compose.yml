@@ -13,28 +13,13 @@ services:
 # TightBlog configured to require SSL, uses port 8443 internally, 443 externally
 #  (i.e., can view on host at https://localhost/tightblog)
         - "443:8443"
-      links:
-        - tightblog-db
+
       volumes:
 # TightBlog uses a named volume to store media images and the blog search index
 # Subfolders for both are configured in the web/application-tbcustom.properties file.
         - tightblog-data:/tightblog-data
-      depends_on:
-        - "tightblog-db"
-    tightblog-db:
-      image: postgres:latest
-      environment:
-# Change credentials as desired if this is intended for production use :)
-        POSTGRES_USER: scott
-        POSTGRES_PASSWORD: tiger
-        POSTGRES_DB: pgsqlTightBlog
-      expose:
-        - "5432"
-      ports:
-# Optional, allows one to view the PostgresQL database at port 5434 with a SQL client running on the host
-        - "5434:5432"
-      volumes:
-        - tightblog-data:/var/lib/postgresql/data
+
+
 
 volumes:
     tightblog-data:
