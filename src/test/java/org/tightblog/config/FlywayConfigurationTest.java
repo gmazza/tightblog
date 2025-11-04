@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test to verify Flyway configuration and migration setup.
@@ -38,14 +37,11 @@ public class FlywayConfigurationTest {
 
     @Test
     public void testFlywayBeanConfiguration() {
-        // Verify Flyway bean exists in context but is not enabled by default
+        // Verify Flyway bean configuration when disabled
         // Since flyway.enabled=false, Flyway should not auto-run migrations
         boolean hasFlywayBean = applicationContext.containsBean("flyway");
         
         // With spring.flyway.enabled=false, Spring Boot won't create the Flyway bean
-        // This test verifies that the configuration is correct
-        assertNotNull(applicationContext, "Application context should not be null");
-        
         // When Flyway is disabled, the bean won't be created, which is expected
         assertFalse(hasFlywayBean, "Flyway bean should not be created when disabled");
     }

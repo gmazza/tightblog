@@ -10,7 +10,7 @@ create table weblogger_user (
     status          varchar(20) not null,
     datecreated     datetime(3) not null,
     lastlogin       datetime(3),
-    activationcode	varchar(48),
+    activationcode  varchar(48),
     mfa_secret      varchar(96),
     encr_password   varchar(255)
 );
@@ -39,7 +39,7 @@ create table weblog (
     commentdays       integer default 7 not null,
     analyticscode     text,
     blacklist         text,
-    hitstoday	      integer default 0 not null
+    hitstoday         integer default 0 not null
 );
 create index ws_visible_idx on weblog(visible);
 alter table weblog add constraint wlog_handle_uq unique (handle);
