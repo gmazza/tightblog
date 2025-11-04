@@ -1,8 +1,10 @@
-FROM openjdk:25-jdk
+# No need for Tomcat image as TightBlog comes with an embedded server.
+FROM azul/zulu-openjdk:25
 
 COPY docker/web/application-tbcustom.properties application-tbcustom.properties
 
-COPY docker/web/serverKeystore.jks serverKeystore.jks
+# created via keytool -genkeypair -alias tomcat -keyalg RSA -keysize 2048 -keystore serverKeystore.p12 -storetype PKCS12 -storepass changeit -validity 3650
+COPY docker/web/serverKeystore.p12 serverKeystore.p12
 
 COPY build/libs/tightblog-*.war app.war
 

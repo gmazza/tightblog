@@ -22,6 +22,7 @@ package org.tightblog.filters;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public class BootstrapFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapFilter.class);
 
+    @Value("${site.absoluteUrl:}")
+    private String absoluteUrlFromConfig;
+
     @Autowired
     private DynamicProperties dp;
 
@@ -68,13 +72,15 @@ public class BootstrapFilter implements Filter {
 
         if (!siteUrlInitialized) {
             // determine absolute path for the app
-            if (StringUtils.isBlank(dp.getAbsoluteUrl())) {
+            if (StringUtils.isNotBlank(absoluteUrlFromConfig)) {
+                dp.setAbsoluteUrl(absoluteUrlFromConfig);
+                LOG.info("Site URL of {} set via site.absoluteUrl property in config file",
+                        dp.getAbsoluteUrl());
+            } else {
                 String absPath = Utilities.determineSiteUrl(request);
                 dp.setAbsoluteUrl(absPath);
-                LOG.info("Base site URL used to create links calculated to be {}, if desired " +
-                        "use site.absoluteUrl property to override", absPath);
-            } else {
-                LOG.info("Base site URL of {} set via site.absoluteUrl property", dp.getAbsoluteUrl());
+                LOG.info("No site.absoluteUrl property set in config file, " +
+                        "instead using value from first incoming request to be {}", absPath);
             }
             this.siteUrlInitialized = true;
         }

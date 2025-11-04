@@ -100,7 +100,7 @@ configurations {
 	}
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
 	testClassesDirs = sourceSets.integrationTest.output.classesDirs
 	classpath = sourceSets.integrationTest.runtimeClasspath
 	outputs.upToDateWhen { false }
@@ -149,14 +149,16 @@ dependencies {
     // MySQL JDBC driver for Docker deployments
     runtimeOnly('mysql:mysql-connector-java:8.0.33')
 
+	// JSP support for embedded Tomcat (e.g., Docker)
+	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:11.0.13')
+	implementation("jakarta.el:jakarta.el-api:6.0.1")
 
-
-	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.11')
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 def uiDir = 'src/client3'
+def uiDistDir = "${uiDir}/dist"
 
 node {
 	version = '20.19.0'
@@ -165,43 +167,61 @@ node {
 	// distBaseUrl = Custom artifactory location here for node/npm.
 }
 
-task npmInstallBloggerUI(type: NpmTask) {
+clean.doFirst {
+	delete("$buildDir/frontend")
+}
+
+/*
+Running npm install before npm run build ensures all required dependencies are downloaded and available.
+This prevents build failures due to missing packages, guaranteeing that your build uses the correct versions specified in package.json.
+*/
+tasks.register('npmInstallBloggerUI', NpmTask) {
 	args = ['install']
 	execOverrides {
 		it.workingDir = uiDir
 	}
 }
 
-task npmBuildBloggerUI(type: NpmTask) {
+tasks.register('npmBuildBloggerUI', NpmTask) {
 	dependsOn npmInstallBloggerUI
 	args = ['run','build']
+
+	// Tell Gradle when to rerun this task
+	inputs.dir("$uiDir/src") // Vue source files
+	inputs.file("$uiDir/package.json")
+	inputs.file("$uiDir/package-lock.json")
+	outputs.dir(uiDistDir)  // Output directory
+
 	execOverrides {
 		it.workingDir = uiDir
 	}
 }
 
-task deleteUi(type: Delete) {
-  delete 'src/main/webapp/tb-ui'
-  followSymlinks = false
+tasks.register('copyUi', Copy) {
+	dependsOn npmBuildBloggerUI
+	from uiDistDir
+	into "$buildDir/frontend/tb-ui" // temp location
 }
 
-task copyUi(type: Copy) {
-	dependsOn npmBuildBloggerUI
-	into "src/main/webapp"
-
-	into("tb-ui") {
-		from "${uiDir}/dist"
+// for external Tomcat deployment
+// serves content from root of WAR
+war {
+	enabled = true
+	dependsOn copyUi
+	from("$buildDir/frontend") {
+		into "" // root of WAR for external Tomcat
 	}
+}
+
+// for embedded Tomcat in Docker
+// serves content from /static in classpath
+bootWar {
+	enabled = true
+	dependsOn copyUi
 }
 
 test {
     useJUnitPlatform()
 }
 
-war {
-	enabled = true
-}
-
-war.dependsOn copyUi
-copyUi.dependsOn deleteUi
-bootWar.dependsOn copyUi
+tasks.processResources.dependsOn(tasks.copyUi)

@@ -67,6 +67,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -74,6 +75,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
+
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     private static final Pattern PWD_PATTERN =
             Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
@@ -202,7 +206,11 @@ public class UserController {
     @PostMapping(value = "/tb-ui/register/rest/registeruser")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserData newData, Locale locale, HttpServletResponse response) {
         WebloggerProperties.RegistrationPolicy option = webloggerPropertiesDao.findOrNull().getRegistrationPolicy();
-        if (WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
+        long userCount = userDao.count();
+
+        if (userCount > 0 && WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
+            LOGGER.warn("Registration attempt for a user {} when registrations are disabled, returning 403",
+                    Optional.ofNullable(newData.user()).map(User::getEmailAddress).orElse("(unknown)"));
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
@@ -211,7 +219,6 @@ public class UserController {
             return ValidationErrorResponse.badRequest(errors);
         }
 
-        long userCount = userDao.count();
         boolean mustActivate = userCount > 0;
         if (mustActivate) {
             newData.user().setActivationCode(UUID.randomUUID().toString());

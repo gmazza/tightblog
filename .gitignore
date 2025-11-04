@@ -13,6 +13,7 @@ local-certs.js
 
 tightblog_data/*
 
+docker/web/*.jks
 
 etc/sqlgen/.gradle/*
 etc/sqlgen/build/*

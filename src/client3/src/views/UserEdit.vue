@@ -241,9 +241,9 @@ export default {
       if (error instanceof AxiosError && error.response?.status === 401) {
         window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
       } else {
-        if (error instanceof AxiosError) {
+        if (error instanceof AxiosError && error.response?.data?.errors) {
           this.errorObj.errors.push(
-            ...Object.values(error.response?.data.errors as Record<string, ErrorItem>)
+            ...Object.values(error.response.data.errors as Record<string, ErrorItem>)
               .map((errorItem: ErrorItem) => errorItem.message)
               .filter((message) => message !== null)
           )
