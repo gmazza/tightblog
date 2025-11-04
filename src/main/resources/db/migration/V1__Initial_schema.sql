@@ -1,5 +1,5 @@
-
--- Below script creates the TightBlog tables for database mysql
+-- TightBlog initial database schema for MySQL
+-- Flyway migration V1
 
 create table weblogger_user (
     id              varchar(48) not null primary key,
@@ -10,7 +10,7 @@ create table weblogger_user (
     status          varchar(20) not null,
     datecreated     datetime(3) not null,
     lastlogin       datetime(3),
-    activationcode	varchar(48),
+    activationcode  varchar(48),
     mfa_secret      varchar(96),
     encr_password   varchar(255)
 );
@@ -27,7 +27,7 @@ create table weblog (
     about             varchar(255),
     locale            varchar(20),
     timezone          varchar(50),
-    visible           tinyint(1) default 1 not null,
+    visible           tinyint default 1 not null,
     theme             varchar(255) not null,
     entriesperpage    integer default 15 not null,
     editformat        varchar(20) not null,
@@ -39,7 +39,7 @@ create table weblog (
     commentdays       integer default 7 not null,
     analyticscode     text,
     blacklist         text,
-    hitstoday	      integer default 0 not null
+    hitstoday         integer default 0 not null
 );
 create index ws_visible_idx on weblog(visible);
 alter table weblog add constraint wlog_handle_uq unique (handle);
@@ -52,7 +52,7 @@ create table user_weblog_role (
    userid          varchar(48) not null,
    weblogid        varchar(48) not null,
    weblog_role     varchar(48) not null,
-   email_comments  tinyint(1) default 1 not null
+   email_comments  tinyint default 1 not null
 );
 
 alter table user_weblog_role add constraint uwr_userid_fk
@@ -164,7 +164,7 @@ create table weblog_entry_comment (
     bloggerid  varchar(48),
     name       varchar(255) not null,
     email      varchar(255) not null,
-    notify     tinyint(1) default 0 not null,
+    notify     tinyint default 0 not null,
     content    text,
     posttime   datetime(3) not null,
     url        varchar(255),
@@ -188,15 +188,15 @@ create table weblogger_properties (
     database_version       integer not null,
     main_blog_id           varchar(48),
     registration_policy    varchar(24) default 'DISABLED' not null,
-    users_create_blogs     tinyint(1) default 1 not null,
+    users_create_blogs     tinyint default 1 not null,
     blog_html_policy       varchar(24) default 'RELAXED' not null,
-    users_customize_themes tinyint(1) default 1 not null,
+    users_customize_themes tinyint default 1 not null,
     default_analytics_code text,
-    users_override_analytics_code tinyint(1) default 1 not null,
+    users_override_analytics_code tinyint default 1 not null,
     comment_policy         varchar(24) default 'MODERATE_NONPUB' not null,
     comment_html_policy    varchar(24) default 'BASIC' not null,
     spam_policy            varchar(20) default 'MARK_SPAM' not null,
-    users_comment_notifications tinyint(1) default 1 not null,
+    users_comment_notifications tinyint default 1 not null,
     comment_spam_filter    text,
     max_file_uploads_size_mb integer default 20 not null
 );
