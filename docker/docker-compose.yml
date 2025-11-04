@@ -1,17 +1,16 @@
 # Compose file reference: https://docs.docker.com/compose/compose-file/
-# NOTE: Before running, make sure you created web/ssl.crt and web/ssl.key files (see web/Dockerfile for more info)
-version: "3.2"
+# Can run via docker-compose -p tightblog up -d (from this or parent folder)
+# NOTE: Before running, make sure you created serverKeystore.jks file (see web/application-custom.properties for more info)
+version: "3.8"
 services:
     tightblog-web:
       build:
           context: ..
           dockerfile: ./docker/web/Dockerfile
       restart: on-failure
-      environment:
-        SITE_ABSOLUTEURL: https://localhost/tightblog
       ports:
-# TightBlog configured to require SSL, uses port 8443 internally, 443 externally
-#  (i.e., can view on host at https://localhost/tightblog)
+# TightBlog configured for SSL, uses port 8443 internally, 443 externally
+#  (i.e., can view from browser at https://localhost/tightblog)
         - "443:8443"
       links:
         - tightblog-db
@@ -22,19 +21,20 @@ services:
       depends_on:
         - "tightblog-db"
     tightblog-db:
-      image: postgres:latest
+      image: mysql:8.0
       environment:
-# Change credentials as desired if this is intended for production use :)
-        POSTGRES_USER: scott
-        POSTGRES_PASSWORD: tiger
-        POSTGRES_DB: pgsqlTightBlog
+# Change credentials as desired for production use :)
+        MYSQL_ROOT_PASSWORD: tiger
+        MYSQL_DATABASE: tightblog
+        MYSQL_USER: scott
+        MYSQL_PASSWORD: tiger
       expose:
-        - "5432"
+        - "3306"
       ports:
-# Optional, allows one to view the PostgresQL database at port 5434 with a SQL client running on the host
-        - "5434:5432"
+# Optional, allows one to view the MySQL database at port 3307 with a SQL client running on the host
+        - "3307:3306"
       volumes:
-        - tightblog-data:/var/lib/postgresql/data
+        - tightblog-data:/var/lib/mysql
 
 volumes:
     tightblog-data:

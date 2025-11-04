@@ -57,8 +57,5 @@ genScript("mysql", "true", "text",
         "tinyint(1) default 0", "tinyint(1) default 1",
         "datetime(3)", "datetime(3) default CURRENT_TIMESTAMP(3)")
 
-// source for foreignKeyIndex val: http://www.postgresql.org/docs/9.1/static/ddl-constraints.html
-genScript("postgresql", "false", "text",
-        "boolean default false", "boolean default true",
-        "timestamp(3) with time zone", "timestamp(3) default now()")
+
 
