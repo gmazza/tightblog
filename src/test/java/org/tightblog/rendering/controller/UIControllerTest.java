@@ -29,7 +29,6 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
-import org.tightblog.WebloggerTest;
 import org.tightblog.domain.Template;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.URLModel;

@@ -44,7 +44,7 @@ sourceSets {
 			runtimeClasspath += main.output + test.output
 			srcDir file('src/integrationTest/java')
 		}
-		resources.srcDir file('src/test/resources')
+		resources.srcDir file('src/integrationTest/resources')
 	}
 }
 
@@ -85,6 +85,7 @@ processTestResources {
 
 processIntegrationTestResources {
     standardProcessResources(processIntegrationTestResources)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 configurations {
