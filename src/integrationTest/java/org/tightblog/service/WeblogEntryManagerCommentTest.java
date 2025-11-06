@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Test Comment related business operations.
  */
 @Transactional
-public class WeblogEntryManagerCommentIT extends WebloggerTest {
+public class WeblogEntryManagerCommentTest extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
     private WeblogEntry testEntry;

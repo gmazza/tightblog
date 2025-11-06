@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test User related business operations.
  */
-public class UserManagerIT extends WebloggerTest {
+public class UserManagerTest extends WebloggerTest {
 
     @BeforeEach
     public void setUp() throws Exception {

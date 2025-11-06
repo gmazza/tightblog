@@ -63,9 +63,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Test WeblogEntry related business operations.
  */
 @Transactional
-public class WeblogEntryManagerIT extends WebloggerTest {
+public class WeblogEntryManagerTest extends WebloggerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManagerIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManagerTest.class);
     
     User testUser;
     Weblog testWeblog;

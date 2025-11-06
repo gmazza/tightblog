@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test WeblogRole related business operations.
  */
-public class UserManagerWeblogRoleIT extends WebloggerTest {
+public class UserManagerWeblogRoleTest extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
 
