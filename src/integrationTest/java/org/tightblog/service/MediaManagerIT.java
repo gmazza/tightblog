@@ -51,8 +51,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Transactional
 public class MediaManagerIT extends WebloggerTest {
@@ -140,13 +138,14 @@ public class MediaManagerIT extends WebloggerTest {
     }
 
     private MultipartFile createMockMultipartFile() throws IOException {
-        MultipartFile mockMultipartFile = mock(MockMultipartFile.class);
-        when(mockMultipartFile.getSize()).thenReturn(3000L);
-        when(mockMultipartFile.getContentType()).thenReturn("image/jpeg");
-        when(mockMultipartFile.getName()).thenReturn("hawk.jpg");
-        when(mockMultipartFile.getInputStream()).thenReturn(hawkInputStream);
-        when(mockMultipartFile.getOriginalFilename()).thenReturn("hawk.jpg");
-        return mockMultipartFile;
+        InputStream inputStream = getClass().getResourceAsStream("/hawk.jpg");
+        MultipartFile multipartFile = new MockMultipartFile(
+                "file",                // field name
+                "hawk.jpg",            // original file name
+                "image/jpeg",          // content type
+                inputStream            // file content
+        );
+        return multipartFile;
     }
 
     @Test

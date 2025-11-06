@@ -29,7 +29,6 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
-import org.tightblog.WebloggerTest;
 import org.tightblog.domain.Template;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.URLModel;
@@ -323,7 +322,7 @@ public class UIControllerTest {
 
         Mockito.clearInvocations(mockWM, mockCache);
 
-        WebloggerTest.logExpectedException(LOG, "IllegalArgumentException");
+        TestUtils.logExpectedException(LOG, "IllegalArgumentException");
         result = controller.getHomePage(TEST_BLOG_HANDLE, 0, mockRequest,
                 mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

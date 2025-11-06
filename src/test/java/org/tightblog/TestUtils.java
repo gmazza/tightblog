@@ -16,6 +16,9 @@
 package org.tightblog;
 
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.tightblog.domain.Weblog;
+import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
@@ -93,6 +96,24 @@ public class TestUtils {
         when(mockRequest.getDateHeader(any())).thenReturn(Instant.now().minus(7, ChronoUnit.DAYS).toEpochMilli());
 
         return mockRequest;
+    }
+
+    /**
+     * Some tests are expected to log an exception while running, this notice
+     * helps to separate expected exceptions vs. non-expected ones in the logging
+     * @param log - logger to log to
+     * @param exceptionType - name of exception (IllegalArgumentException, FileNotFoundException, etc.)
+     */
+    public static void logExpectedException(Logger log, String exceptionType) {
+        log.info("Test is expected to log a/an {}:", exceptionType);
+    }
+
+    public static WeblogEntry genWeblogEntry(Weblog weblog, String anchor, Instant pubTime) {
+        WeblogEntry entry = new WeblogEntry();
+        entry.setWeblog(weblog);
+        entry.setAnchor(anchor);
+        entry.setPubTime(pubTime);
+        return entry;
     }
 
 }

@@ -35,7 +35,6 @@ sourceSets {
 	test {
 		java {
 			srcDir 'src/test/java'
-			exclude '**/*IT.java'
 		}
 	}
 	// https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests
@@ -43,11 +42,9 @@ sourceSets {
 		java {
 			compileClasspath += main.output + test.output
 			runtimeClasspath += main.output + test.output
-			srcDir file('src/test/java')
-//			include '**/UserManagerIT.java'
-			include '**/*IT.java'
+			srcDir file('src/integrationTest/java')
 		}
-		resources.srcDir file('src/test/resources')
+		resources.srcDir file('src/integrationTest/resources')
 	}
 }
 
@@ -88,6 +85,7 @@ processTestResources {
 
 processIntegrationTestResources {
     standardProcessResources(processIntegrationTestResources)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 configurations {
