@@ -323,7 +323,7 @@ public class UIControllerTest {
 
         Mockito.clearInvocations(mockWM, mockCache);
 
-        WebloggerTest.logExpectedException(LOG, "IllegalArgumentException");
+        TestUtils.logExpectedException(LOG, "IllegalArgumentException");
         result = controller.getHomePage(TEST_BLOG_HANDLE, 0, mockRequest,
                 mockPrincipal);
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

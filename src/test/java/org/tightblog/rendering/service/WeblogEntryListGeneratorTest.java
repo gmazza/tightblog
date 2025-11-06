@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.tightblog.WebloggerTest;
+import org.tightblog.TestUtils;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
@@ -120,11 +120,11 @@ public class WeblogEntryListGeneratorTest {
     @Test
     public void getPermalinkPager() {
         // Showing SCHEDULED entries allowed with canShowUnpublishedEntries = false
-        WeblogEntry entryToShow = WebloggerTest.genWeblogEntry(weblog, "day1story1", twoDaysAgo);
+        WeblogEntry entryToShow = TestUtils.genWeblogEntry(weblog, "day1story1", twoDaysAgo);
         entryToShow.setStatus(PubStatus.SCHEDULED);
-        WeblogEntry weNext = WebloggerTest.genWeblogEntry(weblog, "nextStory", oneDayAgo);
+        WeblogEntry weNext = TestUtils.genWeblogEntry(weblog, "nextStory", oneDayAgo);
         weNext.setTitle("My Next Story");
-        WeblogEntry wePrev = WebloggerTest.genWeblogEntry(weblog, "prevStory", threeDaysAgo);
+        WeblogEntry wePrev = TestUtils.genWeblogEntry(weblog, "prevStory", threeDaysAgo);
         wePrev.setTitle("My Prev Story");
         when(mockWEM.getWeblogEntryByAnchor(weblog, "day1story1")).thenReturn(entryToShow);
         when(mockWEM.getNextPublishedEntry(entryToShow)).thenReturn(weNext);
@@ -308,10 +308,10 @@ public class WeblogEntryListGeneratorTest {
     }
 
     private Map<LocalDate, List<WeblogEntry>> createSampleEntriesMap() {
-        WeblogEntry we1 = WebloggerTest.genWeblogEntry(weblog, "day1story1", twoDaysAgo);
-        WeblogEntry we2 = WebloggerTest.genWeblogEntry(weblog, "day1story2", twoDaysAgo);
-        WeblogEntry we3 = WebloggerTest.genWeblogEntry(weblog, "day2story1", threeDaysAgo);
-        WeblogEntry we4 = WebloggerTest.genWeblogEntry(weblog, "day2story2", threeDaysAgo);
+        WeblogEntry we1 = TestUtils.genWeblogEntry(weblog, "day1story1", twoDaysAgo);
+        WeblogEntry we2 = TestUtils.genWeblogEntry(weblog, "day1story2", twoDaysAgo);
+        WeblogEntry we3 = TestUtils.genWeblogEntry(weblog, "day2story1", threeDaysAgo);
+        WeblogEntry we4 = TestUtils.genWeblogEntry(weblog, "day2story2", threeDaysAgo);
         List<WeblogEntry> listNow = new ArrayList<>();
         listNow.add(we1);
         listNow.add(we2);

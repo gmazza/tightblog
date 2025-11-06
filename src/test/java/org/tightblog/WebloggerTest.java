@@ -219,14 +219,6 @@ public abstract class WebloggerTest {
         return commentTest;
     }
 
-    public static WeblogEntry genWeblogEntry(Weblog weblog, String anchor, Instant pubTime) {
-        WeblogEntry entry = new WeblogEntry();
-        entry.setWeblog(weblog);
-        entry.setAnchor(anchor);
-        entry.setPubTime(pubTime);
-        return entry;
-    }
-
     /**
      * Some tests are expected to log an exception while running, this notice
      * helps to separate expected exceptions vs. non-expected ones in the logging
