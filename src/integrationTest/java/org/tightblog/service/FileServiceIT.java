@@ -21,6 +21,7 @@
 package org.tightblog.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -40,8 +41,6 @@ import org.tightblog.domain.WebloggerProperties;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertNull;
 
 public class FileServiceIT extends WebloggerTest {
@@ -103,22 +102,25 @@ public class FileServiceIT extends WebloggerTest {
     }
 
     @Test
-    public void testCanSave() {
+    public void testCanSave() throws IOException {
         FileService fileService = new FileService(webloggerPropertiesDao,
                 true, storageDir, Set.of("image/*"), "1MB");
+        FileService fileService1KB = new FileService(webloggerPropertiesDao,
+                true, storageDir, Set.of("image/*"), "1KB");
 
-        MultipartFile mockMultipartFile = mock(MockMultipartFile.class);
-        when(mockMultipartFile.getSize()).thenReturn(2500000L);
-        when(mockMultipartFile.getContentType()).thenReturn("image/gif");
-        when(mockMultipartFile.getName()).thenReturn("test.gif");
-        when(mockMultipartFile.getOriginalFilename()).thenReturn("test.gif");
+        InputStream inputStream = getClass().getResourceAsStream("/hawk.jpg");
+        MultipartFile mockMultipartFile = new MockMultipartFile(
+                "file",          // field name
+                "hawk.jpg",            // original file name
+                "image/jpeg",          // 99KB,
+                inputStream            // file content
+        );
 
-        boolean canSave = fileService.canSave(mockMultipartFile, testWeblog.getHandle(), null);
+        boolean canSave = fileService1KB.canSave(mockMultipartFile, testWeblog.getHandle(), null);
         // file too big
         assertFalse(canSave);
 
-        // file right size
-        when(mockMultipartFile.getSize()).thenReturn(500000L);
+        // file small enough
         canSave = fileService.canSave(mockMultipartFile, testWeblog.getHandle(), null);
         assertTrue(canSave);
 
