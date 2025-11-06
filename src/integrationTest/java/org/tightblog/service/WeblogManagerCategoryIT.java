@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Test Weblog Category related business operations.
  */
 @Transactional
-public class WeblogManagerCategoryTest extends WebloggerTest {
+public class WeblogManagerCategoryIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;

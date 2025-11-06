@@ -55,7 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Transactional
-public class MediaManagerTest extends WebloggerTest {
+public class MediaManagerIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
@@ -70,7 +70,7 @@ public class MediaManagerTest extends WebloggerTest {
 
     @BeforeAll
     public static void beforeClass() {
-        hawkInputStream = MediaManagerTest.class.getResourceAsStream("/hawk.jpg");
+        hawkInputStream = MediaManagerIT.class.getResourceAsStream("/hawk.jpg");
     }
 
     @AfterAll

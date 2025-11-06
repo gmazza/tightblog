@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test Search Manager business layer operations.
  */
-public class LuceneIndexerTest extends WebloggerTest {
+public class LuceneIndexerIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;

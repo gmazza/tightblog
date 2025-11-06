@@ -44,9 +44,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertNull;
 
-public class FileServiceTest extends WebloggerTest {
+public class FileServiceIT extends WebloggerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileServiceTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileServiceIT.class);
 
     private User testUser;
     private Weblog testWeblog;
