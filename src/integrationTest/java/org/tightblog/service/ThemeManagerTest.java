@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test Weblog Page related business operations.
  */
-public class ThemeManagerIT extends WebloggerTest {
+public class ThemeManagerTest extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
