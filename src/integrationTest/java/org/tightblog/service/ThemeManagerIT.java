@@ -23,7 +23,10 @@ package org.tightblog.service;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.WeblogTemplateDao;
 import org.tightblog.domain.Template.Role;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogTemplate;
@@ -39,11 +42,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test Weblog Page related business operations.
  */
+@SpringBootTest
 public class ThemeManagerIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
     private WeblogTemplate testPage;
+
+    @Autowired
+    protected UserManager userManager;
+
+    @Autowired
+    protected WeblogTemplateDao weblogTemplateDao;
 
     /**
      * All tests in this suite require a user and a weblog.

@@ -30,10 +30,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WebloggerProperties;
@@ -43,12 +46,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.util.AssertionErrors.assertNull;
 
+@SpringBootTest
 public class FileServiceIT extends WebloggerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileServiceIT.class);
 
     private User testUser;
     private Weblog testWeblog;
+
+    @Autowired
+    protected WebloggerPropertiesDao webloggerPropertiesDao;
+
+    @Autowired
+    protected UserManager userManager;
 
     @Value("${mediafiles.storage.dir}")
     private String storageDir;

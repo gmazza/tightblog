@@ -26,6 +26,8 @@ import java.time.Instant;
 import java.util.List;
 
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.WeblogEntryComment;
@@ -45,11 +47,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test Comment related business operations.
  */
+@SpringBootTest
 @Transactional
 public class WeblogEntryManagerCommentIT extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
     private WeblogEntry testEntry;
+
+    @Autowired
+    private UserManager userManager;
 
     /**
      * All tests in this suite require a user, weblog, and an entry.

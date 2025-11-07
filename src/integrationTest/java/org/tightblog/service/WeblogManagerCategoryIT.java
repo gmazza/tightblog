@@ -26,8 +26,11 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
@@ -45,12 +48,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test Weblog Category related business operations.
  */
+@SpringBootTest
 @Transactional
 public class WeblogManagerCategoryIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
     private WeblogCategory testCat;
+
+    @Autowired
+    private UserManager userManager;
+
+    @Autowired
+    private WeblogCategoryDao weblogCategoryDao;
 
     /**
      * All tests in this suite require a user and a weblog.

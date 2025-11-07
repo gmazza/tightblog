@@ -25,7 +25,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.service.indexer.IndexEntryTask;
 import org.tightblog.service.indexer.SearchTask;
 import org.tightblog.domain.User;
@@ -42,13 +44,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test Search Manager business layer operations.
  */
+@SpringBootTest
 public class LuceneIndexerIT extends WebloggerTest {
 
     private User testUser;
     private Weblog testWeblog;
 
     @Autowired
+    protected UserManager userManager;
+
+    @Autowired
     private LuceneIndexer luceneIndexer;
+
+    @Autowired
+    private WeblogCategoryDao weblogCategoryDao;
 
     /**
      * All tests in this suite require a user and a weblog.
