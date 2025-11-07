@@ -34,8 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogCategory;
@@ -62,11 +65,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Test WeblogEntry related business operations.
  */
+@SpringBootTest
 @Transactional
 public class WeblogEntryManagerIT extends WebloggerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(WeblogEntryManagerIT.class);
-    
+
+    @Autowired
+    private UserManager userManager;
+
+    @Autowired
+    private WeblogCategoryDao weblogCategoryDao;
+
     User testUser;
     Weblog testWeblog;
     /**

@@ -125,10 +125,11 @@ dependencies {
 	implementation('org.flywaydb:flyway-core')
 	implementation('org.flywaydb:flyway-mysql')
 	implementation('org.springframework.security:spring-security-taglibs')
-	implementation('org.apache.commons:commons-lang3:3.13.0')
+	implementation('org.apache.commons:commons-lang3:3.18.0')
 	implementation('org.apache.commons:commons-text:1.10.0')
-	implementation('org.apache.lucene:lucene-analyzers-common:8.6.2')
-	implementation('org.apache.lucene:lucene-queryparser:8.6.2')
+	implementation('org.apache.lucene:lucene-analyzers-common:8.10.0')
+	implementation('org.apache.lucene:lucene-queryparser:8.10.0')
+	implementation('org.apache.lucene:lucene-backward-codecs:8.10.0')
 	implementation("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2")
 	implementation("org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1")
 	implementation('commons-validator:commons-validator:1.7')
@@ -136,18 +137,14 @@ dependencies {
 	implementation('com.github.ben-manes.caffeine:caffeine:3.1.8')
 	implementation('org.jboss.aerogear:aerogear-otp-java:1.0.0')
 	implementation('com.atlassian.commonmark:commonmark:0.17.0')
-	implementation('commons-fileupload:commons-fileupload:1.5')
-	implementation('org.apache.derby:derbyclient:10.17.1.0')
+	implementation('commons-fileupload:commons-fileupload:1.6.0')
 	implementation("io.nayuki:qrcodegen:1.8.0")
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.junit.jupiter:junit-jupiter:5.10.2')
 
-	runtimeOnly('org.apache.derby:derby:10.17.1.0')
-    integrationTestRuntimeOnly 'org.apache.derby:derby:10.17.1.0'
-    
     // MySQL JDBC driver for Docker deployments
-    runtimeOnly('mysql:mysql-connector-java:8.0.33')
+    runtimeOnly('com.mysql:mysql-connector-j:9.1.0')
 
 	// JSP support for embedded Tomcat (e.g., Docker)
 	providedCompile('org.apache.tomcat.embed:tomcat-embed-jasper:11.0.13')
@@ -155,6 +152,10 @@ dependencies {
 
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	integrationTestImplementation 'org.testcontainers:testcontainers-mysql:2.0.1'
+	integrationTestImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.1'
+	integrationTestImplementation 'com.mysql:mysql-connector-j:9.1.0'
 }
 
 def uiDir = 'src/client3'

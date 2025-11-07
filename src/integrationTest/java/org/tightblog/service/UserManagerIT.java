@@ -23,6 +23,8 @@ package org.tightblog.service;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.User;
@@ -37,7 +39,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Test User related business operations.
  */
+@SpringBootTest
 public class UserManagerIT extends WebloggerTest {
+
+    @Autowired
+    protected UserManager userManager;
 
     @BeforeEach
     public void setUp() throws Exception {

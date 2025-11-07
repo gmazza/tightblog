@@ -22,7 +22,10 @@ package org.tightblog.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
@@ -41,9 +44,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test WeblogRole related business operations.
  */
+@SpringBootTest
 public class UserManagerWeblogRoleIT extends WebloggerTest {
     private User testUser;
     private Weblog testWeblog;
+
+    @Autowired
+    protected UserWeblogRoleDao userWeblogRoleDao;
+
+    @Autowired
+    protected UserManager userManager;
 
     @BeforeEach
     public void setUp() throws Exception {

@@ -30,12 +30,16 @@ import java.util.Set;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.tightblog.WebloggerTest;
+import org.tightblog.dao.MediaDirectoryDao;
+import org.tightblog.dao.MediaFileDao;
 import org.tightblog.domain.MediaDirectory;
 import org.tightblog.domain.MediaFile;
 import org.tightblog.domain.User;
@@ -52,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SpringBootTest
 @Transactional
 public class MediaManagerIT extends WebloggerTest {
 
@@ -59,6 +64,15 @@ public class MediaManagerIT extends WebloggerTest {
     private Weblog testWeblog;
     private MediaDirectory defaultDirectory;
     private static InputStream hawkInputStream;
+
+    @Autowired
+    private MediaDirectoryDao mediaDirectoryDao;
+
+    @Autowired
+    private MediaFileDao mediaFileDao;
+
+    @Autowired
+    private UserManager userManager;
 
     @Value("${mediafiles.storage.dir}")
     private String mediafileDir;

@@ -16,13 +16,13 @@
 package org.tightblog;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.tightblog.service.UserManager;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.config.DynamicProperties;
@@ -33,33 +33,30 @@ import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
-import org.tightblog.dao.BlogrollLinkDao;
-import org.tightblog.dao.MediaDirectoryDao;
-import org.tightblog.dao.MediaFileDao;
 import org.tightblog.dao.UserDao;
-import org.tightblog.dao.UserWeblogRoleDao;
-import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.dao.WeblogEntryDao;
 import org.tightblog.dao.WeblogDao;
-import org.tightblog.dao.WeblogTemplateDao;
-import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.service.LuceneIndexer;
 
 import java.time.Instant;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public abstract class WebloggerTest {
 
-    @Autowired
-    private ApplicationContext appContext;
+    @Container
+    private static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
+            .withDatabaseName("test")
+            .withUsername("test")
+            .withPassword("test");
 
-    @Autowired
-    protected BlogrollLinkDao blogrollLinkDao;
-
-    @Autowired
-    protected WeblogCategoryDao weblogCategoryDao;
+    @DynamicPropertySource
+    static void mysqlProperties(DynamicPropertyRegistry registry) {
+        mysql.start();
+        registry.add("spring.datasource.url", mysql::getJdbcUrl);
+        registry.add("spring.datasource.username", mysql::getUsername);
+        registry.add("spring.datasource.password", mysql::getPassword);
+    }
 
     @Autowired
     protected WeblogDao weblogDao;
@@ -71,31 +68,13 @@ public abstract class WebloggerTest {
     protected WeblogEntryCommentDao weblogEntryCommentDao;
 
     @Autowired
-    protected WeblogTemplateDao weblogTemplateDao;
-
-    @Autowired
-    protected WebloggerPropertiesDao webloggerPropertiesDao;
-
-    @Autowired
     protected UserDao userDao;
-
-    @Autowired
-    protected UserWeblogRoleDao userWeblogRoleDao;
 
     @Autowired
     protected WeblogManager weblogManager;
 
     @Autowired
     protected WeblogEntryManager weblogEntryManager;
-
-    @Autowired
-    protected MediaDirectoryDao mediaDirectoryDao;
-
-    @Autowired
-    protected MediaFileDao mediaFileDao;
-
-    @Autowired
-    protected UserManager userManager;
 
     @Autowired
     private DynamicProperties dynamicProperties;
