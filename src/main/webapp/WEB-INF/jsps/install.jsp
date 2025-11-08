@@ -41,31 +41,12 @@
     </c:when>
     <c:otherwise>
         <h2><fmt:message key="${status.descriptionKey}"/></h2>
-        <c:if test="${status.name() == 'needsBootstrapping'}">
-            <p><fmt:message key="installer.tablesCreatedExplanation"/></p>
-            <p>
-                <fmt:message key="installer.tryBootstrapping">
-                    <fmt:param><c:url value="/tb-ui/install/bootstrap"/></fmt:param>
-                </fmt:message>
-            </p>
-            <pre>
-                <c:forEach var="message" items="${messages}">
-                    <c:out value="${message}"/>
-                </c:forEach>
-            </pre>
-        </c:if>
         <c:if test="${status.name() == 'tablesMissing'}">
             <p>
                 <fmt:message key="installer.noDatabaseTablesExplanation">
                     <fmt:param value="${databaseProductName}"/>
                 </fmt:message>
             </p>
-            <p><fmt:message key="installer.createTables"/></p>
-
-            <form method="link" action="<c:url value='/tb-ui/install/create'/>">
-                <sec:csrfInput/>
-                <input type="submit" value="<fmt:message key='installer.yesCreateTables'/>">
-            </form>
         </c:if>
     </c:otherwise>
 </c:choose>
