@@ -328,7 +328,6 @@ public class WeblogEntryManager {
         if (criteria.getTag() == null) {
             qd.queryString += " WHERE 1=1 ";
         } else {
-            // subquery to avoid this problem with Derby: http://stackoverflow.com/a/480536
             qd.queryString += " WHERE EXISTS ( Select 1 from WeblogEntryTag t " +
                     "where t.weblogEntry.id = e.id AND (";
 

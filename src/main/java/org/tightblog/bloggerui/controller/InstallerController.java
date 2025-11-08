@@ -26,20 +26,15 @@ import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.jdbc.datasource.init.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,9 +83,6 @@ public class InstallerController {
     public enum StartupStatus {
         databaseError(true, "installer.databaseConnectionError"),
         tablesMissing(false, "installer.noDatabaseTablesFound"),
-        databaseVersionError(true, "installer.databaseVersionError"),
-        databaseCreateError(true, "installer.databaseCreateError"),
-        needsBootstrapping(false, "installer.tablesCreated"),
         bootstrapError(true, "installer.bootstrappingError");
 
         final boolean error;
@@ -131,10 +123,7 @@ public class InstallerController {
             map.put("status", status);
 
             // is database schema present?
-            if (StartupStatus.tablesMissing.equals(status)) {
-                LOG.info("TightBlog database needs creating, forwarding to creation page");
-                return new ModelAndView("standard", map);
-            } else if (StartupStatus.databaseVersionError.equals(status) || StartupStatus.bootstrapError.equals(status)) {
+            if (StartupStatus.tablesMissing.equals(status) || StartupStatus.bootstrapError.equals(status)) {
                 return new ModelAndView("standard", map);
             }
 
@@ -159,23 +148,6 @@ public class InstallerController {
             if (tableMissing(conn, "weblog") || tableMissing(conn, "weblogger_user")) {
                 return StartupStatus.tablesMissing;
             }
-
-            // OK, exists -- does the database schema match that used by the application?
-            int dbversion = -1;
-
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(
-                    "select database_version from weblogger_properties where id = '1'")) {
-
-                if (rs.next()) {
-                    dbversion = Integer.parseInt(rs.getString(1));
-                }
-            }
-
-            if (dbversion != expectedDatabaseVersion) {
-                LOG.warn("TightBlog DB version {} incompatible with application version {}", dbversion,
-                        expectedDatabaseVersion);
-                return StartupStatus.databaseVersionError;
-            }
         } catch (SQLException e) {
             LOG.error("Error checking for tables", e);
             map.put("rootCauseException", e);
@@ -183,37 +155,6 @@ public class InstallerController {
             return StartupStatus.bootstrapError;
         }
         return null;
-    }
-
-    @RequestMapping(value = "/create")
-    public ModelAndView createDatabaseTables(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (dynamicProperties.isDatabaseReady()) {
-            response.sendRedirect(request.getContextPath() + "/");
-            return null;
-        }
-        Map<String, Object> map = initializeMap();
-        List<String> messageList = new ArrayList<>(100);
-        map.put("messages", messageList);
-        map.put("tightblogVersion", tightblogVersion);
-
-        String scriptPath = "";
-        try (Connection conn = tbDataSource.getConnection()) {
-            scriptPath = "/dbscripts/" +
-                    StringUtils.deleteWhitespace(conn.getMetaData().getDatabaseProductName().toLowerCase()) +
-                    "-createdb.sql";
-            messageList.add("Running database script: " + scriptPath);
-            ClassPathResource script = new ClassPathResource(scriptPath);
-            ResourceDatabasePopulator populator = new ResourceDatabasePopulator(false, true, null, script);
-            populator.populate(conn);
-            messageList.add("Script ran without error");
-            map.put("status", StartupStatus.needsBootstrapping);
-        } catch (ScriptException | SQLException ex) {
-            messageList.add("ERROR processing database script " + scriptPath);
-            messageList.add(ex.getMessage());
-            map.put("status", StartupStatus.databaseCreateError);
-        }
-
-        return new ModelAndView("standard", map);
     }
 
     @RequestMapping(value = "/bootstrap")
