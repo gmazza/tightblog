@@ -23,17 +23,9 @@ package org.tightblog.bloggerui.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +38,6 @@ import org.tightblog.service.LuceneIndexer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 /**
  * Walk user through install process.
@@ -57,32 +48,19 @@ public class InstallerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallerController.class);
 
-    private final DataSource tbDataSource;
-    private final MessageSource messages;
     private final DynamicProperties dynamicProperties;
     private final Environment environment;
     private final LuceneIndexer luceneIndexer;
 
-    @Value("${weblogger.version}")
-    private String tightblogVersion;
-
     @Autowired
-    public InstallerController(DataSource tbDataSource, MessageSource messages,
-                               LuceneIndexer luceneIndexer, DynamicProperties dynamicProperties,
+    public InstallerController(LuceneIndexer luceneIndexer, DynamicProperties dynamicProperties,
                                Environment environment) {
-        this.tbDataSource = tbDataSource;
         this.luceneIndexer = luceneIndexer;
-        this.messages = messages;
         this.dynamicProperties = dynamicProperties;
         this.environment = environment;
     }
 
-    @Value("${tightblog.database.expected.version:0}")
-    private int expectedDatabaseVersion;
-
     public enum StartupStatus {
-        databaseError(true, "installer.databaseConnectionError"),
-        tablesMissing(false, "installer.noDatabaseTablesFound"),
         bootstrapError(true, "installer.bootstrappingError");
 
         final boolean error;
@@ -110,51 +88,7 @@ public class InstallerController {
             return null;
         }
 
-        Map<String, Object> map = initializeMap();
-        List<String> messageList = new ArrayList<>();
-        map.put("messages", messageList);
-        map.put("tightblogVersion", tightblogVersion);
-
-        // is database accessible?
-        try (Connection testcon = tbDataSource.getConnection()) {
-            // used if DB creation needed
-            map.put("databaseProductName", testcon.getMetaData().getDatabaseProductName());
-            StartupStatus status = checkDatabase(testcon, map);
-            map.put("status", status);
-
-            // is database schema present?
-            if (StartupStatus.tablesMissing.equals(status) || StartupStatus.bootstrapError.equals(status)) {
-                return new ModelAndView("standard", map);
-            }
-
-            // all good, TightBlog ready to bootstrap
-            return bootstrap(request, response);
-        } catch (Exception e) {
-            LOG.error(messages.getMessage("installer.databaseConnectionError", null, Locale.getDefault()));
-            map.put("status", StartupStatus.databaseError);
-            map.put("rootCauseException", e.getCause());
-            map.put("rootCauseStackTrace", getRootCauseStackTrace(e.getCause()));
-            messageList.add(e.getMessage());
-            return new ModelAndView("standard", map);
-        }
-    }
-
-    /**
-     * Determine if database schema needs to be created.
-     */
-    private StartupStatus checkDatabase(Connection conn, Map<String, Object> map) {
-        try {
-            // does the schema already exist?  -- check a couple of tables to find out
-            if (tableMissing(conn, "weblog") || tableMissing(conn, "weblogger_user")) {
-                return StartupStatus.tablesMissing;
-            }
-        } catch (SQLException e) {
-            LOG.error("Error checking for tables", e);
-            map.put("rootCauseException", e);
-            map.put("rootCauseStackTrace", getRootCauseStackTrace(e));
-            return StartupStatus.bootstrapError;
-        }
-        return null;
+        return bootstrap(request, response);
     }
 
     @RequestMapping(value = "/bootstrap")
@@ -203,19 +137,6 @@ public class InstallerController {
             stackTrace = sw.toString().trim();
         }
         return stackTrace;
-    }
-
-    /**
-     * Return true if named table exists in database.
-     */
-    private boolean tableMissing(Connection con, String tableName) throws SQLException {
-        ResultSet rs = con.getMetaData().getTables(null, null, "%", null);
-        while (rs.next()) {
-            if (tableName.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }
