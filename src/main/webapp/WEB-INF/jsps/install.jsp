@@ -19,37 +19,25 @@
 
 <h1><fmt:message key="${pageTitleKey}"/></h1>
 
-<c:choose>
-    <c:when test="${status.error}">
-        <h2><fmt:message key="installer.startupProblemMessage"/></h2>
+<c:if test="${status.error}">
+    <h2><fmt:message key="installer.startupProblemMessage"/></h2>
 
-        <h3><fmt:message key="installer.whatHappened"/></h3>
-        <p><fmt:message key="${status.descriptionKey}"/></p>
-        <ul>
-            <c:forEach var="message" items="${messages}">
-                <li><c:out value="${message}"/></li>
-            </c:forEach>
-        </ul>
+    <h3><fmt:message key="installer.whatHappened"/></h3>
+    <p><fmt:message key="${status.descriptionKey}"/></p>
+    <ul>
+        <c:forEach var="message" items="${messages}">
+            <li><c:out value="${message}"/></li>
+        </c:forEach>
+    </ul>
 
-        <c:if test="${rootCauseStackTrace != null && rootCauseStackTrace != ''}">
-            <h3><fmt:message key="installer.whyDidThatHappen"/></h3>
-            <p><fmt:message key="installer.heresTheStackTrace"/></p>
-            <pre>
-                [<c:out value="${rootCauseStackTrace}"/>]
-            </pre>
-        </c:if>
-    </c:when>
-    <c:otherwise>
-        <h2><fmt:message key="${status.descriptionKey}"/></h2>
-        <c:if test="${status.name() == 'tablesMissing'}">
-            <p>
-                <fmt:message key="installer.noDatabaseTablesExplanation">
-                    <fmt:param value="${databaseProductName}"/>
-                </fmt:message>
-            </p>
-        </c:if>
-    </c:otherwise>
-</c:choose>
+    <c:if test="${rootCauseStackTrace != null && rootCauseStackTrace != ''}">
+        <h3><fmt:message key="installer.whyDidThatHappen"/></h3>
+        <p><fmt:message key="installer.heresTheStackTrace"/></p>
+        <pre>
+            [<c:out value="${rootCauseStackTrace}"/>]
+        </pre>
+    </c:if>
+</c:if>
 
 <br/>
 <br/>
