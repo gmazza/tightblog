@@ -20,32 +20,34 @@
  */
 package org.tightblog.domain;
 
-import org.tightblog.util.Utilities;
-
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import java.util.Objects;
 
 /**
  * WeblogRole that a user has for a specific weblog
  */
-@Entity(name = "UserWeblogRole")
+@Entity
 @Table(name = "user_weblog_role")
-public class UserWeblogRole {
+public class UserWeblogRole extends AbstractEntity {
 
-    private String id = Utilities.generateUUID();
-    private int hashCode;
+    @ManyToOne
     private User user;
+
+    @ManyToOne
     private Weblog weblog;
-    private boolean emailComments;
+
+    @Column(name = "weblog_role")
+    @Enumerated(EnumType.STRING)
     private WeblogRole weblogRole;
+
+    @Column(name = "email_comments")
+    private boolean emailComments;
 
     public UserWeblogRole() {
     }
@@ -56,21 +58,6 @@ public class UserWeblogRole {
         this.weblog = weblog;
     }
 
-    public boolean hasEffectiveWeblogRole(WeblogRole roleToCheck) {
-        return weblogRole.getWeight() >= roleToCheck.getWeight();
-    }
-
-    @Id
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "userid", nullable = false)
     public User getUser() {
         return user;
     }
@@ -79,8 +66,6 @@ public class UserWeblogRole {
         this.user = user;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
     public Weblog getWeblog() {
         return weblog;
     }
@@ -89,8 +74,6 @@ public class UserWeblogRole {
         this.weblog = weblog;
     }
 
-    @Column(name = "weblog_role", nullable = false)
-    @Enumerated(EnumType.STRING)
     public WeblogRole getWeblogRole() {
         return weblogRole;
     }
@@ -99,8 +82,6 @@ public class UserWeblogRole {
         this.weblogRole = weblogRole;
     }
 
-    @Basic(optional = false)
-    @Column(name = "email_comments")
     public boolean isEmailComments() {
         return emailComments;
     }
@@ -109,6 +90,11 @@ public class UserWeblogRole {
         this.emailComments = emailComments;
     }
 
+    public boolean hasEffectiveWeblogRole(WeblogRole roleToCheck) {
+        return weblogRole.getWeight() >= roleToCheck.getWeight();
+    }
+
+    @Override
     public String toString() {
         return "UserWeblogRole: user=" + (user != null ? user.getUserName() : "(empty)")
                 + ", weblog=" + weblog.getHandle() + ", role=" + weblogRole;
@@ -121,9 +107,6 @@ public class UserWeblogRole {
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 }

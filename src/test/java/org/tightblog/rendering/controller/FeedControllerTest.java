@@ -104,7 +104,7 @@ public class FeedControllerTest {
     @Test
     public void testReceive304NotModifiedContent() {
         Instant now = Instant.now();
-        weblog.setLastModified(now.minus(2, ChronoUnit.DAYS));
+        weblog.setDateUpdated(now.minus(2, ChronoUnit.DAYS));
 
         // date header more recent than last change, so should return 304
         when(mockRequest.getDateHeader(any())).thenReturn(now.toEpochMilli());
@@ -121,7 +121,7 @@ public class FeedControllerTest {
     @Test
     public void testCachedFeedReturned() throws IOException {
         Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
-        weblog.setLastModified(twoDaysAgo);
+        weblog.setDateUpdated(twoDaysAgo);
 
         CachedContent cachedContent = new CachedContent(Template.Role.ATOMFEED);
         cachedContent.setContent("mytest1".getBytes(StandardCharsets.UTF_8));
@@ -147,7 +147,7 @@ public class FeedControllerTest {
     @Test
     public void testRenderedFeedReturned() throws IOException {
         Instant threeDaysAgo = Instant.now().minus(3, ChronoUnit.DAYS);
-        weblog.setLastModified(threeDaysAgo);
+        weblog.setDateUpdated(threeDaysAgo);
 
         ServletOutputStream mockSOS = mock(ServletOutputStream.class);
         when(mockResponse.getOutputStream()).thenReturn(mockSOS);

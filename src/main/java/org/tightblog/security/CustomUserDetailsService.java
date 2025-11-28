@@ -78,7 +78,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (creds == null) {
             throw new UsernameNotFoundException("ERROR no user: " + userName);
         }
-        targetPassword = creds.getPassword();
+        targetPassword = creds.getPasswordHash();
 
         // If MFA required & user hasn't a secret for their authenticator app, limit role
         // to MISSING_MFA_SECRET (intended to limit user to QR code scan page.)

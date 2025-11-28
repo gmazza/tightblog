@@ -31,7 +31,7 @@ public interface UserCredentialsDao extends JpaRepository<UserCredentials, Strin
 
     @Transactional("transactionManager")
     @Modifying
-    @Query("UPDATE UserCredentials u SET u.password = ?2 WHERE u.id = ?1")
+    @Query("UPDATE UserCredentials u SET u.passwordHash = ?2 WHERE u.id = ?1")
     void updatePassword(String userId, String newPassword);
 
     @Transactional("transactionManager")

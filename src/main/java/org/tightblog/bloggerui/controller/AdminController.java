@@ -125,6 +125,6 @@ public class AdminController {
         Weblog mainBlog = Optional.ofNullable(properties.getMainBlogId()).map(weblogDao::findByIdOrNull).orElse(null);
         properties.setMainBlog(mainBlog);
         webloggerPropertiesDao.saveAndFlush(properties);
-        commentValidator.refreshGlobalBlacklist();
+        commentValidator.refreshGlobalSpamlist();
     }
 }

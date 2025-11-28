@@ -92,7 +92,7 @@ public class WeblogManagerIT extends WebloggerTest {
         testWeblogA.setTagline("Test Weblog");
         testWeblogA.setHandle("testweblog");
         testWeblogA.setEditFormat(Weblog.EditFormat.HTML);
-        testWeblogA.setBlacklist("");
+        testWeblogA.setCommentSpamFilter("");
         testWeblogA.setTheme("basic");
         testWeblogA.setLocale("en_US");
         testWeblogA.setTimeZone("America/Los_Angeles");

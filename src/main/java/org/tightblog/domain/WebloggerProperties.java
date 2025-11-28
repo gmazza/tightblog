@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -14,48 +13,57 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "weblogger_properties")
-public class WebloggerProperties {
-
-    private String id;
-    private int databaseVersion;
-    private Weblog mainBlog;
-    private RegistrationPolicy registrationPolicy;
-    private boolean usersCreateBlogs;
-    private HTMLSanitizer.Level blogHtmlPolicy;
-    private boolean usersCustomizeThemes;
-    private String defaultAnalyticsCode;
-    private boolean usersOverrideAnalyticsCode;
-    private CommentPolicy commentPolicy;
-    private SpamPolicy spamPolicy;
-    private HTMLSanitizer.Level commentHtmlPolicy;
-    private boolean usersCommentNotifications;
-    private String globalSpamFilter;
-    private int maxFileUploadsSizeMb;
-
-    // temporary non-persisted fields used for form entry & retrieving associated data
-    private String mainBlogId;
-
-    @Id
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    // see application.properties file, tightblog.database.expected.version value for explanation
-    @Column(name = "database_version")
-    public int getDatabaseVersion() {
-        return databaseVersion;
-    }
-
-    public void setDatabaseVersion(int databaseVersion) {
-        this.databaseVersion = databaseVersion;
-    }
+public class WebloggerProperties extends AbstractEntity {
 
     @ManyToOne
-    @JoinColumn(name = "main_blog_id", nullable = true)
+    @JoinColumn(name = "main_blog_id")
+    private Weblog mainBlog;
+
+    @Column(name = "registration_policy")
+    @Enumerated(EnumType.STRING)
+    private RegistrationPolicy registrationPolicy = RegistrationPolicy.DISABLED;
+
+    @Column(name = "users_create_blogs")
+    private boolean usersCreateBlogs = true;
+
+    @Column(name = "blog_html_policy")
+    @Enumerated(EnumType.STRING)
+    private HTMLSanitizer.Level blogHtmlPolicy = HTMLSanitizer.Level.RELAXED;
+
+    @Column(name = "users_customize_themes")
+    private boolean usersCustomizeThemes = true;
+
+    @Column(name = "default_analytics_code")
+    private String defaultAnalyticsCode;
+
+    @Column(name = "users_override_analytics_code")
+    private boolean usersOverrideAnalyticsCode = true;
+
+    @Column(name = "comment_policy")
+    @Enumerated(EnumType.STRING)
+    private CommentPolicy commentPolicy = CommentPolicy.MODERATE_NONPUB;
+
+    @Column(name = "comment_html_policy")
+    @Enumerated(EnumType.STRING)
+    private HTMLSanitizer.Level commentHtmlPolicy = HTMLSanitizer.Level.BASIC;
+
+    @Column(name = "spam_policy")
+    @Enumerated(EnumType.STRING)
+    private SpamPolicy spamPolicy = SpamPolicy.MARK_SPAM;
+
+    @Column(name = "users_comment_notifications")
+    private boolean usersCommentNotifications = true;
+
+    @Column(name = "global_spam_filter")
+    private String globalSpamFilter;
+
+    @Column(name = "max_file_uploads_size_mb")
+    private int maxFileUploadsSizeMb = 20;
+
+    // temporary non-persisted fields used for form entry & retrieving associated data
+    @Transient
+    private String mainBlogId;
+
     public Weblog getMainBlog() {
         return mainBlog;
     }
@@ -64,8 +72,6 @@ public class WebloggerProperties {
         this.mainBlog = mainBlog;
     }
 
-    @Column(name = "registration_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public RegistrationPolicy getRegistrationPolicy() {
         return registrationPolicy;
     }
@@ -74,7 +80,6 @@ public class WebloggerProperties {
         this.registrationPolicy = registrationPolicy;
     }
 
-    @Column(name = "users_create_blogs")
     public boolean isUsersCreateBlogs() {
         return usersCreateBlogs;
     }
@@ -83,8 +88,6 @@ public class WebloggerProperties {
         this.usersCreateBlogs = usersCreateBlogs;
     }
 
-    @Column(name = "blog_html_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public HTMLSanitizer.Level getBlogHtmlPolicy() {
         return blogHtmlPolicy;
     }
@@ -93,7 +96,6 @@ public class WebloggerProperties {
         this.blogHtmlPolicy = blogHtmlPolicy;
     }
 
-    @Column(name = "users_customize_themes")
     public boolean isUsersCustomizeThemes() {
         return usersCustomizeThemes;
     }
@@ -102,7 +104,6 @@ public class WebloggerProperties {
         this.usersCustomizeThemes = usersCustomizeThemes;
     }
 
-    @Column(name = "default_analytics_code")
     public String getDefaultAnalyticsCode() {
         return defaultAnalyticsCode;
     }
@@ -111,7 +112,6 @@ public class WebloggerProperties {
         this.defaultAnalyticsCode = defaultAnalyticsCode;
     }
 
-    @Column(name = "users_override_analytics_code")
     public boolean isUsersOverrideAnalyticsCode() {
         return usersOverrideAnalyticsCode;
     }
@@ -120,8 +120,6 @@ public class WebloggerProperties {
         this.usersOverrideAnalyticsCode = usersOverrideAnalyticsCode;
     }
 
-    @Column(name = "comment_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public CommentPolicy getCommentPolicy() {
         return commentPolicy;
     }
@@ -130,8 +128,6 @@ public class WebloggerProperties {
         this.commentPolicy = commentPolicy;
     }
 
-    @Column(name = "comment_html_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public HTMLSanitizer.Level getCommentHtmlPolicy() {
         return commentHtmlPolicy;
     }
@@ -140,8 +136,6 @@ public class WebloggerProperties {
         this.commentHtmlPolicy = commentHtmlPolicy;
     }
 
-    @Column(name = "spam_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public SpamPolicy getSpamPolicy() {
         return spamPolicy;
     }
@@ -150,7 +144,6 @@ public class WebloggerProperties {
         this.spamPolicy = spamPolicy;
     }
 
-    @Column(name = "users_comment_notifications")
     public boolean isUsersCommentNotifications() {
         return usersCommentNotifications;
     }
@@ -159,7 +152,6 @@ public class WebloggerProperties {
         this.usersCommentNotifications = usersCommentNotifications;
     }
 
-    @Column(name = "comment_spam_filter")
     public String getGlobalSpamFilter() {
         return globalSpamFilter;
     }
@@ -168,7 +160,6 @@ public class WebloggerProperties {
         this.globalSpamFilter = globalSpamFilter;
     }
 
-    @Column(name = "max_file_uploads_size_mb")
     public int getMaxFileUploadsSizeMb() {
         return maxFileUploadsSizeMb;
     }
@@ -177,17 +168,14 @@ public class WebloggerProperties {
         this.maxFileUploadsSizeMb = maxFileUploadsSizeMb;
     }
 
-    @Transient
     public String getMainBlogId() {
         return mainBlogId;
     }
 
-    @Transient
     public int getCommentPolicyLevel() {
        return commentPolicy.getLevel();
     }
 
-    @Transient
     public int getSpamPolicyLevel() {
         return spamPolicy.getLevel();
     }

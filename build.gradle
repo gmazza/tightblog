@@ -198,31 +198,34 @@ tasks.register('npmBuildBloggerUI', NpmTask) {
 	}
 }
 
-tasks.register('copyUi', Copy) {
+//tasks.named('resolveMainClassName') {
+//	dependsOn tasks.copyUiToStatic
+//}
+
+// for embedded Tomcat in Spring Boot
+tasks.register('copyUiToStatic', Copy) {
 	dependsOn npmBuildBloggerUI
 	from uiDistDir
-	into "$buildDir/frontend/tb-ui" // temp location
+	into "$buildDir/resources/main/static/tb-ui" // Spring Boot static location
 }
 
 // for external Tomcat deployment
 // serves content from root of WAR
 war {
 	enabled = true
-	dependsOn copyUi
-	from("$buildDir/frontend") {
-		into "" // root of WAR for external Tomcat
-	}
+	dependsOn npmBuildBloggerUI
+	from uiDistDir into "" // root of WAR for external Tomcat
 }
 
 // for embedded Tomcat in Docker
 // serves content from /static in classpath
 bootWar {
 	enabled = true
-	dependsOn copyUi
+	dependsOn copyUiToStatic
 }
 
 test {
     useJUnitPlatform()
 }
 
-tasks.processResources.dependsOn(tasks.copyUi)
+tasks.processResources.dependsOn(tasks.copyUiToStatic)

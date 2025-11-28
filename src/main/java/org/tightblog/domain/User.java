@@ -24,14 +24,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.tightblog.util.Utilities;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
@@ -40,9 +37,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "weblogger_user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User {
-    @Id
-    private String id = Utilities.generateUUID();
+public class User extends AbstractEntity {
 
     @Transient
     private int hashCode;
@@ -51,35 +46,31 @@ public class User {
     @Pattern(regexp = "[a-z0-9]*", message = "{error.add.user.badUserName}")
     private String userName;
 
-    @Column(name = "global_role", nullable = false)
-    private GlobalRole globalRole;
-
+    @Column(name = "screen_name")
     @NotBlank(message = "{Register.error.screenNameNull}")
     private String screenName;
+
+    @Column(name = "global_role")
+    @Enumerated(EnumType.STRING)
+    private GlobalRole globalRole;
+
+    @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.DISABLED;
 
+    @Column(name = "email_address")
     @NotBlank(message = "{Register.error.emailAddressNull}")
     @Email(message = "{error.add.user.badEmail}")
     private String emailAddress;
 
-    @Column
-    private Instant dateCreated;
+    @Column(name = "activation_code")
     private String activationCode;
+
+    @Column(name = "last_login")
     private Instant lastLogin;
 
     public User() {
     }
 
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Basic(optional = false)
     public String getUserName() {
         return this.userName;
     }
@@ -88,8 +79,6 @@ public class User {
         this.userName = userName;
     }
 
-    @Column(name = "global_role", nullable = false)
-    @Enumerated(EnumType.STRING)
     public GlobalRole getGlobalRole() {
         return this.globalRole;
     }
@@ -98,8 +87,6 @@ public class User {
         this.globalRole = globalRole;
     }
 
-    @Basic(optional = false)
-    @Enumerated(EnumType.STRING)
     public UserStatus getStatus() {
         return status;
     }
@@ -112,7 +99,6 @@ public class User {
         return globalRole.getWeight() >= roleToCheck.getWeight();
     }
 
-    @Basic(optional = false)
     public String getScreenName() {
         return this.screenName;
     }
@@ -121,22 +107,12 @@ public class User {
         this.screenName = screenName;
     }
 
-    @Basic(optional = false)
     public String getEmailAddress() {
         return this.emailAddress;
     }
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
-    }
-
-    @Basic(optional = false)
-    public Instant getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(Instant dateTime) {
-        this.dateCreated = dateTime;
     }
 
     public Instant getLastLogin() {

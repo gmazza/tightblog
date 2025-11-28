@@ -110,13 +110,13 @@ export interface Weblog {
   defaultCommentDays: number
   spamPolicy: SpamPolicyLabel
   editFormat: EditFormat
-  allowComments: CommentPolicyLabel
+  commentPolicy: CommentPolicyLabel
   applyCommentDefaults: boolean
   weblogCategoryNames: Array<string>
   hitsToday: number
   unapprovedComments: number
   analyticsCode: string
-  blacklist: string
+  commentSpamFilter: string
 }
 
 export interface UserWeblogRole {

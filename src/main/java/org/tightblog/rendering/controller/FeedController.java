@@ -117,7 +117,7 @@ public class FeedController extends AbstractController {
         weblogFeedCache.incrementIncomingRequests();
 
         // determine the lastModified date for this content
-        Instant objectLastChanged = weblog.getLastModified();
+        Instant objectLastChanged = weblog.getDateUpdated();
 
         // DB stores last modified in millis, browser if-modified-since in seconds, so need to truncate millis from the former.
         long inDb = objectLastChanged.truncatedTo(ChronoUnit.SECONDS).toEpochMilli();

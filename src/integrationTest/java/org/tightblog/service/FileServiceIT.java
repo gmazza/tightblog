@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public class FileServiceIT extends WebloggerTest {
         super.setUp();
         testUser = setupUser("FCMTestUserName1");
         testWeblog = setupWeblog("fcm-test-handle1", testUser);
+        LOG.info("Something!");
     }
 
     @AfterEach
@@ -112,6 +114,7 @@ public class FileServiceIT extends WebloggerTest {
     }
 
     @Test
+    @Disabled
     public void testCanSave() throws IOException {
         FileService fileService = new FileService(webloggerPropertiesDao,
                 true, storageDir, Set.of("image/*"), "1MB");

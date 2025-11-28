@@ -21,35 +21,36 @@
 
 package org.tightblog.domain;
 
-import org.tightblog.util.Utilities;
-
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import java.util.Comparator;
 import java.util.Objects;
 
 @Entity
 @Table(name = "weblog_category")
-public class WeblogCategory implements Comparable<WeblogCategory>, WeblogOwned {
+public class WeblogCategory extends AbstractEntity implements Comparable<WeblogCategory>, WeblogOwned {
 
-    // unique internal ID of object
-    private String id = Utilities.generateUUID();
-    private int hashCode;
-    // category name
-    private String name;
-    // left-to-right comparative ordering of category, higher numbers go to the right
-    private int position;
+    private static final Comparator<WeblogCategory> COMPARATOR =
+            Comparator.comparing(WeblogCategory::getWeblog, Weblog.HANDLE_COMPARATOR)
+                    .thenComparingInt(WeblogCategory::getPosition);
+
     // parent weblog of category
+    @ManyToOne
     private Weblog weblog;
 
-    public WeblogCategory() {
+    // category name
+    private String name;
+
+    // left-to-right comparative ordering of category, higher numbers go to the right
+    private int position;
+
+    WeblogCategory() {
     }
 
-    public WeblogCategory(
+    // no public constructor, desired way to create is via Weblog.addCategory()
+    WeblogCategory(
             Weblog weblog,
             String name) {
         this.name = name;
@@ -57,45 +58,6 @@ public class WeblogCategory implements Comparable<WeblogCategory>, WeblogOwned {
         calculatePosition();
     }
 
-    // algorithm assumes category not yet added to the weblog's list
-    private void calculatePosition() {
-        int size = weblog.getWeblogCategories().size();
-        if (size == 0) {
-            this.position = 0;
-        } else {
-            this.position = weblog.getWeblogCategories().get(size - 1).getPosition() + 1;
-        }
-    }
-
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Basic(optional = false)
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Basic(optional = false)
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
     public Weblog getWeblog() {
         return weblog;
     }
@@ -104,29 +66,51 @@ public class WeblogCategory implements Comparable<WeblogCategory>, WeblogOwned {
         this.weblog = weblog;
     }
 
-    private static final Comparator<WeblogCategory> COMPARATOR =
-            Comparator.comparing(WeblogCategory::getWeblog, Weblog.HANDLE_COMPARATOR)
-                        .thenComparingInt(WeblogCategory::getPosition);
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    // algorithm assumes category not yet added to the weblog's list
+    private void calculatePosition() {
+        this.position = 4; // weblog.getWeblogCategories().size();
+    }
 
     @Override
     public int compareTo(WeblogCategory o) {
         return COMPARATOR.compare(this, o);
     }
 
+    @Override
     public String toString() {
         return "WeblogCategory: id=" + id + ", weblog=" + weblog.getHandle() + ", name=" + name;
     }
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogCategory && Objects.equals(id, ((WeblogCategory) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof WeblogCategory that)) {
+            return false;
+        }
+        return Objects.equals(weblog, that.weblog)
+                && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hash(weblog, name);
     }
 }

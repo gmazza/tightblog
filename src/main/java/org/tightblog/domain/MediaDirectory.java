@@ -60,6 +60,7 @@ public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", message = "{mediaFile.error.view.dirNameInvalid}")
     String name;
     @JsonIgnore
+    @ManyToOne
     Weblog weblog;
     Set<MediaFile> mediaFiles = new HashSet<>();
 

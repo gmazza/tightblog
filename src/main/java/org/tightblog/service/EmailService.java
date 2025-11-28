@@ -301,7 +301,7 @@ public class EmailService {
                 userDao.findEnabledByUserName(comment.getEmail()) != null;
 
         // MODERATE_NONAUTH = some non-blog publishers may have sent non-moderated comments, so send email
-        if (commenterIsNonPublisherUser && CommentPolicy.MODERATE_NONAUTH.equals(weblog.getAllowComments())) {
+        if (commenterIsNonPublisherUser && CommentPolicy.MODERATE_NONAUTH.equals(weblog.getCommentPolicy())) {
             List<UserWeblogRole> bloggerList = userWeblogRoleDao.findByWeblogAndEmailCommentsTrue(weblog);
 
             Context ctx = getPublishedCommentNotificationContext(comment, null);

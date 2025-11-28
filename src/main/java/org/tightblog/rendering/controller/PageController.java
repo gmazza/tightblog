@@ -253,7 +253,7 @@ public class PageController extends AbstractController {
             }
         }
 
-        Instant objectLastChanged = incomingRequest.getWeblog().getLastModified();
+        Instant objectLastChanged = incomingRequest.getWeblog().getDateUpdated();
 
         // Respond with 304 Not Modified if it is not modified.
         // DB stores last modified in millis, browser if-modified-since in seconds, so need to truncate millis from the former.

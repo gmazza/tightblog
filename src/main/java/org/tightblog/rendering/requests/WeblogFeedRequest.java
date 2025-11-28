@@ -74,7 +74,7 @@ public final class WeblogFeedRequest extends WeblogRequest {
      * Supplies the "updated" element of the Atom feed, using the last updated date of the blog
      */
     public String getLastUpdated() {
-        return formatIsoOffsetDateTime(weblog.getLastModified());
+        return formatIsoOffsetDateTime(weblog.getDateUpdated());
     }
 
     public String formatIsoOffsetDateTime(Temporal dt) {
