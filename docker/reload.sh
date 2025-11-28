@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$CATALINA_HOME/bin/shutdown.sh
+# $CATALINA_HOME/bin/shutdown.sh
 
 # Stop and remove the container
 docker rm -f tightblog-tightblog-web-1 tightblog-tightblog-db-1
