@@ -84,7 +84,7 @@ public class WeblogCategory extends AbstractEntity implements Comparable<WeblogC
 
     // algorithm assumes category not yet added to the weblog's list
     private void calculatePosition() {
-        this.position = 4; // weblog.getWeblogCategories().size();
+        this.position = weblog.getWeblogCategories().size();
     }
 
     @Override
