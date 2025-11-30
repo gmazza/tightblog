@@ -330,6 +330,7 @@ public class WeblogManagerIT extends WebloggerTest {
         // test lookup by id
         BlogrollLink testBookmark = blogrollLinkDao.findByName("b1");
         assertNotNull(testBookmark);
+        assertEquals("b1", testBookmark.getName());
         assertEquals("http://example1.com", testBookmark.getUrl());
 
         // test lookup of all bookmarks for a website
