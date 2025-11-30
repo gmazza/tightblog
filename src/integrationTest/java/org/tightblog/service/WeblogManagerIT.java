@@ -23,7 +23,6 @@ package org.tightblog.service;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,14 +36,13 @@ import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogBookmark;
+import org.tightblog.domain.BlogrollLink;
 import org.tightblog.domain.WeblogRole;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test Weblog related business operations.
@@ -262,53 +260,53 @@ public class WeblogManagerIT extends WebloggerTest {
     @Test
     public void testBookmarkCRUD() {
         // Add bookmark
-        WeblogBookmark bookmark1 = new WeblogBookmark(
+        BlogrollLink bookmark1 = new BlogrollLink(
                 testWeblog,
                 "TestBookmark1",
                 "http://www.example1.com", "created by testBookmarkCRUD()"
         );
-        testWeblog.addBookmark(bookmark1);
+        testWeblog.addBlogrollLink(bookmark1);
         bookmark1.calculatePosition();
 
         // Add another bookmark
-        WeblogBookmark bookmark2 = new WeblogBookmark(
+        BlogrollLink bookmark2 = new BlogrollLink(
                 testWeblog,
                 "TestBookmark2",
                 "http://www.example2.com", "created by testBookmarkCRUD()"
         );
-        testWeblog.addBookmark(bookmark2);
+        testWeblog.addBlogrollLink(bookmark2);
         bookmark2.calculatePosition();
         weblogManager.saveWeblog(testWeblog, true);
 
         testWeblog = weblogDao.findByIdOrNull(testWeblog.getId());
-        WeblogBookmark bookmarka;
-        WeblogBookmark bookmarkb;
+        BlogrollLink bookmarka;
+        BlogrollLink bookmarkb;
 
         // See that two bookmarks were stored
-        List<WeblogBookmark> bookmarks = testWeblog.getBookmarks();
+        List<BlogrollLink> bookmarks = testWeblog.getBlogrollLinks();
         assertEquals(2, bookmarks.size());
-        Iterator<WeblogBookmark> iter = bookmarks.iterator();
+        Iterator<BlogrollLink> iter = bookmarks.iterator();
         bookmarka = iter.next();
         bookmarkb = iter.next();
 
         // Remove one bookmark directly
-        testWeblog.getBookmarks().remove(bookmarka);
+        testWeblog.getBlogrollLinks().remove(bookmarka);
         weblogManager.saveWeblog(testWeblog, true);
         assertFalse(blogrollLinkDao.findById(bookmarka.getId()).isPresent());
 
         // Weblog should now contain one bookmark
         testWeblog = weblogDao.findByIdOrNull(testWeblog.getId());
         assertNotNull(testWeblog);
-        assertEquals(1, testWeblog.getBookmarks().size());
-        assertEquals(bookmarkb.getId(), testWeblog.getBookmarks().get(0).getId());
+        assertEquals(1, testWeblog.getBlogrollLinks().size());
+        assertEquals(bookmarkb.getId(), testWeblog.getBlogrollLinks().get(0).getId());
 
         // Remove other bookmark via removing from weblog
-        testWeblog.getBookmarks().remove(bookmarkb);
+        testWeblog.getBlogrollLinks().remove(bookmarkb);
         weblogManager.saveWeblog(testWeblog, true);
 
         // Last bookmark should be gone
         testWeblog = weblogDao.findByIdOrNull(testWeblog.getId());
-        assertEquals(0, testWeblog.getBookmarks().size());
+        assertEquals(0, testWeblog.getBlogrollLinks().size());
         assertFalse(blogrollLinkDao.findById(bookmarkb.getId()).isPresent());
     }
 
@@ -320,23 +318,23 @@ public class WeblogManagerIT extends WebloggerTest {
         testWeblog = weblogDao.findByIdOrNull(testWeblog.getId());
 
         // add some bookmarks
-        WeblogBookmark b1 = new WeblogBookmark(testWeblog, "b1", "http://example1.com", "testbookmark13");
-        testWeblog.addBookmark(b1);
-        WeblogBookmark b2 = new WeblogBookmark(testWeblog, "b2", "http://example2.com", "testbookmark14");
-        testWeblog.addBookmark(b2);
-        WeblogBookmark b3 = new WeblogBookmark(testWeblog, "b3", "http://example3.com", "testbookmark16");
-        testWeblog.addBookmark(b3);
+        BlogrollLink b1 = new BlogrollLink(testWeblog, "b1", "http://example1.com", "testbookmark13");
+        testWeblog.addBlogrollLink(b1);
+        BlogrollLink b2 = new BlogrollLink(testWeblog, "b2", "http://example2.com", "testbookmark14");
+        testWeblog.addBlogrollLink(b2);
+        BlogrollLink b3 = new BlogrollLink(testWeblog, "b3", "http://example3.com", "testbookmark16");
+        testWeblog.addBlogrollLink(b3);
 
         weblogManager.saveWeblog(testWeblog, true);
 
         // test lookup by id
-        Optional<WeblogBookmark> testBookmark = blogrollLinkDao.findById(b1.getId());
-        assertTrue(testBookmark.isPresent());
-        assertEquals("b1", testBookmark.get().getName());
+        BlogrollLink testBookmark = blogrollLinkDao.findByName("b1");
+        assertNotNull(testBookmark);
+        assertEquals("http://example1.com", testBookmark.getUrl());
 
         // test lookup of all bookmarks for a website
         Weblog testWeblog2 = weblogDao.findById(testWeblog.getId()).orElse(null);
-        List<WeblogBookmark> allBookmarks = testWeblog2.getBookmarks();
+        List<BlogrollLink> allBookmarks = testWeblog2.getBlogrollLinks();
         assertNotNull(allBookmarks);
         assertEquals(3, allBookmarks.size());
     }

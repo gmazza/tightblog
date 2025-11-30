@@ -17,13 +17,15 @@ package org.tightblog.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.tightblog.domain.WeblogBookmark;
+import org.tightblog.domain.BlogrollLink;
 
 @Repository
-public interface BlogrollLinkDao extends JpaRepository<WeblogBookmark, String> {
+public interface BlogrollLinkDao extends JpaRepository<BlogrollLink, String> {
 
-    default WeblogBookmark findByIdOrNull(String id) {
+    default BlogrollLink findByIdOrNull(String id) {
         return findById(id).orElse(null);
     }
+
+    BlogrollLink findByName(String name);
 
 }

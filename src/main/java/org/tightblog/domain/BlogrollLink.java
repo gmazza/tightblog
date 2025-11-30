@@ -20,26 +20,18 @@
  */
 package org.tightblog.domain;
 
-import org.tightblog.util.Utilities;
-
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * Represents a single blogroll link for a weblog.
+ * Represents a single link for a weblog's blogroll.
  */
 @Entity
 @Table(name = "blogroll_link")
-public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
-
-    private String id = Utilities.generateUUID();
-    private int hashCode;
+public class BlogrollLink extends AbstractEntity implements Comparable<BlogrollLink>, WeblogOwned {
 
     @ManyToOne
     private Weblog weblog;
@@ -49,10 +41,10 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
     private String url;
     private Integer position;
 
-    public WeblogBookmark() {
+    public BlogrollLink() {
     }
 
-    public WeblogBookmark(Weblog parent, String name, String url, String desc) {
+    public BlogrollLink(Weblog parent, String name, String url, String desc) {
         this.weblog = parent;
         this.name = name;
         this.description = desc;
@@ -60,26 +52,16 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
         calculatePosition();
     }
 
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     // algorithm assumes bookmark not yet added to the weblog's list
     public void calculatePosition() {
-        int size = weblog.getBookmarks().size();
+        int size = weblog.getBlogrollLinks().size();
         if (size == 0) {
             this.position = 0;
         } else {
-            this.position = weblog.getBookmarks().get(size - 1).getPosition() + 1;
+            this.position = weblog.getBlogrollLinks().get(size - 1).getPosition() + 1;
         }
     }
 
-    @Basic(optional = false)
     public String getName() {
         return this.name;
     }
@@ -96,7 +78,6 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
         this.description = description;
     }
 
-    @Basic(optional = false)
     public String getUrl() {
         return this.url;
     }
@@ -108,7 +89,6 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
     /**
      * Position determines order of display
      */
-    @Basic(optional = false)
     public java.lang.Integer getPosition() {
         return this.position;
     }
@@ -118,7 +98,6 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
     }
 
     @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
     public Weblog getWeblog() {
         return this.weblog;
     }
@@ -133,23 +112,20 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogBookmark && Objects.equals(id, ((WeblogBookmark) other).id));
+        return other == this || (other instanceof BlogrollLink && Objects.equals(id, ((BlogrollLink) other).id));
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 
-    private static final Comparator<WeblogBookmark> COMPARATOR =
-            Comparator.comparing(WeblogBookmark::getWeblog, Weblog.HANDLE_COMPARATOR)
-                    .thenComparingInt(WeblogBookmark::getPosition);
+    private static final Comparator<BlogrollLink> COMPARATOR =
+            Comparator.comparing(BlogrollLink::getWeblog, Weblog.HANDLE_COMPARATOR)
+                    .thenComparingInt(BlogrollLink::getPosition);
 
     @Override
-    public int compareTo(WeblogBookmark other) {
+    public int compareTo(BlogrollLink other) {
         return COMPARATOR.compare(this, other);
     }
 

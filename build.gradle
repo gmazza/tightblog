@@ -139,6 +139,9 @@ dependencies {
 	implementation('com.atlassian.commonmark:commonmark:0.17.0')
 	implementation('commons-fileupload:commons-fileupload:1.6.0')
 	implementation("io.nayuki:qrcodegen:1.8.0")
+	// Jackson Hibernate module to support lazy loading
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6:2.19.2'
+
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.junit.jupiter:junit-jupiter:5.10.2')

@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -178,7 +177,6 @@ public class ThemeManager implements ServletContextAware {
         weblogTemplate.setRole(sharedTemplate.getRole());
         weblogTemplate.setName(sharedTemplate.getName());
         weblogTemplate.setDescription(sharedTemplate.getDescription());
-        weblogTemplate.setLastModified(Instant.now());
         weblogTemplate.setTemplate(sharedTemplate.getTemplate());
         return weblogTemplate;
     }

@@ -22,6 +22,7 @@ package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import org.tightblog.domain.WebloggerProperties.CommentPolicy;
@@ -139,7 +140,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
 
     @JsonIgnore
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WeblogBookmark> bookmarks = new ArrayList<>();
+    private List<BlogrollLink> blogrollLinks = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -178,7 +179,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         this.setEntriesPerPage(other.getEntriesPerPage());
         this.setWeblogCategories(other.getWeblogCategories());
         this.setAnalyticsCode(other.getAnalyticsCode());
-        this.setBookmarks(other.getBookmarks());
+        this.setBlogrollLinks(other.getBlogrollLinks());
         this.setHitsToday(other.getHitsToday());
     }
 
@@ -344,7 +345,10 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         this.visible = visible;
     }
 
-    // Used in templates and a few JSP's
+    // Used in templates and a few JSP's, explicit JsonProperty annotation needed
+    // because this property is marked @Transient, otherwise Jackson
+    // would ignore it during serialization
+    @JsonProperty
     public String getAbsoluteURL() {
         return absoluteURL;
     }
@@ -412,12 +416,12 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         return false;
     }
 
-    public List<WeblogBookmark> getBookmarks() {
-        return bookmarks;
+    public List<BlogrollLink> getBlogrollLinks() {
+        return blogrollLinks;
     }
 
-    public void setBookmarks(List<WeblogBookmark> bookmarks) {
-        this.bookmarks = bookmarks;
+    public void setBlogrollLinks(List<BlogrollLink> bookmarks) {
+        this.blogrollLinks = bookmarks;
     }
 
     public List<MediaDirectory> getMediaDirectories() {
@@ -428,10 +432,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         this.mediaDirectories = mediaDirectories;
     }
 
-    /**
-     * Add a bookmark to this weblog.
-     */
-    public void addBookmark(WeblogBookmark item) {
+    public void addBlogrollLink(BlogrollLink item) {
         // make sure blogroll item is not null
         if (item == null || item.getName() == null) {
             throw new IllegalArgumentException("Bookmark cannot be null and must have a valid name");
@@ -442,7 +443,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         }
 
         // add it to our blogroll
-        getBookmarks().add(item);
+        getBlogrollLinks().add(item);
     }
 
     /**
@@ -452,7 +453,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
      * @return boolean true if exists, false otherwise.
      */
     public boolean hasBookmark(String bookmarkName) {
-        for (WeblogBookmark bookmark : this.getBookmarks()) {
+        for (BlogrollLink bookmark : this.getBlogrollLinks()) {
             if (bookmarkName.toLowerCase().equals(bookmark.getName().toLowerCase())) {
                 return true;
             }

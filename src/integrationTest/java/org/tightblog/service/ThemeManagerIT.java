@@ -20,7 +20,6 @@
 */
 package org.tightblog.service;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,6 @@ public class ThemeManagerIT extends WebloggerTest {
         testPage.setRole(Role.WEBLOG);
         testPage.setName("testTemplate");
         testPage.setDescription("Test Weblog Template");
-        testPage.setLastModified(Instant.now());
         testPage.setWeblog(testWeblog);
     }
     
