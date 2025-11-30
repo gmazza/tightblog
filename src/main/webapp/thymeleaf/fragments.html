@@ -83,7 +83,7 @@
     </div>
     <div th:fragment="Blogroll" th:remove="tag">
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" th:each="link : ${model.weblog.getBookmarks()}">
+            <li class="list-group-item" th:each="link : ${model.weblog.getBlogrollLinks()}">
                 <a th:href="${link.url}" th:title="${link.description}" th:utext="${link.name}">xxx</a>
             </li>
         </ul>

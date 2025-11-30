@@ -49,7 +49,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.security.Principal;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -165,7 +164,6 @@ public class TemplateController {
             }
 
             templateToSave.setTemplate(templateData.getTemplate());
-            templateToSave.setLastModified(Instant.now());
 
             // some properties relevant only for certain template roles
             if (!templateToSave.getRole().isSingleton()) {

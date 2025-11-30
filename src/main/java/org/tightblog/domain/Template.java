@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -156,12 +155,6 @@ public interface Template {
     Role getRole();
 
     Derivation getDerivation();
-
-    /**
-     * The last time the template was modified (not necessarily the time what the template generated
-     * changed, as templates usually query dynamic data.)
-     */
-    Instant getLastModified();
 
     /**
      * The template contents.

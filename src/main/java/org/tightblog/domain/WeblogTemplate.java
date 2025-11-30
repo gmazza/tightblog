@@ -22,14 +22,9 @@ package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
-import org.tightblog.util.Utilities;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -44,24 +39,27 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "weblog_template")
-public class WeblogTemplate implements Template, WeblogOwned {
+public class WeblogTemplate extends AbstractEntity implements Template, WeblogOwned {
 
-    // attributes
-    private String id = Utilities.generateUUID();
-    private int hashCode;
+    @Enumerated(EnumType.STRING)
     private Role role;
+
     @NotBlank(message = "{templates.error.nameNull}")
     private String name;
     private String description;
-    private Instant lastModified;
-    private Derivation derivation = Derivation.SPECIFICBLOG;
+
     private String template = "";
+
+    @Transient
+    private Derivation derivation = Derivation.SPECIFICBLOG;
 
     // associations
     @JsonIgnore
+    @ManyToOne
     private Weblog weblog;
 
-    // temporary non-persisted fields used for form entry
+    // used for form entry
+    @Transient
     private String roleName;
 
     public WeblogTemplate() {
@@ -69,27 +67,16 @@ public class WeblogTemplate implements Template, WeblogOwned {
 
     // used in WeblogTemplateDao where template metadata rather than template itself is needed
     public WeblogTemplate(String id, Role role, @NotBlank(message = "{templates.error.nameNull}") String name,
-                          String description, Instant lastModified) {
+                          String description, Instant dateCreated, Instant dateUpdated) {
         this.id = id;
         this.role = role;
         this.name = name;
         this.description = description;
-        this.lastModified = lastModified;
+        setDateCreated(dateCreated);
+        setDateUpdated(dateUpdated);
     }
 
     @Override
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    @Basic(optional = false)
-    @Enumerated(EnumType.STRING)
     public Role getRole() {
         return role;
     }
@@ -99,7 +86,6 @@ public class WeblogTemplate implements Template, WeblogOwned {
     }
 
     @Override
-    @Basic(optional = false)
     public String getName() {
         return this.name;
     }
@@ -117,18 +103,6 @@ public class WeblogTemplate implements Template, WeblogOwned {
         this.description = description;
     }
 
-    @Override
-    @Column(name = "updatetime", nullable = false)
-    public Instant getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(Instant newtime) {
-        lastModified = newtime;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
     public Weblog getWeblog() {
         return this.weblog;
     }
@@ -138,7 +112,6 @@ public class WeblogTemplate implements Template, WeblogOwned {
     }
 
     @Override
-    @Transient
     public Derivation getDerivation() {
         return derivation;
     }
@@ -157,7 +130,6 @@ public class WeblogTemplate implements Template, WeblogOwned {
     }
 
     @Override
-    @Basic(optional = false)
     public String getTemplate() {
         return template;
     }
@@ -179,9 +151,6 @@ public class WeblogTemplate implements Template, WeblogOwned {
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 }

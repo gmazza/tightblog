@@ -21,6 +21,7 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.util.Utilities;
 
@@ -128,6 +129,8 @@ public class WeblogEntry implements WeblogOwned {
 
     // temporary non-persisted fields used for form entry & retrieving associated data
     private WeblogEntryCommentDao weblogEntryCommentDao;
+
+    @Transient
     private String permalink;
     private String previewUrl;
     private Set<String> tags;
@@ -377,6 +380,9 @@ public class WeblogEntry implements WeblogOwned {
 
     @Transient
     public Set<String> getTags() {
+        if (getTagSet() == null) {
+            return new HashSet<>();
+        }
         return getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
     }
 
@@ -413,10 +419,8 @@ public class WeblogEntry implements WeblogOwned {
         return weblogEntryCommentDao != null ? weblogEntryCommentDao.countByWeblogEntry(this) : 0;
     }
 
-    /**
-     * Returns absolute entry permalink.
-     */
-    @Transient
+    // JsonProperty needed to include in serialized output, as Transient skips it otherwise
+    @JsonProperty
     public String getPermalink() {
         return permalink;
     }

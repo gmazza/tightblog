@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogBookmark;
+import org.tightblog.domain.BlogrollLink;
 import org.tightblog.domain.WeblogRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,9 +63,9 @@ public class BlogrollController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/bookmarks")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
-    public List<WeblogBookmark> getBookmarks(@PathVariable String id, Principal p) {
+    public List<BlogrollLink> getBookmarks(@PathVariable String id, Principal p) {
 
-        return weblogDao.findByIdOrNull(id).getBookmarks()
+        return weblogDao.findByIdOrNull(id).getBlogrollLinks()
                 .stream()
                 .peek(bkmk -> bkmk.setWeblog(null))
                 .collect(Collectors.toList());
@@ -73,21 +73,21 @@ public class BlogrollController {
 
     @PutMapping(value = "/tb-ui/authoring/rest/bookmarks")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void addBookmark(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogBookmark newData,
+    public void addBookmark(@RequestParam(name = "weblogId") String weblogId, @RequestBody BlogrollLink newData,
                             Principal p) {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
-        WeblogBookmark bookmark = new WeblogBookmark(weblog, newData.getName(),
+        BlogrollLink bookmark = new BlogrollLink(weblog, newData.getName(),
                 newData.getUrl(), newData.getDescription());
-        weblog.addBookmark(bookmark);
+        weblog.addBlogrollLink(bookmark);
         weblogManager.saveWeblog(weblog, true);
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/bookmark/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogBookmark), #id, 'OWNER')")
-    public void updateBookmark(@PathVariable String id, @RequestBody WeblogBookmark newData, Principal p) {
+    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.BlogrollLink), #id, 'OWNER')")
+    public void updateBookmark(@PathVariable String id, @RequestBody BlogrollLink newData, Principal p) {
 
-        WeblogBookmark bookmark = blogrollLinkDao.findByIdOrNull(id);
+        BlogrollLink bookmark = blogrollLinkDao.findByIdOrNull(id);
         bookmark.setName(newData.getName());
         bookmark.setUrl(newData.getUrl());
         bookmark.setDescription(newData.getDescription());
@@ -95,11 +95,11 @@ public class BlogrollController {
     }
 
     private void deleteBookmark(String id, Principal p) {
-        WeblogBookmark itemToRemove = blogrollLinkDao.findById(id).orElse(null);
+        BlogrollLink itemToRemove = blogrollLinkDao.findById(id).orElse(null);
         if (itemToRemove != null) {
             Weblog weblog = itemToRemove.getWeblog();
             if (userManager.checkWeblogRole(p.getName(), weblog, WeblogRole.OWNER)) {
-                weblog.getBookmarks().remove(itemToRemove);
+                weblog.getBlogrollLinks().remove(itemToRemove);
                 weblogManager.saveWeblog(weblog, true);
             } else {
                 log.warn("Effort to delete bookmark {} by user {} failed, insufficient access rights",

@@ -31,7 +31,7 @@ import org.tightblog.config.DynamicProperties;
 import org.tightblog.domain.CategoryStats;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogBookmark;
+import org.tightblog.domain.BlogrollLink;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryTag;
@@ -199,12 +199,12 @@ public class WeblogManager {
             for (String splitItem : newBlogBlogroll) {
                 String[] rollitems = splitItem.split("\\|");
                 if (rollitems.length > 1) {
-                    WeblogBookmark b = new WeblogBookmark(
+                    BlogrollLink b = new BlogrollLink(
                             newWeblog,
                             rollitems[0],
                             rollitems[1].trim(), ""
                     );
-                    newWeblog.addBookmark(b);
+                    newWeblog.addBlogrollLink(b);
                 }
             }
         }

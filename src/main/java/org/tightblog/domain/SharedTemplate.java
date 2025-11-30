@@ -20,8 +20,6 @@
  */
 package org.tightblog.domain;
 
-import java.time.Instant;
-
 /**
  * A SharedTemplate represents a template which is part of a SharedTheme.
  */
@@ -78,11 +76,6 @@ public class SharedTemplate implements Template {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    @Override
-    public Instant getLastModified() {
-        return null;
     }
 
     public String toString() {

@@ -42,7 +42,7 @@ public interface WeblogTemplateDao extends JpaRepository<WeblogTemplate, String>
     // Select all but the template source (latter obtainable individually by methods above)
     // https://stackoverflow.com/a/47471486/1207540
     @Query("SELECT new org.tightblog.domain.WeblogTemplate(w.id, w.role, w.name, w.description, " +
-            "w.lastModified) FROM WeblogTemplate w WHERE w.weblog = ?1")
+            "w.dateCreated, w.dateUpdated) FROM WeblogTemplate w WHERE w.weblog = ?1")
     List<WeblogTemplate> getWeblogTemplateMetadata(Weblog weblog);
 
     @Transactional("transactionManager")
