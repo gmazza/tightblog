@@ -113,7 +113,7 @@ public class UIControllerTest {
         UserDao mockUD = mock(UserDao.class);
         mockWD = mock(WeblogDao.class);
         weblog = new Weblog();
-        weblog.setLastModified(Instant.now().minus(2, ChronoUnit.DAYS));
+        weblog.setDateUpdated(Instant.now().minus(2, ChronoUnit.DAYS));
         weblog.setHandle(TEST_BLOG_HANDLE);
         when(mockWD.findByHandleAndVisibleTrue(TEST_BLOG_HANDLE)).thenReturn(weblog);
 
@@ -176,7 +176,7 @@ public class UIControllerTest {
     @Test
     public void testCachedPageReturned() {
         Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
-        weblog.setLastModified(twoDaysAgo);
+        weblog.setDateUpdated(twoDaysAgo);
 
         CachedContent cachedContent = new CachedContent(Role.WEBLOG);
         cachedContent.setContent(TEST_GENERATED_PAGE.getBytes(StandardCharsets.UTF_8));

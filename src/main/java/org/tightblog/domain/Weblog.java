@@ -22,6 +22,8 @@ package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Table;
 import org.tightblog.domain.WebloggerProperties.CommentPolicy;
 import org.tightblog.domain.WebloggerProperties.SpamPolicy;
 import org.tightblog.rendering.service.CommentSpamChecker;
@@ -29,27 +31,24 @@ import org.tightblog.util.Utilities;
 
 import jakarta.validation.constraints.NotBlank;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Pattern;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -61,73 +60,89 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "weblog")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Weblog implements WeblogOwned {
+public class Weblog extends AbstractEntity implements WeblogOwned {
 
-    private String id = Utilities.generateUUID();
+    @NotBlank(message = "{weblogConfig.error.nameNull}")
+    private String name;
 
     @NotBlank(message = "{weblogConfig.error.handleNull}")
     @Pattern(regexp = "[a-z0-9\\-]*", message = "{weblogConfig.error.invalidHandle}")
     private String handle;
 
-    @NotBlank(message = "{weblogConfig.error.nameNull}")
-    private String name;
-
     private String tagline;
-    private EditFormat editFormat = EditFormat.HTML;
-    private String blacklist;
-    private CommentPolicy allowComments = CommentPolicy.MODERATE_NONPUB;
-    private int defaultCommentDays = -1;
-    private boolean applyCommentDefaults;
-    private SpamPolicy spamPolicy = SpamPolicy.NO_EMAIL;
-
-    @NotBlank(message = "{weblogConfig.error.themeNull}")
-    private String theme;
+    private String about;
     private String locale;
     private String timeZone;
     private Boolean visible = Boolean.TRUE;
-    private Instant dateCreated = Instant.now();
+
+    @NotBlank(message = "{weblogConfig.error.themeNull}")
+    private String theme;
+
+    @Column(name = "entries_per_page")
     private int entriesPerPage = 12;
-    private Instant lastModified = Instant.now();
-    private String about;
+
+    @Column(name = "edit_format")
+    @Enumerated(EnumType.STRING)
+    private EditFormat editFormat = EditFormat.HTML;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User creator;
 
+    @Column(name = "comment_policy")
+    @Enumerated(EnumType.STRING)
+    private CommentPolicy commentPolicy = CommentPolicy.MODERATE_NONPUB;
+
+    @Column(name = "spam_policy")
+    @Enumerated(EnumType.STRING)
+    private SpamPolicy spamPolicy = SpamPolicy.NO_EMAIL;
+
+    @Column(name = "default_comment_days")
+    private int defaultCommentDays = -1;
+
+    @Column(name = "analytics_code")
     private String analyticsCode;
+
+    @Column(name = "comment_spam_filter")
+    private String commentSpamFilter;
+
+    @Column(name = "hits_today")
     private int hitsToday;
 
-    // Transient, derived from and re-calculated each time blacklist property is set
-    private List<java.util.regex.Pattern> blacklistRegexRules = new ArrayList<>();
+    @Transient
+    private boolean applyCommentDefaults;
+
+    @Transient
+    // Transient, derived from and re-calculated each time commentSpamFilter is set
+    @JsonIgnore
+    private List<java.util.regex.Pattern> commentSpamRegexRules = new ArrayList<>();
 
     // temporary non-persisted fields used for form entry & retrieving associated data
+    @Transient
     private int unapprovedComments;
 
+    @Transient
+    @JsonIgnore
     private Locale localeInstance;
 
+    @Transient
     private String absoluteURL;
 
     @Transient
     private int hashCode;
 
-    public enum EditFormat {
-        HTML("weblogConfig.editFormatType.html"),
-        COMMONMARK("weblogConfig.editFormatType.commonMark");
-
-        private String descriptionKey;
-
-        EditFormat(String descriptionKey) {
-            this.descriptionKey = descriptionKey;
-        }
-
-        public String getDescriptionKey() {
-            return descriptionKey;
-        }
-    }
-
     // Associated objects
     @JsonIgnore
-    private List<WeblogCategory> weblogCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position")
+    private Set<WeblogCategory> weblogCategories = new LinkedHashSet<>();
+
     @JsonIgnore
+    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WeblogBookmark> bookmarks = new ArrayList<>();
+
     @JsonIgnore
+    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MediaDirectory> mediaDirectories = new ArrayList<>();
 
     public Weblog() {
@@ -152,8 +167,8 @@ public class Weblog implements WeblogOwned {
         this.setTagline(other.getTagline());
         this.setCreator(other.getCreator());
         this.setEditFormat(other.getEditFormat());
-        this.setBlacklist(other.getBlacklist());
-        this.setAllowComments(other.getAllowComments());
+        this.setCommentSpamFilter(other.getCommentSpamFilter());
+        this.setCommentPolicy(other.getCommentPolicy());
         this.setSpamPolicy(other.getSpamPolicy());
         this.setTheme(other.getTheme());
         this.setLocale(other.getLocale());
@@ -161,25 +176,15 @@ public class Weblog implements WeblogOwned {
         this.setVisible(other.getVisible());
         this.setDateCreated(other.getDateCreated());
         this.setEntriesPerPage(other.getEntriesPerPage());
-        this.setLastModified(other.getLastModified());
         this.setWeblogCategories(other.getWeblogCategories());
         this.setAnalyticsCode(other.getAnalyticsCode());
         this.setBookmarks(other.getBookmarks());
-    }
-
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.setHitsToday(other.getHitsToday());
     }
 
     /**
      * Short URL safe string that uniquely identifies the weblog.
      */
-    @Basic(optional = false)
     public String getHandle() {
         return this.handle;
     }
@@ -191,7 +196,6 @@ public class Weblog implements WeblogOwned {
     /**
      * Weblog name (title)
      */
-    @Basic(optional = false)
     public String getName() {
         return this.name;
     }
@@ -200,7 +204,6 @@ public class Weblog implements WeblogOwned {
         this.name = name;
     }
 
-    @Basic(optional = false)
     public int getHitsToday() {
         return hitsToday;
     }
@@ -220,9 +223,6 @@ public class Weblog implements WeblogOwned {
         this.tagline = tagline;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "creatorid", nullable = false)
-    @JsonIgnore
     public User getCreator() {
         return creator;
     }
@@ -231,8 +231,6 @@ public class Weblog implements WeblogOwned {
         this.creator = creator;
     }
 
-    @Basic(optional = false)
-    @Enumerated(EnumType.STRING)
     public EditFormat getEditFormat() {
         return this.editFormat;
     }
@@ -241,33 +239,27 @@ public class Weblog implements WeblogOwned {
         this.editFormat = editFormat;
     }
 
-    public String getBlacklist() {
-        return this.blacklist;
+    public String getCommentSpamFilter() {
+        return this.commentSpamFilter;
     }
 
-    public void setBlacklist(String blacklist) {
-        this.blacklist = blacklist;
-        blacklistRegexRules = CommentSpamChecker.compileBlacklist(blacklist);
+    public void setCommentSpamFilter(String filter) {
+        this.commentSpamFilter = filter;
+        commentSpamRegexRules = CommentSpamChecker.compileSpamlist(filter);
     }
 
-    @Transient
-    @JsonIgnore
-    public List<java.util.regex.Pattern> getBlacklistRegexRules() {
-        return blacklistRegexRules;
+    public List<java.util.regex.Pattern> getCommentSpamRegexRules() {
+        return commentSpamRegexRules;
     }
 
-    @Column(name = "comment_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
-    public CommentPolicy getAllowComments() {
-        return this.allowComments;
+    public CommentPolicy getCommentPolicy() {
+        return this.commentPolicy;
     }
 
-    public void setAllowComments(CommentPolicy allowComments) {
-        this.allowComments = allowComments;
+    public void setCommentPolicy(CommentPolicy commentPolicy) {
+        this.commentPolicy = commentPolicy;
     }
 
-    @Column(name = "spam_policy", nullable = false)
-    @Enumerated(EnumType.STRING)
     public SpamPolicy getSpamPolicy() {
         return this.spamPolicy;
     }
@@ -276,7 +268,6 @@ public class Weblog implements WeblogOwned {
         this.spamPolicy = spamPolicy;
     }
 
-    @Column(name = "commentdays", nullable = false)
     public int getDefaultCommentDays() {
         return defaultCommentDays;
     }
@@ -309,22 +300,11 @@ public class Weblog implements WeblogOwned {
         this.timeZone = timeZone;
     }
 
-    @Basic(optional = false)
-    public Instant getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(Instant date) {
-        dateCreated = date;
-    }
-
     /**
      * Parse locale value and instantiate a Locale object.
      *
      * @return Locale
      */
-    @Transient
-    @JsonIgnore
     public Locale getLocaleInstance() {
         if (localeInstance == null) {
             localeInstance = Locale.forLanguageTag(getLocale());
@@ -337,7 +317,6 @@ public class Weblog implements WeblogOwned {
      *
      * @return TimeZone
      */
-    @Transient
     @JsonIgnore
     public ZoneId getZoneId() {
         if (getTimeZone() == null) {
@@ -346,7 +325,6 @@ public class Weblog implements WeblogOwned {
         return TimeZone.getTimeZone(getTimeZone()).toZoneId();
     }
 
-    @Basic(optional = false)
     public int getEntriesPerPage() {
         return entriesPerPage;
     }
@@ -358,7 +336,6 @@ public class Weblog implements WeblogOwned {
     /**
      * If false, weblog will be hidden from public view.
      */
-    @Basic(optional = false)
     public Boolean getVisible() {
         return this.visible;
     }
@@ -367,30 +344,7 @@ public class Weblog implements WeblogOwned {
         this.visible = visible;
     }
 
-    /**
-     * The last time any visible part of this weblog was modified.
-     * This includes a change to weblog settings, entries, themes, templates,
-     * comments, categories, bookmarks, etc.  This can be used by cache managers
-     * to determine if blog content should be invalidated and reloaded.
-     */
-    public Instant getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(Instant lastModified) {
-        this.lastModified = lastModified;
-    }
-
-    /**
-     * Update weblog's last modified date to the current date, to trigger cache
-     * refreshing so users can see new categories, bookmarks, etc.
-     */
-    public void invalidateCache() {
-        setLastModified(Instant.now());
-    }
-
     // Used in templates and a few JSP's
-    @Transient
     public String getAbsoluteURL() {
         return absoluteURL;
     }
@@ -421,33 +375,30 @@ public class Weblog implements WeblogOwned {
     /**
      * Add a category to this weblog.
      */
-    public void addCategory(WeblogCategory category) {
-        // make sure category is not null
-        if (category == null || category.getName() == null) {
-            throw new IllegalArgumentException("Category cannot be null and must have a valid name");
+    public void addCategory(String categoryName) {
+
+        if (categoryName == null) {
+            throw new IllegalArgumentException("Category must have a valid name");
         }
 
         // make sure we don't already have a category with that name
-        if (hasCategory(category.getName())) {
-            throw new IllegalArgumentException("Duplicate category name '" + category.getName() + "'");
+        if (hasCategory(categoryName)) {
+            throw new IllegalArgumentException("Duplicate category name '" + categoryName + "'");
         }
 
         // add it to our list of categories
+        WeblogCategory category = new WeblogCategory(this, categoryName);
         getWeblogCategories().add(category);
     }
 
-    @OneToMany(targetEntity = WeblogCategory.class,
-            cascade = CascadeType.ALL, mappedBy = "weblog", orphanRemoval = true)
-    @OrderBy("position")
-    public List<WeblogCategory> getWeblogCategories() {
+    public Set<WeblogCategory> getWeblogCategories() {
         return weblogCategories;
     }
 
-    public void setWeblogCategories(List<WeblogCategory> cats) {
+    public void setWeblogCategories(Set<WeblogCategory> cats) {
         this.weblogCategories = cats;
     }
 
-    @Transient
     public List<String> getWeblogCategoryNames() {
         return getWeblogCategories().stream().map(WeblogCategory::getName).collect(Collectors.toList());
     }
@@ -461,8 +412,6 @@ public class Weblog implements WeblogOwned {
         return false;
     }
 
-    @OneToMany(targetEntity = WeblogBookmark.class,
-            cascade = CascadeType.ALL, mappedBy = "weblog", orphanRemoval = true)
     public List<WeblogBookmark> getBookmarks() {
         return bookmarks;
     }
@@ -471,8 +420,6 @@ public class Weblog implements WeblogOwned {
         this.bookmarks = bookmarks;
     }
 
-    @OneToMany(targetEntity = MediaDirectory.class,
-            cascade = CascadeType.ALL, mappedBy = "weblog", orphanRemoval = true)
     public List<MediaDirectory> getMediaDirectories() {
         return mediaDirectories;
     }
@@ -539,7 +486,6 @@ public class Weblog implements WeblogOwned {
 
     // convenience methods for populating fields from forms
 
-    @Transient
     public boolean isApplyCommentDefaults() {
         return applyCommentDefaults;
     }
@@ -568,7 +514,6 @@ public class Weblog implements WeblogOwned {
 
     static final Comparator<Weblog> HANDLE_COMPARATOR = Comparator.comparing(Weblog::getHandle);
 
-    @Transient
     public int getUnapprovedComments() {
         return unapprovedComments;
     }
@@ -579,8 +524,23 @@ public class Weblog implements WeblogOwned {
 
     @Override
     @JsonIgnore
-    @Transient
     public Weblog getWeblog() {
         return this;
     }
+
+    public enum EditFormat {
+        HTML("weblogConfig.editFormatType.html"),
+        COMMONMARK("weblogConfig.editFormatType.commonMark");
+
+        private String descriptionKey;
+
+        EditFormat(String descriptionKey) {
+            this.descriptionKey = descriptionKey;
+        }
+
+        public String getDescriptionKey() {
+            return descriptionKey;
+        }
+    }
+
 }

@@ -99,7 +99,7 @@ public class WeblogListGenerator {
         wd.handle = weblog.getHandle();
         wd.about = weblog.getAbout();
         wd.creatorScreenName = weblog.getCreator().getScreenName();
-        wd.lastModified = weblog.getLastModified();
+        wd.lastModified = weblog.getDateUpdated();
         wd.hitsToday = weblog.getHitsToday();
         return wd;
     }

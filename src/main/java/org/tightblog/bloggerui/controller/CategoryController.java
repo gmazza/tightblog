@@ -75,8 +75,7 @@ public class CategoryController {
         if (weblog.getWeblogCategories().stream().anyMatch(c -> newCategory.name().equals(c.getName()))) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
         } else {
-            WeblogCategory wc = new WeblogCategory(weblog, newCategory.name());
-            weblog.addCategory(wc);
+            weblog.addCategory(newCategory.name());
             weblogManager.saveWeblog(weblog, true);
         }
     }

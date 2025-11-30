@@ -117,9 +117,9 @@ public class CommentSpamCheckerTest {
     }
 
     @Test
-    public void compileBlacklist() {
+    public void compileSpamlist() {
         String blacklistString = "badword,badUrl.com,bad phrase";
-        List<Pattern> patterns = CommentSpamChecker.compileBlacklist(blacklistString);
+        List<Pattern> patterns = CommentSpamChecker.compileSpamlist(blacklistString);
         assertEquals(patterns.size(), 3);
         assertEquals("\\b(badword)\\b", patterns.get(0).pattern());
         assertEquals("\\b(badUrl\\.com)\\b", patterns.get(1).pattern());
@@ -131,51 +131,51 @@ public class CommentSpamCheckerTest {
         webloggerProperties.setGlobalSpamFilter("bad phrase");
         CommentSpamChecker newCommentValidator = createValidator(-1, 3);
 
-        weblog.setBlacklist("badweblogword");
+        weblog.setCommentSpamFilter("badweblogword");
         // comment fields all null here, validator should pass
-        SpamCheckResult result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
+        SpamCheckResult result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
         assertEquals(SpamCheckResult.NOT_SPAM, result, "Null comment wasn't accepted");
         assertEquals(0, messageMap.size());
 
         comment.setContent("a badweblogword");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.SPAM, result, "Weblog blacklist ignored");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.SPAM, result, "Weblog spamlist ignored");
 
         comment.setContent("goodword");
         comment.setEmail("a bad phrase is here");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.SPAM, result, "Global blacklist ignored");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.SPAM, result, "Global spamlist ignored");
 
         comment.setContent("goodword");
         comment.setEmail("goodword");
         comment.setName("bad phrase");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.SPAM, result, "Name not checked against blacklist");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.SPAM, result, "Name not checked against spamlist");
 
         comment.setContent("goodword");
         comment.setEmail("goodword");
         comment.setName("goodword");
         comment.setUrl("a badweblogword");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.SPAM, result, "URL not checked against blacklist");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.SPAM, result, "URL not checked against spamlist");
 
         messageMap = new HashMap<>();
         comment.setContent("goodword");
         comment.setEmail("goodword");
         comment.setName("goodword");
         comment.setUrl("goodword");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.NOT_SPAM, result, "Blacklist failing non-spam content");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.NOT_SPAM, result, "Spamlist failing non-spam content");
         assertEquals(0, messageMap.size());
 
-        weblog.setBlacklist("badsite.com");
+        weblog.setCommentSpamFilter("badsite.com");
         comment.setContent("badsite.com");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.SPAM, result, "Blacklist not working with periods");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.SPAM, result, "Spamlist not working with periods");
 
         comment.setContent("badsiteacom");
-        result = newCommentValidator.evaluateViaBlacklist(comment, messageMap);
-        assertEquals(SpamCheckResult.NOT_SPAM, result, "Blacklist not escaping periods");
+        result = newCommentValidator.evaluateViaSpamlist(comment, messageMap);
+        assertEquals(SpamCheckResult.NOT_SPAM, result, "Spamlist not escaping periods");
     }
 
     @Test
@@ -206,7 +206,7 @@ public class CommentSpamCheckerTest {
         CommentSpamChecker ncv = new CommentSpamChecker(mockUrlService, mockWebloggerPropertiesDao,
                 "Version 1.2.3", true, true, true, sizeLimit,
                 linksLimit, "apikey", false);
-        ncv.refreshGlobalBlacklist();
+        ncv.refreshGlobalSpamlist();
         return ncv;
     }
 

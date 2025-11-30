@@ -192,7 +192,7 @@ public class CommentControllerTest {
 
             // check no indexing if indexing shut off
             Mockito.clearInvocations(mockWEM, mockES, mockIM, mockRequest);
-            weblog.setAllowComments(CommentPolicy.MODERATE_NONPUB);
+            weblog.setCommentPolicy(CommentPolicy.MODERATE_NONPUB);
             weblog.setSpamPolicy(SpamPolicy.MARK_SPAM);
             when(mockIM.isIndexComments()).thenReturn(false);
             processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
@@ -272,7 +272,7 @@ public class CommentControllerTest {
 
         try {
             // entry null
-            processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
+            processor.postComment(mockRequest, mockResponse, weblog.getHandle(), "nonexistent-handle", null);
 
             // entry available but not published
             WeblogEntry entry = new WeblogEntry();

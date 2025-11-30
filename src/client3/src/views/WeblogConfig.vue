@@ -202,7 +202,7 @@
           <tr>
             <td class="label">{{ $t('weblogConfig.allowComments') }}</td>
             <td class="field">
-              <select v-model="weblog.allowComments" size="1">
+              <select v-model="weblog.commentPolicy" size="1">
                 <option
                   v-for="commentoption in filteredCommentOptions"
                   :value="commentoption.level"
@@ -257,7 +257,7 @@
           <tr>
             <td class="label">{{ $t('weblogConfig.ignoreUrls') }}</td>
             <td class="field">
-              <textarea v-model="weblog.blacklist" rows="7" cols="70"></textarea>
+              <textarea v-model="weblog.commentSpamFilter" rows="7" cols="70"></textarea>
             </td>
             <td class="description">{{ $t('weblogConfig.tip.ignoreUrls') }}</td>
           </tr>
@@ -353,7 +353,7 @@ export default {
         locale: 'en',
         timeZone: 'America/New_York',
         editFormat: 'HTML',
-        allowComments: 'NONE',
+        commentPolicy: 'NONE',
         spamPolicy: 'NO_EMAIL',
         visible: true,
         entriesPerPage: 12,
@@ -379,7 +379,7 @@ export default {
     },
     commentingActive: function () {
       return (
-        this.webloggerProperties.commentPolicy !== 'NONE' && this.weblog.allowComments !== 'NONE'
+        this.webloggerProperties.commentPolicy !== 'NONE' && this.weblog.commentPolicy !== 'NONE'
       )
     },
     filteredSpamOptions: function () {

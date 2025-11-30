@@ -30,7 +30,6 @@ import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.dao.UserDao;
@@ -112,19 +111,16 @@ public abstract class WebloggerTest {
 
     protected Weblog setupWeblog(String handle, User creator) {
 
-        Instant now = Instant.now();
         Weblog testWeblog = new Weblog();
         testWeblog.setName("Test Weblog");
         testWeblog.setTagline("Test Weblog");
         testWeblog.setHandle(handle);
         testWeblog.setEditFormat(Weblog.EditFormat.HTML);
-        testWeblog.setBlacklist("");
+        testWeblog.setCommentSpamFilter("");
         testWeblog.setTheme("basic");
         testWeblog.setLocale("en_US");
         testWeblog.setTimeZone("America/Los_Angeles");
-        testWeblog.setDateCreated(now);
         testWeblog.setCreator(creator);
-        testWeblog.setLastModified(now);
 
         // add weblog
         weblogManager.addWeblog(testWeblog);
@@ -141,11 +137,11 @@ public abstract class WebloggerTest {
 
     protected WeblogEntry setupWeblogEntry(String anchor, Weblog weblog, User user) {
         Weblog weblogInSession = weblogDao.findByIdOrNull(weblog.getId());
-        return setupWeblogEntry(anchor, weblogInSession.getWeblogCategories()
-                        .iterator().next(), WeblogEntry.PubStatus.PUBLISHED, weblog, user);
+        return setupWeblogEntry(anchor, weblogInSession.getWeblogCategories().stream().findFirst().get().getName(),
+                WeblogEntry.PubStatus.PUBLISHED, weblog, user);
     }
 
-    protected WeblogEntry setupWeblogEntry(String anchor, WeblogCategory cat,
+    protected WeblogEntry setupWeblogEntry(String anchor, String catName,
                                            WeblogEntry.PubStatus status, Weblog weblog, User user) {
 
         WeblogEntry testEntry = new WeblogEntry();
@@ -158,7 +154,11 @@ public abstract class WebloggerTest {
         testEntry.setStatus(status);
         testEntry.setWeblog(weblog);
         testEntry.setCreator(user);
-        testEntry.setCategory(cat);
+        testEntry.setCategory(weblog.getWeblogCategories()
+                .stream()
+                .filter(cat -> cat.getName().equals(catName))
+                .findFirst().orElseThrow(() ->
+                        new IllegalArgumentException("need a category for the entry")));
 
         // store entry
         weblogEntryManager.saveWeblogEntry(testEntry);

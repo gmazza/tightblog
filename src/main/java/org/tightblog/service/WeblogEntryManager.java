@@ -591,7 +591,7 @@ public class WeblogEntryManager {
                 webloggerPropertiesDao.findOrNull().getCommentPolicy())) {
             return false;
         }
-        if (WebloggerProperties.CommentPolicy.NONE.equals(entry.getWeblog().getAllowComments())) {
+        if (WebloggerProperties.CommentPolicy.NONE.equals(entry.getWeblog().getCommentPolicy())) {
             return false;
         }
         if (entry.getCommentDays() == 0) {

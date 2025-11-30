@@ -20,12 +20,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Pattern;
@@ -33,35 +31,49 @@ import jakarta.validation.constraints.Pattern;
 @Entity
 @Table(name = "weblogger_user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserCredentials {
+public class UserCredentials extends AbstractEntity {
 
-    private String id;
     @NotBlank(message = "{error.add.user.missingUserName}")
     @Pattern(regexp = "[a-z0-9]*", message = "{error.add.user.badUserName}")
     private String userName;
-    private String password;
+
+    @Column(name = "password_hash")
+    @NotBlank
+    @JsonIgnore
+    private String passwordHash;
+
+    @Column(name = "global_role", nullable = false)
+    @Enumerated(EnumType.STRING)
     private GlobalRole globalRole;
+
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     // for Authenticator app use
     // see http://www.baeldung.com/spring-security-two-factor-authentication-with-soft-token
+    @Column(name = "mfa_secret")
+    @JsonIgnore
     private String mfaSecret;
 
     // below two fields not persisted but used for password entry and confirmation
     // on new user & user update forms.
+    @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String passwordText;
+
+    @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String passwordConfirm;
 
     // below two transient fields used to check status of MFA secret and whether it needs erasing
+    @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean hasMfaSecret;
+
+    @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean eraseMfaSecret;
 
-    @Column(name = "mfa_secret")
-    @JsonIgnore
     public String getMfaSecret() {
         return mfaSecret;
     }
@@ -70,16 +82,6 @@ public class UserCredentials {
         this.mfaSecret = mfaSecret;
     }
 
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Basic(optional = false)
     public String getUserName() {
         return this.userName;
     }
@@ -88,19 +90,14 @@ public class UserCredentials {
         this.userName = userName;
     }
 
-    @Column(name = "encr_password")
-    @NotBlank
-    @JsonIgnore
-    public String getPassword() {
-        return this.password;
+    public String getPasswordHash() {
+        return this.passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String password) {
+        this.passwordHash = password;
     }
 
-    @Column(name = "global_role", nullable = false)
-    @Enumerated(EnumType.STRING)
     public GlobalRole getGlobalRole() {
         return this.globalRole;
     }
@@ -109,8 +106,6 @@ public class UserCredentials {
         this.globalRole = globalRole;
     }
 
-    @Basic(optional = false)
-    @Enumerated(EnumType.STRING)
     public UserStatus getStatus() {
         return status;
     }
@@ -119,7 +114,6 @@ public class UserCredentials {
         this.status = status;
     }
 
-    @Transient
     public String getPasswordText() {
         return passwordText;
     }
@@ -128,7 +122,6 @@ public class UserCredentials {
         this.passwordText = passwordText;
     }
 
-    @Transient
     public String getPasswordConfirm() {
         return passwordConfirm;
     }
@@ -137,12 +130,10 @@ public class UserCredentials {
         this.passwordConfirm = passwordConfirm;
     }
 
-    @Transient
     public boolean isHasMfaSecret() {
         return mfaSecret != null;
     }
 
-    @Transient
     public boolean isEraseMfaSecret() {
         return eraseMfaSecret;
     }

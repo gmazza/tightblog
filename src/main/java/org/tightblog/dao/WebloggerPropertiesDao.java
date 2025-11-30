@@ -24,6 +24,6 @@ public interface WebloggerPropertiesDao extends JpaRepository<WebloggerPropertie
 
     // convenience method
     default WebloggerProperties findOrNull() {
-        return findById("1").orElse(null);
+        return findAll().getFirst();
     }
 }

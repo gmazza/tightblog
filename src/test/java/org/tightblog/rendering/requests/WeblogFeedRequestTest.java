@@ -105,7 +105,7 @@ public class WeblogFeedRequestTest {
         feedRequest.setWeblog(weblog);
 
         Instant twoDaysAgo = Instant.now().minus(2, ChronoUnit.DAYS);
-        weblog.setLastModified(twoDaysAgo);
+        weblog.setDateUpdated(twoDaysAgo);
 
         String test = feedRequest.getLastUpdated();
         assertEquals(feedRequest.formatIsoOffsetDateTime(twoDaysAgo), test,

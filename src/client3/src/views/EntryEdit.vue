@@ -566,7 +566,7 @@ export default {
     ...mapState(useDynamicConfigStore, ['webloggerProperties']),
     commentingActive: function () {
       return (
-        this.webloggerProperties.commentPolicy !== 'NONE' && this.weblog.allowComments !== 'NONE'
+        this.webloggerProperties.commentPolicy !== 'NONE' && this.weblog.commentPolicy !== 'NONE'
       )
     },
     formIsDirty: function () {

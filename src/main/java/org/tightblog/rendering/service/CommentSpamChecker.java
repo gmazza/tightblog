@@ -51,10 +51,10 @@ public class CommentSpamChecker {
 
     private URLService urlService;
     private WebloggerPropertiesDao webloggerPropertiesDao;
-    private List<Pattern> globalBlacklistRules = new ArrayList<>();
+    private List<Pattern> globalSpamListRules = new ArrayList<>();
 
     private boolean excessSizeEnabled;
-    private boolean blacklistEnabled;
+    private boolean spamlistEnabled;
     private boolean akismetEnabled;
 
     private int sizeLimit;
@@ -71,7 +71,7 @@ public class CommentSpamChecker {
             WebloggerPropertiesDao webloggerPropertiesDao,
             @Value("${weblogger.version}") String webloggerVersion,
             @Value("${commentSpamChecker.excessSize.enabled:true}") boolean excessSizeEnabled,
-            @Value("${commentSpamChecker.blacklist.enabled:true}") boolean blacklistEnabled,
+            @Value("${commentSpamChecker.spamlist.enabled:true}") boolean spamlistEnabled,
             @Value("${commentSpamChecker.akismet.enabled:false}") boolean akismetEnabled,
             @Value("${commentSpamChecker.excessSize.sizeLimit:1000}") int sizeLimit,
             @Value("${commentSpamChecker.excessSize.linksLimit:3}") int linksLimit,
@@ -79,7 +79,7 @@ public class CommentSpamChecker {
             @Value("${commentSpamChecker.akismet.onlyBlatantSpamIsSpam:false}") boolean akismetOnlyBlatantSpamIsSpam) {
         this.webloggerVersion = webloggerVersion;
         this.excessSizeEnabled = excessSizeEnabled;
-        this.blacklistEnabled = blacklistEnabled;
+        this.spamlistEnabled = spamlistEnabled;
         this.akismetEnabled = akismetEnabled;
         this.urlService = urlService;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
@@ -92,17 +92,17 @@ public class CommentSpamChecker {
         }
     }
 
-    public void refreshGlobalBlacklist() {
+    public void refreshGlobalSpamlist() {
         // cannot be @PostConstruct as DB might not be available at startup (e.g., initial install)
         WebloggerProperties props = webloggerPropertiesDao.findOrNull();
-        globalBlacklistRules = compileBlacklist(props.getGlobalSpamFilter());
+        globalSpamListRules = compileSpamlist(props.getGlobalSpamFilter());
     }
 
     public SpamCheckResult evaluate(WeblogEntryComment comment,
                                     Map<String, List<String>> messages) {
 
         if (!initialized) {
-            refreshGlobalBlacklist();
+            refreshGlobalSpamlist();
             initialized = true;
         }
 
@@ -110,8 +110,8 @@ public class CommentSpamChecker {
         if (excessSizeEnabled) {
             vr = evaluateViaExcessSize(comment, messages);
         }
-        if (blacklistEnabled && SpamCheckResult.NOT_SPAM.equals(vr)) {
-            vr = evaluateViaBlacklist(comment, messages);
+        if (spamlistEnabled && SpamCheckResult.NOT_SPAM.equals(vr)) {
+            vr = evaluateViaSpamlist(comment, messages);
         }
         if (akismetEnabled && SpamCheckResult.NOT_SPAM.equals(vr)) {
             vr = evaluateViaAkismet(comment, messages);
@@ -147,26 +147,26 @@ public class CommentSpamChecker {
     }
 
     /**
-     * Test comment, applying weblog and site blacklists (if available)
-     * @return True if comment matches a blacklist term
+     * Test comment, applying weblog and site spamlists (if available)
+     * @return True if comment matches a spamlist term
      */
-    SpamCheckResult evaluateViaBlacklist(WeblogEntryComment comment, Map<String, List<String>> messages) {
-        if (isBlacklisted(comment, globalBlacklistRules) ||
-                isBlacklisted(comment, comment.getWeblogEntry().getWeblog().getBlacklistRegexRules())) {
-            messages.put("commentSpamChecker.blacklistMessage", null);
+    SpamCheckResult evaluateViaSpamlist(WeblogEntryComment comment, Map<String, List<String>> messages) {
+        if (isSpamlisted(comment, globalSpamListRules) ||
+                isSpamlisted(comment, comment.getWeblogEntry().getWeblog().getCommentSpamRegexRules())) {
+            messages.put("commentSpamChecker.spamlistMessage", null);
             return SpamCheckResult.SPAM;
         }
         return SpamCheckResult.NOT_SPAM;
     }
 
-    private static boolean isBlacklisted(WeblogEntryComment comment, List<Pattern> rules) {
-        return isBlacklisted(comment.getUrl(), rules)
-                || isBlacklisted(comment.getEmail(), rules)
-                || isBlacklisted(comment.getName(), rules)
-                || isBlacklisted(comment.getContent(), rules);
+    private static boolean isSpamlisted(WeblogEntryComment comment, List<Pattern> rules) {
+        return isSpamlisted(comment.getUrl(), rules)
+                || isSpamlisted(comment.getEmail(), rules)
+                || isSpamlisted(comment.getName(), rules)
+                || isSpamlisted(comment.getContent(), rules);
     }
 
-    private static boolean isBlacklisted(String textToCheck, List<Pattern> rules) {
+    private static boolean isSpamlisted(String textToCheck, List<Pattern> rules) {
         if (!StringUtils.isEmpty(textToCheck)) {
             for (Pattern testPattern : rules) {
                 Matcher matcher = testPattern.matcher(textToCheck);
@@ -181,13 +181,13 @@ public class CommentSpamChecker {
 
     /**
      * Create a list of regex Pattern elements from a comma-separated list of Strings to block.
-     * @param blacklist Comma-separated list of terms to block.
+     * @param spamlist Comma-separated list of terms to block.
      **/
-    public static List<Pattern> compileBlacklist(String blacklist) {
+    public static List<Pattern> compileSpamlist(String spamlist) {
         List<Pattern> regexRules = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(blacklist)) {
-            String[] termsToBlock = blacklist.split("\\s*,\\s*");
+        if (StringUtils.isNotBlank(spamlist)) {
+            String[] termsToBlock = spamlist.split("\\s*,\\s*");
 
             for (String term : termsToBlock) {
                 // as we're converting strings to regexs, treat the period as it literally (and not as a wildcard)

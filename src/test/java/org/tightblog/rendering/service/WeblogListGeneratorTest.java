@@ -62,7 +62,7 @@ public class WeblogListGeneratorTest {
         weblog1.setHandle("mostpop1");
         weblog1.setAbout("About most popular 1");
         weblog1.setCreator(user1);
-        weblog1.setLastModified(now);
+        weblog1.setDateUpdated(now);
         weblog1.setHitsToday(200);
         weblogList.add(weblog1);
 
@@ -71,7 +71,7 @@ public class WeblogListGeneratorTest {
         weblog2.setHandle("mostpop2");
         weblog2.setAbout("About most popular 2");
         weblog2.setCreator(user2);
-        weblog2.setLastModified(twoDaysAgo);
+        weblog2.setDateUpdated(twoDaysAgo);
         weblog2.setHitsToday(150);
         weblogList.add(weblog2);
     }

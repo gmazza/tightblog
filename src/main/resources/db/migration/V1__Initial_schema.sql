@@ -176,7 +176,6 @@ create table weblog_entry_comment (
 alter table weblog_entry_comment add constraint co_entryid_fk
     foreign key ( entryid ) references weblog_entry( id ) ;
 
-
 alter table weblog_entry_comment add constraint co_userid_fk
     foreign key ( bloggerid ) references weblogger_user( id ) ;
 

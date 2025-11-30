@@ -127,15 +127,16 @@ public class WeblogManager {
         this.dp = dp;
     }
 
-    public void saveWeblog(Weblog weblog, boolean externallyViewableChange) {
+    public Weblog saveWeblog(Weblog weblog, boolean externallyViewableChange) {
         if (externallyViewableChange) {
-            weblog.setLastModified(Instant.now());
+            weblog.setDateUpdated(Instant.now());
         }
-        weblogDao.saveAndFlush(weblog);
+        weblog = weblogDao.saveAndFlush(weblog);
         if (externallyViewableChange) {
             dp.updateLastSitewideChange();
             weblogDao.evictWeblog(weblog.getHandle());
         }
+        return weblog;
     }
 
     public void removeWeblog(Weblog weblog) {
@@ -171,7 +172,7 @@ public class WeblogManager {
      * @param newWeblog New weblog to be created, must have creator field populated.
      */
     public void addWeblog(Weblog newWeblog) {
-        weblogDao.save(newWeblog);
+        newWeblog = weblogDao.save(newWeblog);
 
         if (weblogDao.count() == 1) {
             // first weblog, let's make it the frontpage one.
@@ -183,13 +184,16 @@ public class WeblogManager {
         // grant weblog creator OWNER permission
         userManager.grantWeblogRole(newWeblog.getCreator(), newWeblog, WeblogRole.OWNER);
 
+        LOG.info("Before adding default categories and bookmarks for new weblog {}", newWeblog.getHandle());
+
         // add default categories and bookmarks
         if (!ObjectUtils.isEmpty(newBlogCategories)) {
             for (String category : newBlogCategories) {
-                WeblogCategory c = new WeblogCategory(newWeblog, category);
-                newWeblog.addCategory(c);
+                newWeblog.addCategory(category);
             }
         }
+
+        LOG.info("After adding default categories for new weblog {}", newWeblog.getHandle());
 
         if (!ObjectUtils.isEmpty(newBlogBlogroll)) {
             for (String splitItem : newBlogBlogroll) {
@@ -204,9 +208,12 @@ public class WeblogManager {
                 }
             }
         }
+
+        newWeblog = saveWeblog(newWeblog, true);
+
         // create initial media file directory named "default"
+        // note this method saves the weblog again after creating the directory
         mediaManager.createMediaDirectory(newWeblog, "default");
-        saveWeblog(newWeblog, true);
     }
 
     /**
@@ -326,7 +333,7 @@ public class WeblogManager {
                 blogsUpdated++;
             }
             weblog.setHitsToday(0);
-            weblog.setLastModified(Instant.now());
+            weblog.setDateUpdated(Instant.now());
             weblogDao.save(weblog);
         }
         if (blogsUpdated > 0) {

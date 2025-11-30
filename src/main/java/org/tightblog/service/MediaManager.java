@@ -34,9 +34,7 @@ import org.tightblog.dao.MediaFileDao;
 
 import javax.imageio.ImageIO;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -64,6 +62,9 @@ public class MediaManager {
 
     @Autowired
     private WeblogManager weblogManager;
+
+    @Autowired
+    private Validator validator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MediaManager.class);
 
@@ -103,24 +104,22 @@ public class MediaManager {
     public MediaDirectory createMediaDirectory(Weblog weblog, String requestedName) {
         requestedName = requestedName.startsWith("/") ? requestedName.substring(1) : requestedName;
 
-        MediaDirectory newDirectory;
         if (weblog.hasMediaDirectory(requestedName)) {
             throw new IllegalArgumentException("mediaFileView.directoryCreate.error.exists");
-        } else {
-            newDirectory = new MediaDirectory(weblog, requestedName);
-
-            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-            Validator validator = factory.getValidator();
-            Set<ConstraintViolation<MediaDirectory>> errors = validator.validate(newDirectory);
-            if (!errors.isEmpty()) {
-                // strip away { and } from message string
-                String origMessage = errors.iterator().next().getMessage();
-                throw new IllegalArgumentException(origMessage.substring(1, origMessage.length() - 1));
-            }
-            weblog.getMediaDirectories().add(newDirectory);
-            weblogManager.saveWeblog(weblog, false);
-            LOGGER.debug("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
         }
+
+        MediaDirectory newDirectory = new MediaDirectory(weblog, requestedName);
+
+        Set<ConstraintViolation<MediaDirectory>> errors = validator.validate(newDirectory);
+        if (!errors.isEmpty()) {
+            String origMessage = errors.iterator().next().getMessage();
+            throw new IllegalArgumentException(origMessage.substring(1, origMessage.length() - 1));
+        }
+
+        weblog.getMediaDirectories().add(newDirectory);
+        weblogManager.saveWeblog(weblog, false);
+        LOGGER.debug("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
+
         return newDirectory;
     }
 

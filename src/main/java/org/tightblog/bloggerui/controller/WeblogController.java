@@ -132,8 +132,8 @@ public class WeblogController {
             weblog.setEditFormat(newData.getEditFormat());
             weblog.setVisible(newData.getVisible());
             weblog.setEntriesPerPage(newData.getEntriesPerPage());
-            weblog.setBlacklist(newData.getBlacklist());
-            weblog.setAllowComments(newData.getAllowComments());
+            weblog.setCommentSpamFilter(newData.getCommentSpamFilter());
+            weblog.setCommentPolicy(newData.getCommentPolicy());
             weblog.setSpamPolicy(newData.getSpamPolicy());
             weblog.setLocale(newData.getLocale());
             weblog.setTimeZone(newData.getTimeZone());

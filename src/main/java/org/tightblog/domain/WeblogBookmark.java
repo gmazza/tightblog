@@ -41,7 +41,9 @@ public class WeblogBookmark implements Comparable<WeblogBookmark>, WeblogOwned {
     private String id = Utilities.generateUUID();
     private int hashCode;
 
+    @ManyToOne
     private Weblog weblog;
+
     private String name;
     private String description;
     private String url;
