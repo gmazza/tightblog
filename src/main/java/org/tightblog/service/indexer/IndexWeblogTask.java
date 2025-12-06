@@ -96,7 +96,7 @@ public class IndexWeblogTask extends AbstractIndexTask {
 
                     for (WeblogEntry entry : entries) {
                         writer.addDocument(getDocument(entry));
-                        log.debug("Indexed entry {0}: {1}", entry.getPubTime(), entry.getAnchor());
+                        log.debug("Indexed entry {0}: {1}", entry.getPublishTime(), entry.getAnchor());
                     }
                 }
             }

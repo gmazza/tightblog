@@ -216,6 +216,6 @@ public class CalendarGenerator {
     }
 
     static LocalDate firstDayOfMonthOfWeblogEntry(WeblogEntry entry) {
-        return (entry == null) ? null : entry.getPubTime().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+        return (entry == null) ? null : entry.getPublishTime().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
     }
 }

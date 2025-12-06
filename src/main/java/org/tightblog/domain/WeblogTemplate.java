@@ -21,6 +21,7 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -120,11 +121,12 @@ public class WeblogTemplate extends AbstractEntity implements Template, WeblogOw
         this.derivation = derivation;
     }
 
-    @Transient
     public String getRoleName() {
         return roleName;
     }
 
+    // property used for form binding, JSON->Java
+    @JsonProperty
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }

@@ -21,11 +21,7 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.tightblog.util.Utilities;
-
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -34,13 +30,11 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "weblog_entry_tag")
-public class WeblogEntryTag implements Comparable<WeblogEntryTag> {
+public class WeblogEntryTag extends AbstractEntity implements Comparable<WeblogEntryTag> {
 
-    private String id = Utilities.generateUUID();
-    private int hashCode;
-    private Weblog weblog;
-    private WeblogEntry weblogEntry;
-    private String name;
+    private static final Comparator<WeblogEntryTag> COMPARATOR =
+            Comparator.comparing(WeblogEntryTag::getWeblog, Weblog.HANDLE_COMPARATOR)
+                    .thenComparing(WeblogEntryTag::getName);
 
     public WeblogEntryTag() {
     }
@@ -51,24 +45,15 @@ public class WeblogEntryTag implements Comparable<WeblogEntryTag> {
         this.name = name;
     }
 
-    /**
-     * Unique ID and primary key.
-     */
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * ID of weblog that this tag refers to.
-     */
     @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
-    @JsonIgnore
+    private Weblog weblog;
+
+    @ManyToOne
+    @JoinColumn(name = "weblog_entry_id", nullable = false)
+    private WeblogEntry weblogEntry;
+
+    private String name;
+
     public Weblog getWeblog() {
         return this.weblog;
     }
@@ -77,8 +62,6 @@ public class WeblogEntryTag implements Comparable<WeblogEntryTag> {
         this.weblog = website;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "entryid", nullable = false)
     @JsonIgnore
     public WeblogEntry getWeblogEntry() {
         return weblogEntry;
@@ -91,7 +74,6 @@ public class WeblogEntryTag implements Comparable<WeblogEntryTag> {
     /**
      * Tag value.
      */
-    @Basic(optional = false)
     public String getName() {
         return this.name;
     }
@@ -100,30 +82,34 @@ public class WeblogEntryTag implements Comparable<WeblogEntryTag> {
         this.name = name;
     }
 
-    public String toString() {
-        return "WeblogEntryTag: id=" + id + ", name=" + name + ", weblog=" + weblog.getHandle()
-                + ", entry=" + weblogEntry.getAnchor();
+    @Override
+    public int compareTo(WeblogEntryTag o) {
+        return COMPARATOR.compare(this, o);
     }
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogEntryTag && Objects.equals(id, ((WeblogEntryTag) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof WeblogEntryTag)) {
+            return false;
+        }
+        WeblogEntryTag that = (WeblogEntryTag) other;
+        if (this.id == null || that.id == null) {
+            // if not yet persisted, do not consider equal
+            return false;
+        }
+        return Objects.equals(this.id, that.id);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 
-    private static final Comparator<WeblogEntryTag> COMPARATOR =
-            Comparator.comparing(WeblogEntryTag::getWeblog, Weblog.HANDLE_COMPARATOR)
-                    .thenComparing(WeblogEntryTag::getName);
-
-    @Override
-    public int compareTo(WeblogEntryTag o) {
-        return COMPARATOR.compare(this, o);
+    public String toString() {
+        return "WeblogEntryTag: id=" + id + ", name=" + name + ", weblog=" + weblog.getHandle()
+                + ", entry=" + weblogEntry.getAnchor();
     }
 }

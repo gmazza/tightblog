@@ -456,6 +456,7 @@ public class UIControllerTest {
         when(mockWeblogTheme.getTemplateByName("my-custom-page")).thenReturn(sharedTemplate);
 
         WeblogEntryComment comment = new WeblogEntryComment();
+        comment.setId("comment1");
         when(mockRequest.getAttribute("commentForm")).thenReturn(comment);
         controller.getByCustomPage(TEST_BLOG_HANDLE, "my-custom-page", null, mockRequest, mockPrincipal);
 

@@ -10,7 +10,7 @@
           <p>
               <i class="icon-time"></i>
               <span th:utext="|Posted on ${utils.formatTemporal(day, utils.msg('macro.weblog.datepattern'))}
-                at ${entry.pubTime != null ? utils.formatTemporal(entry.pubTime, utils.msg('macro.weblog.timepattern')) : utils.msg('macro.weblog.unpublished')}
+                at ${entry.publishTime != null ? utils.formatTemporal(entry.publishTime, utils.msg('macro.weblog.timepattern')) : utils.msg('macro.weblog.unpublished')}
                 in ${entry.category.name}|">xxx</span>
           </p>
         <hr>

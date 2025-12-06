@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -108,11 +109,12 @@ public class TestUtils {
         log.info("Test is expected to log a/an {}:", exceptionType);
     }
 
-    public static WeblogEntry genWeblogEntry(Weblog weblog, String anchor, Instant pubTime) {
+    public static WeblogEntry genWeblogEntry(Weblog weblog, String anchor, Instant publishTime) {
         WeblogEntry entry = new WeblogEntry();
+        entry.setId(UUID.randomUUID().toString());
         entry.setWeblog(weblog);
         entry.setAnchor(anchor);
-        entry.setPubTime(pubTime);
+        entry.setPublishTime(publishTime);
         return entry;
     }
 

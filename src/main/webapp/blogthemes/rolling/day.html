@@ -18,7 +18,7 @@
         </th:block>
         <p class="pubInfo">
             Posted by <span th:utext="${entry.creator.screenName}">xxx</span> in <span class="category" th:utext="${entry.category.name}">xxx</span>
-            <span th:if="${entry.pubTime != null}">at <a th:href="${url.getURL(entry)}" th:utext="${utils.formatTemporal(entry.pubTime, utils.msg('macro.weblog.timedatepattern'))}">xxx</a></span>
+            <span th:if="${entry.publishTime != null}">at <a th:href="${url.getURL(entry)}" th:utext="${utils.formatTemporal(entry.publishTime, utils.msg('macro.weblog.timedatepattern'))}">xxx</a></span>
             <th:block th:if="${entry.getTags() != null && entry.getTags().size() > 0}">
                 <span>| Tags:</span>
                 <span th:each="tag : ${entry.getTags()}">

@@ -229,10 +229,10 @@
         {{ $t('entryEdit.miscSettings') }}
       </div>
 
-      <label for="link">{{ $t('entryEdit.specifyPubTime') }}:</label>
+      <label for="link">{{ $t('entryEdit.specifyPublishTime') }}:</label>
       <div>
         <VueDatePicker
-          v-model="entry.pubTime"
+          v-model="entry.publishTime"
           :enable-time-picker="true"
           :format="formatDateToMinute"
           :clear-button="true"
@@ -577,7 +577,7 @@ export default {
         this.originalEntry.summary !== this.entry.summary ||
         this.originalEntry.notes !== this.entry.notes ||
         this.originalEntry.tagsAsString !== this.entry.tagsAsString ||
-        this.originalEntry.pubTime !== this.entry.pubTime ||
+        this.originalEntry.publishTime !== this.entry.publishTime ||
         this.originalEntry.commentDays !== this.entry.commentDays ||
         this.originalEntry.searchDescription !== this.entry.searchDescription ||
         this.originalEntry.enclosureUrl !== this.entry.enclosureUrl

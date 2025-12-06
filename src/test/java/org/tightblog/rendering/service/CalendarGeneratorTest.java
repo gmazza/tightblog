@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,12 +67,15 @@ public class CalendarGeneratorTest {
 
     private void initializeDateToWeblogEntryMap() {
         WeblogEntry weblogEntry1a = new WeblogEntry();
+        weblogEntry1a.setId(UUID.randomUUID().toString());
         weblogEntry1a.setTitle("A short title");
         when(mockUrlService.getWeblogEntryURL(weblogEntry1a)).thenReturn("my url 1a");
         WeblogEntry weblogEntry1b = new WeblogEntry();
+        weblogEntry1b.setId(UUID.randomUUID().toString());
         weblogEntry1b.setTitle("A very long title to ensure it is longer than 43 characters");
         when(mockUrlService.getWeblogEntryURL(weblogEntry1b)).thenReturn("my url 1b");
         WeblogEntry weblogEntry2 = new WeblogEntry();
+        weblogEntry2.setId(UUID.randomUUID().toString());
         weblogEntry2.setTitle("Blog entry on different day");
         when(mockUrlService.getWeblogEntryURL(weblogEntry2)).thenReturn("my url 2");
 
@@ -222,8 +226,8 @@ public class CalendarGeneratorTest {
         assertNull(CalendarGenerator.firstDayOfMonthOfWeblogEntry(null));
 
         WeblogEntry entry = new WeblogEntry();
-        Instant pubTime = LocalDate.of(1858, 10, 14).atStartOfDay().toInstant(ZoneOffset.UTC);
-        entry.setPubTime(pubTime);
+        Instant publishTime = LocalDate.of(1858, 10, 14).atStartOfDay().toInstant(ZoneOffset.UTC);
+        entry.setPublishTime(publishTime);
 
         LocalDate date = CalendarGenerator.firstDayOfMonthOfWeblogEntry(entry);
         assertEquals(LocalDate.of(1858, 10, 1), date);

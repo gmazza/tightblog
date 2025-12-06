@@ -103,15 +103,15 @@ public abstract class AbstractIndexTask extends AbstractTask {
         doc.add(new TextField(FieldConstants.CONTENT, data.getText(), Field.Store.NO));
 
         // keyword
-        doc.add(new StringField(FieldConstants.UPDATED, data.getUpdateTime().toString(), Field.Store.YES));
+        doc.add(new StringField(FieldConstants.UPDATED, data.getDateUpdated().toString(), Field.Store.YES));
 
         // keyword
-        if (data.getPubTime() != null) {
-            doc.add(new StringField(FieldConstants.PUBLISHED, data.getPubTime().toString(), Field.Store.YES));
+        if (data.getPublishTime() != null) {
+            doc.add(new StringField(FieldConstants.PUBLISHED, data.getPublishTime().toString(), Field.Store.YES));
 
             // below included as search task sorts on this field
             doc.add(new SortedDocValuesField(FieldConstants.PUBLISHED,
-                    new BytesRef(data.getPubTime().toString())));
+                    new BytesRef(data.getPublishTime().toString())));
         }
 
         // index Category, needs to be in lower case as it is used in a term

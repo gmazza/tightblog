@@ -146,7 +146,7 @@ public class WeblogEntryListGeneratorTest {
         assertTrue(data.getPrevLabel().contains("My Prev Story"));
 
         // Test entry still retrievable if no publish time
-        entryToShow.setPubTime(null);
+        entryToShow.setPublishTime(null);
         data = generator.getPermalinkPager(weblog, "day1story1", true);
         assertEquals(1, data.getEntries().size());
         assertEquals(entryToShow, data.getEntries().values().iterator().next().get(0),
@@ -175,8 +175,8 @@ public class WeblogEntryListGeneratorTest {
 
         // Test next, prev link info empty if entries in the future
         Instant oneHourLater = Instant.now().plus(1, ChronoUnit.HOURS);
-        weNext.setPubTime(oneHourLater);
-        wePrev.setPubTime(oneHourLater);
+        weNext.setPublishTime(oneHourLater);
+        wePrev.setPublishTime(oneHourLater);
         data = generator.getPermalinkPager(weblog, "day1story1", false);
         assertNotNull(data.getEntries());
         assertNull(data.getNextLabel());
