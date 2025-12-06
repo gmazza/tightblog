@@ -375,7 +375,7 @@ public class WeblogEntryManager {
 
         qd.queryString += " ORDER BY ";
         qd.queryString += WeblogEntrySearchCriteria.SortBy.UPDATE_TIME.equals(criteria.getSortBy()) ?
-                " e.updateTime " : " e.publishTime ";
+                " e.dateUpdated " : " e.publishTime ";
         String sortOrder = WeblogEntrySearchCriteria.SortOrder.ASCENDING.equals(criteria.getSortOrder()) ? " ASC " : " DESC ";
         qd.queryString += sortOrder + ", e.id " + sortOrder;
 
