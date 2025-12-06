@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -354,13 +355,14 @@ public class SearchControllerTest {
         assertTrue(wsr.toString().contains("category=collectibles searchPhrase=stamps"));
     }
 
-    private WeblogEntry createWeblogEntry(String title, Instant pubTime, WeblogEntry.PubStatus status) {
+    private WeblogEntry createWeblogEntry(String title, Instant publishTime, WeblogEntry.PubStatus status) {
         WeblogEntry entry = new WeblogEntry();
+        entry.setId(UUID.randomUUID().toString());
         entry.setWeblog(weblog);
         entry.setTitle(title);
         entry.setAnchor(title + "Anchor");
         entry.setStatus(status);
-        entry.setPubTime(pubTime);
+        entry.setPublishTime(publishTime);
         when(mockWeblogEntryDao.findByIdOrNull(entry.getId())).thenReturn(entry);
         return entry;
     }

@@ -128,6 +128,7 @@ public class CommentControllerTest {
         weblogEntry = new WeblogEntry();
         weblogEntry.setAnchor("entry-anchor");
         weblogEntry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        weblogEntry.setWeblog(weblog);
         when(mockWEM.getWeblogEntryByAnchor(weblog, weblogEntry.getAnchor())).thenReturn(weblogEntry);
         when(mockWEM.canSubmitNewComments(weblogEntry)).thenReturn(true);
 
@@ -181,7 +182,7 @@ public class CommentControllerTest {
             assertEquals("", testComment.getContent());
 
             // blogger written to comment object
-            assertEquals(user, testComment.getBlogger());
+            assertEquals(user, testComment.getCreator());
 
             // make subsequent tests a non-blogger comment
             when(mockAuthenticator.authenticate(mockRequest)).thenReturn(true);
@@ -202,7 +203,7 @@ public class CommentControllerTest {
             // no blogger written to comment object
             verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
             testComment = commentCaptor.getValue();
-            assertNull(testComment.getBlogger());
+            assertNull(testComment.getCreator());
 
             // check spam persisted to database with autodelete spam off
             Mockito.clearInvocations(mockWEM, mockES, mockIM);
@@ -232,12 +233,12 @@ public class CommentControllerTest {
             processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), mockPrincipal);
             ArgumentCaptor<WeblogEntryComment> commentCaptor = ArgumentCaptor.forClass(WeblogEntryComment.class);
             verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            assertEquals(user, commentCaptor.getValue().getBlogger());
+            assertEquals(user, commentCaptor.getValue().getCreator());
 
             Mockito.clearInvocations(mockRequest);
             processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
             verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            assertNull(commentCaptor.getValue().getBlogger());
+            assertNull(commentCaptor.getValue().getCreator());
         } catch (IOException | ServletException e) {
             fail();
         }
@@ -331,7 +332,7 @@ public class CommentControllerTest {
         assertEquals("sam@yopmail.com", wec.getEmail());
         assertEquals("https://www.duckduckgo.com", wec.getRemoteHost());
         assertEquals(entry, wec.getWeblogEntry());
-        assertEquals(blogger, wec.getBlogger());
+        assertEquals(blogger, wec.getCreator());
         assertNotNull(wec.getPostTime());
 
         when(mockRequest.getParameter("notify")).thenReturn(null);

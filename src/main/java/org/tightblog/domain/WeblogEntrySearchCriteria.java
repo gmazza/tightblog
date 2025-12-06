@@ -23,7 +23,7 @@ public class WeblogEntrySearchCriteria {
 
     public enum SortOrder { ASCENDING, DESCENDING }
 
-    public enum SortBy { PUBLICATION_TIME("entries.label.pubTime"), UPDATE_TIME("entries.label.updateTime");
+    public enum SortBy { PUBLICATION_TIME("entries.label.publishTime"), UPDATE_TIME("entries.label.updateTime");
 
         private final String label;
 

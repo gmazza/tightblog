@@ -85,12 +85,12 @@ public class WeblogEntryListGenerator {
             if (canShowUnpublishedEntries || WeblogEntry.PubStatus.PUBLISHED.equals(currEntry.getStatus())) {
                 data.entries = new HashMap<>();
                 data.entries.put(instantToWeblogLocalDate(currEntry.getWeblog(),
-                        currEntry.getPubTime() == null ? Instant.now() : currEntry.getPubTime()),
+                        currEntry.getPublishTime() == null ? Instant.now() : currEntry.getPublishTime()),
                         Collections.singletonList(currEntry));
 
                 // make sure that entry is published and not to future
                 WeblogEntry nextEntry = weblogEntryManager.getNextPublishedEntry(currEntry);
-                if (nextEntry != null && nextEntry.getPubTime().isBefore(Instant.now())) {
+                if (nextEntry != null && nextEntry.getPublishTime().isBefore(Instant.now())) {
                     data.nextLink = urlService.getWeblogEntryURL(nextEntry);
                     data.nextLabel = messages.getMessage("weblogEntriesPager.single.next", new Object[]{nextEntry.getTitle()},
                             weblog.getLocaleInstance());
@@ -98,7 +98,7 @@ public class WeblogEntryListGenerator {
 
                 // make sure that entry is published and not to future
                 WeblogEntry prevEntry = weblogEntryManager.getPreviousPublishedEntry(currEntry);
-                if (prevEntry != null && prevEntry.getPubTime().isBefore(Instant.now())) {
+                if (prevEntry != null && prevEntry.getPublishTime().isBefore(Instant.now())) {
                     data.prevLink = urlService.getWeblogEntryURL(prevEntry);
                     data.prevLabel = messages.getMessage("weblogEntriesPager.single.prev", new Object[]{prevEntry.getTitle()},
                             weblog.getLocaleInstance());

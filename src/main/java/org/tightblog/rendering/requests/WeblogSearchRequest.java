@@ -188,10 +188,10 @@ public class WeblogSearchRequest extends WeblogPageRequest {
                     findByIdOrNull(doc.getField(FieldConstants.ID).stringValue());
 
             if (entry != null && WeblogEntry.PubStatus.PUBLISHED.equals(entry.getStatus())) {
-                LocalDate pubDate = entry.getPubTime().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate pubDate = entry.getPublishTime().atZone(ZoneId.systemDefault()).toLocalDate();
 
                 // ensure we do not get duplicates from Lucene by using a set collection.
-                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntry::getPubTime).reversed()
+                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntry::getPublishTime).reversed()
                         .thenComparing(WeblogEntry::getTitle)));
                 results.get(pubDate).add(entry);
             }

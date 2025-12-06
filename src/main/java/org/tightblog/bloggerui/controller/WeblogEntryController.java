@@ -128,7 +128,7 @@ public class WeblogEntryController {
         entry.setPermalink(urlService.getWeblogEntryURL(entry));
         entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
 
-        if (entry.getPubTime() != null) {
+        if (entry.getPublishTime() != null) {
             entry.setCreator(null);
         }
 
@@ -222,11 +222,10 @@ public class WeblogEntryController {
                 entryData.setWeblog(weblog);
             }
 
-            entry.setUpdateTime(Instant.now());
-            entry.setPubTime((entryData.getPubTime() != null) ? entryData.getPubTime() : entry.getUpdateTime());
+            entry.setPublishTime((entryData.getPublishTime() != null) ? entryData.getPublishTime() : Instant.now());
 
             if (PubStatus.PUBLISHED.equals(entryData.getStatus()) &&
-                    entry.getPubTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
+                    entry.getPublishTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
                 entryData.setStatus(PubStatus.SCHEDULED);
             }
 

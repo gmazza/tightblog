@@ -33,7 +33,7 @@
         <title type="html" th:utext="${#strings.escapeXml(entry.title)}">xxx</title>
         <author><name th:utext="${entry.creator.screenName}">xxx</name></author>
         <link rel="alternate" type="text/html" th:href="${model.getWeblogEntryURL(entry)}"/>
-        <published th:utext="${model.formatIsoOffsetDateTime(entry.pubTime)}">xxx</published>
+        <published th:utext="${model.formatIsoOffsetDateTime(entry.publishTime)}">xxx</published>
         <updated th:utext="${model.formatIsoOffsetDateTime(entry.updateTime)}">xxx</updated>
         <category th:attr="term=${#strings.escapeXml(entry.category.name)}" th:label="${#strings.escapeXml(entry.category.name)}" />
         <category th:each="tag : ${entry.tags}" th:attr="term=${#strings.escapeXml(tag)}" scheme="http://tightblog.org/ns/tags/" />

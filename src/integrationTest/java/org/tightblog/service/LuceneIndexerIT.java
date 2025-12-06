@@ -89,8 +89,7 @@ public class LuceneIndexerIT extends WebloggerTest {
         wd1.setAnchor("dummy1");
         wd1.setCreator(testUser);
         wd1.setStatus(PubStatus.PUBLISHED);
-        wd1.setUpdateTime(Instant.now());
-        wd1.setPubTime(Instant.now());
+        wd1.setPublishTime(Instant.now());
         wd1.setWeblog(testWeblog);
 
         WeblogCategory cat = weblogCategoryDao.findByWeblogAndName(testWeblog, "General");
@@ -111,8 +110,7 @@ public class LuceneIndexerIT extends WebloggerTest {
         wd2.setAnchor("dummy2");
         wd2.setStatus(PubStatus.PUBLISHED);
         wd2.setCreator(testUser);
-        wd2.setUpdateTime(Instant.now());
-        wd2.setPubTime(Instant.now());
+        wd2.setPublishTime(Instant.now());
         wd2.setWeblog(testWeblog);
 
         cat = weblogCategoryDao.findByWeblogAndName(testWeblog, "General");

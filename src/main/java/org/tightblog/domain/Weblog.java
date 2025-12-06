@@ -134,12 +134,12 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
 
     // Associated objects
     @JsonIgnore
-    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @OrderBy("position")
     private Set<WeblogCategory> weblogCategories = new LinkedHashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<BlogrollLink> blogrollLinks = new ArrayList<>();
 
     @JsonIgnore

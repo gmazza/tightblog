@@ -106,12 +106,11 @@ public class WeblogEntryManager {
      *                      still requiring moderation.
      */
     public void saveComment(WeblogEntryComment comment, boolean refreshWeblog) {
-        comment.setWeblog(comment.getWeblogEntry().getWeblog());
         weblogEntryCommentDao.saveAndFlush(comment);
-        weblogEntryCommentDao.evictWeblogCommentCounts(comment.getWeblog());
+        weblogEntryCommentDao.evictWeblogCommentCounts(comment.getWeblogEntry().getWeblog());
         if (refreshWeblog) {
             weblogEntryCommentDao.evictWeblogEntryCommentCounts(comment.getWeblogEntry());
-            weblogManager.saveWeblog(comment.getWeblog(), true);
+            weblogManager.saveWeblog(comment.getWeblogEntry().getWeblog(), true);
         }
     }
 
@@ -122,7 +121,7 @@ public class WeblogEntryManager {
         weblogEntryCommentDao.deleteById(comment.getId());
         boolean externallyViewable = WeblogEntryComment.ApprovalStatus.APPROVED.equals(comment.getStatus());
         weblogManager.saveWeblog(comment.getWeblogEntry().getWeblog(), externallyViewable);
-        weblogEntryCommentDao.evictWeblogCommentCounts(comment.getWeblog());
+        weblogEntryCommentDao.evictWeblogCommentCounts(comment.getWeblogEntry().getWeblog());
         if (externallyViewable) {
             weblogEntryCommentDao.evictWeblogEntryCommentCounts(comment.getWeblogEntry());
         }
@@ -190,7 +189,7 @@ public class WeblogEntryManager {
             entry.setCategory(cat);
         }
 
-        if (entry.getAnchor() == null || entry.getAnchor().trim().equals("")) {
+        if (entry.getAnchor() == null || entry.getAnchor().trim().isEmpty()) {
             entry.setAnchor(this.createAnchor(entry));
         }
 
@@ -198,14 +197,11 @@ public class WeblogEntryManager {
         // we only consider an entry future published if it is scheduled
         // more than 1 minute into the future
         if (WeblogEntry.PubStatus.PUBLISHED.equals(entry.getStatus()) &&
-                entry.getPubTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
+                entry.getPublishTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
             entry.setStatus(WeblogEntry.PubStatus.SCHEDULED);
         }
 
         // Store value object (creates new or updates existing)
-        Instant now = Instant.now();
-        entry.setUpdateTime(now);
-
         weblogEntryDao.save(entry);
         weblogManager.saveWeblog(entry.getWeblog(), true);
     }
@@ -244,9 +240,9 @@ public class WeblogEntryManager {
             wesc.setEndDate(targetDate.atZone(ZoneId.systemDefault()).toInstant());
             wesc.setSortOrder(WeblogEntrySearchCriteria.SortOrder.DESCENDING);
         }
-        List entries = getWeblogEntries(wesc);
-        if (entries.size() > 0) {
-            nearestEntry = (WeblogEntry) entries.get(0);
+        List<WeblogEntry> entries = getWeblogEntries(wesc);
+        if (!entries.isEmpty()) {
+            nearestEntry = entries.getFirst();
         }
         return nearestEntry;
     }
@@ -259,8 +255,8 @@ public class WeblogEntryManager {
     public WeblogEntry getNextPublishedEntry(WeblogEntry current) {
         WeblogEntry entry = null;
         List<WeblogEntry> entryList = getNextPrevEntries(current, true);
-        if (entryList != null && entryList.size() > 0) {
-            entry = entryList.get(0);
+        if (entryList != null && !entryList.isEmpty()) {
+            entry = entryList.getFirst();
         }
         return entry;
     }
@@ -273,15 +269,15 @@ public class WeblogEntryManager {
     public WeblogEntry getPreviousPublishedEntry(WeblogEntry current) {
         WeblogEntry entry = null;
         List<WeblogEntry> entryList = getNextPrevEntries(current, false);
-        if (entryList != null && entryList.size() > 0) {
-            entry = entryList.get(0);
+        if (entryList != null && !entryList.isEmpty()) {
+            entry = entryList.getFirst();
         }
         return entry;
     }
 
     private List<WeblogEntry> getNextPrevEntries(WeblogEntry current, boolean next) {
 
-        if (current == null || current.getPubTime() == null) {
+        if (current == null || current.getPublishTime() == null) {
             return Collections.emptyList();
         }
 
@@ -301,13 +297,13 @@ public class WeblogEntryManager {
         params.add(size++, WeblogEntry.PubStatus.PUBLISHED);
         whereClause.append(" AND e.status = ?").append(size);
 
-        params.add(size++, current.getPubTime());
+        params.add(size++, current.getPublishTime());
         if (next) {
-            whereClause.append(" AND e.pubTime >= ?").append(size);
-            whereClause.append(" ORDER BY e.pubTime ASC, e.id ASC");
+            whereClause.append(" AND e.publishTime >= ?").append(size);
+            whereClause.append(" ORDER BY e.publishTime ASC, e.id ASC");
         } else {
-            whereClause.append(" AND e.pubTime <= ?").append(size);
-            whereClause.append(" ORDER BY e.pubTime DESC, e.id DESC");
+            whereClause.append(" AND e.publishTime <= ?").append(size);
+            whereClause.append(" ORDER BY e.publishTime DESC, e.id DESC");
         }
 
         query = entityManager.createQuery(queryString + whereClause.toString(), WeblogEntry.class);
@@ -351,12 +347,12 @@ public class WeblogEntryManager {
 
         if (criteria.getStartDate() != null) {
             qd.params.add(size++, criteria.getStartDate());
-            qd.queryString += " AND e.pubTime >= ?" + size;
+            qd.queryString += " AND e.publishTime >= ?" + size;
         }
 
         if (criteria.getEndDate() != null) {
             qd.params.add(size++, criteria.getEndDate());
-            qd.queryString += " AND e.pubTime <= ?" + size;
+            qd.queryString += " AND e.publishTime <= ?" + size;
         }
 
         if (!StringUtils.isEmpty(criteria.getCategoryName())) {
@@ -379,7 +375,7 @@ public class WeblogEntryManager {
 
         qd.queryString += " ORDER BY ";
         qd.queryString += WeblogEntrySearchCriteria.SortBy.UPDATE_TIME.equals(criteria.getSortBy()) ?
-                " e.updateTime " : " e.pubTime ";
+                " e.updateTime " : " e.publishTime ";
         String sortOrder = WeblogEntrySearchCriteria.SortOrder.ASCENDING.equals(criteria.getSortOrder()) ? " ASC " : " DESC ";
         qd.queryString += sortOrder + ", e.id " + sortOrder;
 
@@ -490,7 +486,7 @@ public class WeblogEntryManager {
         } else {
             if (csc.getWeblog() != null) {
                 cqd.params.add(size++, csc.getWeblog());
-                appendConjuctionToWhereClause(whereClause, "c.weblog = ?").append(size);
+                appendConjuctionToWhereClause(whereClause, "c.weblogEntry.weblog = ?").append(size);
             }
             if (!StringUtils.isEmpty(csc.getCategoryName())) {
                 cqd.params.add(size++, csc.getCategoryName());
@@ -518,7 +514,7 @@ public class WeblogEntryManager {
             appendConjuctionToWhereClause(whereClause, "c.status = ?").append(size);
         }
 
-        if (whereClause.length() != 0) {
+        if (!whereClause.isEmpty()) {
             cqd.queryString += " WHERE " + whereClause.toString();
         }
 
@@ -549,8 +545,8 @@ public class WeblogEntryManager {
 
         for (WeblogEntry entry : entries) {
             entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
-            LocalDate tmp = entry.getPubTime() == null ? LocalDate.now() :
-                    entry.getPubTime().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate tmp = entry.getPublishTime() == null ? LocalDate.now() :
+                    entry.getPublishTime().atZone(ZoneId.systemDefault()).toLocalDate();
             List<WeblogEntry> dayEntries = map.computeIfAbsent(tmp, k -> new ArrayList<>());
             dayEntries.add(entry);
         }
@@ -602,9 +598,9 @@ public class WeblogEntryManager {
         }
         boolean ret = false;
 
-        Instant inPubTime = entry.getPubTime();
-        if (inPubTime != null) {
-            Instant lastCommentDay = inPubTime.plus(entry.getCommentDays(), ChronoUnit.DAYS);
+        Instant inPublishTime = entry.getPublishTime();
+        if (inPublishTime != null) {
+            Instant lastCommentDay = inPublishTime.plus(entry.getCommentDays(), ChronoUnit.DAYS);
             if (Instant.now().isBefore(lastCommentDay)) {
                 ret = true;
             }
@@ -622,7 +618,7 @@ public class WeblogEntryManager {
      * @return the whereClause.
      */
     private static StringBuilder appendConjuctionToWhereClause(StringBuilder whereClause, String expression) {
-        if (whereClause.length() != 0 && expression.length() != 0) {
+        if (!whereClause.isEmpty() && !expression.isEmpty()) {
             whereClause.append(" AND ");
         }
         return whereClause.append(expression);
@@ -668,7 +664,7 @@ public class WeblogEntryManager {
      * @return AtomEnclosure element for the resource
      */
     public AtomEnclosure generateEnclosure(String url) {
-        if (url == null || url.trim().length() == 0) {
+        if (url == null || url.trim().isEmpty()) {
             return null;
         }
 

@@ -58,8 +58,8 @@ public interface WeblogEntryCommentDao extends JpaRepository<WeblogEntryComment,
 
     @Cacheable(value = "UnapprovedCommentCounts", key = "#weblog.id")
     default int countByWeblogAndStatusUnapproved(Weblog weblog) {
-        return countByWeblogAndStatusIn(weblog, Collections.unmodifiableList(
-                List.of(ApprovalStatus.PENDING, ApprovalStatus.SPAM, ApprovalStatus.DISAPPROVED)));
+        return countByWeblogEntryWeblogAndStatusIn(weblog, List.of(ApprovalStatus.PENDING,
+                ApprovalStatus.SPAM, ApprovalStatus.DISAPPROVED));
     }
 
     @CacheEvict(cacheNames = {"UnapprovedCommentCounts"}, key = "#weblog.id")
@@ -67,7 +67,7 @@ public interface WeblogEntryCommentDao extends JpaRepository<WeblogEntryComment,
         // no-op
     }
 
-    int countByWeblogAndStatusIn(Weblog weblog, List<ApprovalStatus> statuses);
+    int countByWeblogEntryWeblogAndStatusIn(Weblog weblog, List<ApprovalStatus> statuses);
 
     @Transactional("transactionManager")
     void deleteByWeblogEntry(WeblogEntry e);

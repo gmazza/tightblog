@@ -134,12 +134,12 @@
       </div>
       <span v-if="entriesData.entries.length > 0">
         <div style="float: right">
-          <span v-if="entriesData.entries[0].pubTime != null">
-            {{ formatDateTime(entriesData.entries[0].pubTime) }}
+          <span v-if="entriesData.entries[0].publishTime != null">
+            {{ formatDateTime(entriesData.entries[0].publishTime) }}
           </span>
           ---
-          <span v-if="entriesData.entries[entriesData.entries.length - 1].pubTime != null">
-            {{ formatDateTime(entriesData.entries[entriesData.entries.length - 1].pubTime) }}
+          <span v-if="entriesData.entries[entriesData.entries.length - 1].publishTime != null">
+            {{ formatDateTime(entriesData.entries[entriesData.entries.length - 1].publishTime) }}
           </span>
         </div>
       </span>
@@ -176,7 +176,7 @@
     <table class="table table-sm table-bordered table-hover" width="100%">
       <thead class="thead-light">
         <tr>
-          <th width="15%">{{ $t('entries.pubTime') }}</th>
+          <th width="15%">{{ $t('entries.publishTime') }}</th>
           <th width="15%">
             {{ $t('entries.updateTime') }}
           </th>
@@ -197,8 +197,8 @@
           v-cloak
         >
           <td>
-            <span v-if="entry.pubTime != null">
-              {{ formatDateTime(entry.pubTime) }}
+            <span v-if="entry.publishTime != null">
+              {{ formatDateTime(entry.publishTime) }}
             </span>
           </td>
 

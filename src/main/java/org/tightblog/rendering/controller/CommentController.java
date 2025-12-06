@@ -319,8 +319,7 @@ public class CommentController extends AbstractController {
         comment.setWeblogEntry(pageRequest.getWeblogEntry());
         comment.setRemoteHost(request.getRemoteHost());
         comment.setPostTime(Instant.now());
-        comment.setBlogger(pageRequest.getBlogger());
-        comment.setWeblog(pageRequest.getWeblog());
+        comment.setCreator(pageRequest.getBlogger());
 
         // Validate url
         comment.setUrl(Utilities.removeHTML(request.getParameter("url")));

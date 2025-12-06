@@ -21,15 +21,13 @@
 package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
 import org.apache.commons.text.StringEscapeUtils;
-import org.tightblog.util.Utilities;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -38,61 +36,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "weblog_entry_comment")
-public class WeblogEntryComment implements WeblogOwned {
-
-    public enum ApprovalStatus {
-        // Comment missing required fields like name or email.  Not serialized to database.
-        INVALID(false, null),
-        // Comment identified as spam, either deleted or subject to moderation depending on blog config.
-        SPAM(true, "comments.onlySpam"),
-        // Comment not identified as spam, subject to moderation.
-        PENDING(true, "comments.onlyPending"),
-        // Comment approved and visible (published)
-        APPROVED(true, "comments.onlyApproved"),
-        // Approved comment subsequently disapproved and not viewable on blog.  No email notification
-        // sent to commenter if re-approved.
-        DISAPPROVED(true, "comments.onlyDisapproved");
-
-        private final boolean selectable;
-        private final String messageConstant;
-
-        ApprovalStatus(boolean selectable, String messageConstant) {
-            this.selectable = selectable;
-            this.messageConstant = messageConstant;
-        }
-
-        public boolean isSelectable() {
-            return selectable;
-        }
-
-        public String getMessageConstant() {
-            return messageConstant;
-        }
-    }
-
-    public enum SpamCheckResult {
-        SPAM, NOT_SPAM
-    }
-
-    // attributes
-    private String id = Utilities.generateUUID();
-    private int hashCode;
-    private String name;
-    private String email;
-    private String url;
-    private String content;
-    private Instant postTime;
-    private ApprovalStatus status = ApprovalStatus.DISAPPROVED;
-    private Boolean notify = Boolean.FALSE;
-    private String remoteHost;
-    private String referrer;
-    private String userAgent;
-
-    // associations
-    private Weblog weblog;
-    private WeblogEntry weblogEntry;
-
-    private User blogger;
+public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
 
     public WeblogEntryComment() {
     }
@@ -101,31 +45,38 @@ public class WeblogEntryComment implements WeblogOwned {
         this.content = content;
     }
 
-    // transient field involved during comment submittal
+    private String name;
+    private String email;
+    private String url;
+    private String content;
+
+    @Column(name = "post_time")
+    private Instant postTime;
+
+    @Enumerated(EnumType.STRING)
+    private ApprovalStatus status = ApprovalStatus.DISAPPROVED;
+
+    private Boolean notify = Boolean.FALSE;
+
+    @Column(name = "remote_host")
+    private String remoteHost;
+
+    private String referrer;
+
+    @Column(name = "user_agent")
+    private String userAgent;
+
+    @ManyToOne
+    @JoinColumn(name = "weblog_entry_id")
+    private WeblogEntry weblogEntry;
+
+    // nullable, used in cases where comment is created by a registered user
+    @ManyToOne
+    private User creator;
+
+    @Transient
     private String submitResponseMessage;
 
-    @Id
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
-    @JsonIgnore
-    public Weblog getWeblog() {
-        return this.weblog;
-    }
-
-    public void setWeblog(Weblog website) {
-        this.weblog = website;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "entryid", nullable = false)
     public WeblogEntry getWeblogEntry() {
         return weblogEntry;
     }
@@ -134,17 +85,14 @@ public class WeblogEntryComment implements WeblogOwned {
         weblogEntry = entry;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "bloggerid")
-    public User getBlogger() {
-        return blogger;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setBlogger(User blogger) {
-        this.blogger = blogger;
+    public void setCreator(User blogger) {
+        this.creator = blogger;
     }
 
-    @Basic(optional = false)
     public String getName() {
         return this.name;
     }
@@ -153,7 +101,6 @@ public class WeblogEntryComment implements WeblogOwned {
         this.name = name;
     }
 
-    @Basic(optional = false)
     public String getEmail() {
         return this.email;
     }
@@ -178,7 +125,6 @@ public class WeblogEntryComment implements WeblogOwned {
         this.content = content;
     }
 
-    @Basic(optional = false)
     public Instant getPostTime() {
         return this.postTime;
     }
@@ -187,8 +133,6 @@ public class WeblogEntryComment implements WeblogOwned {
         this.postTime = postTime;
     }
 
-    @Basic(optional = false)
-    @Enumerated(EnumType.STRING)
     public ApprovalStatus getStatus() {
         return status;
     }
@@ -201,7 +145,6 @@ public class WeblogEntryComment implements WeblogOwned {
      * True if person who wrote comment wishes to be notified of new comments
      * on the same weblog entry.
      */
-    @Basic(optional = false)
     public Boolean getNotify() {
         return this.notify;
     }
@@ -269,8 +212,6 @@ public class WeblogEntryComment implements WeblogOwned {
         return null;
     }
 
-    // fields involved with rendering comments on blogs
-    @Transient
     public String getSubmitResponseMessage() {
         return submitResponseMessage;
     }
@@ -288,15 +229,23 @@ public class WeblogEntryComment implements WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof WeblogEntryComment && Objects.equals(id, ((WeblogEntryComment) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof WeblogEntryComment)) {
+            return false;
+        }
+        WeblogEntryComment that = (WeblogEntryComment) other;
+        if (this.id == null || that.id == null) {
+            // if not yet persisted, do not consider equal
+            return false;
+        }
+        return Objects.equals(this.id, that.id);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 
     @Override
@@ -305,6 +254,47 @@ public class WeblogEntryComment implements WeblogOwned {
                 (weblogEntry != null && weblogEntry.getWeblog() != null) ? weblogEntry.getWeblog().getHandle() : "(no weblog)",
                 (weblogEntry != null && weblogEntry.getAnchor() != null) ? weblogEntry.getAnchor() : "(no weblog entry)",
                 name, email, postTime);
+    }
+
+    @Transient
+    @JsonIgnore
+    @Override
+    public Weblog getWeblog() {
+        return weblogEntry.getWeblog();
+    }
+
+    public enum ApprovalStatus {
+        // Comment missing required fields like name or email.  Not serialized to database.
+        INVALID(false, null),
+        // Comment identified as spam, either deleted or subject to moderation depending on blog config.
+        SPAM(true, "comments.onlySpam"),
+        // Comment not identified as spam, subject to moderation.
+        PENDING(true, "comments.onlyPending"),
+        // Comment approved and visible (published)
+        APPROVED(true, "comments.onlyApproved"),
+        // Approved comment subsequently disapproved and not viewable on blog.  No email notification
+        // sent to commenter if re-approved.
+        DISAPPROVED(true, "comments.onlyDisapproved");
+
+        private final boolean selectable;
+        private final String messageConstant;
+
+        ApprovalStatus(boolean selectable, String messageConstant) {
+            this.selectable = selectable;
+            this.messageConstant = messageConstant;
+        }
+
+        public boolean isSelectable() {
+            return selectable;
+        }
+
+        public String getMessageConstant() {
+            return messageConstant;
+        }
+    }
+
+    public enum SpamCheckResult {
+        SPAM, NOT_SPAM
     }
 
 }

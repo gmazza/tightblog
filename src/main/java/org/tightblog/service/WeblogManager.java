@@ -300,7 +300,7 @@ public class WeblogManager {
 
         // obtain usage stats
         String queryString = "SELECT new org.tightblog.domain.CategoryStats(we.category, " +
-                "min(we.pubTime), max(we.pubTime), count(we)) " +
+                "min(we.publishTime), max(we.publishTime), count(we)) " +
                 "FROM WeblogEntry we WHERE we.weblog.id = ?1 GROUP BY we.category";
         TypedQuery<CategoryStats> query = entityManager.createQuery(queryString, CategoryStats.class);
         query.setParameter(1, weblog.getId());
@@ -359,7 +359,7 @@ public class WeblogManager {
         int size = 0;
 
         StringBuilder queryString = new StringBuilder();
-        queryString.append("SELECT wtag.name, COUNT(wtag), MIN(we.pubTime), MAX(we.pubTime) " +
+        queryString.append("SELECT wtag.name, COUNT(wtag), MIN(we.publishTime), MAX(we.publishTime) " +
                 "FROM WeblogEntryTag wtag, WeblogEntry we WHERE wtag.weblogEntry.id = we.id");
 
         if (weblog != null) {

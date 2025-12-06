@@ -149,8 +149,7 @@ public abstract class WebloggerTest {
         testEntry.setText("blah blah entry");
         testEntry.setEditFormat(Weblog.EditFormat.HTML);
         testEntry.setAnchor(anchor);
-        testEntry.setPubTime(Instant.now());
-        testEntry.setUpdateTime(Instant.now());
+        testEntry.setPublishTime(Instant.now());
         testEntry.setStatus(status);
         testEntry.setWeblog(weblog);
         testEntry.setCreator(user);

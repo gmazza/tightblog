@@ -201,7 +201,7 @@ export interface WeblogEntry {
   enclosureLength: number
   commentCountIncludingUnapproved: number
   editFormat: string
-  pubTime: Date
+  publishTime: Date
   updateTime: Date
 }
 
