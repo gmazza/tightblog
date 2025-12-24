@@ -7,8 +7,8 @@ export interface MediaFile {
   id: string
   name: string
   anchor: string
-  titleText: string
-  altText: string
+  titleAttribute: string
+  altAttribute: string
   permalink: string
   contentType: string
   length: number

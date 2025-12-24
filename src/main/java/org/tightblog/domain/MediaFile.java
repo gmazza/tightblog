@@ -1,6 +1,6 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  The ASF licenses this file to You
+ * contributor license agreements.  The ASF licenses this file to You
  * under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,79 +20,94 @@
  */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.http.MediaType;
-import org.tightblog.util.Utilities;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.tightblog.util.Utilities;
+
 import java.io.File;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
-/**
- * Represents a media file
- */
+// needs to implement WeblogOwned to satisfy security checks in MediaFileController
 @Entity
 @Table(name = "media_file")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
+public class MediaFile extends AbstractEntity implements Comparable<MediaFile>, WeblogOwned {
 
     public static final MediaType THUMBNAIL_CONTENT_TYPE = MediaType.IMAGE_PNG;
     public static final int MAX_THUMBNAIL_WIDTH = 120;
     public static final int MAX_THUMBNAIL_HEIGHT = 120;
 
-    private String id = Utilities.generateUUID();
-    private int hashCode;
-
     @NotBlank(message = "{mediaFile.error.nameNull}")
     private String name;
-    private String altText;
-    private String titleText;
+
+    @Column(name = "alt_attribute")
+    private String altAttribute;
+
+    @Column(name = "title_attribute")
+    private String titleAttribute;
+
+    // used as the name of the file when saved within the blogging tool storage
+    // we don't rely on the DB id as we create the file before persisting the entity
+    @Column(name = "file_id")
+    private String fileId = Utilities.generateUUID();
+
     private String anchor;
     private String notes;
-    private long length;
+
+    @Column(name = "size_in_bytes")
+    private long sizeInBytes;
+
     private int width = -1;
     private int height = -1;
-    private int thumbnailHeight = -1;
-    private int thumbnailWidth = -1;
-    private String contentType;
-    private Instant dateUploaded = Instant.now();
-    private Instant lastUpdated = Instant.now();
-    private User creator;
 
+    @Transient
+    private int thumbnailHeight = -1;
+
+    @Transient
+    private int thumbnailWidth = -1;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+    @ManyToOne
+    @JoinColumn(name = "directory_id", nullable = false)
     private MediaDirectory directory;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @Transient
     private File content;
+
+    @Transient
     private File thumbnail;
 
+    @Transient
     private String permalink;
+
+    @Transient
     private String thumbnailURL;
+
+    @Transient
+    private boolean imageFile;
 
     public MediaFile() {
     }
 
-    @Id
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Basic(optional = false)
     public String getName() {
         return name;
     }
@@ -101,9 +116,14 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.name = name;
     }
 
-    /**
-     * notes for media file
-     */
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -112,22 +132,20 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.notes = notes;
     }
 
-    @Column(name = "alt_attr")
-    public String getAltText() {
-        return altText;
+    public String getAltAttribute() {
+        return altAttribute;
     }
 
-    public void setAltText(String altText) {
-        this.altText = altText;
+    public void setAltAttribute(String altText) {
+        this.altAttribute = altText;
     }
 
-    @Column(name = "title_attr")
-    public String getTitleText() {
-        return titleText;
+    public String getTitleAttribute() {
+        return titleAttribute;
     }
 
-    public void setTitleText(String titleText) {
-        this.titleText = titleText;
+    public void setTitleAttribute(String titleText) {
+        this.titleAttribute = titleText;
     }
 
     public String getAnchor() {
@@ -138,38 +156,14 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.anchor = anchor;
     }
 
-    /**
-     * Size of the media file
-     */
-    @Column(name = "size_in_bytes")
-    public long getLength() {
-        return length;
+    public long getSizeInBytes() {
+        return sizeInBytes;
     }
 
-    public void setLength(long length) {
-        this.length = length;
+    public void setSizeInBytes(long length) {
+        this.sizeInBytes = length;
     }
 
-    @Column(name = "date_uploaded", nullable = false)
-    public Instant getDateUploaded() {
-        return dateUploaded;
-    }
-
-    public void setDateUploaded(Instant dateUploaded) {
-        this.dateUploaded = dateUploaded;
-    }
-
-    @Column(name = "last_updated")
-    public Instant getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(Instant time) {
-        this.lastUpdated = time;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "directoryid", nullable = false)
     public MediaDirectory getDirectory() {
         return directory;
     }
@@ -178,7 +172,6 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.directory = dir;
     }
 
-    @Column(name = "content_type", nullable = false)
     public String getContentType() {
         return contentType;
     }
@@ -187,12 +180,6 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.contentType = contentType;
     }
 
-    @Transient
-    public String getPath() {
-        return getDirectory().getName();
-    }
-
-    @Transient
     public File getContent() {
         return content;
     }
@@ -205,23 +192,16 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.thumbnail = thumbnail;
     }
 
-    @Transient
     public File getThumbnail() {
         return thumbnail;
     }
 
-    /**
-     * Indicates whether this is an image file.
-     */
-    @Transient
+    @JsonProperty
     public boolean isImageFile() {
         return contentType != null && contentType.toLowerCase().startsWith("image/");
     }
 
-    /**
-     * Returns permalink URL for this media file resource.
-     */
-    @Transient
+    @JsonProperty
     public String getPermalink() {
         return permalink;
     }
@@ -234,7 +214,7 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
      * Returns thumbnail URL for this media file resource. Resulting URL will be
      * a 404 if media file is not an image.
      */
-    @Transient
+    @JsonProperty
     public String getThumbnailURL() {
         return thumbnailURL;
     }
@@ -243,8 +223,6 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.thumbnailURL = thumbnailURL;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "creatorid", nullable = false)
     public User getCreator() {
         return creator;
     }
@@ -269,10 +247,6 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         this.height = height;
     }
 
-    /**
-     * @return the thumbnailHeight
-     */
-    @Transient
     public int getThumbnailHeight() {
         if (isImageFile() && (thumbnailWidth == -1 || thumbnailHeight == -1)) {
             figureThumbnailSize();
@@ -280,15 +254,16 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         return thumbnailHeight;
     }
 
-    /**
-     * @return the thumbnailWidth
-     */
-    @Transient
     public int getThumbnailWidth() {
         if (isImageFile() && (thumbnailWidth == -1 || thumbnailHeight == -1)) {
             figureThumbnailSize();
         }
         return thumbnailWidth;
+    }
+
+    @Override
+    public Weblog getWeblog() {
+        return Optional.ofNullable(directory).map(MediaDirectory::getWeblog).orElse(null);
     }
 
     private void figureThumbnailSize() {
@@ -319,15 +294,22 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof MediaFile && Objects.equals(id, ((MediaFile) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof MediaFile that)) {
+            return false;
+        }
+        if (this.id == null || that.id == null) {
+            // if not yet persisted, do not consider equal
+            return false;
+        }
+        return Objects.equals(this.id, that.id);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 
     private static final Comparator<MediaFile> COMPARATOR =
@@ -339,10 +321,4 @@ public class MediaFile implements Comparable<MediaFile>, WeblogOwned {
         return COMPARATOR.compare(this, o);
     }
 
-    @Override
-    @JsonIgnore
-    @Transient
-    public Weblog getWeblog() {
-        return directory.getWeblog();
-    }
 }

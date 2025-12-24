@@ -51,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import jakarta.annotation.Resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -171,7 +172,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile.setCreator(testUser);
         mediaFile.setName(mockMultipartFile.getName());
         mediaFile.setNotes("This is a test image");
-        mediaFile.setLength(mockMultipartFile.getSize());
+        mediaFile.setSizeInBytes(mockMultipartFile.getSize());
         mediaFile.setContentType(mockMultipartFile.getContentType());
         defaultDirectory.getMediaFiles().add(mediaFile);
 
@@ -180,7 +181,8 @@ public class MediaManagerIT extends WebloggerTest {
         assertTrue(ObjectUtils.isEmpty(errors));
 
         assertNotNull(mediaFile.getId());
-        assertTrue(mediaFile.getId().length() > 0);
+        assertFalse(mediaFile.getId().isEmpty());
+        assertFalse(mediaFile.getFileId().isEmpty());
 
         // test values saved
         MediaFile mediaFile1 = mediaFileDao.findByIdOrNull(mediaFile.getId());
@@ -188,7 +190,7 @@ public class MediaManagerIT extends WebloggerTest {
         assertEquals(testUser, mediaFile1.getCreator());
         assertEquals(mockMultipartFile.getName(), mediaFile1.getName());
         assertEquals("This is a test image", mediaFile1.getNotes());
-        assertEquals(mockMultipartFile.getSize(), mediaFile1.getLength());
+        assertEquals(mockMultipartFile.getSize(), mediaFile1.getSizeInBytes());
         assertEquals(mockMultipartFile.getContentType(), mediaFile1.getContentType());
 
         // test delete
@@ -208,7 +210,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile.setCreator(testUser);
         mediaFile.setName("test5.jpg");
         mediaFile.setNotes("This is a test image 5");
-        mediaFile.setLength(3000);
+        mediaFile.setSizeInBytes(3000);
         mediaFile.setDirectory(defaultDirectory);
         mediaFile.setContentType("image/jpeg");
 
@@ -216,10 +218,10 @@ public class MediaManagerIT extends WebloggerTest {
         mediaManager.saveMediaFile(mediaFile, mockMultipartFile, testUser, errors);
         assertTrue(ObjectUtils.isEmpty(errors));
 
-        defaultDirectory.getMediaFiles().add(mediaFile);
+        mediaFile = defaultDirectory.getMediaFiles().iterator().next();
         String id = mediaFile.getId();
         assertNotNull(id);
-        assertTrue(id.length() > 0);
+        assertFalse(id.isEmpty());
 
         MediaFile mediaFile1 = mediaFileDao.findByIdOrNull(id);
         mediaFile1.setName("updated.gif");
@@ -246,7 +248,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile.setDirectory(defaultDirectory);
         mediaFile.setName("test6_1.jpg");
         mediaFile.setNotes("This is a test image 6.1");
-        mediaFile.setLength(4000);
+        mediaFile.setSizeInBytes(4000);
         mediaFile.setContentType("image/jpeg");
 
         Map<String, List<String>> errors = new HashMap<>();
@@ -259,7 +261,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile2.setDirectory(defaultDirectory);
         mediaFile2.setName("test6_2.jpg");
         mediaFile2.setNotes("This is a test image 6.2");
-        mediaFile2.setLength(4000);
+        mediaFile2.setSizeInBytes(4000);
         mediaFile2.setContentType("image/jpeg");
 
         mediaManager.saveMediaFile(mediaFile2, mockMultipartFile, testUser, errors);
@@ -292,7 +294,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile.setDirectory(defaultDirectory);
         mediaFile.setName("test7_1.jpg");
         mediaFile.setNotes("This is a test image 7.1");
-        mediaFile.setLength(4000);
+        mediaFile.setSizeInBytes(4000);
         mediaFile.setContentType("image/jpeg");
 
         Map<String, List<String>> errors = new HashMap<>();
@@ -305,7 +307,7 @@ public class MediaManagerIT extends WebloggerTest {
         mediaFile2.setDirectory(defaultDirectory);
         mediaFile2.setName("test7_2.jpg");
         mediaFile2.setNotes("This is a test image 7.2");
-        mediaFile2.setLength(4000);
+        mediaFile2.setSizeInBytes(4000);
         mediaFile2.setContentType("image/jpeg");
 
         mediaManager.saveMediaFile(mediaFile2, mockMultipartFile, testUser, errors);

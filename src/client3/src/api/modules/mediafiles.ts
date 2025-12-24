@@ -38,9 +38,9 @@ export function deleteMediaFiles(
   weblogId: string,
   fileIds: Array<string>
 ): Promise<AxiosResponse<void>> {
-  return axios.post(`${VITE_PUBLIC_PATH}/mediafiles/weblog/${weblogId}/deletefiles`, {
-    data: { fileIds }
-  })
+  return axios.post(`${VITE_PUBLIC_PATH}/mediafiles/weblog/${weblogId}/deletefiles`,
+     fileIds
+  )
 }
 
 export function moveFiles(
