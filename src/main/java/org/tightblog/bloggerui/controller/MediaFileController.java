@@ -113,7 +113,7 @@ public class MediaFileController {
         mf.setCreator(null);
         mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()));
         mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
-                mf.getId()));
+                mf.getFileId()));
         return mf;
     }
 
