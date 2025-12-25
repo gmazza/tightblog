@@ -25,3 +25,4 @@ src/main/webapp/tb-ui/
 node_modules
 
 errortxt.txt
+/application-tbcustom.properties
