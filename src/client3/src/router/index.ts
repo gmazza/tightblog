@@ -136,6 +136,11 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/admin/userAdmin',
+      name: 'userAdmin',
+      component: () => import('../views/UserAdmin.vue')
+    },
+    {
       path: '/app/mediaFileEdit/:weblogId',
       name: 'mediaFileEdit',
       component: () => import('../views/MediaFileEdit.vue'),
