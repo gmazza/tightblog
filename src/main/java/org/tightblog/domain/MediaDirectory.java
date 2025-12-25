@@ -22,17 +22,12 @@ package org.tightblog.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.tightblog.util.Utilities;
 import jakarta.validation.constraints.NotBlank;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -44,44 +39,32 @@ import java.util.Set;
 
 @Entity
 @Table(name = "media_directory")
-@NamedQueries({
-        @NamedQuery(name = "MediaDirectory.getByWeblog",
-                query = "SELECT d FROM MediaDirectory d WHERE d.weblog = ?1 order by d.name"),
-        @NamedQuery(name = "MediaDirectory.getByWeblogAndName",
-                query = "SELECT d FROM MediaDirectory d WHERE d.weblog = ?1 AND d.name = ?2")
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
+public class MediaDirectory extends AbstractEntity implements Comparable<MediaDirectory>, WeblogOwned {
 
-    @NotBlank
-    private String id = Utilities.generateUUID();
-    private int hashCode;
     @NotBlank(message = "{mediaFile.error.view.dirNameInvalid}")
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", message = "{mediaFile.error.view.dirNameInvalid}")
     String name;
-    @JsonIgnore
+
     @ManyToOne
+    @JoinColumn(name = "weblog_id", nullable = false)
+    @JsonIgnore
     Weblog weblog;
+
+    @OneToMany(targetEntity = MediaFile.class,
+            cascade = {CascadeType.ALL}, mappedBy = "directory")
+    @OrderBy("name")
+    @JsonIgnore
     Set<MediaFile> mediaFiles = new HashSet<>();
 
     public MediaDirectory() {
     }
 
-    public MediaDirectory(Weblog weblog, String name) {
+    MediaDirectory(Weblog weblog, String name) {
         this.name = name;
         this.weblog = weblog;
     }
 
-    @Id
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Basic(optional = false)
     public String getName() {
         return name;
     }
@@ -90,8 +73,6 @@ public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
         this.name = name;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "weblogid", nullable = false)
     public Weblog getWeblog() {
         return weblog;
     }
@@ -100,10 +81,6 @@ public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
         this.weblog = weblog;
     }
 
-    @OneToMany(targetEntity = MediaFile.class,
-            cascade = {CascadeType.ALL}, mappedBy = "directory")
-    @OrderBy("name")
-    @JsonIgnore
     public Set<MediaFile> getMediaFiles() {
         return mediaFiles;
     }
@@ -152,15 +129,22 @@ public class MediaDirectory implements Comparable<MediaDirectory>, WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof MediaDirectory && Objects.equals(id, ((MediaDirectory) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof MediaDirectory that)) {
+            return false;
+        }
+        if (this.id == null || that.id == null) {
+            // if not yet persisted, do not consider equal
+            return false;
+        }
+        return Objects.equals(this.id, that.id);
     }
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
+        return Objects.hashCode(id);
     }
 
     @Override

@@ -76,7 +76,7 @@
           <input
             id="altText"
             type="text"
-            v-model="mediaFileData.altText"
+            v-model="mediaFileData.altAttribute"
             size="80"
             maxlength="255"
           />
@@ -94,7 +94,7 @@
           <input
             id="titleText"
             type="text"
-            v-model="mediaFileData.titleText"
+            v-model="mediaFileData.titleAttribute"
             size="80"
             maxlength="255"
           />

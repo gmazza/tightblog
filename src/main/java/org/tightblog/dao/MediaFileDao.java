@@ -30,4 +30,7 @@ public interface MediaFileDao extends JpaRepository<MediaFile, String> {
     default MediaFile findByIdOrNull(String id) {
         return findById(id).orElse(null);
     }
+
+    MediaFile findByFileId(String fileId);
+
 }

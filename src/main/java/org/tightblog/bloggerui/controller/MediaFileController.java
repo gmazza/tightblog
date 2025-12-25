@@ -93,16 +93,17 @@ public class MediaFileController {
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'POST')")
     public List<MediaFile> getMediaDirectoryContents(@PathVariable String id, Principal p) {
         MediaDirectory md = mediaDirectoryDao.findByIdOrNull(id);
-        return md.getMediaFiles()
+        List<MediaFile> files = md.getMediaFiles()
                 .stream()
                 .peek(mf -> {
                     mf.setCreator(null);
-                    mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getId()));
+                    mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()));
                     mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
-                            mf.getId()));
+                            mf.getFileId()));
                 })
                 .sorted(Comparator.comparing(MediaFile::getName))
                 .collect(Collectors.toList());
+        return files;
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/mediafile/{id}")
@@ -110,9 +111,9 @@ public class MediaFileController {
     public MediaFile getMediaFile(@PathVariable String id, Principal p) {
         MediaFile mf = mediaFileDao.findByIdOrNull(id);
         mf.setCreator(null);
-        mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getId()));
+        mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()));
         mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
-                mf.getId()));
+                mf.getFileId()));
         return mf;
     }
 
@@ -122,7 +123,7 @@ public class MediaFileController {
                                         @RequestPart(name = "uploadFile", required = false) MultipartFile uploadedFile)
             throws IOException {
 
-        MediaFile mf = mediaFileDao.findByIdOrNull(mediaFileData.getId());
+        MediaFile mf = mediaFileData.getId() == null ? null : mediaFileDao.findByIdOrNull(mediaFileData.getId());
 
         // Check user permissions
         User user = userDao.findEnabledByUserName(p.getName());
@@ -162,8 +163,8 @@ public class MediaFileController {
 
         // update media file with new metadata
         mf.setName(mediaFileData.getName());
-        mf.setAltText(mediaFileData.getAltText());
-        mf.setTitleText(mediaFileData.getTitleText());
+        mf.setAltAttribute(mediaFileData.getAltAttribute());
+        mf.setTitleAttribute(mediaFileData.getTitleAttribute());
         mf.setAnchor(mediaFileData.getAnchor());
         mf.setNotes(mediaFileData.getNotes());
 

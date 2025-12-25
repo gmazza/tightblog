@@ -97,7 +97,7 @@ public class MediaFileController extends AbstractController {
         weblogMediaCache.incrementIncomingRequests();
 
         // DB stores last modified in millis, browser if-modified-since in seconds, so need to truncate millis from the former.
-        long inDb = mediaFile.getLastUpdated().truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
+        long inDb = mediaFile.getDateUpdated().truncatedTo(ChronoUnit.SECONDS).toEpochMilli();
         long inBrowser = getBrowserCacheExpireDate(request);
 
         if (inDb <= inBrowser) {
@@ -125,7 +125,7 @@ public class MediaFileController extends AbstractController {
                 .contentType(useThumbnail ? MediaFile.THUMBNAIL_CONTENT_TYPE
                         : MediaType.valueOf(mediaFile.getContentType()))
                 .contentLength(desiredFile.length())
-                .lastModified(mediaFile.getLastUpdated().toEpochMilli())
+                .lastModified(mediaFile.getDateUpdated().toEpochMilli())
                 .cacheControl(CacheControl.noCache())
                 .body(resource);
     }

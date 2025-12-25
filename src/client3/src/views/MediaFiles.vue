@@ -82,14 +82,14 @@
                 <img
                   v-if="mediaFile.imageFile"
                   v-bind:src="mediaFile.thumbnailURL"
-                  v-bind:alt="mediaFile.altText"
+                  v-bind:alt="mediaFile.altAttribute"
                   v-bind:title="mediaFile.name"
                 />
 
                 <img
                   v-else
                   src="@/assets/page_white.png"
-                  v-bind:alt="mediaFile.altText"
+                  v-bind:alt="mediaFile.altAttribute"
                   style="padding: 40px 50px"
                 />
               </router-link>
@@ -372,9 +372,9 @@ export default {
           mediaFile.permalink +
           '"' +
           ' alt="' +
-          (mediaFile.altText ? mediaFile.altText : mediaFile.name) +
+          (mediaFile.altAttribute ? mediaFile.altAttribute : mediaFile.name) +
           '"' +
-          (mediaFile.titleText ? ' title="' + mediaFile.titleText + '"' : '') +
+          (mediaFile.titleAttribute ? ' title="' + mediaFile.titleAttribute + '"' : '') +
           '>' +
           (mediaFile.anchor ? '</a>' : '')
       } else {
@@ -382,9 +382,9 @@ export default {
           '<a href="' +
           mediaFile.permalink +
           '"' +
-          (mediaFile.titleText ? ' title="' + mediaFile.titleText + '"' : '') +
+          (mediaFile.titleAttribute ? ' title="' + mediaFile.titleAttribute + '"' : '') +
           '>' +
-          (mediaFile.altText ? mediaFile.altText : mediaFile.name) +
+          (mediaFile.altAttribute ? mediaFile.altAttribute : mediaFile.name) +
           '</a>'
       }
 

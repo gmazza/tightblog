@@ -33,7 +33,6 @@ import org.tightblog.dao.MediaDirectoryDao;
 import org.tightblog.dao.MediaFileDao;
 
 import javax.imageio.ImageIO;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -43,12 +42,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Service for media file and media directory management.
@@ -104,23 +101,10 @@ public class MediaManager {
     public MediaDirectory createMediaDirectory(Weblog weblog, String requestedName) {
         requestedName = requestedName.startsWith("/") ? requestedName.substring(1) : requestedName;
 
-        if (weblog.hasMediaDirectory(requestedName)) {
-            throw new IllegalArgumentException("mediaFileView.directoryCreate.error.exists");
-        }
-
-        MediaDirectory newDirectory = new MediaDirectory(weblog, requestedName);
-
-        Set<ConstraintViolation<MediaDirectory>> errors = validator.validate(newDirectory);
-        if (!errors.isEmpty()) {
-            String origMessage = errors.iterator().next().getMessage();
-            throw new IllegalArgumentException(origMessage.substring(1, origMessage.length() - 1));
-        }
-
-        weblog.getMediaDirectories().add(newDirectory);
+        weblog.addMediaDirectory(requestedName);
         weblogManager.saveWeblog(weblog, false);
-        LOGGER.debug("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
-
-        return newDirectory;
+        LOGGER.info("Created media directory '{}' for weblog {}", requestedName, weblog.getHandle());
+        return mediaDirectoryDao.findByWeblogAndName(weblog, requestedName);
     }
 
     /**
@@ -140,10 +124,10 @@ public class MediaManager {
                 return;
             }
 
-            fileService.saveFileContent(weblog, mediaFile.getId(), uploadedFile.getInputStream());
+            fileService.saveFileContent(weblog, mediaFile.getFileId(), uploadedFile.getInputStream());
 
             mediaFile.setContentType(uploadedFile.getContentType());
-            mediaFile.setLength(uploadedFile.getSize());
+            mediaFile.setSizeInBytes(uploadedFile.getSize());
             mediaFile.setCreator(user);
 
             if (mediaFile.isImageFile()) {
@@ -152,13 +136,12 @@ public class MediaManager {
         }
 
         mediaFile.getDirectory().getMediaFiles().add(mediaFile);
-        mediaFile.setLastUpdated(Instant.now());
         mediaDirectoryDao.saveAndFlush(mediaFile.getDirectory());
     }
 
     private void updateThumbnail(MediaFile mediaFile) {
         try {
-            File fileContent = fileService.getFileContent(mediaFile.getDirectory().getWeblog(), mediaFile.getId());
+            File fileContent = fileService.getFileContent(mediaFile.getDirectory().getWeblog(), mediaFile.getFileId());
             BufferedImage img;
 
             FileInputStream fis = new FileInputStream(fileContent);
@@ -183,7 +166,7 @@ public class MediaManager {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(tmp, "png", baos);
 
-                fileService.saveFileContent(mediaFile.getDirectory().getWeblog(), mediaFile.getId() +
+                fileService.saveFileContent(mediaFile.getDirectory().getWeblog(), mediaFile.getFileId() +
                         "_sm", new ByteArrayInputStream(baos.toByteArray()));
 
             } else {
@@ -205,7 +188,7 @@ public class MediaManager {
      * @return MediaFile object or null if unavailable/inaccessible.
      */
     public MediaFile getMediaFileWithContent(String id) {
-        MediaFile mediaFile = mediaFileDao.findByIdOrNull(id);
+        MediaFile mediaFile = mediaFileDao.findByFileId(id);
 
         if (mediaFile != null) {
             File content = fileService.getFileContent(mediaFile.getDirectory().getWeblog(), id);

@@ -395,6 +395,20 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         getWeblogCategories().add(category);
     }
 
+    public void addMediaDirectory(String directoryName) {
+
+        if (directoryName == null || directoryName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Media directory must have a valid name");
+        }
+
+        if (this.hasMediaDirectory(directoryName)) {
+            throw new IllegalArgumentException("Duplicate media directory name '" + directoryName + "'");
+        }
+
+        MediaDirectory directory = new MediaDirectory(this, directoryName);
+        getMediaDirectories().add(directory);
+    }
+
     public Set<WeblogCategory> getWeblogCategories() {
         return weblogCategories;
     }
@@ -502,7 +516,17 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || (other instanceof Weblog && Objects.equals(id, ((Weblog) other).id));
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Weblog that)) {
+            return false;
+        }
+        if (this.id == null || that.id == null) {
+            // if not yet persisted, do not consider equal
+            return false;
+        }
+        return Objects.equals(this.id, that.id);
     }
 
     @Override

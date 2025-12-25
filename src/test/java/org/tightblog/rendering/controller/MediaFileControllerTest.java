@@ -72,6 +72,7 @@ public class MediaFileControllerTest {
         mockCache = mock(LazyExpiringCache.class);
 
         mediaFile = new MediaFile();
+        mediaFile.setDateUpdated(Instant.now());
         mediaFile.setContentType("image/jpeg");
         mockMFM = mock(MediaManager.class);
         when(mockMFM.getMediaFileWithContent("1234")).thenReturn(mediaFile);
@@ -104,7 +105,7 @@ public class MediaFileControllerTest {
     public void test304OnNotModified() throws IOException {
         Instant now = Instant.now();
         // make four days old
-        mediaFile.setLastUpdated(now.minus(4, ChronoUnit.DAYS));
+        mediaFile.setDateUpdated(now.minus(4, ChronoUnit.DAYS));
         // request has cached version two days old, i.e., still usable without downloading
         when(mockRequest.getDateHeader(any())).thenReturn(now.minus(2,
                 ChronoUnit.DAYS).toEpochMilli());
@@ -134,7 +135,7 @@ public class MediaFileControllerTest {
     public void testReturnCorrectImage() throws IOException, URISyntaxException {
         Instant now = Instant.now();
         File regularFile = new File(getClass().getResource(TEST_IMAGE).toURI());
-        mediaFile.setLastUpdated(now);
+        mediaFile.setDateUpdated(now);
         mediaFile.setContent(regularFile);
         mediaFile.setThumbnail(regularFile);
         mediaFile.setContentType("image/jpeg");
