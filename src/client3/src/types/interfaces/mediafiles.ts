@@ -11,7 +11,7 @@ export interface MediaFile {
   altAttribute: string
   permalink: string
   contentType: string
-  length: number
+  sizeInBytes: number
   width: number
   height: number
   notes: string
