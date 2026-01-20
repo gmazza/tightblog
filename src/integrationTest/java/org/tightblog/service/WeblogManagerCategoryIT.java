@@ -37,7 +37,7 @@ import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
-import org.tightblog.service.WeblogManager.WeblogCategoryData;
+import org.tightblog.dto.WeblogCategoryDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -99,7 +99,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
 
     @Test
     public void testLookupAllCategoriesByWeblog() {
-        List<WeblogCategoryData> cats = weblogManager.getWeblogCategoryData(testWeblog);
+        List<WeblogCategoryDto> cats = weblogManager.getWeblogCategories(testWeblog);
         assertNotNull(cats);
         assertEquals(4, cats.size());
     }

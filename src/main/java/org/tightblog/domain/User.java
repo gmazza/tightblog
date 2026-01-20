@@ -20,7 +20,6 @@
  */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,7 +35,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "weblogger_user")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User extends AbstractEntity {
 
     @Transient
@@ -63,10 +61,19 @@ public class User extends AbstractEntity {
     private String emailAddress;
 
     @Column(name = "activation_code")
-    private String activationCode;
+    private String registrationActivationCode;
 
     @Column(name = "last_login")
     private Instant lastLogin;
+
+    @Column(name = "password_hash")
+    @NotBlank
+    private String passwordHash;
+
+    // for Authenticator app use
+    // see http://www.baeldung.com/spring-security-two-factor-authentication-with-soft-token
+    @Column(name = "mfa_secret")
+    private String mfaSecret;
 
     public User() {
     }
@@ -77,6 +84,22 @@ public class User extends AbstractEntity {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
     }
 
     public GlobalRole getGlobalRole() {
@@ -123,12 +146,12 @@ public class User extends AbstractEntity {
         this.lastLogin = lastLogin;
     }
 
-    public String getActivationCode() {
-        return activationCode;
+    public String getRegistrationActivationCode() {
+        return registrationActivationCode;
     }
 
-    public void setActivationCode(String activationCode) {
-        this.activationCode = activationCode;
+    public void setRegistrationActivationCode(String activationCode) {
+        this.registrationActivationCode = activationCode;
     }
 
     public String toString() {

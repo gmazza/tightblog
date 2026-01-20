@@ -27,19 +27,19 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.tightblog.domain.UserCredentials;
-import org.tightblog.dao.UserCredentialsDao;
+import org.tightblog.dao.UserDao;
+import org.tightblog.domain.User;
 
 @Component
 public class MultiFactorAuthenticationProvider extends DaoAuthenticationProvider {
 
-    private UserCredentialsDao userCredentialsDao;
+    private UserDao userDao;
 
     @Autowired
-    public MultiFactorAuthenticationProvider(UserCredentialsDao userCredentialsDao,
+    public MultiFactorAuthenticationProvider(UserDao userDao,
                                              UserDetailsService userDetailsService,
                                              MessageSource messageSource) {
-        this.userCredentialsDao = userCredentialsDao;
+        this.userDao = userDao;
         setPasswordEncoder(new BCryptPasswordEncoder());
         setUserDetailsService(userDetailsService);
         setMessageSource(messageSource);
@@ -57,10 +57,10 @@ public class MultiFactorAuthenticationProvider extends DaoAuthenticationProvider
         if (mfaEnabled) {
             String verificationCode = ((CustomWebAuthenticationDetails) auth.getDetails()).getVerificationCode();
 
-            UserCredentials creds = userCredentialsDao.findByUserName(auth.getName());
+            User user = userDao.findEnabledByUserName(auth.getName());
 
-            if (creds.getMfaSecret() != null) {
-                Totp totp = new Totp(creds.getMfaSecret());
+            if (user.getMfaSecret() != null) {
+                Totp totp = new Totp(user.getMfaSecret());
                 if (!isValidLong(verificationCode) || !totp.verify(verificationCode)) {
                     throw new InvalidVerificationCodeException("Authenticator app code invalid");
                 }

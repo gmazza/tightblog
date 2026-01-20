@@ -26,10 +26,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.tightblog.domain.BlogrollLink;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.BlogrollLink;
+import org.tightblog.dto.BlogrollLinkDto;
 import org.tightblog.domain.WeblogRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tightblog.dao.BlogrollLinkDao;
 import org.tightblog.dao.WeblogDao;
+import org.tightblog.util.MapperUtils;
 
 import java.security.Principal;
 import java.util.List;
@@ -45,7 +47,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class BlogrollController {
-    private static Logger log = LoggerFactory.getLogger(BlogrollController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlogrollController.class);
 
     private final WeblogDao weblogDao;
     private final BlogrollLinkDao blogrollLinkDao;
@@ -63,34 +65,35 @@ public class BlogrollController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/bookmarks")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
-    public List<BlogrollLink> getBookmarks(@PathVariable String id, Principal p) {
+    @SuppressWarnings("unused")
+    public List<BlogrollLinkDto> getBookmarks(@PathVariable String id, Principal p) {
 
         return weblogDao.findByIdOrNull(id).getBlogrollLinks()
                 .stream()
-                .peek(bkmk -> bkmk.setWeblog(null))
+                .map(MapperUtils::toDto)
                 .collect(Collectors.toList());
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/bookmarks")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void addBookmark(@RequestParam(name = "weblogId") String weblogId, @RequestBody BlogrollLink newData,
+    public void addBookmark(@RequestParam(name = "weblogId") String weblogId, @RequestBody BlogrollLinkDto newData,
                             Principal p) {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
-        BlogrollLink bookmark = new BlogrollLink(weblog, newData.getName(),
-                newData.getUrl(), newData.getDescription());
+        BlogrollLink bookmark = new BlogrollLink(weblog, newData.name(),
+                newData.url(), newData.description());
         weblog.addBlogrollLink(bookmark);
         weblogManager.saveWeblog(weblog, true);
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/bookmark/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.BlogrollLink), #id, 'OWNER')")
-    public void updateBookmark(@PathVariable String id, @RequestBody BlogrollLink newData, Principal p) {
+    public void updateBookmark(@PathVariable String id, @RequestBody BlogrollLinkDto newData, Principal p) {
 
         BlogrollLink bookmark = blogrollLinkDao.findByIdOrNull(id);
-        bookmark.setName(newData.getName());
-        bookmark.setUrl(newData.getUrl());
-        bookmark.setDescription(newData.getDescription());
+        bookmark.setName(newData.name());
+        bookmark.setUrl(newData.url());
+        bookmark.setDescription(newData.description());
         weblogManager.saveWeblog(bookmark.getWeblog(), true);
     }
 
@@ -102,18 +105,18 @@ public class BlogrollController {
                 weblog.getBlogrollLinks().remove(itemToRemove);
                 weblogManager.saveWeblog(weblog, true);
             } else {
-                log.warn("Effort to delete bookmark {} by user {} failed, insufficient access rights",
+                LOGGER.warn("Effort to delete bookmark {} by user {} failed, insufficient access rights",
                         itemToRemove, p.getName());
             }
         } else {
-            log.warn("Effort to delete bookmark {} by user {} failed, item could not be found",
+            LOGGER.warn("Effort to delete bookmark {} by user {} failed, item could not be found",
                     id, p.getName());
         }
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/bookmarks/delete")
     public void deleteBookmarks(@RequestBody List<String> bookmarkIds, Principal p) {
-        if (bookmarkIds != null && bookmarkIds.size() > 0) {
+        if (bookmarkIds != null && !bookmarkIds.isEmpty()) {
             for (String bookmarkId : bookmarkIds) {
                 deleteBookmark(bookmarkId, p);
             }

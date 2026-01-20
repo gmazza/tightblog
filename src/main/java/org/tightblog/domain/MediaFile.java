@@ -20,9 +20,6 @@
  */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.http.MediaType;
@@ -43,7 +40,6 @@ import java.util.Optional;
 // needs to implement WeblogOwned to satisfy security checks in MediaFileController
 @Entity
 @Table(name = "media_file")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MediaFile extends AbstractEntity implements Comparable<MediaFile>, WeblogOwned {
 
     public static final MediaType THUMBNAIL_CONTENT_TYPE = MediaType.IMAGE_PNG;
@@ -95,12 +91,6 @@ public class MediaFile extends AbstractEntity implements Comparable<MediaFile>, 
 
     @Transient
     private File thumbnail;
-
-    @Transient
-    private String permalink;
-
-    @Transient
-    private String thumbnailURL;
 
     @Transient
     private boolean imageFile;
@@ -196,31 +186,8 @@ public class MediaFile extends AbstractEntity implements Comparable<MediaFile>, 
         return thumbnail;
     }
 
-    @JsonProperty
     public boolean isImageFile() {
         return contentType != null && contentType.toLowerCase().startsWith("image/");
-    }
-
-    @JsonProperty
-    public String getPermalink() {
-        return permalink;
-    }
-
-    public void setPermalink(String permalink) {
-        this.permalink = permalink;
-    }
-
-    /**
-     * Returns thumbnail URL for this media file resource. Resulting URL will be
-     * a 404 if media file is not an image.
-     */
-    @JsonProperty
-    public String getThumbnailURL() {
-        return thumbnailURL;
-    }
-
-    public void setThumbnailURL(String thumbnailURL) {
-        this.thumbnailURL = thumbnailURL;
     }
 
     public User getCreator() {

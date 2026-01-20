@@ -20,6 +20,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.tightblog.domain.CategoryStats;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
 
@@ -45,4 +46,9 @@ public interface WeblogEntryDao extends JpaRepository<WeblogEntry, String> {
     default WeblogEntry findByIdOrNull(String id) {
         return findById(id).orElse(null);
     }
+
+    @Query("SELECT new org.tightblog.domain.CategoryStats(we.category, min(we.publishTime), max(we.publishTime), count(we)) " +
+            "FROM WeblogEntry we WHERE we.weblog.id = ?1 GROUP BY we.category")
+    List<CategoryStats> getCategoryStatsByWeblogId(String weblogId);
+
 }

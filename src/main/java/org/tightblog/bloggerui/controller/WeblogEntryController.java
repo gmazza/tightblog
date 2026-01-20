@@ -32,7 +32,10 @@ import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.service.LuceneIndexer;
-import org.tightblog.domain.AtomEnclosure;
+import org.tightblog.dao.UserDao;
+import org.tightblog.dao.WeblogCategoryDao;
+import org.tightblog.dao.WeblogEntryDao;
+import org.tightblog.dao.WeblogDao;
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
@@ -41,10 +44,7 @@ import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogEntryTagAggregate;
 import org.tightblog.domain.WeblogRole;
-import org.tightblog.dao.UserDao;
-import org.tightblog.dao.WeblogCategoryDao;
-import org.tightblog.dao.WeblogEntryDao;
-import org.tightblog.dao.WeblogDao;
+import org.tightblog.dto.AtomEnclosureDto;
 import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,7 +252,7 @@ public class WeblogEntryController {
             if (!StringUtils.isEmpty(entry.getEnclosureUrl())) {
                 // Fetch MediaCast resource
                 LOG.debug("Checking MediaCast attributes");
-                AtomEnclosure enclosure;
+                AtomEnclosureDto enclosure;
 
                 try {
                     enclosure = weblogEntryManager.generateEnclosure(entry.getEnclosureUrl());
@@ -263,9 +263,9 @@ public class WeblogEntryController {
                 }
 
                 // set enclosure attributes
-                entry.setEnclosureUrl(enclosure.getUrl());
-                entry.setEnclosureType(enclosure.getContentType());
-                entry.setEnclosureLength(enclosure.getLength());
+                entry.setEnclosureUrl(enclosure.url());
+                entry.setEnclosureType(enclosure.contentType());
+                entry.setEnclosureLength(enclosure.length());
             }
 
             weblogEntryManager.saveWeblogEntry(entry);

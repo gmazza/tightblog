@@ -25,7 +25,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
-import org.tightblog.domain.CalendarData;
+import org.tightblog.rendering.domain.CalendarData;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntry.PubStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;

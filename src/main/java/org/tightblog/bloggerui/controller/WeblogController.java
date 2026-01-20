@@ -31,6 +31,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.tightblog.dto.WeblogDto;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.domain.GlobalRole;
@@ -43,13 +44,14 @@ import org.tightblog.bloggerui.model.ValidationErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+
+import static java.lang.Math.min;
 
 @RestController
 @EnableConfigurationProperties(DynamicProperties.class)
@@ -84,13 +86,13 @@ public class WeblogController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
-    public ResponseEntity getWeblogData(@PathVariable String id, Principal p) {
+    public ResponseEntity<WeblogDto> getWeblogData(@PathVariable String id, Principal p) {
         Weblog weblog = weblogDao.findByIdOrNull(id);
-        return ResponseEntity.ok(weblog);
+        return weblog == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(weblogManager.toDto(weblog));
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/weblogs")
-    public ResponseEntity addWeblog(@Valid @RequestBody Weblog newData, Principal p) {
+    public ResponseEntity<?> addWeblog(@Valid @RequestBody WeblogDto newDataDto, Principal p) {
 
         User user = userDao.findEnabledByUserName(p.getName());
 
@@ -99,72 +101,60 @@ public class WeblogController {
                     null, Locale.getDefault()));
         }
 
-        if (weblogDao.findByHandle(newData.getHandle()) != null) {
+        if (weblogDao.findByHandle(newDataDto.handle()) != null) {
             return ValidationErrorResponse.badRequest(messages.getMessage("weblogConfig.error.handleExists",
                     null, Locale.getDefault()));
         }
 
         Weblog weblog = new Weblog(
-                newData.getHandle().trim(),
+                newDataDto.handle().trim(),
                 user,
-                newData.getName().trim(),
-                newData.getTheme());
+                newDataDto.name().trim(),
+                newDataDto.theme());
 
-        return saveWeblog(weblog, newData, true);
+        return ResponseEntity.ok(saveWeblog(weblog, newDataDto, true));
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/weblog/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'OWNER')")
-    public ResponseEntity<Weblog> updateWeblog(@PathVariable String id, @Valid @RequestBody Weblog newData, Principal p) {
+    public ResponseEntity<WeblogDto> updateWeblog(@PathVariable String id, @Valid @RequestBody WeblogDto newDataDto,
+                                                  Principal p) {
         Weblog weblog = weblogDao.findByIdOrNull(id);
-        return saveWeblog(weblog, newData, false);
+        return weblog == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(saveWeblog(weblog, newDataDto,
+                false));
     }
 
-    private ResponseEntity<Weblog> saveWeblog(Weblog weblog, Weblog newData, boolean newWeblog) {
-        if (weblog != null) {
+    private WeblogDto saveWeblog(Weblog weblog, WeblogDto newDataDto, boolean newWeblog) {
+        weblog.setName(newDataDto.name());
+        weblog.setTagline(StringUtils.trimToEmpty(newDataDto.tagline()));
+        weblog.setEditFormat(newDataDto.editFormat());
+        weblog.setVisible(newDataDto.visible());
+        weblog.setEntriesPerPage(newDataDto.entriesPerPage());
+        weblog.setCommentSpamFilter(newDataDto.commentSpamFilter());
+        weblog.setCommentPolicy(newDataDto.commentPolicy());
+        weblog.setSpamPolicy(newDataDto.spamPolicy());
+        weblog.setLocale(newDataDto.locale());
+        weblog.setTimeZone(newDataDto.timeZone());
 
-            if (newData.getAnalyticsCode() != null) {
-                newData.setAnalyticsCode(newData.getAnalyticsCode().trim());
-            }
+        // make sure user didn't enter an invalid entry display count
+        weblog.setEntriesPerPage(min(newDataDto.entriesPerPage(), maxEntriesPerPage));
 
-            weblog.setName(newData.getName());
-            weblog.setTagline(StringUtils.trimToEmpty(newData.getTagline()));
-            weblog.setEditFormat(newData.getEditFormat());
-            weblog.setVisible(newData.getVisible());
-            weblog.setEntriesPerPage(newData.getEntriesPerPage());
-            weblog.setCommentSpamFilter(newData.getCommentSpamFilter());
-            weblog.setCommentPolicy(newData.getCommentPolicy());
-            weblog.setSpamPolicy(newData.getSpamPolicy());
-            weblog.setLocale(newData.getLocale());
-            weblog.setTimeZone(newData.getTimeZone());
+        weblog.setAbout(newDataDto.about());
+        weblog.setAnalyticsCode(newDataDto.analyticsCode() != null ? newDataDto.analyticsCode().trim() : null);
+        weblog.setDefaultCommentDays(newDataDto.defaultCommentDays());
 
-            // make sure user didn't enter an invalid entry display count
-            if (newData.getEntriesPerPage() > maxEntriesPerPage) {
-                newData.setEntriesPerPage(maxEntriesPerPage);
-            }
-            weblog.setEntriesPerPage(newData.getEntriesPerPage());
-
-            weblog.setAbout(newData.getAbout());
-            weblog.setAnalyticsCode(newData.getAnalyticsCode());
-            weblog.setDefaultCommentDays(newData.getDefaultCommentDays());
-
-            // save config
-            if (newWeblog) {
-                weblogManager.addWeblog(weblog);
-                LOG.info("New weblog {} created by user {}", weblog, weblog.getCreator());
-            } else {
-                weblogManager.saveWeblog(weblog, true);
-            }
-
-            // ROL-1050: apply comment defaults to existing entries
-            if (newData.isApplyCommentDefaults()) {
-                weblogEntryDao.applyDefaultCommentDaysToWeblogEntries(weblog, weblog.getDefaultCommentDays());
-            }
-
+        // save config
+        if (newWeblog) {
+            weblogManager.addWeblog(weblog);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            weblogManager.saveWeblog(weblog, false);
         }
-        return ResponseEntity.ok(weblog);
+
+        // ROL-1050: apply comment defaults to existing entries
+        if (newDataDto.applyCommentDefaults()) {
+            weblogEntryDao.applyDefaultCommentDaysToWeblogEntries(weblog, weblog.getDefaultCommentDays());
+        }
+        return weblogManager.toDto(weblog);
     }
 
     @DeleteMapping(value = "/tb-ui/authoring/rest/weblog/{id}")

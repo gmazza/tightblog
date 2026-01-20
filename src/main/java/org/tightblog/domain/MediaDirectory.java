@@ -20,8 +20,6 @@
 */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
 
 import jakarta.persistence.CascadeType;
@@ -39,7 +37,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "media_directory")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MediaDirectory extends AbstractEntity implements Comparable<MediaDirectory>, WeblogOwned {
 
     @NotBlank(message = "{mediaFile.error.view.dirNameInvalid}")
@@ -48,13 +45,11 @@ public class MediaDirectory extends AbstractEntity implements Comparable<MediaDi
 
     @ManyToOne
     @JoinColumn(name = "weblog_id", nullable = false)
-    @JsonIgnore
     Weblog weblog;
 
     @OneToMany(targetEntity = MediaFile.class,
             cascade = {CascadeType.ALL}, mappedBy = "directory")
     @OrderBy("name")
-    @JsonIgnore
     Set<MediaFile> mediaFiles = new HashSet<>();
 
     public MediaDirectory() {

@@ -97,6 +97,7 @@ public abstract class WebloggerTest {
         testUser.setEmailAddress(userName + "@dev.null");
         testUser.setDateCreated(Instant.now());
         testUser.setStatus(UserStatus.ENABLED);
+        testUser.setPasswordHash("blah");
         userDao.saveAndFlush(testUser);
 
         // query for the user to make sure we return the persisted object

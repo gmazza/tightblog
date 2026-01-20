@@ -105,7 +105,7 @@
                 id="passwordText"
                 type="password"
                 size="20"
-                v-model="userCredentials.passwordText"
+                v-model="userBeingEdited.passwordText"
                 minlength="8"
                 maxlength="20"
                 autocomplete="new-password"
@@ -122,7 +122,7 @@
                 id="passwordConfirm"
                 type="password"
                 size="20"
-                v-model="userCredentials.passwordConfirm"
+                v-model="userBeingEdited.passwordConfirm"
                 minlength="8"
                 maxlength="20"
                 autocomplete="new-password"
@@ -150,7 +150,7 @@
 <script lang="ts">
 import { mapState, mapActions } from 'pinia'
 import { useSessionInfoStore } from '../stores/sessionInfo'
-import type { User, UserCredentials, ErrorObj, ErrorItem } from '@/types'
+import type { User, ErrorObj, ErrorItem } from '@/types'
 import * as api from '@/api'
 import { AxiosError } from 'axios'
 
@@ -158,7 +158,6 @@ export default {
   data: function () {
     return {
       userBeingEdited: {} as User,
-      userCredentials: {} as UserCredentials,
       hideButtons: false,
       successMessage: null as string | null,
       errorObj: {
@@ -195,17 +194,13 @@ export default {
       try {
         const response = await api.loadUser(userId)
         this.userBeingEdited = response
-        this.userCredentials = {}
       } catch (error) {
         this.commonErrorResponse(error)
       }
     },
     updateUser: async function () {
       this.messageClear()
-      const userData = {
-        user: this.userBeingEdited,
-        credentials: this.userCredentials
-      }
+      const userData = this.userBeingEdited
       try {
         const response =
           this.sessionInfo.authenticatedUser != null
@@ -215,16 +210,15 @@ export default {
         if (!this.sessionInfo.authenticatedUser) {
           // user registration, hide the save/cancel buttons now
           this.hideButtons = true
-          if (this.userBeingEdited.status === 'ENABLED') {
+          if (this.userBeingEdited.userStatus === 'ENABLED') {
             this.successMessage = this.$t('userEdit.userCanLogIn')
-          } else if (this.userBeingEdited.status === 'REGISTERED') {
+          } else if (this.userBeingEdited.userStatus === 'REGISTERED') {
             this.successMessage = this.$t('userEdit.userNotActivated')
           }
         } else {
           // user profile update
           this.successMessage = this.$t('common.changesSaved')
         }
-        this.userCredentials = {}
       } catch (error) {
         this.commonErrorResponse(error)
       }
@@ -232,7 +226,6 @@ export default {
     cancelChanges: function () {
       this.messageClear()
       this.userBeingEdited = {} as User
-      this.userCredentials = {}
     },
     messageClear: function () {
       this.errorObj = { errors: [] }

@@ -18,8 +18,10 @@ package org.tightblog.dao;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 
@@ -28,9 +30,13 @@ import java.util.List;
 @Repository
 public interface UserDao extends JpaRepository<User, String> {
 
+    // preferred method for retrieving users, to make sure only enabled are retrieved
     @Cacheable(value = "enabledUsers")
     @Query("SELECT u FROM User u WHERE u.userName= ?1 AND u.status = org.tightblog.domain.UserStatus.ENABLED")
     User findEnabledByUserName(String userName);
+
+    // best used only when OK to be retrieving non-enabled users.
+    User findByUserName(String userName);
 
     @CacheEvict(cacheNames = {"enabledUsers"}, key = "#user.userName")
     default void evictUser(User user) {
@@ -47,13 +53,11 @@ public interface UserDao extends JpaRepository<User, String> {
             "AND u.status = org.tightblog.domain.UserStatus.ENABLED")
     List<User> findAdmins();
 
-    User findByActivationCode(String activationCode);
+    User findByRegistrationActivationCode(String activationCode);
 
     @Query("SELECT u FROM User u WHERE u.status = org.tightblog.domain.UserStatus.EMAILVERIFIED " +
             "order by u.userName")
     List<User> findUsersToApprove();
-
-    User findByUserName(String userName);
 
     User findByScreenName(String screenName);
 
@@ -62,4 +66,15 @@ public interface UserDao extends JpaRepository<User, String> {
     default User findByIdOrNull(String id) {
         return findById(id).orElse(null);
     }
+
+    @Transactional("transactionManager")
+    @Modifying
+    @Query("UPDATE User u SET u.passwordHash = ?2 WHERE u.id = ?1")
+    void updatePassword(String userId, String newPassword);
+
+    @Transactional("transactionManager")
+    @Modifying
+    @Query("UPDATE User u SET u.mfaSecret = null WHERE u.id = ?1")
+    void eraseMfaCode(String userId);
+
 }

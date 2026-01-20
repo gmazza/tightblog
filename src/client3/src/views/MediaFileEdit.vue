@@ -161,7 +161,7 @@
             id="directoryId"
             type="text"
             size="30"
-            v-bind:value="mediaFileData.directory?.name"
+            v-bind:value="mediaFileData.directoryId"
             readonly
           />
         </td>
@@ -202,9 +202,7 @@ export default {
   data() {
     return {
       mediaFileData: {
-        directory: {
-          id: this.folderId
-        }
+        directoryId: this.folderId
       } as MediaFile,
       myMediaFile: null as File | null,
       errorObj: {

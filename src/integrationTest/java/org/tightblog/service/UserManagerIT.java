@@ -65,7 +65,8 @@ public class UserManagerIT extends WebloggerTest {
         testUser.setDateCreated(Instant.now());
         testUser.setStatus(UserStatus.ENABLED);
         testUser.setGlobalRole(GlobalRole.BLOGGER);
-        
+        testUser.setPasswordHash("blah");
+
         // make sure test user does not exist
         user = userDao.findEnabledByUserName(testUser.getUserName());
         assertNull(user);

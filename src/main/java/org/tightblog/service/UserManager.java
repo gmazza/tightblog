@@ -27,15 +27,14 @@ import org.springframework.stereotype.Component;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.WeblogOwned;
 import org.tightblog.domain.User;
-import org.tightblog.domain.UserCredentials;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.tightblog.dao.UserCredentialsDao;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
+import org.tightblog.dto.UserDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -50,16 +49,13 @@ import java.util.Objects;
 @Component
 public class UserManager {
 
-    private UserDao userDao;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private UserCredentialsDao userCredentialsDao;
+    private final UserDao userDao;
+    private final UserWeblogRoleDao userWeblogRoleDao;
 
     @Autowired
-    public UserManager(UserDao userDao, UserWeblogRoleDao userWeblogRoleDao,
-                       UserCredentialsDao userCredentialsDao) {
+    public UserManager(UserDao userDao, UserWeblogRoleDao userWeblogRoleDao) {
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
-        this.userCredentialsDao = userCredentialsDao;
     }
 
     /**
@@ -84,7 +80,7 @@ public class UserManager {
     public void updateCredentials(String userId, String newPassword) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedPwd = encoder.encode(newPassword);
-        userCredentialsDao.updatePassword(userId, encodedPwd);
+        userDao.updatePassword(userId, encodedPwd);
     }
 
     /**
@@ -163,17 +159,16 @@ public class UserManager {
      * @return url Image URL for the QR code
      */
     public String generateMFAQRUrl(User user) throws IOException {
-        UserCredentials uc = userCredentialsDao.findByUserName(user.getUserName());
 
-        if (uc != null) {
-            if (uc.getMfaSecret() == null) {
-                uc.setMfaSecret(Base32.random());
-                userCredentialsDao.saveAndFlush(uc);
+        if (user != null) {
+            if (user.getMfaSecret() == null) {
+                user.setMfaSecret(Base32.random());
+                userDao.saveAndFlush(user);
             }
 
             QrCode qr0 = QrCode.encodeText(String.format(
                             "otpauth://totp/%s:%s?secret=%s&issuer=%s",
-                            "TightBlog", user.getEmailAddress(), uc.getMfaSecret(), "TightBlog"),
+                            "TightBlog", user.getEmailAddress(), user.getMfaSecret(), "TightBlog"),
                     QrCode.Ecc.MEDIUM);
 
             BufferedImage img = toImage(qr0, 4, 10);
@@ -207,6 +202,12 @@ public class UserManager {
             }
         }
         return result;
+    }
+
+    public static UserDto toDto(User user) {
+        return new UserDto(user.getId(), user.getScreenName(), user.getUserName(), user.getEmailAddress(),
+                user.getStatus().name(), user.getGlobalRole().name(), user.getDateCreated(), user.getLastLogin(),
+                user.getRegistrationActivationCode());
     }
 
 }

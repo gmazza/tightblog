@@ -28,7 +28,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.tightblog.domain.AtomEnclosure;
+import org.tightblog.dao.WeblogEntryCommentDao;
+import org.tightblog.dao.WeblogEntryDao;
+import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
@@ -36,9 +38,7 @@ import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WebloggerProperties;
-import org.tightblog.dao.WeblogEntryCommentDao;
-import org.tightblog.dao.WeblogEntryDao;
-import org.tightblog.dao.WebloggerPropertiesDao;
+import org.tightblog.dto.AtomEnclosureDto;
 import org.tightblog.util.Utilities;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.node.Node;
@@ -663,12 +663,12 @@ public class WeblogEntryManager {
      * @param url web URL where the resource is located.
      * @return AtomEnclosure element for the resource
      */
-    public AtomEnclosure generateEnclosure(String url) {
+    public AtomEnclosureDto generateEnclosure(String url) {
         if (url == null || url.trim().isEmpty()) {
             return null;
         }
 
-        AtomEnclosure resource;
+        AtomEnclosureDto resource;
         try {
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
             con.setRequestMethod("HEAD");
@@ -689,7 +689,7 @@ public class WeblogEntryManager {
                     throw new IllegalArgumentException("entryEdit.mediaCastLacksContentTypeOrLength");
                 }
 
-                resource = new AtomEnclosure(url, contentType, length);
+                resource = new AtomEnclosureDto(url, contentType, length);
                 LOG.info("Valid mediacast resource = {}", resource.toString());
 
             }

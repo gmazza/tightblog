@@ -20,7 +20,7 @@
  */
 package org.tightblog.rendering.requests;
 
-import org.tightblog.domain.CalendarData;
+import org.tightblog.rendering.domain.CalendarData;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.Template;
 import org.tightblog.domain.Weblog;

@@ -29,17 +29,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
+import org.tightblog.dto.QRCodeData;
+import org.tightblog.dto.UserDto;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.User;
-import org.tightblog.domain.UserCredentials;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
-import org.tightblog.dao.UserCredentialsDao;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WeblogDao;
@@ -67,6 +67,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -86,15 +87,11 @@ public class UserController {
     private final UserManager userManager;
     private final UserWeblogRoleDao userWeblogRoleDao;
     private final UserDao userDao;
-    private final UserCredentialsDao userCredentialsDao;
     private final EmailService emailService;
     private final MessageSource messages;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryCommentDao weblogEntryCommentDao;
     private final URLService urlService;
-
-    private record UserData(User user, UserCredentials credentials) { }
-    private record QRCodeData(String qrCode) { }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -103,7 +100,7 @@ public class UserController {
     public UserController(WeblogDao weblogDao, UserManager userManager,
                           UserWeblogRoleDao userWeblogRoleDao, MessageSource messageSource,
                           EmailService emailService, UserDao userDao,
-                          UserCredentialsDao userCredentialsDao, URLService urlService,
+                          URLService urlService,
                           WeblogEntryCommentDao weblogEntryCommentDao,
                           WebloggerPropertiesDao webloggerPropertiesDao) {
         this.weblogDao = weblogDao;
@@ -111,7 +108,6 @@ public class UserController {
         this.userManager = userManager;
         this.userWeblogRoleDao = userWeblogRoleDao;
         this.userDao = userDao;
-        this.userCredentialsDao = userCredentialsDao;
         this.weblogEntryCommentDao = weblogEntryCommentDao;
         this.urlService = urlService;
         this.emailService = emailService;
@@ -178,12 +174,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/tb-ui/admin/rest/useradmin/user/{id}")
-    public UserData getUserData(@PathVariable String id, HttpServletResponse response) {
+    public UserDto getUserData(@PathVariable String id, HttpServletResponse response) {
         User user = userDao.findByIdOrNull(id);
 
         if (user != null) {
-            UserCredentials creds = userCredentialsDao.findByUserName(user.getUserName());
-            return new UserData(user, creds);
+            return UserManager.toDto(user);
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -195,7 +190,7 @@ public class UserController {
         User user = userDao.findByIdOrNull(id);
         User authenticatedUser = userDao.findEnabledByUserName(p.getName());
 
-        if (user != null && user.getId().equals(authenticatedUser.getId())) {
+        if (user != null && Objects.equals(user.getId(), authenticatedUser.getId())) {
             return user;
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -204,13 +199,13 @@ public class UserController {
     }
 
     @PostMapping(value = "/tb-ui/register/rest/registeruser")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserData newData, Locale locale, HttpServletResponse response) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto newData, Locale locale, HttpServletResponse response) {
         WebloggerProperties.RegistrationPolicy option = webloggerPropertiesDao.findOrNull().getRegistrationPolicy();
         long userCount = userDao.count();
 
         if (userCount > 0 && WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
             LOGGER.warn("Registration attempt for a user {} when registrations are disabled, returning 403",
-                    Optional.ofNullable(newData.user()).map(User::getEmailAddress).orElse("(unknown)"));
+                    Optional.ofNullable(newData).map(UserDto::emailAddress).orElse("(unknown)"));
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
@@ -220,38 +215,39 @@ public class UserController {
         }
 
         boolean mustActivate = userCount > 0;
-        if (mustActivate) {
-            newData.user().setActivationCode(UUID.randomUUID().toString());
-            newData.user().setStatus(UserStatus.REGISTERED);
-        } else {
-            // initial user is the Admin, is automatically enabled.
-            newData.user().setStatus(UserStatus.ENABLED);
-        }
 
         User user = new User();
-        user.setUserName(newData.user().getUserName());
+        user.setUserName(newData.userName());
         user.setDateCreated(Instant.now());
 
-        ResponseEntity<UserData> re = saveUser(user, newData, null, response, true);
+        if (mustActivate) {
+            user.setRegistrationActivationCode(UUID.randomUUID().toString());
+            user.setStatus(UserStatus.REGISTERED);
+        } else {
+            // initial user is the Admin, is automatically enabled.
+            user.setStatus(UserStatus.ENABLED);
+        }
+
+        ResponseEntity<UserDto> re = saveUser(user, newData, null, response, true);
 
         if (re.getStatusCode() == HttpStatus.OK && mustActivate) {
-            UserData data = re.getBody();
+            UserDto data = re.getBody();
             if (data != null) {
-                emailService.sendUserActivationEmail(data.user());
+                emailService.sendUserActivationEmail(data);
             }
         }
         return re;
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/userprofile/{id}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable String id, @Valid @RequestBody UserData newData, Principal p,
+    public ResponseEntity<?> updateUserProfile(@PathVariable String id, @Valid @RequestBody UserDto newData, Principal p,
                                             Locale locale, HttpServletResponse response) {
         User user = userDao.findByIdOrNull(id);
         User authenticatedUser = userDao.findEnabledByUserName(p.getName());
 
-        if (user != null && user.getId().equals(authenticatedUser.getId())) {
+        if (user != null && Objects.equals(user.getId(), authenticatedUser.getId())) {
             List<Violation> errors = validateUser(null, newData, false, locale);
-            if (errors.size() > 0) {
+            if (!errors.isEmpty()) {
                 return ValidationErrorResponse.badRequest(errors);
             }
             return saveUser(user, newData, p, response, false);
@@ -261,11 +257,11 @@ public class UserController {
     }
 
     @PutMapping(value = "/tb-ui/admin/rest/useradmin/user/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody UserData newData, Principal p,
+    public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody UserDto newData, Principal p,
                                      Locale locale, HttpServletResponse response) {
         User user = userDao.findByIdOrNull(id);
         List<Violation> errors = validateUser(user, newData, false, locale);
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             return ValidationErrorResponse.badRequest(errors);
         }
         return saveUser(user, newData, p, response, false);
@@ -314,8 +310,8 @@ public class UserController {
             // must remain at least one admin
             List<UserWeblogRole> owners = uwrs.stream()
                     .filter(r -> r.getWeblogRole().equals(WeblogRole.OWNER))
-                    .collect(Collectors.toList());
-            if (owners.size() < 1) {
+                    .toList();
+            if (owners.isEmpty()) {
                 return ValidationErrorResponse.badRequest(
                         messages.getMessage("members.oneAdminRequired", null, locale));
             }
@@ -336,20 +332,20 @@ public class UserController {
         }
     }
 
-    private ResponseEntity<UserData> saveUser(User user, UserData newData, Principal p, HttpServletResponse response,
+    private ResponseEntity<UserDto> saveUser(User user, UserDto newData, Principal p, HttpServletResponse response,
                                               boolean add) {
 
         if (user != null) {
-            user.setScreenName(newData.user().getScreenName().trim());
-            user.setEmailAddress(newData.user().getEmailAddress().trim());
+            user.setScreenName(newData.screenName().trim());
+            user.setEmailAddress(newData.emailAddress().trim());
 
             if (!UserStatus.ENABLED.equals(user.getStatus()) && StringUtils.isNotEmpty(
-                    newData.user().getActivationCode())) {
-                user.setActivationCode(newData.user().getActivationCode());
+                    newData.registrationActivationCode())) {
+                user.setRegistrationActivationCode(newData.registrationActivationCode());
             }
 
             if (add) {
-                user.setStatus(newData.user().getStatus());
+                user.setStatus(UserStatus.valueOf(newData.userStatus()));
                 if (userDao.count() == 0) {
                     // first person in is always an admin
                     user.setGlobalRole(GlobalRole.ADMIN);
@@ -360,8 +356,8 @@ public class UserController {
             } else {
                 // users can't alter own roles or status
                 if (!user.getUserName().equals(p.getName())) {
-                    user.setGlobalRole(newData.user().getGlobalRole());
-                    user.setStatus(newData.user().getStatus());
+                    user.setGlobalRole(GlobalRole.valueOf(newData.globalRole()));
+                    user.setStatus(UserStatus.valueOf(newData.userStatus()));
                 }
             }
 
@@ -369,15 +365,15 @@ public class UserController {
                 userDao.saveAndFlush(user);
                 userDao.evictUser(user);
                 // reset password if set
-                if (newData.credentials() != null) {
-                    UserCredentials credentials = newData.credentials();
+                if (!StringUtils.isBlank(newData.passwordText())) {
+                    String newPassword = newData.passwordText();
 
-                    if (!StringUtils.isEmpty(credentials.getPasswordText())) {
-                        userManager.updateCredentials(user.getId(), credentials.getPasswordText());
+                    if (!StringUtils.isEmpty(newPassword)) {
+                        userManager.updateCredentials(user.getId(), newPassword);
                     }
                     // reset MFA secret if requested
-                    if (credentials.isEraseMfaSecret()) {
-                        userCredentialsDao.eraseMfaCode(user.getId());
+                    if (newData.eraseMfaSecret()) {
+                        userDao.eraseMfaCode(user.getId());
                     }
                 }
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -388,51 +384,51 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        UserCredentials creds = userCredentialsDao.findByUserName(user.getUserName());
-        UserData data = new UserData(user, creds);
+        UserDto data = UserManager.toDto(user);
         return ResponseEntity.ok(data);
     }
 
-    private List<Violation> validateUser(User currentUser, UserData data, boolean isAdd, Locale locale) {
+    private List<Violation> validateUser(User currentUser, UserDto data, boolean isAdd, Locale locale) {
         List<Violation> errors = new ArrayList<>();
 
-        User testHasUserName = userDao.findByUserName(data.user().getUserName());
-        if (testHasUserName != null && !testHasUserName.getId().equals(data.user().getId())) {
+        User testHasUserName = userDao.findByUserName(data.userName());
+        if (testHasUserName != null && !Objects.equals(testHasUserName.getId(), data.id())) {
             errors.add(new Violation(messages.getMessage("error.add.user.userNameInUse",
                     null, locale)));
         }
 
-        User testHasScreenName = userDao.findByScreenName(data.user().getScreenName());
-        if (testHasScreenName != null && !testHasScreenName.getId().equals(data.user().getId())) {
+        User testHasScreenName = userDao.findByScreenName(data.screenName());
+        if (testHasScreenName != null && !Objects.equals(testHasScreenName.getId(), data.id())) {
             errors.add(new Violation(messages.getMessage("error.add.user.screenNameInUse",
                     null, locale)));
         }
 
-        User testHasEmail = userDao.findByEmailAddress(data.user().getEmailAddress());
-        if (testHasEmail != null && !testHasEmail.getId().equals(data.user().getId())) {
+        User testHasEmail = userDao.findByEmailAddress(data.emailAddress());
+        if (testHasEmail != null && !Objects.equals(testHasEmail.getId(), data.id())) {
             errors.add(new Violation(messages.getMessage("error.add.user.emailAddressInUse",
                     null, locale)));
         }
 
         if (currentUser != null) {
             UserStatus currentStatus = currentUser.getStatus();
-            if (currentStatus != data.user().getStatus()) {
+            UserStatus newStatus = UserStatus.valueOf(data.userStatus());
+            if (!currentStatus.equals(newStatus)) {
                 switch (currentStatus) {
                     case ENABLED:
-                        if (data.user().getStatus() != UserStatus.DISABLED) {
+                        if (newStatus != UserStatus.DISABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.enabled.only.disabled", null, locale)));
                         }
                         break;
                     case DISABLED:
-                        if (data.user().getStatus() != UserStatus.ENABLED) {
+                        if (newStatus != UserStatus.ENABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.disabled.only.enabled", null, locale)));
                         }
                         break;
                     case REGISTERED:
                     case EMAILVERIFIED:
-                        if (data.user().getStatus() != UserStatus.ENABLED) {
+                        if (newStatus != UserStatus.ENABLED) {
                             errors.add(new Violation(messages.getMessage(
                                     "error.useradmin.nonenabled.only.enabled", null, locale)));
                         }
@@ -442,30 +438,21 @@ public class UserController {
             }
         }
 
-        if (data.credentials() != null) {
-            UserCredentials credentials = data.credentials();
-            String maybePassword = credentials.getPasswordText();
-            if (!StringUtils.isEmpty(maybePassword)) {
-                if (!maybePassword.equals(credentials.getPasswordConfirm())) {
-                    errors.add(new Violation(messages.getMessage(
-                            "error.add.user.passwordConfirmFail", null, locale)));
-                } else {
-                    if (!PWD_PATTERN.matcher(maybePassword).matches()) {
-                        errors.add(new Violation(messages.getMessage(
-                                "error.add.user.passwordComplexityFail", null, locale)));
-                    }
-                }
-            } else {
-                if (!StringUtils.isEmpty(credentials.getPasswordConfirm())) {
-                    // confirm provided but password field itself not filled out
-                    errors.add(new Violation(
-                            messages.getMessage("error.add.user.passwordConfirmFail", null, locale)));
-                }
-            }
+        String newPassword = data.passwordText();
+        if (isAdd && StringUtils.isBlank(newPassword)) {
+            errors.add(new Violation(
+                    messages.getMessage("error.add.user.missingPassword", null, locale)));
+        }
 
-            if (isAdd && StringUtils.isEmpty(credentials.getPasswordText())) {
-                errors.add(new Violation(
-                        messages.getMessage("error.add.user.missingPassword", null, locale)));
+        if (!StringUtils.isBlank(data.passwordText())) {
+            if (!newPassword.equals(data.passwordConfirm())) {
+                errors.add(new Violation(messages.getMessage(
+                        "error.add.user.passwordConfirmFail", null, locale)));
+            } else {
+                if (!PWD_PATTERN.matcher(newPassword).matches()) {
+                    errors.add(new Violation(messages.getMessage(
+                            "error.add.user.passwordComplexityFail", null, locale)));
+                }
             }
         }
 

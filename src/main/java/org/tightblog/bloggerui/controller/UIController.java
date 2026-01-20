@@ -48,7 +48,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.service.URLService;
-import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.util.Utilities;
 
@@ -66,7 +65,6 @@ public class UIController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UIController.class);
 
-    private final UserManager userManager;
     private final UserDao userDao;
     private final UserWeblogRoleDao userWeblogRoleDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
@@ -80,13 +78,12 @@ public class UIController {
     private final ThemeManager themeManager;
 
     @Autowired
-    public UIController(UserManager userManager, UserDao userDao,
+    public UIController(UserDao userDao,
                         WeblogEntryManager weblogEntryManager, UserWeblogRoleDao userWeblogRoleDao,
                         EmailService emailService, MessageSource messages,
                         WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService,
                         Environment environment, ThemeManager themeManager, DynamicProperties dynamicProperties) {
         this.webloggerPropertiesDao = webloggerPropertiesDao;
-        this.userManager = userManager;
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
         this.weblogEntryManager = weblogEntryManager;
@@ -123,10 +120,10 @@ public class UIController {
             }
             myMap.put("actionError", errorMessage);
         } else if (activationCode != null) {
-            User user = userDao.findByActivationCode(activationCode);
+            User user = userDao.findByRegistrationActivationCode(activationCode);
 
             if (user != null) {
-                user.setActivationCode(null);
+                user.setRegistrationActivationCode(null);
                 user.setStatus(UserStatus.EMAILVERIFIED);
                 myMap.put("actionMessage", messages.getMessage("welcome.user.account.need.approval", null,
                         request.getLocale()));
@@ -183,7 +180,7 @@ public class UIController {
             } else {
                 List<UserWeblogRole> roles = userWeblogRoleDao.findByUser(user);
 
-                if (roles.size() > 0) {
+                if (!roles.isEmpty()) {
                     response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.

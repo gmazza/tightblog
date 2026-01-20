@@ -124,7 +124,7 @@
             <td class="description">{{ $t('userEdit.tip.email') }}</td>
           </tr>
 
-          <tr v-if="userBeingEdited.status == 'ENABLED'">
+          <tr v-if="userBeingEdited.userStatus == 'ENABLED'">
             <td class="label">
               <label for="passwordText">{{ $t('userEdit.password') }}</label>
             </td>
@@ -133,7 +133,7 @@
                 id="passwordText"
                 type="password"
                 size="20"
-                v-model="userCredentials!!.passwordText"
+                v-model="userBeingEdited!!.passwordText"
                 minlength="8"
                 maxlength="20"
               />
@@ -141,7 +141,7 @@
 
             <td class="description">{{ $t('userAdmin.tip.password') }}</td>
           </tr>
-          <tr v-if="userBeingEdited.status == 'ENABLED'">
+          <tr v-if="userBeingEdited.userStatus == 'ENABLED'">
             <td class="label">
               <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
             </td>
@@ -150,7 +150,7 @@
                 id="passwordConfirm"
                 type="password"
                 size="20"
-                v-model="userCredentials!!.passwordConfirm"
+                v-model="userBeingEdited!!.passwordConfirm"
                 minlength="8"
                 maxlength="20"
                 autocomplete="new-password"
@@ -197,14 +197,14 @@
                 type="text"
                 size="5"
                 maxlength="5"
-                v-model="userCredentials!!.hasMfaSecret"
+                v-model="userBeingEdited!!.hasMfaSecret"
                 readonly
               />
-              <span v-show="userCredentials!!.hasMfaSecret == true">
+              <span v-show="userBeingEdited!!.hasMfaSecret == true">
                 <input
                   type="checkbox"
                   id="eraseSecret"
-                  v-model="userCredentials!!.eraseMfaSecret"
+                  v-model="userBeingEdited!!.eraseMfaSecret"
                 />
                 <label for="eraseSecret">{{ $t('userAdmin.mfaSecret.erase') }}</label>
               </span>
@@ -326,8 +326,6 @@ import { formatDateTime } from '../helpers'
 import * as api from '@/api'
 import type {
   User,
-  UserCredentials,
-  UserData,
   UserWeblogRole,
   Weblog,
   ErrorObj,
@@ -341,7 +339,6 @@ export default {
       pendingList: [] as User[],
       userToEdit: null,
       userBeingEdited: null as User | null,
-      userCredentials: null as UserCredentials | null,
       userBlogList: [] as UserWeblogRole[],
       weblogIdToAdd: null as string | null,
       weblogToAddRole: null as string | null,
@@ -399,8 +396,7 @@ export default {
       }
 
       api.getUserData(this.userToEdit).then((response) => {
-        this.userBeingEdited = response.data.user
-        this.userCredentials = response.data.credentials
+        this.userBeingEdited = response.data
       })
 
       this.loadUserWeblogs()
@@ -412,15 +408,12 @@ export default {
     },
     updateUser: function () {
       this.messageClear()
-      const userData = {} as UserData
-      userData.user = this.userBeingEdited!!
-      userData.credentials = this.userCredentials!!
+      const userData = this.userBeingEdited!!
 
       api
         .updateUser(this.userToEdit!!, userData)
         .then((response) => {
-          this.userBeingEdited = response.data.user
-          this.userCredentials = response.data.credentials
+          this.userBeingEdited = response.data
           this.loadUserList()
           this.getPendingRegistrations()
           this.successMessage = this.$t('userAdmin.userUpdated', {
@@ -448,7 +441,6 @@ export default {
     cancelChanges: function () {
       this.messageClear()
       this.userBeingEdited = null
-      this.userCredentials = null
     },
     messageClear: function () {
       this.successMessage = null
@@ -478,7 +470,6 @@ export default {
     await this.loadUserList()
     await this.loadWeblogList()
     console.log('enabled? ' + this.startupConfig?.mfaEnabled)
-    console.log('creds? ' + this.userCredentials)
     this.isFetching = false
   }
 }

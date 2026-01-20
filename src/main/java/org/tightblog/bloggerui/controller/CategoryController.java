@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.dao.WeblogDao;
-import org.tightblog.service.WeblogManager.WeblogCategoryData;
+import org.tightblog.dto.WeblogCategoryDto;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -61,13 +61,13 @@ public class CategoryController {
 
     @GetMapping(value = "/tb-ui/authoring/rest/categories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public List<WeblogCategoryData> getWeblogCategoryData(@RequestParam(name = "weblogId") String weblogId, Principal p) {
-        return weblogManager.getWeblogCategoryData(weblogDao.findByIdOrNull(weblogId));
+    public List<WeblogCategoryDto> getWeblogCategories(@RequestParam(name = "weblogId") String weblogId, Principal p) {
+        return weblogManager.getWeblogCategories(weblogDao.findByIdOrNull(weblogId));
     }
 
     @PutMapping(value = "/tb-ui/authoring/rest/categories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategoryData newCategory,
+    public void addCategory(@RequestParam(name = "weblogId") String weblogId, @RequestBody WeblogCategoryDto newCategory,
                             Principal p, HttpServletResponse response) {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
@@ -82,7 +82,7 @@ public class CategoryController {
 
     @PutMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/category")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public void updateCategory(@PathVariable String weblogId, @RequestBody WeblogCategoryData updatedCategory, Principal p,
+    public void updateCategory(@PathVariable String weblogId, @RequestBody WeblogCategoryDto updatedCategory, Principal p,
                                HttpServletResponse response) {
 
         WeblogCategory c = weblogCategoryDao.findByIdAndWeblogId(updatedCategory.id(), weblogId);

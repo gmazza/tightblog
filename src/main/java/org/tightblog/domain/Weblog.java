@@ -20,9 +20,6 @@
 */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import org.tightblog.domain.WebloggerProperties.CommentPolicy;
@@ -60,7 +57,6 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "weblog")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Weblog extends AbstractEntity implements WeblogOwned {
 
     @NotBlank(message = "{weblogConfig.error.nameNull}")
@@ -87,7 +83,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     private EditFormat editFormat = EditFormat.HTML;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     private User creator;
 
     @Column(name = "comment_policy")
@@ -115,7 +110,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
 
     @Transient
     // Transient, derived from and re-calculated each time commentSpamFilter is set
-    @JsonIgnore
     private List<java.util.regex.Pattern> commentSpamRegexRules = new ArrayList<>();
 
     // temporary non-persisted fields used for form entry & retrieving associated data
@@ -123,7 +117,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     private int unapprovedComments;
 
     @Transient
-    @JsonIgnore
     private Locale localeInstance;
 
     @Transient
@@ -133,16 +126,13 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     private int hashCode;
 
     // Associated objects
-    @JsonIgnore
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @OrderBy("position")
     private Set<WeblogCategory> weblogCategories = new LinkedHashSet<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<BlogrollLink> blogrollLinks = new ArrayList<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MediaDirectory> mediaDirectories = new ArrayList<>();
 
@@ -318,7 +308,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
      *
      * @return TimeZone
      */
-    @JsonIgnore
     public ZoneId getZoneId() {
         if (getTimeZone() == null) {
             this.setTimeZone(TimeZone.getDefault().getID());
@@ -348,7 +337,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     // Used in templates and a few JSP's, explicit JsonProperty annotation needed
     // because this property is marked @Transient, otherwise Jackson
     // would ignore it during serialization
-    @JsonProperty
     public String getAbsoluteURL() {
         return absoluteURL;
     }
@@ -468,7 +456,7 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
      */
     public boolean hasBookmark(String bookmarkName) {
         for (BlogrollLink bookmark : this.getBlogrollLinks()) {
-            if (bookmarkName.toLowerCase().equals(bookmark.getName().toLowerCase())) {
+            if (bookmarkName.equalsIgnoreCase(bookmark.getName())) {
                 return true;
             }
         }
@@ -548,7 +536,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     }
 
     @Override
-    @JsonIgnore
     public Weblog getWeblog() {
         return this;
     }
@@ -567,5 +554,4 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
             return descriptionKey;
         }
     }
-
 }
