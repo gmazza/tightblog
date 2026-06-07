@@ -25,9 +25,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.tightblog.config.DynamicProperties;
+import org.tightblog.domain.EditFormat;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
-import org.tightblog.domain.Weblog;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 
 /**
@@ -66,7 +66,7 @@ public class FeedModel {
     /**
      * Transform blog text based on Edit Format and HTML policy
      */
-    public String render(Weblog.EditFormat format, String str) {
+    public String render(EditFormat format, String str) {
         return weblogEntryManager.processBlogText(format, str);
     }
 

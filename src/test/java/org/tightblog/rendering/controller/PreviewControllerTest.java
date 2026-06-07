@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.model.URLModel;
@@ -91,7 +92,7 @@ public class PreviewControllerTest {
             ThemeManager mockThemeManager = mock(ThemeManager.class);
             mockWEM = mock(WeblogEntryManager.class);
             WeblogEntry entry = new WeblogEntry();
-            entry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+            entry.setStatus(EntryPublishStatus.PUBLISHED);
             when(mockWEM.getWeblogEntryByAnchor(weblog, ENTRY_ANCHOR)).thenReturn(entry);
 
             mockTheme = mock(WeblogTheme.class);

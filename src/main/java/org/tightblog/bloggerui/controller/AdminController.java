@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.tightblog.dto.WebloggerPropertiesDto;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.Weblog;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import org.tightblog.service.WeblogManager;
+import org.tightblog.util.MapperUtils;
 
 /**
  * Controller for weblogger backend tasks, e.g., cache and system runtime configuration.
@@ -67,7 +69,7 @@ public class AdminController {
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogManager weblogManager;
 
-    private record WeblogData(String id, String name, String handle, boolean visible) { }
+    public record WeblogData(String id, String name, String handle, boolean visible) { }
 
     @Autowired
     public AdminController(Set<LazyExpiringCache> cacheSet, LuceneIndexer luceneIndexer,
@@ -121,9 +123,13 @@ public class AdminController {
     }
 
     @PostMapping(value = "/webloggerproperties")
-    public void updateProperties(@Valid @RequestBody WebloggerProperties properties) {
-        Weblog mainBlog = Optional.ofNullable(properties.getMainBlogId()).map(weblogDao::findByIdOrNull).orElse(null);
-        properties.setMainBlog(mainBlog);
+    public void updateProperties(@Valid @RequestBody WebloggerPropertiesDto propertiesDto) {
+        WebloggerProperties properties = webloggerPropertiesDao.findOrNull();
+        if (properties == null) {
+            properties = new WebloggerProperties();
+        }
+        Weblog mainBlog = Optional.ofNullable(propertiesDto.mainBlogId()).map(weblogDao::findByIdOrNull).orElse(null);
+        MapperUtils.updateWebloggerPropertiesFromDto(properties, propertiesDto, mainBlog);
         webloggerPropertiesDao.saveAndFlush(properties);
         commentValidator.refreshGlobalSpamlist();
     }

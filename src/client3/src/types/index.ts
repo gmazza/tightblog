@@ -86,21 +86,26 @@ export interface StartupConfig {
   mfaEnabled: boolean
 }
 
-export interface UserWeblogRole {
-  id: String
-  emailComments: boolean
-  weblogRole: WeblogRole
-  weblog: Weblog
+export interface UserHasWeblog {
+    userId: string
+    weblogId: string
+    weblogName: string
+    weblogHandle: string
+    weblogAbsoluteUrl: string
+    weblogAbout: string
+    weblogHitsToday: number
+    weblogUnapprovedComments: number
+    role: WeblogRole
+    emailComments: boolean
 }
 
-export type WeblogRole = 'OWNER' | 'POST'
+export type WeblogRole = 'OWNER' | 'POST' | 'NOBLOGNEEDED'
 
 export interface Weblog {
   id?: string
   name: string
   tagline: string
   about: string
-  absoluteURL?: string
   handle: string
   theme: string
   locale: string
@@ -114,15 +119,8 @@ export interface Weblog {
   applyCommentDefaults: boolean
   weblogCategoryNames: Array<string>
   hitsToday: number
-  unapprovedComments: number
   analyticsCode: string
   commentSpamFilter: string
-}
-
-export interface UserWeblogRole {
-  user: User
-  weblog: Weblog
-  weblogRole: WeblogRole
 }
 
 export interface CommentPolicy {
@@ -189,7 +187,7 @@ export interface WeblogEntry {
   notes: string
   anchor: string
   commentDays: number
-  category: WeblogCategory
+  categoryName: string
   tags: Array<string>
   tagsAsString: string
   permalink: string

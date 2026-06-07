@@ -34,6 +34,9 @@ import org.tightblog.dao.MediaFileDao;
 
 import javax.imageio.ImageIO;
 import jakarta.validation.Validator;
+import org.tightblog.dto.MediaDirectoryDto;
+import org.tightblog.dto.MediaFileDto;
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -56,6 +59,7 @@ public class MediaManager {
     private final FileService fileService;
     private final MediaDirectoryDao mediaDirectoryDao;
     private final MediaFileDao mediaFileDao;
+    private final URLService urlService;
 
     @Autowired
     private WeblogManager weblogManager;
@@ -66,12 +70,13 @@ public class MediaManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MediaManager.class);
 
     @Autowired
-    public MediaManager(FileService fileService,
-                        MediaDirectoryDao mediaDirectoryDao, MediaFileDao mediaFileDao) {
+    public MediaManager(FileService fileService, MediaDirectoryDao mediaDirectoryDao,
+                        MediaFileDao mediaFileDao, URLService urlService) {
 
         this.fileService = fileService;
         this.mediaDirectoryDao = mediaDirectoryDao;
         this.mediaFileDao = mediaFileDao;
+        this.urlService = urlService;
     }
 
     /**
@@ -237,5 +242,24 @@ public class MediaManager {
         }
         mediaFile.getDirectory().getMediaFiles().remove(mediaFile);
         mediaFileDao.delete(mediaFile);
+    }
+
+    public static MediaDirectoryDto toDto(MediaDirectory md) {
+        return new MediaDirectoryDto(
+                md.getId(),
+                md.getName()
+        );
+    }
+
+    public MediaFileDto toDto(MediaFile mf) {
+        return new MediaFileDto(
+            mf.getId(), mf.getName(), mf.getAltAttribute(), mf.getTitleAttribute(),
+            mf.getAnchor(), mf.getNotes(), mf.getSizeInBytes(), mf.getWidth(),
+            mf.getHeight(), mf.getContentType(),
+            urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()),
+            urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
+                        mf.getFileId()),
+            mf.getDirectory().getId(), mf.isImageFile()
+        );
     }
 }

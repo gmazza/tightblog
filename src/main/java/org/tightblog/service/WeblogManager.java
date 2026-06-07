@@ -52,8 +52,10 @@ import org.tightblog.dao.WebloggerPropertiesDao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.tightblog.dto.WeblogCategoryDto;
+import org.tightblog.dto.WeblogDto;
+
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,8 +103,6 @@ public class WeblogManager {
     // Map of each weblog and its extra hit count that has had additional accesses since the
     // last scheduled updateHitCounters() call.
     private Map<String, Long> hitsTally = Collections.synchronizedMap(new HashMap<>());
-
-    public record WeblogCategoryData(String id, String name, LocalDate firstEntry, LocalDate lastEntry, int numEntries) { }
 
     @Autowired
     public WeblogManager(WeblogEntryDao weblogEntryDao,
@@ -184,16 +184,12 @@ public class WeblogManager {
         // grant weblog creator OWNER permission
         userManager.grantWeblogRole(newWeblog.getCreator(), newWeblog, WeblogRole.OWNER);
 
-        LOG.info("Before adding default categories and bookmarks for new weblog {}", newWeblog.getHandle());
-
         // add default categories and bookmarks
         if (!ObjectUtils.isEmpty(newBlogCategories)) {
             for (String category : newBlogCategories) {
                 newWeblog.addCategory(category);
             }
         }
-
-        LOG.info("After adding default categories for new weblog {}", newWeblog.getHandle());
 
         if (!ObjectUtils.isEmpty(newBlogBlogroll)) {
             for (String splitItem : newBlogBlogroll) {
@@ -210,6 +206,7 @@ public class WeblogManager {
         }
 
         newWeblog = saveWeblog(newWeblog, true);
+        LOG.info("New weblog {} created by user {}", newWeblog, newWeblog.getCreator());
 
         // create initial media file directory named "default"
         // note this method saves the weblog again after creating the directory
@@ -294,28 +291,21 @@ public class WeblogManager {
      * Get WeblogCategory objects for a weblog.
      * @param weblog weblog whose categories are desired
      */
-    public List<WeblogCategoryData> getWeblogCategoryData(Weblog weblog) {
+    public List<WeblogCategoryDto> getWeblogCategories(Weblog weblog) {
         List<WeblogCategory> categories = weblogCategoryDao.findByWeblogOrderByPosition(weblog);
-        List<WeblogCategoryData> wcdList = new ArrayList<>(categories.size());
+        List<WeblogCategoryDto> wcdList = new ArrayList<>(categories.size());
 
-        // obtain usage stats
-        String queryString = "SELECT new org.tightblog.domain.CategoryStats(we.category, " +
-                "min(we.publishTime), max(we.publishTime), count(we)) " +
-                "FROM WeblogEntry we WHERE we.weblog.id = ?1 GROUP BY we.category";
-        TypedQuery<CategoryStats> query = entityManager.createQuery(queryString, CategoryStats.class);
-        query.setParameter(1, weblog.getId());
-
-        List<CategoryStats> stats = query.getResultList();
+        List<CategoryStats> stats = weblogEntryDao.getCategoryStatsByWeblogId(weblog.getId());
 
         for (WeblogCategory cat : categories) {
             Optional<CategoryStats> maybeStats = stats.stream().filter(cs ->
                     cat.getId().equals(cs.getCategory().getId())).findFirst();
             if (maybeStats.isPresent()) {
                 CategoryStats stat = maybeStats.get();
-                wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
+                wcdList.add(new WeblogCategoryDto(cat.getId(), cat.getName(),
                         stat.getFirstEntry(), stat.getLastEntry(), stat.getNumEntries()));
             } else {
-                wcdList.add(new WeblogCategoryData(cat.getId(), cat.getName(),
+                wcdList.add(new WeblogCategoryDto(cat.getId(), cat.getName(),
                         null, null, 0));
             }
         }
@@ -393,23 +383,7 @@ public class WeblogManager {
             query.setMaxResults(limit);
         }
         List<WeblogEntryTagAggregate> queryResults = query.getResultList();
-/*
-        List<WeblogEntryTagAggregate> results = new ArrayList<>();
-        if (queryResults != null) {
-            for (WeblogEntryTagAggregate obj : queryResults) {
-                Object[] row = (Object[]) obj;
-                WeblogEntryTagAggregate ce = new WeblogEntryTagAggregate();
-                ce.setName((String) row[0]);
-                // The JPA query retrieves SUM(w.total) always as long
-                ce.setTotal(((Long) row[1]).intValue());
-                if (weblog != null) {
-                    ce.setFirstEntry(((Instant) row[2]).atZone(weblog.getZoneId()).toLocalDate());
-                    ce.setLastEntry(((Instant) row[3]).atZone(weblog.getZoneId()).toLocalDate());
-                }
-                results.add(ce);
-            }
-        }
-*/
+
         if (sortByName) {
             queryResults.sort(WeblogEntryTagAggregate.NAME_COMPARATOR);
         } else {
@@ -519,5 +493,36 @@ public class WeblogManager {
      public void resetHitCounts() {
          LOG.info("Resetting daily hit counts via scheduled timer...");
          resetWeblogHitCounts();
+     }
+
+     public WeblogDto toDto(Weblog weblog) {
+         if (weblog == null) {
+             return null;
+         }
+         List<String> categoryNames = new ArrayList<>();
+         for (WeblogCategory category : weblog.getWeblogCategories()) {
+             categoryNames.add(category.getName());
+         }
+         return new WeblogDto(
+                 weblog.getId(),
+                 weblog.getName(),
+                 weblog.getTagline(),
+                 weblog.getAbout(),
+                 weblog.getHandle(),
+                 weblog.getTheme(),
+                 weblog.getLocale(),
+                 weblog.getTimeZone(),
+                 weblog.getVisible(),
+                 weblog.getEntriesPerPage(),
+                 weblog.getDefaultCommentDays(),
+                 weblog.getSpamPolicy(),
+                 weblog.getEditFormat(),
+                 weblog.getCommentPolicy(),
+                 false,
+                 categoryNames,
+                 weblog.getHitsToday(),
+                 weblog.getAnalyticsCode(),
+                 weblog.getCommentSpamFilter()
+         );
      }
 }

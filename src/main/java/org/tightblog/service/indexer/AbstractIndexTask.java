@@ -30,6 +30,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.util.BytesRef;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
@@ -47,8 +48,11 @@ public abstract class AbstractIndexTask extends AbstractTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIndexTask.class);
 
-    AbstractIndexTask(LuceneIndexer mgr) {
+    private final WeblogEntryCommentDao commentDao;
+
+    AbstractIndexTask(LuceneIndexer mgr, WeblogEntryCommentDao commentDao) {
         super(mgr);
+        this.commentDao = commentDao;
     }
 
     public void run() {
@@ -126,7 +130,7 @@ public abstract class AbstractIndexTask extends AbstractTask {
         String commentContent = "";
 
         if (manager.isIndexComments()) {
-            List<WeblogEntryComment> comments = data.getComments();
+            List<WeblogEntryComment> comments = commentDao.findByWeblogEntryAndStatusApproved(data);
             if (comments != null) {
                 StringBuilder commentNameBld = new StringBuilder();
                 StringBuilder commentEmailBld = new StringBuilder();

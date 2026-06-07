@@ -26,7 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
-import org.tightblog.domain.WebloggerProperties.SpamPolicy;
+import org.tightblog.dao.WeblogEntryDao;
+import org.tightblog.domain.EntryPublishStatus;
+import org.tightblog.domain.SpamPolicy;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.EmailService;
@@ -41,7 +44,7 @@ import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
 import org.tightblog.domain.WeblogEntryComment.SpamCheckResult;
 import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WebloggerProperties;
-import org.tightblog.domain.WebloggerProperties.CommentPolicy;
+import org.tightblog.domain.CommentPolicy;
 import org.tightblog.rendering.service.CommentAuthenticator;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.dao.UserDao;
@@ -83,6 +86,7 @@ public class CommentControllerTest {
     private RequestDispatcher mockRequestDispatcher;
     private Weblog weblog;
     private WeblogEntry weblogEntry;
+    private WeblogEntryDto weblogEntryDto;
     private User user;
     private WebloggerProperties properties;
     private CommentController processor;
@@ -120,17 +124,23 @@ public class CommentControllerTest {
         when(mockCommentSpamChecker.evaluate(any(), any())).thenReturn(SpamCheckResult.NOT_SPAM);
 
         mockWD = mock(WeblogDao.class);
+        WeblogEntryDao mockWED = mock(WeblogEntryDao.class);
         weblog = new Weblog();
         weblog.setHandle("myblog");
         when(mockWD.findByHandleAndVisibleTrue("myblog")).thenReturn(weblog);
 
         mockWEM = mock(WeblogEntryManager.class);
         weblogEntry = new WeblogEntry();
+        weblogEntry.setId("entry-id");
         weblogEntry.setAnchor("entry-anchor");
-        weblogEntry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        weblogEntry.setStatus(EntryPublishStatus.PUBLISHED);
         weblogEntry.setWeblog(weblog);
         when(mockWEM.getWeblogEntryByAnchor(weblog, weblogEntry.getAnchor())).thenReturn(weblogEntry);
-        when(mockWEM.canSubmitNewComments(weblogEntry)).thenReturn(true);
+        when(mockWEM.canSubmitNewComments(any(), any())).thenReturn(true);
+        when(mockWED.findByIdOrNull(weblogEntry.getId())).thenReturn(weblogEntry);
+
+        weblogEntryDto = new WeblogEntryDto(weblogEntry.getId(), weblogEntry.getAnchor(), weblogEntry.getStatus());
+        when(mockWEM.toDto(weblogEntry)).thenReturn(weblogEntryDto);
 
         mockPrincipal = mock(Principal.class);
         when(mockPrincipal.getName()).thenReturn("bob");
@@ -148,7 +158,7 @@ public class CommentControllerTest {
         mockMessageSource = mock(MessageSource.class);
         PageModel mockPageModel = mock(PageModel.class);
 
-        processor = new CommentController(mockWD, mockUD, mockIM, mockWEM, mockUM,
+        processor = new CommentController(mockWD, mockWED, mockUD, mockIM, mockWEM, mockUM,
                 mockES, mockMessageSource, mockPageModel, mockCommentSpamChecker,
                 mockPropertiesDao);
 
@@ -246,7 +256,7 @@ public class CommentControllerTest {
 
     @Test
     public void postCommentReturn404IfCommentingDisabled() {
-        properties.setCommentPolicy(WebloggerProperties.CommentPolicy.NONE);
+        properties.setCommentPolicy(CommentPolicy.NONE);
 
         try {
             processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
@@ -277,7 +287,7 @@ public class CommentControllerTest {
 
             // entry available but not published
             WeblogEntry entry = new WeblogEntry();
-            entry.setStatus(WeblogEntry.PubStatus.DRAFT);
+            entry.setStatus(EntryPublishStatus.DRAFT);
             when(mockWEM.getWeblogEntryByAnchor(any(), any())).thenReturn(entry);
             processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
             verify(mockResponse, times(2)).sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -290,11 +300,11 @@ public class CommentControllerTest {
     public void testValidationErrorForwarding() {
         try {
             // will return disabled if comments not allowed
-            when(mockWEM.canSubmitNewComments(any())).thenReturn(false);
+            when(mockWEM.canSubmitNewComments(any(), any())).thenReturn(false);
             verifyForwardDueToValidationError("comments.disabled", null, true);
 
             // comments allowed, but will show auth error if latter failed
-            when(mockWEM.canSubmitNewComments(any())).thenReturn(true);
+            when(mockWEM.canSubmitNewComments(any(), any())).thenReturn(true);
             when(mockRequest.getParameter("answer")).thenReturn("123");
 
             // no blogger, so authenticator will be activated
@@ -317,9 +327,8 @@ public class CommentControllerTest {
         when(mockRequest.getParameter("content")).thenReturn("Enjoy <a href=\"http://www.abc.com\">My Link</a> from Bob!");
 
         WeblogPageRequest wpr = new WeblogPageRequest("myblog", mockPrincipal, mock(PageModel.class));
-        WeblogEntry entry = new WeblogEntry();
         User blogger = new User();
-        wpr.setWeblogEntry(entry);
+        wpr.setWeblogEntry(weblogEntryDto);
         wpr.setBlogger(blogger);
 
         WeblogEntryComment wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.LIMITED);
@@ -331,7 +340,7 @@ public class CommentControllerTest {
         assertTrue(wec.getNotify());
         assertEquals("sam@yopmail.com", wec.getEmail());
         assertEquals("https://www.duckduckgo.com", wec.getRemoteHost());
-        assertEquals(entry, wec.getWeblogEntry());
+        assertEquals(weblogEntry, wec.getWeblogEntry());
         assertEquals(blogger, wec.getCreator());
         assertNotNull(wec.getPostTime());
 

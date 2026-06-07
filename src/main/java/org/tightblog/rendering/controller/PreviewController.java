@@ -103,7 +103,7 @@ public class PreviewController extends AbstractController {
             LOG.warn("For weblog {}, invalid entry {} requested, returning 404", weblog.getHandle(), anchor);
             return ResponseEntity.notFound().build();
         } else {
-            incomingRequest.setWeblogEntry(entry);
+            incomingRequest.setWeblogEntry(weblogEntryManager.toDto(entry));
             incomingRequest.setTemplate(
                     themeManager.getWeblogTheme(weblog).getTemplateByRole(Role.PERMALINK));
 

@@ -20,10 +20,12 @@
  */
 package org.tightblog.rendering.requests;
 
-import org.tightblog.domain.CalendarData;
+import org.tightblog.domain.EditFormat;
+import org.tightblog.domain.EntryPublishStatus;
+import org.tightblog.dto.WeblogEntryDto;
+import org.tightblog.rendering.domain.CalendarData;
 import org.tightblog.domain.CommentSearchCriteria;
 import org.tightblog.domain.Template;
-import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
@@ -63,7 +65,7 @@ public class WeblogPageRequest extends WeblogRequest {
 
     // attributes populated by processors where appropriate
     private Template template;
-    private WeblogEntry weblogEntry;
+    private WeblogEntryDto weblogEntry;
     private PageModel pageModel;
     private WeblogEntryComment commentForm;
     protected WeblogEntryListGenerator.WeblogEntryListData pager;
@@ -138,11 +140,22 @@ public class WeblogPageRequest extends WeblogRequest {
         this.template = template;
     }
 
-    public WeblogEntry getWeblogEntry() {
+    public WeblogEntryDto getWeblogEntry() {
         return weblogEntry;
     }
 
-    public void setWeblogEntry(WeblogEntry weblogEntry) {
+    public List<WeblogEntryComment> getComments() {
+        if (weblogEntry != null) {
+            CommentSearchCriteria csc = new CommentSearchCriteria();
+            WeblogEntry entry = pageModel.getWeblogEntryManager().getWeblogEntryById(weblogEntry.id());
+            csc.setEntry(entry);
+            csc.setStatus(WeblogEntryComment.ApprovalStatus.APPROVED);
+            return pageModel.getWeblogEntryManager().getComments(csc);
+        }
+        return new ArrayList<>();
+    }
+
+    public void setWeblogEntry(WeblogEntryDto weblogEntry) {
         this.weblogEntry = weblogEntry;
     }
 
@@ -185,19 +198,20 @@ public class WeblogPageRequest extends WeblogRequest {
         this.commentForm = commentForm;
     }
 
-    public boolean canSubmitNewComments(WeblogEntry entry) {
-        return pageModel.getWeblogEntryManager().canSubmitNewComments(entry);
+    public boolean canSubmitNewComments(WeblogEntryDto entry) {
+        return pageModel.getWeblogEntryManager().canSubmitNewComments(getWeblog().getCommentPolicy(),
+                entry);
     }
 
-    public String getTransformedText(WeblogEntry entry) {
-        return render(entry.getEditFormat(), entry.getText());
+    public String getTransformedText(WeblogEntryDto entry) {
+        return render(EditFormat.valueOf(entry.editFormat()), entry.text());
     }
 
-    public String getTransformedSummary(WeblogEntry entry) {
-        return render(entry.getEditFormat(), entry.getSummary());
+    public String getTransformedSummary(WeblogEntryDto entry) {
+        return render(EditFormat.valueOf(entry.editFormat()), entry.summary());
     }
 
-    private String render(Weblog.EditFormat format, String str) {
+    private String render(EditFormat format, String str) {
         return pageModel.getWeblogEntryManager().processBlogText(format, str);
     }
 
@@ -225,22 +239,26 @@ public class WeblogPageRequest extends WeblogRequest {
      * @param length Max entries to return (1-100)
      * @return List of weblog entry objects.
      */
-    public List<WeblogEntry> getRecentWeblogEntries(String catName, int length) {
+    public List<WeblogEntryDto> getRecentWeblogEntries(String catName, int length) {
         if (length > MAX_ENTRIES) {
             length = MAX_ENTRIES;
         }
-        List<WeblogEntry> recentEntries = new ArrayList<>();
         if (length < 1) {
-            return recentEntries;
+            return new ArrayList<>();
         }
         WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
         wesc.setWeblog(weblog);
         wesc.setCategoryName(catName);
-        wesc.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        wesc.setStatus(EntryPublishStatus.PUBLISHED);
         wesc.setMaxResults(length);
         wesc.setCalculatePermalinks(true);
-        recentEntries = pageModel.getWeblogEntryManager().getWeblogEntries(wesc);
-        return recentEntries;
+        List<WeblogEntry> recentEntries = pageModel.getWeblogEntryManager().getWeblogEntries(wesc);
+        List<WeblogEntryDto> entryDtos = new ArrayList<>();
+        for (WeblogEntry entry : recentEntries) {
+            entryDtos.add(pageModel.getWeblogEntryManager().toDto(entry));
+        }
+
+        return entryDtos;
     }
 
     /**

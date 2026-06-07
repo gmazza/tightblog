@@ -1,4 +1,4 @@
-package org.tightblog.domain;
+package org.tightblog.rendering.domain;
 
 import java.util.List;
 

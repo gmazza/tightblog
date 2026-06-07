@@ -25,13 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tightblog.config.DynamicProperties;
+import org.tightblog.dao.UserDao;
 import org.tightblog.domain.GlobalRole;
-import org.tightblog.domain.UserCredentials;
+import org.tightblog.domain.User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.tightblog.dao.UserCredentialsDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +45,14 @@ import java.util.List;
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserCredentialsDao userCredentialsDao;
+    private final UserDao userDao;
 
     private final DynamicProperties dynamicProperties;
 
     @Autowired
-    public CustomUserDetailsService(UserCredentialsDao userCredentialsDao,
+    public CustomUserDetailsService(UserDao userDao,
                                     DynamicProperties dynamicProperties) {
-        this.userCredentialsDao = userCredentialsDao;
+        this.userDao = userDao;
         this.dynamicProperties = dynamicProperties;
     }
 
@@ -71,21 +71,21 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User info not available yet.");
         }
 
-        UserCredentials creds = userCredentialsDao.findByUserName(userName);
-        GlobalRole targetGlobalRole;
-        String targetPassword;
+        User user = userDao.findEnabledByUserName(userName);
 
-        if (creds == null) {
+        if (user == null) {
             throw new UsernameNotFoundException("ERROR no user: " + userName);
         }
-        targetPassword = creds.getPasswordHash();
+
+        GlobalRole targetGlobalRole;
+        String targetPassword = user.getPasswordHash();
 
         // If MFA required & user hasn't a secret for their authenticator app, limit role
         // to MISSING_MFA_SECRET (intended to limit user to QR code scan page.)
-        if (mfaEnabled && StringUtils.isBlank(creds.getMfaSecret())) {
+        if (mfaEnabled && StringUtils.isBlank(user.getMfaSecret())) {
             targetGlobalRole = GlobalRole.MISSING_MFA_SECRET;
         } else {
-            targetGlobalRole = creds.getGlobalRole();
+            targetGlobalRole = user.getGlobalRole();
         }
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>(1);

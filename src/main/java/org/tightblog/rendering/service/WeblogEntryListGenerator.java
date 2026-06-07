@@ -18,6 +18,8 @@ package org.tightblog.rendering.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+import org.tightblog.domain.EntryPublishStatus;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.domain.Weblog;
@@ -40,9 +42,9 @@ import java.util.stream.Collectors;
 @Component
 public class WeblogEntryListGenerator {
 
-    private WeblogEntryManager weblogEntryManager;
-    private URLService urlService;
-    private MessageSource messages;
+    private final WeblogEntryManager weblogEntryManager;
+    private final URLService urlService;
+    private final MessageSource messages;
 
     @Autowired
     WeblogEntryListGenerator(WeblogEntryManager weblogEntryManager, URLService urlService,
@@ -53,7 +55,7 @@ public class WeblogEntryListGenerator {
     }
 
     public WeblogEntryListData getSearchPager(Weblog weblog, String searchPhrase, String category, int page,
-                                              Map<LocalDate, List<WeblogEntry>> entries, boolean moreResults) {
+                                              Map<LocalDate, List<WeblogEntryDto>> entries, boolean moreResults) {
 
         WeblogEntryListData data = new WeblogEntryListData();
 
@@ -82,11 +84,12 @@ public class WeblogEntryListGenerator {
 
         WeblogEntry currEntry = weblogEntryManager.getWeblogEntryByAnchor(weblog, entryAnchor);
         if (currEntry != null) {
-            if (canShowUnpublishedEntries || WeblogEntry.PubStatus.PUBLISHED.equals(currEntry.getStatus())) {
+            WeblogEntryDto entryDto = weblogEntryManager.toDto(currEntry);
+            if (canShowUnpublishedEntries || EntryPublishStatus.PUBLISHED.equals(currEntry.getStatus())) {
                 data.entries = new HashMap<>();
                 data.entries.put(instantToWeblogLocalDate(currEntry.getWeblog(),
                         currEntry.getPublishTime() == null ? Instant.now() : currEntry.getPublishTime()),
-                        Collections.singletonList(currEntry));
+                        Collections.singletonList(entryDto));
 
                 // make sure that entry is published and not to future
                 WeblogEntry nextEntry = weblogEntryManager.getNextPublishedEntry(currEntry);
@@ -149,7 +152,7 @@ public class WeblogEntryListGenerator {
         }
         wesc.setCategoryName(catName);
         wesc.setTag(tag);
-        wesc.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        wesc.setStatus(EntryPublishStatus.PUBLISHED);
         wesc.setOffset(maxEntries * page);
         wesc.setMaxResults(maxEntries + 1);
         Map<LocalDate, List<WeblogEntry>> mmap = weblogEntryManager.getDateToWeblogEntryMap(wesc);
@@ -158,18 +161,18 @@ public class WeblogEntryListGenerator {
         int count = 0;
         for (Map.Entry<LocalDate, List<WeblogEntry>> entry : mmap.entrySet()) {
             // now we need to go through each entry in a timePeriod
-            List<WeblogEntry> entrySubset = new ArrayList<>();
+            List<WeblogEntryDto> entrySubset = new ArrayList<>();
             List<WeblogEntry> dayEntries = entry.getValue();
             for (int i = 0; i < dayEntries.size(); i++) {
                 if (count++ < maxEntries) {
-                    entrySubset.add(i, dayEntries.get(i));
+                    entrySubset.add(i, weblogEntryManager.toDto(dayEntries.get(i)));
                 } else {
                     moreResults = true;
                 }
             }
 
             // done with that timePeriod, put it in the map
-            if (entrySubset.size() > 0) {
+            if (!entrySubset.isEmpty()) {
                 data.entries.put(entry.getKey(), entrySubset);
             }
         }
@@ -195,8 +198,8 @@ public class WeblogEntryListGenerator {
         private String nextLabel;
         private String prevLabel;
 
-        private Map<LocalDate, List<WeblogEntry>> entries;
-        private List<WeblogEntry> items;
+        private Map<LocalDate, List<WeblogEntryDto>> entries;
+        private List<WeblogEntryDto> items;
 
         public String getNextLink() {
             return nextLink;
@@ -214,11 +217,11 @@ public class WeblogEntryListGenerator {
             return prevLabel;
         }
 
-        public Map<LocalDate, List<WeblogEntry>> getEntries() {
+        public Map<LocalDate, List<WeblogEntryDto>> getEntries() {
             return entries;
         }
 
-        public List<WeblogEntry> getEntriesAsList() {
+        public List<WeblogEntryDto> getEntriesAsList() {
             if (items == null && entries != null) {
                 items = entries.values().stream().flatMap(List::stream).collect(Collectors.toList());
             }

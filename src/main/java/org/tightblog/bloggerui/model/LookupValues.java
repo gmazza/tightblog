@@ -15,12 +15,14 @@
  */
 package org.tightblog.bloggerui.model;
 
+import org.tightblog.domain.CommentPolicy;
+import org.tightblog.domain.EditFormat;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.SharedTheme;
+import org.tightblog.domain.SpamPolicy;
 import org.tightblog.domain.UserStatus;
-import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria.SortBy;
 import org.tightblog.domain.WebloggerProperties;
@@ -78,8 +80,8 @@ public class LookupValues {
         if (entryStatusOptions == null) {
             entryStatusOptions = new HashMap<>();
             entryStatusOptions.put("", "entries.label.allEntries");
-            entryStatusOptions.putAll(Arrays.stream(WeblogEntry.PubStatus.values())
-                .collect(Utilities.toLinkedHashMap(PubStatus::name, PubStatus::getFilterMessageConstant)));
+            entryStatusOptions.putAll(Arrays.stream(EntryPublishStatus.values())
+                .collect(Utilities.toLinkedHashMap(EntryPublishStatus::name, EntryPublishStatus::getFilterMessageConstant)));
         }
         return entryStatusOptions;
     }
@@ -118,7 +120,7 @@ public class LookupValues {
     public List<EnumAsObj> getCommentOptionList() {
         if (commentOptionList == null) {
             commentOptionList = new ArrayList<>();
-            for (WebloggerProperties.CommentPolicy policy : WebloggerProperties.CommentPolicy.values()) {
+            for (CommentPolicy policy : CommentPolicy.values()) {
                 EnumAsObj eao = new EnumAsObj();
                 eao.setConstant(policy.name());
                 eao.setLabel(policy.getLabel());
@@ -156,7 +158,7 @@ public class LookupValues {
     public List<EnumAsObj> getSpamOptionList() {
         if (spamOptionList == null) {
             spamOptionList = new ArrayList<>();
-            for (WebloggerProperties.SpamPolicy policy : WebloggerProperties.SpamPolicy.values()) {
+            for (SpamPolicy policy : SpamPolicy.values()) {
                 EnumAsObj eao = new EnumAsObj();
                 eao.setConstant(policy.name());
                 eao.setLabel(policy.getLabel());
@@ -177,8 +179,8 @@ public class LookupValues {
     public Map<String, String> getEditFormats() {
         if (editFormats == null) {
             editFormats = new LinkedHashMap<>();
-            editFormats.putAll(Arrays.stream(Weblog.EditFormat.values())
-                    .collect(Utilities.toLinkedHashMap(Weblog.EditFormat::name, Weblog.EditFormat::getDescriptionKey)));
+            editFormats.putAll(Arrays.stream(EditFormat.values())
+                    .collect(Utilities.toLinkedHashMap(EditFormat::name, EditFormat::getDescriptionKey)));
         }
         return editFormats;
     }

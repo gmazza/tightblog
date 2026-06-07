@@ -1,30 +1,30 @@
 import { defineStore } from 'pinia'
 import { findById, upsert } from '@/helpers'
 import api from '@/api'
-import type { Weblog, SessionInfo, UserWeblogRole } from '@/types'
+import type { Weblog, SessionInfo, UserHasWeblog } from '@/types'
 
 type State = {
-  userWeblogRoles: UserWeblogRole[]
+  userWeblogs: UserHasWeblog[]
   sessionInfo: SessionInfo
-  userWeblogs: Weblog[]
+  cachedWeblogs: Weblog[]
 }
 
 export const useSessionInfoStore = defineStore('sessionInfo', {
   state: (): State => ({
-    userWeblogRoles: [],
+    userWeblogs: [],
     sessionInfo: {},
-    userWeblogs: []
+    cachedWeblogs: []
   }),
   getters: {
     getSessionInfo(): SessionInfo {
       return this.sessionInfo
     },
-    getUserWeblogRoles(): UserWeblogRole[] {
-      return this.userWeblogRoles
+    getUserWeblogs(): UserHasWeblog[] {
+      return this.userWeblogs
     },
     getWeblog(): (id: String) => Weblog | null {
       return (id: String): Weblog | null => {
-        const weblog = findById(this.userWeblogs, id)
+        const weblog = findById(this.cachedWeblogs, id)
         if (!weblog) return null
         return {
           ...weblog
@@ -39,11 +39,11 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
         .then((result) => (this.sessionInfo = result))
         .catch((error: String) => console.log('load session info error: ', error))
     },
-    async loadUserWeblogRoles() {
+    async loadUserWeblogs() {
       await api
-        .loadUserWeblogRoles()
+        .loadUserWeblogs()
         .then((result) => {
-          this.userWeblogRoles = result
+          this.userWeblogs = result
         })
         .catch((error: String) => console.log('load user weblog roles error: ', error))
     },
@@ -60,7 +60,7 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
       await api
         .fetchWeblog(weblogId)
         .then((result) => {
-          upsert(this.userWeblogs, result)
+          upsert(this.cachedWeblogs, result)
         })
         .catch((error: String) => console.log('fetch weblog error: ', error))
       return this.getWeblog(weblogId)
@@ -69,32 +69,32 @@ export const useSessionInfoStore = defineStore('sessionInfo', {
       const updatedWeblog = await api
         .upsertWeblog(weblog)
         .catch((error: String) => console.log('upsert weblog error: ', error))
-      upsert(this.userWeblogs, updatedWeblog)
-      this.loadUserWeblogRoles()
+      upsert(this.cachedWeblogs, updatedWeblog)
+      this.loadUserWeblogs()
     },
     async deleteWeblog(weblogId: string) {
       await api
         .deleteWeblog(weblogId)
         .catch((error: String) => console.log('delete weblog ' + weblogId + ' error: ', error))
-      for (let i = 0; i < this.userWeblogs.length; i++) {
-        if (this.userWeblogs[i].id == weblogId) {
+      for (let i = 0; i < this.cachedWeblogs.length; i++) {
+        if (this.cachedWeblogs[i].id == weblogId) {
           // https://stackoverflow.com/a/5767357/1207540
-          this.userWeblogs.splice(i, 1)
+          this.cachedWeblogs.splice(i, 1)
         }
       }
-      this.loadUserWeblogRoles()
+      this.loadUserWeblogs()
     },
-    async detachUserFromWeblog(weblogId: string) {
+    async detachUserFromWeblog(userId: string, weblogId: string) {
       await api
-        .detachUserFromWeblog(weblogId)
+        .detachUserFromWeblog(userId, weblogId)
         .catch((error: String) => console.log('detach user from ' + weblogId + ' error: ', error))
-      this.loadUserWeblogRoles()
+      this.loadUserWeblogs()
     },
-    async setReceiveCommentsForWeblog(role: UserWeblogRole) {
+    async setReceiveCommentsForWeblog(role: UserHasWeblog) {
       await api
         .setReceiveCommentsForWeblog(role)
         .catch((error: String) => console.log('set receive comments error: ', error))
-      this.loadUserWeblogRoles()
+      this.loadUserWeblogs()
     }
   }
 })

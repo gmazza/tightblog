@@ -56,7 +56,7 @@
                 <a th:href="${url.weblogHome}" th:text="${utils.msg('generic.all')}">"all" category</a>
             </li>
             <li th:each="cat : ${model.weblog.weblogCategories}"
-                th:class="${model.category == cat.name || (model.permalink && model.weblogEntry.category.name == cat.name)}? 'selected'">
+                th:class="${model.category == cat.name || (model.permalink && model.weblogEntry.categoryName == cat.name)}? 'selected'">
                 <a th:href="${url.getEntriesURLForCategory(cat.name)}" th:text="${cat.name}">category name</a>
             </li>
         </ul>
@@ -122,13 +122,13 @@
         </ul>
     </div>
     <div th:fragment="WeblogEntryComments" th:remove="tag" th:with="entry=${model.weblogEntry}">
-        <div class="card" id="comments" th:if="${entry.commentCount > 0}">
+        <div class="card" id="comments" th:if="${entry.approvedCommentCount > 0}">
 
             <div class="card-header">
                 <h5 th:utext="${utils.msg('macro.weblog.comments')}">xxx</h5>
             </div>
 
-            <th:block th:with="comments=${entry.getComments()}">
+            <th:block th:with="comments=${model.getComments()}">
                 <th:block th:each="comment : ${comments}" th:if="${comment.approved}">
                     <div class="card-body" th:id="|comment-${comment.timestamp}|">
 
@@ -138,7 +138,7 @@
                             Posted by <a rel="nofollow" th:href="${comment.url}" th:remove="${#strings.isEmpty(comment.url) ? 'tag' : 'none'}">
                                 <span th:text="${comment.name}">xxx</span>
                             </a>
-                            <span th:if="${comment.postTime != null}">at <a th:href="${url.getCommentURL(entry, comment.timestamp)}" th:utext="${utils.formatTemporal(comment.postTime, utils.msg('macro.weblog.timedatepattern'))}">xxx</a></span>
+                            <span th:if="${comment.postTime != null}">at <a th:href="${url.getCommentURL(entry.anchor, comment.timestamp)}" th:utext="${utils.formatTemporal(comment.postTime, utils.msg('macro.weblog.timedatepattern'))}">xxx</a></span>
                         </p>
                     </div>
                 </th:block>

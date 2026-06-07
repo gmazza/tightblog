@@ -14,7 +14,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a th:class="${model.category == null && model.permalink == null}? 'dropdown-item active' : 'dropdown-item'" th:href="${url.weblogHome}" th:utext="${utils.msg('generic.all')}">xxx</a>
                             <a th:each="cat : ${model.weblog.weblogCategories}"
-                                th:class="${model.category == cat.name || (model.permalink && model.weblogEntry.category.name == cat.name)}? 'dropdown-item active' : 'dropdown-item'"
+                                th:class="${model.category == cat.name || (model.permalink && model.weblogEntry.categoryName == cat.name)}? 'dropdown-item active' : 'dropdown-item'"
                                 th:href="${url.getEntriesURLForCategory(cat.name)}" th:text="${cat.name}">category name</a>
                         </div>
                     </li>

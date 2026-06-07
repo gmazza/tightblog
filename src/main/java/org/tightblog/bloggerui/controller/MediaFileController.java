@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.service.MediaManager;
-import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.domain.MediaDirectory;
@@ -18,6 +17,9 @@ import org.tightblog.domain.MediaFile;
 import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
+import org.tightblog.dto.MediaDirectoryDto;
+import org.tightblog.dto.MediaFileDto;
+import org.tightblog.dto.MediaFileRelocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +60,12 @@ public class MediaFileController {
     private final UserDao userDao;
     private final MediaManager mediaManager;
     private final MessageSource messages;
-    private final URLService urlService;
 
     @Autowired
     public MediaFileController(WeblogDao weblogDao, MediaDirectoryDao mediaDirectoryDao,
                                MediaFileDao mediaFileDao, WeblogManager weblogManager,
                                UserManager userManager, UserDao userDao, MediaManager mediaManager,
-                               URLService urlService, MessageSource messages) {
+                               MessageSource messages) {
         this.weblogDao = weblogDao;
         this.mediaDirectoryDao = mediaDirectoryDao;
         this.mediaFileDao = mediaFileDao;
@@ -72,58 +73,45 @@ public class MediaFileController {
         this.userManager = userManager;
         this.userDao = userDao;
         this.mediaManager = mediaManager;
-        this.urlService = urlService;
         this.messages = messages;
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/weblog/{id}/mediadirectories")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #id, 'POST')")
-    public List<MediaDirectory> getMediaDirectories(@PathVariable String id, Principal p) {
+    public List<MediaDirectoryDto> getMediaDirectories(@PathVariable String id, Principal p) {
         return mediaDirectoryDao.findByWeblog(weblogDao.findByIdOrNull(id))
                         .stream()
-                        .peek(md -> {
-                            md.setMediaFiles(null);
-                            md.setWeblog(null);
-                        })
-                        .sorted(Comparator.comparing(MediaDirectory::getName))
+                        .map(MediaManager::toDto)
+                        .sorted(Comparator.comparing(MediaDirectoryDto::name))
                         .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/mediadirectories/{id}/files")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaDirectory), #id, 'POST')")
-    public List<MediaFile> getMediaDirectoryContents(@PathVariable String id, Principal p) {
+    public List<MediaFileDto> getMediaDirectoryContents(@PathVariable String id, Principal p) {
         MediaDirectory md = mediaDirectoryDao.findByIdOrNull(id);
-        List<MediaFile> files = md.getMediaFiles()
+        List<MediaFileDto> files = md.getMediaFiles()
                 .stream()
-                .peek(mf -> {
-                    mf.setCreator(null);
-                    mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()));
-                    mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
-                            mf.getFileId()));
-                })
-                .sorted(Comparator.comparing(MediaFile::getName))
+                .map(mediaManager::toDto)
+                .sorted(Comparator.comparing(MediaFileDto::name))
                 .collect(Collectors.toList());
         return files;
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/mediafile/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.MediaFile), #id, 'POST')")
-    public MediaFile getMediaFile(@PathVariable String id, Principal p) {
+    public MediaFileDto getMediaFile(@PathVariable String id, Principal p) {
         MediaFile mf = mediaFileDao.findByIdOrNull(id);
-        mf.setCreator(null);
-        mf.setPermalink(urlService.getMediaFileURL(mf.getDirectory().getWeblog(), mf.getFileId()));
-        mf.setThumbnailURL(urlService.getMediaFileThumbnailURL(mf.getDirectory().getWeblog(),
-                mf.getFileId()));
-        return mf;
+        return mediaManager.toDto(mf);
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/mediafiles", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> postMediaFile(Principal p, @Valid @RequestPart("mediaFileData") MediaFile mediaFileData,
+    public ResponseEntity<?> postMediaFile(Principal p, @Valid @RequestPart("mediaFileData") MediaFileDto mediaFileData,
                                         Locale locale,
                                         @RequestPart(name = "uploadFile", required = false) MultipartFile uploadedFile)
             throws IOException {
 
-        MediaFile mf = mediaFileData.getId() == null ? null : mediaFileDao.findByIdOrNull(mediaFileData.getId());
+        MediaFile mf = mediaFileData.id() == null ? null : mediaFileDao.findByIdOrNull(mediaFileData.id());
 
         // Check user permissions
         User user = userDao.findEnabledByUserName(p.getName());
@@ -137,10 +125,10 @@ public class MediaFileController {
             mf = new MediaFile();
             mf.setCreator(user);
 
-            if (mediaFileData.getDirectory() == null) {
+            if (mediaFileData.directoryId() == null) {
                 return ValidationErrorResponse.badRequest("Media Directory was not provided.");
             }
-            MediaDirectory dir = mediaDirectoryDao.findByIdOrNull(mediaFileData.getDirectory().getId());
+            MediaDirectory dir = mediaDirectoryDao.findByIdOrNull(mediaFileData.directoryId());
             if (dir == null) {
                 return ValidationErrorResponse.badRequest("Specified media directory could not be found.");
             }
@@ -154,19 +142,19 @@ public class MediaFileController {
                     locale));
         }
 
-        MediaFile fileWithSameName = mf.getDirectory().getMediaFile(mediaFileData.getName());
-        if (fileWithSameName != null && !fileWithSameName.getId().equals(mediaFileData.getId())) {
+        MediaFile fileWithSameName = mf.getDirectory().getMediaFile(mediaFileData.name());
+        if (fileWithSameName != null && !fileWithSameName.getId().equals(mediaFileData.id())) {
 
             return ValidationErrorResponse.badRequest(
                     messages.getMessage("mediaFile.error.duplicateName", null, locale));
         }
 
         // update media file with new metadata
-        mf.setName(mediaFileData.getName());
-        mf.setAltAttribute(mediaFileData.getAltAttribute());
-        mf.setTitleAttribute(mediaFileData.getTitleAttribute());
-        mf.setAnchor(mediaFileData.getAnchor());
-        mf.setNotes(mediaFileData.getNotes());
+        mf.setName(mediaFileData.name());
+        mf.setAltAttribute(mediaFileData.altAttribute());
+        mf.setTitleAttribute(mediaFileData.titleAttribute());
+        mf.setAnchor(mediaFileData.anchor());
+        mf.setNotes(mediaFileData.notes());
 
         Map<String, List<String>> errors = new HashMap<>();
 
@@ -191,11 +179,11 @@ public class MediaFileController {
 
     @PutMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/mediadirectories", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public ResponseEntity<?> addMediaDirectory(@PathVariable String weblogId, @RequestBody MediaDirectory mediaDirectory,
+    public ResponseEntity<?> addMediaDirectory(@PathVariable String weblogId, @RequestBody MediaDirectoryDto mediaDirectoryDto,
                                     Principal p, Locale locale) {
         try {
             Weblog weblog = weblogDao.findByIdOrNull(weblogId);
-            MediaDirectory newDir = mediaManager.createMediaDirectory(weblog, mediaDirectory.getName().trim());
+            MediaDirectory newDir = mediaManager.createMediaDirectory(weblog, mediaDirectoryDto.name().trim());
             return SuccessResponse.textMessage(newDir.getId());
         } catch (IllegalArgumentException e) {
             return ValidationErrorResponse.badRequest(messages.getMessage(e.getMessage(), null, locale));
@@ -233,14 +221,12 @@ public class MediaFileController {
         }
     }
 
-    public record MediaFileRelocation(List<String> fileIdsToMove, String destinationFolderId) { }
-
     @PostMapping(value = "/tb-ui/authoring/rest/mediafiles/weblog/{weblogId}/movefiles")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
     public void moveMediaFiles(@PathVariable String weblogId,
                                @RequestBody MediaFileRelocation mfr, Principal p, HttpServletResponse response) {
 
-        if (mfr.fileIdsToMove() != null && !mfr.fileIdsToMove.isEmpty()) {
+        if (mfr.fileIdsToMove() != null && !mfr.fileIdsToMove().isEmpty()) {
             Weblog weblog = weblogDao.getReferenceById(weblogId);
             MediaDirectory targetDirectory = mediaDirectoryDao.findByIdOrNull(mfr.destinationFolderId());
             if (targetDirectory != null && weblog.equals(targetDirectory.getWeblog())) {

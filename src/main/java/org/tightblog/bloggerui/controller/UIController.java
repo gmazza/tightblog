@@ -35,10 +35,10 @@ import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
+import org.tightblog.dto.WebloggerPropertiesDto;
 import org.tightblog.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,8 +48,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.service.URLService;
-import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
+import org.tightblog.util.MapperUtils;
 import org.tightblog.util.Utilities;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,7 +66,6 @@ public class UIController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UIController.class);
 
-    private final UserManager userManager;
     private final UserDao userDao;
     private final UserWeblogRoleDao userWeblogRoleDao;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
@@ -80,13 +79,12 @@ public class UIController {
     private final ThemeManager themeManager;
 
     @Autowired
-    public UIController(UserManager userManager, UserDao userDao,
+    public UIController(UserDao userDao,
                         WeblogEntryManager weblogEntryManager, UserWeblogRoleDao userWeblogRoleDao,
                         EmailService emailService, MessageSource messages,
                         WebloggerPropertiesDao webloggerPropertiesDao, URLService urlService,
                         Environment environment, ThemeManager themeManager, DynamicProperties dynamicProperties) {
         this.webloggerPropertiesDao = webloggerPropertiesDao;
-        this.userManager = userManager;
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
         this.weblogEntryManager = weblogEntryManager;
@@ -123,10 +121,10 @@ public class UIController {
             }
             myMap.put("actionError", errorMessage);
         } else if (activationCode != null) {
-            User user = userDao.findByActivationCode(activationCode);
+            User user = userDao.findByRegistrationActivationCode(activationCode);
 
             if (user != null) {
-                user.setActivationCode(null);
+                user.setRegistrationActivationCode(null);
                 user.setStatus(UserStatus.EMAILVERIFIED);
                 myMap.put("actionMessage", messages.getMessage("welcome.user.account.need.approval", null,
                         request.getLocale()));
@@ -183,7 +181,7 @@ public class UIController {
             } else {
                 List<UserWeblogRole> roles = userWeblogRoleDao.findByUser(user);
 
-                if (roles.size() > 0) {
+                if (!roles.isEmpty()) {
                     response.sendRedirect(request.getContextPath() + "/tb-ui/index.html#/app/myBlogs");
                 } else {
                     // admin has no blog yet, possibly initial setup.
@@ -234,12 +232,8 @@ public class UIController {
 
     @GetMapping(value = "/tb-ui/app/any/webloggerproperties")
     @ResponseBody
-    public WebloggerProperties getWebloggerProperties() {
-        WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
-        if (wp.getMainBlog() != null) {
-            wp.setMainBlogId(wp.getMainBlog().getId());
-        }
-        return wp;
+    public WebloggerPropertiesDto getWebloggerProperties() {
+        return MapperUtils.toDto(webloggerPropertiesDao.findOrNull());
     }
 
     private Map<String, Object> getSessionInfo(User user, Weblog weblog) {

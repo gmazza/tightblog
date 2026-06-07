@@ -145,14 +145,11 @@ public class WeblogTemplate extends AbstractEntity implements Template, WeblogOw
         return "WeblogTemplate: id=" + id + ", name=" + name + ", role=" + role + ", derivation=" + derivation;
     }
 
+    // hashcode implementation in base class
+    @SuppressWarnings("checkstyle:EqualsHashCode")
     @Override
     public boolean equals(Object other) {
         return other == this ||
                 (other instanceof WeblogTemplate && Objects.equals(id, ((WeblogTemplate) other).id));
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }

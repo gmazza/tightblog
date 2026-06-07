@@ -20,9 +20,6 @@
  */
 package org.tightblog.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.util.Utilities;
 
 import jakarta.validation.constraints.NotBlank;
@@ -38,13 +35,11 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 /**
  * Represents a Weblog Entry.
@@ -52,10 +47,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "weblog_entry")
 public class WeblogEntry extends AbstractEntity implements WeblogOwned {
-
-    // ugh, dependency injection presently used for comment counts
-    @Transient
-    private WeblogEntryCommentDao weblogEntryCommentDao;
 
     @NotBlank(message = "{entryEdit.error.titleNull}")
     private String title;
@@ -68,7 +59,7 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
 
     @Column(name = "edit_format")
     @Enumerated(EnumType.STRING)
-    private Weblog.EditFormat editFormat = Weblog.EditFormat.HTML;
+    private EditFormat editFormat = EditFormat.HTML;
 
     @Column(name = "enclosure_url")
     private String enclosureUrl;
@@ -88,7 +79,7 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
     private Integer commentDays = CommentDayOption.SEVEN.getDays();
 
     @Enumerated(EnumType.STRING)
-    private PubStatus status;
+    private EntryPublishStatus status;
 
     /**
      * Search description for weblog entry (intended for HTML header).
@@ -109,18 +100,6 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
             cascade = CascadeType.ALL, mappedBy = "weblogEntry", orphanRemoval = true)
     @OrderBy("name")
     private Set<WeblogEntryTag> tagSet = new HashSet<>();
-
-    @Transient
-    private String permalink;
-
-    @Transient
-    private String previewUrl;
-
-    @Transient
-    private Set<String> tags;
-
-    @Transient
-    private String tagsAsString;
 
     public WeblogEntry() {
     }
@@ -195,11 +174,11 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
         this.text = text;
     }
 
-    public Weblog.EditFormat getEditFormat() {
+    public EditFormat getEditFormat() {
         return this.editFormat;
     }
 
-    public void setEditFormat(Weblog.EditFormat editFormat) {
+    public void setEditFormat(EditFormat editFormat) {
         this.editFormat = editFormat;
     }
 
@@ -251,11 +230,11 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
         this.publishTime = publishTime;
     }
 
-    public PubStatus getStatus() {
+    public EntryPublishStatus getStatus() {
         return this.status;
     }
 
-    public void setStatus(PubStatus status) {
+    public void setStatus(EntryPublishStatus status) {
         this.status = status;
     }
 
@@ -311,70 +290,12 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
         getTagSet().addAll(newTagSet);
     }
 
-    public Set<String> getTags() {
-        if (getTagSet() == null) {
-            return new HashSet<>();
-        }
-        return getTagSet().stream().map(WeblogEntryTag::getName).collect(Collectors.toSet());
-    }
-
-    @JsonProperty
-    public String getTagsAsString() {
-        if (tagsAsString == null) {
-            tagsAsString = String.join(" ", new HashSet<>(getTags()));
-        }
-        return tagsAsString;
-    }
-
-    public void setTagsAsString(String tagsAsString) {
-        this.tagsAsString = tagsAsString;
-    }
-
-    public void setWeblogEntryCommentDao(WeblogEntryCommentDao weblogEntryCommentDao) {
-        this.weblogEntryCommentDao = weblogEntryCommentDao;
-    }
-
-    @Transient
-    @JsonIgnore
-    public List<WeblogEntryComment> getComments() {
-        return weblogEntryCommentDao != null ? weblogEntryCommentDao.findByWeblogEntryAndStatusApproved(this)
-                : new ArrayList<>();
-    }
-
-    @Transient
-    public int getCommentCount() {
-        return weblogEntryCommentDao != null ? weblogEntryCommentDao.countByWeblogEntryAndStatusApproved(this) : 0;
-    }
-
-    @JsonProperty
-    public int getCommentCountIncludingUnapproved() {
-        return weblogEntryCommentDao != null ? weblogEntryCommentDao.countByWeblogEntry(this) : 0;
-    }
-
-    // Transient field, so Jackson requires this annotation for serializing to JSON
-    @JsonProperty
-    public String getPermalink() {
-        return permalink;
-    }
-
-    public void setPermalink(String permalink) {
-        this.permalink = permalink;
-    }
-
     /**
      * Convenience method for checking published status
      */
     @Transient
     public boolean isPublished() {
-        return PubStatus.PUBLISHED.equals(getStatus());
-    }
-
-    public String getPreviewUrl() {
-        return previewUrl;
-    }
-
-    public void setPreviewUrl(String previewUrl) {
-        this.previewUrl = previewUrl;
+        return EntryPublishStatus.PUBLISHED.equals(getStatus());
     }
 
     @Override
@@ -402,22 +323,6 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public enum PubStatus {
-        DRAFT("entries.label.draftOnly"),
-        PUBLISHED("entries.label.publishedOnly"),
-        SCHEDULED("entries.label.scheduledOnly");
-
-        private final String filterMessageConstant;
-
-        PubStatus(String filterMessageConstant) {
-            this.filterMessageConstant = filterMessageConstant;
-        }
-
-        public String getFilterMessageConstant() {
-            return filterMessageConstant;
-        }
     }
 
     public enum CommentDayOption {

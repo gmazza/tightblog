@@ -44,7 +44,7 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item" th:each="comment : ${model.getRecentComments(10)}">
                     <a th:href="${comment.url}" th:remove="${comment.url == '' ? 'tag' : 'none'}" th:utext="${comment.name}"></a>
-                    on <a th:href="${url.getCommentURL(comment.weblogEntry, comment.timestamp)}"
+                    on <a th:href="${url.getCommentURL(comment.weblogEntry.anchor, comment.timestamp)}"
                           th:utext="${comment.weblogEntry.title}"></a></li>
             </ul>
         </div>

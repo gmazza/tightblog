@@ -28,17 +28,22 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.tightblog.domain.AtomEnclosure;
+import org.tightblog.dao.WeblogEntryCommentDao;
+import org.tightblog.dao.WeblogEntryDao;
+import org.tightblog.dao.WebloggerPropertiesDao;
+import org.tightblog.domain.CommentPolicy;
 import org.tightblog.domain.CommentSearchCriteria;
+import org.tightblog.domain.EditFormat;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
+import org.tightblog.domain.WeblogEntryTag;
 import org.tightblog.domain.WebloggerProperties;
-import org.tightblog.dao.WeblogEntryCommentDao;
-import org.tightblog.dao.WeblogEntryDao;
-import org.tightblog.dao.WebloggerPropertiesDao;
+import org.tightblog.dto.AtomEnclosureDto;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.util.Utilities;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.node.Node;
@@ -61,11 +66,11 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * Weblog entry and comment management.
@@ -96,6 +101,10 @@ public class WeblogEntryManager {
         this.weblogEntryCommentDao = weblogEntryCommentDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.urlService = urlService;
+    }
+
+    public WeblogEntry getWeblogEntryById(String id) {
+        return weblogEntryDao.findById(id).orElse(null);
     }
 
     /**
@@ -131,7 +140,7 @@ public class WeblogEntryManager {
      * Recategorize all entries with one category to another.
      */
     public void moveWeblogCategoryContents(WeblogCategory srcCat, WeblogCategory destCat) {
-        // get all entries in category and subcats
+        // get all entries in category
         WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
         wesc.setWeblog(srcCat.getWeblog());
         wesc.setCategoryName(srcCat.getName());
@@ -159,12 +168,12 @@ public class WeblogEntryManager {
             // get all published entries older than current time
             WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
             wesc.setEndDate(now);
-            wesc.setStatus(WeblogEntry.PubStatus.SCHEDULED);
+            wesc.setStatus(EntryPublishStatus.SCHEDULED);
             List<WeblogEntry> scheduledEntries = getWeblogEntries(wesc);
             LOG.debug("promoting {} entries to PUBLISHED state", scheduledEntries.size());
 
             for (WeblogEntry entry : scheduledEntries) {
-                entry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+                entry.setStatus(EntryPublishStatus.PUBLISHED);
                 saveWeblogEntry(entry);
             }
 
@@ -196,9 +205,9 @@ public class WeblogEntryManager {
         // if the entry was published to future, set status as SCHEDULED
         // we only consider an entry future published if it is scheduled
         // more than 1 minute into the future
-        if (WeblogEntry.PubStatus.PUBLISHED.equals(entry.getStatus()) &&
+        if (EntryPublishStatus.PUBLISHED.equals(entry.getStatus()) &&
                 entry.getPublishTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
-            entry.setStatus(WeblogEntry.PubStatus.SCHEDULED);
+            entry.setStatus(EntryPublishStatus.SCHEDULED);
         }
 
         // Store value object (creates new or updates existing)
@@ -231,7 +240,7 @@ public class WeblogEntryManager {
         WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
         wesc.setWeblog(weblog);
         wesc.setCategoryName(categoryName);
-        wesc.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        wesc.setStatus(EntryPublishStatus.PUBLISHED);
         wesc.setMaxResults(1);
         if (succeeding) {
             wesc.setStartDate(targetDate.atZone(ZoneId.systemDefault()).toInstant());
@@ -294,7 +303,7 @@ public class WeblogEntryManager {
         params.add(size++, current.getId());
         whereClause.append(" AND e.id <> ?").append(size);
 
-        params.add(size++, WeblogEntry.PubStatus.PUBLISHED);
+        params.add(size++, EntryPublishStatus.PUBLISHED);
         whereClause.append(" AND e.status = ?").append(size);
 
         params.add(size++, current.getPublishTime());
@@ -407,20 +416,14 @@ public class WeblogEntryManager {
         List<WeblogEntry> results = query.getResultList();
 
         if (criteria.isCalculatePermalinks()) {
-            results = results.stream()
-                    .peek(we -> we.setPermalink(urlService.getWeblogEntryURL(we)))
-                    .collect(Collectors.toList());
+            results = new ArrayList<>(results);
         }
 
         return results;
     }
 
     public WeblogEntry getWeblogEntryByAnchor(Weblog weblog, String anchor) {
-        WeblogEntry entry = weblogEntryDao.findByWeblogAndAnchor(weblog, anchor);
-        if (entry != null) {
-            entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
-        }
-        return entry;
+        return weblogEntryDao.findByWeblogAndAnchor(weblog, anchor);
     }
 
     /**
@@ -544,7 +547,6 @@ public class WeblogEntryManager {
         List<WeblogEntry> entries = getWeblogEntries(wesc);
 
         for (WeblogEntry entry : entries) {
-            entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
             LocalDate tmp = entry.getPublishTime() == null ? LocalDate.now() :
                     entry.getPublishTime().atZone(ZoneId.systemDefault()).toLocalDate();
             List<WeblogEntry> dayEntries = map.computeIfAbsent(tmp, k -> new ArrayList<>());
@@ -579,28 +581,29 @@ public class WeblogEntryManager {
      * Determine whether further comments for a particular blog entry are allowed.
      * @return true if additional comments may be made, false otherwise.
      */
-    public boolean canSubmitNewComments(WeblogEntry entry) {
-        if (!entry.isPublished()) {
+    public boolean canSubmitNewComments(CommentPolicy weblogCommentPolicy,
+                                        WeblogEntryDto entryDto) {
+        if (!entryDto.status().equals(EntryPublishStatus.PUBLISHED)) {
             return false;
         }
-        if (WebloggerProperties.CommentPolicy.NONE.equals(
+        if (CommentPolicy.NONE.equals(
                 webloggerPropertiesDao.findOrNull().getCommentPolicy())) {
             return false;
         }
-        if (WebloggerProperties.CommentPolicy.NONE.equals(entry.getWeblog().getCommentPolicy())) {
+        if (CommentPolicy.NONE.equals(weblogCommentPolicy)) {
             return false;
         }
-        if (entry.getCommentDays() == 0) {
+        if (entryDto.commentDays() == 0) {
             return false;
         }
-        if (entry.getCommentDays() < 0) {
+        if (entryDto.commentDays() < 0) {
             return true;
         }
         boolean ret = false;
 
-        Instant inPublishTime = entry.getPublishTime();
+        Instant inPublishTime = entryDto.publishTime();
         if (inPublishTime != null) {
-            Instant lastCommentDay = inPublishTime.plus(entry.getCommentDays(), ChronoUnit.DAYS);
+            Instant lastCommentDay = inPublishTime.plus(entryDto.commentDays(), ChronoUnit.DAYS);
             if (Instant.now().isBefore(lastCommentDay)) {
                 ret = true;
             }
@@ -634,10 +637,10 @@ public class WeblogEntryManager {
      * @param str   String to which to apply processing.
      * @return the transformed text
      */
-    public String processBlogText(Weblog.EditFormat format, String str) {
+    public String processBlogText(EditFormat format, String str) {
         String ret = str;
 
-        if (Weblog.EditFormat.COMMONMARK.equals(format) && ret != null) {
+        if (EditFormat.COMMONMARK.equals(format) && ret != null) {
             Parser parser = Parser.builder().build();
             Node document = parser.parse(ret);
             HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -663,12 +666,12 @@ public class WeblogEntryManager {
      * @param url web URL where the resource is located.
      * @return AtomEnclosure element for the resource
      */
-    public AtomEnclosure generateEnclosure(String url) {
+    public AtomEnclosureDto generateEnclosure(String url) {
         if (url == null || url.trim().isEmpty()) {
             return null;
         }
 
-        AtomEnclosure resource;
+        AtomEnclosureDto resource;
         try {
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
             con.setRequestMethod("HEAD");
@@ -689,7 +692,7 @@ public class WeblogEntryManager {
                     throw new IllegalArgumentException("entryEdit.mediaCastLacksContentTypeOrLength");
                 }
 
-                resource = new AtomEnclosure(url, contentType, length);
+                resource = new AtomEnclosureDto(url, contentType, length);
                 LOG.info("Valid mediacast resource = {}", resource.toString());
 
             }
@@ -743,4 +746,41 @@ public class WeblogEntryManager {
         return Pair.of(blogEntryTitle, found);
     }
 
+    public WeblogEntryDto toDto(WeblogEntry entry) {
+        if (entry == null) {
+            return null;
+        }
+        String tagsAsString = String.join(" ", new HashSet<>(
+                entry.getTagSet().stream().map(WeblogEntryTag::getName).toList()
+        ));
+        int approvedCommentCount = weblogEntryCommentDao.countByWeblogEntryAndStatusApproved(entry);
+        int commentCountIncludingUnapproved = weblogEntryCommentDao.countByWeblogEntry(entry);
+        String previewUrl = urlService.getWeblogEntryDraftPreviewURL(entry);
+        String permalink = urlService.getWeblogEntryURL(entry);
+
+        return new WeblogEntryDto(
+                entry.getId(),
+                entry.getTitle(),
+                entry.getText(),
+                entry.getSummary(),
+                entry.getNotes(),
+                entry.getAnchor(),
+                entry.getCommentDays(),
+                entry.getCategory() != null ? entry.getCategory().getName() : null,
+                tagsAsString,
+                permalink,
+                previewUrl,
+                entry.getStatus(),
+                entry.getSearchDescription(),
+                entry.getEnclosureUrl(),
+                entry.getEnclosureType(),
+                entry.getEnclosureLength() == null ? 0 : entry.getEnclosureLength(),
+                approvedCommentCount,
+                commentCountIncludingUnapproved,
+                entry.getEditFormat().name(),
+                entry.getPublishTime(),
+                entry.getDateUpdated(),
+                entry.getCreator().getScreenName()
+        );
+    }
 }

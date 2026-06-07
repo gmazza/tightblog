@@ -124,7 +124,7 @@
             <td class="description">{{ $t('userEdit.tip.email') }}</td>
           </tr>
 
-          <tr v-if="userBeingEdited.status == 'ENABLED'">
+          <tr v-if="userBeingEdited.userStatus == 'ENABLED'">
             <td class="label">
               <label for="passwordText">{{ $t('userEdit.password') }}</label>
             </td>
@@ -133,7 +133,7 @@
                 id="passwordText"
                 type="password"
                 size="20"
-                v-model="userCredentials!!.passwordText"
+                v-model="userBeingEdited!!.passwordText"
                 minlength="8"
                 maxlength="20"
               />
@@ -141,7 +141,7 @@
 
             <td class="description">{{ $t('userAdmin.tip.password') }}</td>
           </tr>
-          <tr v-if="userBeingEdited.status == 'ENABLED'">
+          <tr v-if="userBeingEdited.userStatus == 'ENABLED'">
             <td class="label">
               <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
             </td>
@@ -150,7 +150,7 @@
                 id="passwordConfirm"
                 type="password"
                 size="20"
-                v-model="userCredentials!!.passwordConfirm"
+                v-model="userBeingEdited!!.passwordConfirm"
                 minlength="8"
                 maxlength="20"
                 autocomplete="new-password"
@@ -197,14 +197,14 @@
                 type="text"
                 size="5"
                 maxlength="5"
-                v-model="userCredentials!!.hasMfaSecret"
+                v-model="userBeingEdited!!.hasMfaSecret"
                 readonly
               />
-              <span v-show="userCredentials!!.hasMfaSecret == true">
+              <span v-show="userBeingEdited!!.hasMfaSecret == true">
                 <input
                   type="checkbox"
                   id="eraseSecret"
-                  v-model="userCredentials!!.eraseMfaSecret"
+                  v-model="userBeingEdited!!.eraseMfaSecret"
                 />
                 <label for="eraseSecret">{{ $t('userAdmin.mfaSecret.erase') }}</label>
               </span>
@@ -238,21 +238,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="weblogRole in userBlogList" v-bind:key="weblogRole.weblog.handle">
+            <tr v-for="weblogRole in userBlogList" v-bind:key="weblogRole.weblogHandle">
               <td>
-                <a v-bind:href="weblogRole.weblog.absoluteURL" target="_blank">
-                  {{ weblogRole.weblog.name }} [{{ weblogRole.weblog.handle }}]
+                <a v-bind:href="weblogRole.weblogAbsoluteUrl" target="_blank">
+                  {{ weblogRole.weblogName }} [{{ weblogRole.weblogHandle }}]
                 </a>
               </td>
               <td>
-                {{ weblogRole.weblogRole }}
+                {{ weblogRole.role }}
               </td>
               <td>
                 <img src="@/assets/page_white_edit.png" />
                 <router-link
                   :to="{
                     name: 'entries',
-                    params: { weblogId: weblogRole.weblog.id }
+                    params: { weblogId: weblogRole.weblogId }
                   }"
                   target="_blank"
                   >{{ $t('common.entries') }}</router-link
@@ -263,7 +263,7 @@
                 <router-link
                   :to="{
                     name: 'weblogConfig',
-                    params: { weblogId: weblogRole.weblog.id }
+                    params: { weblogId: weblogRole.weblogId }
                   }"
                   target="_blank"
                   >{{ $t('userAdmin.manage') }}</router-link
@@ -272,7 +272,7 @@
               <td>
                 <button
                   type="button"
-                  v-on:click="setUserWeblogAffiliation(weblogRole.weblog.id!!, 'NOBLOGNEEDED')"
+                  v-on:click="setUserWeblogAffiliation(weblogRole.weblogId, 'NOBLOGNEEDED')"
                 >
                   {{ $t('common.remove') }}
                 </button>
@@ -326,9 +326,7 @@ import { formatDateTime } from '../helpers'
 import * as api from '@/api'
 import type {
   User,
-  UserCredentials,
-  UserData,
-  UserWeblogRole,
+  UserHasWeblog,
   Weblog,
   ErrorObj,
   ErrorItem
@@ -341,8 +339,7 @@ export default {
       pendingList: [] as User[],
       userToEdit: null,
       userBeingEdited: null as User | null,
-      userCredentials: null as UserCredentials | null,
-      userBlogList: [] as UserWeblogRole[],
+      userBlogList: [] as UserHasWeblog[],
       weblogIdToAdd: null as string | null,
       weblogToAddRole: null as string | null,
       successMessage: null as string | null,
@@ -357,7 +354,7 @@ export default {
     ...mapState(useDynamicConfigStore, ['userList', 'weblogList']),
     potentialWeblogs: function () {
       return this.weblogList.filter(
-        (w) => this.userBlogList.filter((u) => u.weblog.id === w.id).length === 0
+        (w) => this.userBlogList.filter((u) => u.weblogId === w.id).length === 0
       )
     }
   },
@@ -399,8 +396,7 @@ export default {
       }
 
       api.getUserData(this.userToEdit).then((response) => {
-        this.userBeingEdited = response.data.user
-        this.userCredentials = response.data.credentials
+        this.userBeingEdited = response.data
       })
 
       this.loadUserWeblogs()
@@ -412,15 +408,12 @@ export default {
     },
     updateUser: function () {
       this.messageClear()
-      const userData = {} as UserData
-      userData.user = this.userBeingEdited!!
-      userData.credentials = this.userCredentials!!
+      const userData = this.userBeingEdited!!
 
       api
         .updateUser(this.userToEdit!!, userData)
         .then((response) => {
-          this.userBeingEdited = response.data.user
-          this.userCredentials = response.data.credentials
+          this.userBeingEdited = response.data
           this.loadUserList()
           this.getPendingRegistrations()
           this.successMessage = this.$t('userAdmin.userUpdated', {
@@ -448,7 +441,6 @@ export default {
     cancelChanges: function () {
       this.messageClear()
       this.userBeingEdited = null
-      this.userCredentials = null
     },
     messageClear: function () {
       this.successMessage = null
@@ -478,7 +470,6 @@ export default {
     await this.loadUserList()
     await this.loadWeblogList()
     console.log('enabled? ' + this.startupConfig?.mfaEnabled)
-    console.log('creds? ' + this.userCredentials)
     this.isFetching = false
   }
 }

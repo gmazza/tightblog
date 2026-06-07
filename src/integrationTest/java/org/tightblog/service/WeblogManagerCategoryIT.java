@@ -34,10 +34,10 @@ import org.tightblog.dao.WeblogCategoryDao;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
-import org.tightblog.service.WeblogManager.WeblogCategoryData;
+import org.tightblog.dto.WeblogCategoryDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -99,7 +99,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
 
     @Test
     public void testLookupAllCategoriesByWeblog() {
-        List<WeblogCategoryData> cats = weblogManager.getWeblogCategoryData(testWeblog);
+        List<WeblogCategoryDto> cats = weblogManager.getWeblogCategories(testWeblog);
         assertNotNull(cats);
         assertEquals(4, cats.size());
     }
@@ -113,8 +113,8 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
         weblogManager.saveWeblog(testWeblog, true);
 
         testWeblog = weblogDao.findByIdOrNull(testWeblog.getId());
-        setupWeblogEntry("e1", "c1", PubStatus.PUBLISHED, testWeblog, testUser);
-        setupWeblogEntry("e2", "c1", PubStatus.DRAFT, testWeblog, testUser);
+        setupWeblogEntry("e1", "c1", EntryPublishStatus.PUBLISHED, testWeblog, testUser);
+        setupWeblogEntry("e2", "c1", EntryPublishStatus.DRAFT, testWeblog, testUser);
 
         // need to query for cats again since session was closed
         WeblogCategory fromCat = weblogCategoryDao.findByWeblogAndName(testWeblog, "c1");
@@ -150,7 +150,7 @@ public class WeblogManagerCategoryIT extends WebloggerTest {
         wesc.setWeblog(category.getWeblog());
         wesc.setCategoryName(category.getName());
         if (publishedOnly) {
-            wesc.setStatus(PubStatus.PUBLISHED);
+            wesc.setStatus(EntryPublishStatus.PUBLISHED);
         }
         return weblogEntryManager.getWeblogEntries(wesc);
     }

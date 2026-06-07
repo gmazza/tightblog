@@ -26,9 +26,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.tightblog.domain.Weblog;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.service.URLService;
 import org.tightblog.config.DynamicProperties;
-import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.requests.WeblogRequest;
 
 import java.util.Map;
@@ -99,35 +99,36 @@ public class URLModel implements Model {
         return urlService.getWeblogCollectionURL(weblog, null, date, null, -1);
     }
 
-    public String getURL(WeblogEntry entry) {
-        return urlService.getWeblogEntryURL(entry);
+    public String getURL(WeblogEntryDto entry) {
+        return urlService.getWeblogEntryURL(weblog.getHandle(), entry.anchor());
     }
 
     public String getNewEntryURL() {
         return urlService.getNewEntryURL(weblog.getId());
     }
 
-    public String getEntryEditURL(WeblogEntry entry) {
+    public String getEntryEditURL(WeblogEntryDto entry) {
         if (entry != null) {
-            return urlService.getEntryEditURL(entry);
+            return urlService.getEntryEditURL(weblog.getId(), entry.id());
         }
         return null;
     }
 
-    public String getCommentURL(WeblogEntry entry, String timeStamp) {
-        return urlService.getCommentURL(entry, timeStamp);
+    public String getCommentURL(String anchor, String timeStamp) {
+        return urlService.getCommentURL(weblog.getHandle(), anchor, timeStamp);
     }
 
-    public String getWeblogEntryPostCommentURL(WeblogEntry entry) {
-        return urlService.getWeblogEntryPostCommentURL(entry);
+    public String getWeblogEntryPostCommentURL(WeblogEntryDto entry) {
+        return urlService.getWeblogEntryPostCommentURL(weblog, entry.anchor());
     }
 
     public String getCommentAuthenticatorURL() {
         return urlService.getCommentAuthenticatorURL();
     }
 
-    public String getCommentsURL(WeblogEntry entry) {
-        return urlService.getWeblogEntryCommentsURL(entry);
+    public String getCommentsURL(WeblogEntryDto entry) {
+        return urlService.getWeblogEntryCommentsURL(weblog.getHandle(),
+                entry.anchor());
     }
 
     public String getSearchURL() {

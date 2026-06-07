@@ -18,7 +18,7 @@ import type {
   LookupValues,
   SessionInfo,
   StartupConfig,
-  UserWeblogRole,
+  UserHasWeblog,
   WebloggerProperties,
   Weblog,
   WeblogEntriesData,
@@ -169,10 +169,10 @@ export default {
       .get(import.meta.env.VITE_PUBLIC_PATH + '/app/any/sessioninfo')
       .then((response) => response.data)
   },
-  async loadUserWeblogRoles(): Promise<UserWeblogRole[]> {
+  async loadUserWeblogs(): Promise<UserHasWeblog[]> {
     return axios
       .get<
-        UserWeblogRole[]
+          UserHasWeblog[]
       >(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/loggedinuser/weblogs')
       .then((response) => response.data)
   },
@@ -190,12 +190,12 @@ export default {
   deleteWeblog(weblogId: string) {
     return axios.delete(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblog/' + weblogId)
   },
-  detachUserFromWeblog(weblogId: string) {
+  detachUserFromWeblog(userId: string, weblogId: string) {
     return axios.post(
-      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblogrole/' + weblogId + '/detach'
+      import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/user/' + userId + '/weblog/' + weblogId + '/detach'
     )
   },
-  setReceiveCommentsForWeblog(role: UserWeblogRole) {
+  setReceiveCommentsForWeblog(role: UserHasWeblog) {
     return axios.post(
       import.meta.env.VITE_PUBLIC_PATH +
         '/authoring/rest/weblogrole/' +

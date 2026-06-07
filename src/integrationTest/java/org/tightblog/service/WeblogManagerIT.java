@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tightblog.WebloggerTest;
 import org.tightblog.dao.BlogrollLinkDao;
 import org.tightblog.dao.UserWeblogRoleDao;
+import org.tightblog.domain.EditFormat;
 import org.tightblog.domain.User;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
@@ -89,7 +90,7 @@ public class WeblogManagerIT extends WebloggerTest {
         testWeblogA.setName("Test Weblog");
         testWeblogA.setTagline("Test Weblog");
         testWeblogA.setHandle("testweblog");
-        testWeblogA.setEditFormat(Weblog.EditFormat.HTML);
+        testWeblogA.setEditFormat(EditFormat.HTML);
         testWeblogA.setCommentSpamFilter("");
         testWeblogA.setTheme("basic");
         testWeblogA.setLocale("en_US");

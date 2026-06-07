@@ -54,5 +54,8 @@ export default defineConfig({
       '/tb-ui/admin': createProxyConfiguration(),
       '/tb-ui/register': createProxyConfiguration()
     }
+  },
+  build: {
+      sourcemap: true
   }
 })

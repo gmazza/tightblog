@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.indexer.AbstractTask;
 import org.tightblog.service.indexer.IndexEntryTask;
 import org.tightblog.service.indexer.IndexWeblogTask;
@@ -62,6 +63,7 @@ public class LuceneIndexer {
 
     private DirectoryReader reader;
     private WeblogEntryManager weblogEntryManager;
+    private WeblogEntryCommentDao commentDao;
     private WeblogEntryDao weblogEntryDao;
 
     @Value("${search.analyzer.class:org.apache.lucene.analysis.standard.StandardAnalyzer}")
@@ -83,12 +85,14 @@ public class LuceneIndexer {
     @Autowired
     public LuceneIndexer(
             @Lazy WeblogEntryManager weblogEntryManager, @Lazy WeblogEntryDao weblogEntryDao,
+            @Lazy WeblogEntryCommentDao commentDao,
             @Value("${search.include.comments:true}") boolean indexComments,
             @Value("${search.enabled:false}") boolean searchEnabled,
             @Value("${search.index.dir:#{null}}") String indexDir) {
 
         this.weblogEntryManager = weblogEntryManager;
         this.weblogEntryDao = weblogEntryDao;
+        this.commentDao = commentDao;
         this.indexComments = indexComments;
         this.searchEnabled = searchEnabled;
         this.indexDir = indexDir;
@@ -185,7 +189,8 @@ public class LuceneIndexer {
      * Update all weblog indexes
      */
     public void rebuildWeblogIndex() {
-        scheduleIndexOperation(new IndexWeblogTask(this, weblogEntryManager, null, false));
+        scheduleIndexOperation(new IndexWeblogTask(this, weblogEntryManager, commentDao,
+                null, false));
     }
 
     /**
@@ -194,7 +199,8 @@ public class LuceneIndexer {
      * @param remove If true, remove the weblog from the index.  If false, adds/updates weblog.
      */
     public void updateIndex(Weblog weblog, boolean remove) {
-        scheduleIndexOperation(new IndexWeblogTask(this, weblogEntryManager, weblog, remove));
+        scheduleIndexOperation(new IndexWeblogTask(this, weblogEntryManager, commentDao,
+                weblog, remove));
     }
 
     /**
@@ -203,7 +209,8 @@ public class LuceneIndexer {
      * @param remove If true, remove the weblog entry from the index.  If false, adds/updates weblog entry.
      */
     public void updateIndex(WeblogEntry entry, boolean remove) {
-        scheduleIndexOperation(new IndexEntryTask(weblogEntryDao, this, entry, remove));
+        scheduleIndexOperation(new IndexEntryTask(weblogEntryDao, this, commentDao,
+                entry, remove));
     }
 
     /**

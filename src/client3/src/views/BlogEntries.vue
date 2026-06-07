@@ -209,7 +209,7 @@
           </td>
 
           <td>
-            {{ entry.category.name }}
+            {{ entry.categoryName }}
           </td>
 
           <td>

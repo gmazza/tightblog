@@ -17,6 +17,7 @@ package org.tightblog.rendering.requests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.tightblog.domain.EditFormat;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
@@ -130,16 +131,16 @@ public class WeblogFeedRequestTest {
         test = feedRequest.getSystemVersion();
         assertEquals("1.1", test);
 
-        when(mockFeedModel.render(Weblog.EditFormat.COMMONMARK, "mainText"))
+        when(mockFeedModel.render(EditFormat.COMMONMARK, "mainText"))
                 .thenReturn("transformedMainText");
-        when(mockFeedModel.render(Weblog.EditFormat.HTML, "summary"))
+        when(mockFeedModel.render(EditFormat.HTML, "summary"))
                 .thenReturn("transformedSummary");
 
-        testEntry.setEditFormat(Weblog.EditFormat.COMMONMARK);
+        testEntry.setEditFormat(EditFormat.COMMONMARK);
         testEntry.setText("mainText");
         test = feedRequest.getTransformedText(testEntry);
         assertEquals("transformedMainText", test);
-        testEntry.setEditFormat(Weblog.EditFormat.HTML);
+        testEntry.setEditFormat(EditFormat.HTML);
         testEntry.setSummary("summary");
         test = feedRequest.getTransformedSummary(testEntry);
         assertEquals("transformedSummary", test);

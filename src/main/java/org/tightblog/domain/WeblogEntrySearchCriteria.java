@@ -49,7 +49,7 @@ public class WeblogEntrySearchCriteria {
     // If provided, limit to entries having this tag
     private String tag;
     // Publication status of the weblog entry (DRAFT, PUBLISHED, etc.)
-    private WeblogEntry.PubStatus status;
+    private EntryPublishStatus status;
     // Text appearing in the text or summary, or null for all
     private String text;
     // Date field to sort by
@@ -113,11 +113,11 @@ public class WeblogEntrySearchCriteria {
         this.tag = tag;
     }
 
-    public WeblogEntry.PubStatus getStatus() {
+    public EntryPublishStatus getStatus() {
         return status;
     }
 
-    public void setStatus(WeblogEntry.PubStatus status) {
+    public void setStatus(EntryPublishStatus status) {
         this.status = status;
     }
 

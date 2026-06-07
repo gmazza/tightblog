@@ -30,9 +30,9 @@
             </th:block>
         </div>
 
-        <p class="entryInfo" style="clear: right" th:with="commentCount = ${entry.commentCount}">
-            <th:block th:if="${model.canSubmitNewComments(entry) || commentCount > 0}">
-                <a th:href="${url.getCommentsURL(entry)}" th:utext="|${utils.msg('macro.weblog.comments')}[${commentCount}]|">xxx</a>
+        <p class="entryInfo" style="clear: right" th:with="approvedCommentCount = ${entry.approvedCommentCount}">
+            <th:block th:if="${model.canSubmitNewComments(entry) || approvedCommentCount > 0}">
+                <a th:href="${url.getCommentsURL(entry)}" th:utext="|${utils.msg('macro.weblog.comments')}[${approvedCommentCount}]|">xxx</a>
             </th:block>
 
             <th:block th:if="${model.isUserBlogPublisher()}">

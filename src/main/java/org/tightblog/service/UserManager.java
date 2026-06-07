@@ -24,18 +24,19 @@ import io.nayuki.qrcodegen.QrCode;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.WeblogOwned;
 import org.tightblog.domain.User;
-import org.tightblog.domain.UserCredentials;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogRole;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.tightblog.dao.UserCredentialsDao;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
+import org.tightblog.dto.UserDto;
+import org.tightblog.dto.UserHasWeblogDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -50,16 +51,18 @@ import java.util.Objects;
 @Component
 public class UserManager {
 
-    private UserDao userDao;
-    private UserWeblogRoleDao userWeblogRoleDao;
-    private UserCredentialsDao userCredentialsDao;
+    private final UserDao userDao;
+    private final UserWeblogRoleDao userWeblogRoleDao;
+    private final URLService urlService;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
 
     @Autowired
     public UserManager(UserDao userDao, UserWeblogRoleDao userWeblogRoleDao,
-                       UserCredentialsDao userCredentialsDao) {
+                       URLService urlService, WeblogEntryCommentDao weblogEntryCommentDao) {
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
-        this.userCredentialsDao = userCredentialsDao;
+        this.urlService = urlService;
+        this.weblogEntryCommentDao = weblogEntryCommentDao;
     }
 
     /**
@@ -84,7 +87,7 @@ public class UserManager {
     public void updateCredentials(String userId, String newPassword) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedPwd = encoder.encode(newPassword);
-        userCredentialsDao.updatePassword(userId, encodedPwd);
+        userDao.updatePassword(userId, encodedPwd);
     }
 
     /**
@@ -152,9 +155,12 @@ public class UserManager {
         userDao.evictUser(user);
     }
 
-    public void deleteUserWeblogRole(UserWeblogRole uwr) {
-        userWeblogRoleDao.delete(uwr);
-        userWeblogRoleDao.evictUserWeblogRole(uwr.getUser(), uwr.getWeblog());
+    public void deleteUserWeblogRole(String userId, String weblogId) {
+        UserWeblogRole uwr = userWeblogRoleDao.findByUserIdAndWeblogId(userId, weblogId);
+        if (uwr != null) {
+            userWeblogRoleDao.delete(uwr);
+            userWeblogRoleDao.evictUserWeblogRole(uwr.getUser(), uwr.getWeblog());
+        }
     }
 
     /**
@@ -163,17 +169,16 @@ public class UserManager {
      * @return url Image URL for the QR code
      */
     public String generateMFAQRUrl(User user) throws IOException {
-        UserCredentials uc = userCredentialsDao.findByUserName(user.getUserName());
 
-        if (uc != null) {
-            if (uc.getMfaSecret() == null) {
-                uc.setMfaSecret(Base32.random());
-                userCredentialsDao.saveAndFlush(uc);
+        if (user != null) {
+            if (user.getMfaSecret() == null) {
+                user.setMfaSecret(Base32.random());
+                userDao.saveAndFlush(user);
             }
 
             QrCode qr0 = QrCode.encodeText(String.format(
                             "otpauth://totp/%s:%s?secret=%s&issuer=%s",
-                            "TightBlog", user.getEmailAddress(), uc.getMfaSecret(), "TightBlog"),
+                            "TightBlog", user.getEmailAddress(), user.getMfaSecret(), "TightBlog"),
                     QrCode.Ecc.MEDIUM);
 
             BufferedImage img = toImage(qr0, 4, 10);
@@ -207,6 +212,30 @@ public class UserManager {
             }
         }
         return result;
+    }
+
+    public static UserDto toDto(User user) {
+        return new UserDto(user.getId(), user.getScreenName(), user.getUserName(), user.getEmailAddress(),
+                user.getStatus().name(), user.getGlobalRole().name(), user.getDateCreated(), user.getLastLogin(),
+                user.getRegistrationActivationCode());
+    }
+
+    public UserHasWeblogDto toDto(UserWeblogRole uwr) {
+        String absoluteUrl = urlService.getWeblogURL(uwr.getWeblog());
+        int unapprovedComments =
+                weblogEntryCommentDao.countByWeblogAndStatusUnapproved(uwr.getWeblog());
+
+        return new UserHasWeblogDto(
+                uwr.getUser().getUserName(),
+                uwr.getWeblog().getId(),
+                uwr.getWeblog().getName(),
+                uwr.getWeblog().getHandle(),
+                absoluteUrl,
+                uwr.getWeblog().getAbout(),
+                uwr.getWeblog().getHitsToday(),
+                unapprovedComments,
+                uwr.getWeblogRole(),
+                uwr.isEmailComments());
     }
 
 }

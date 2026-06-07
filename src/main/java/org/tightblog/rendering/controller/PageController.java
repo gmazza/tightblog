@@ -147,7 +147,7 @@ public class PageController extends AbstractController {
                         weblogHandle, anchor);
                 return getHomePage(weblogHandle, 0, request, principal);
             } else {
-                incomingRequest.setWeblogEntry(entry);
+                incomingRequest.setWeblogEntry(weblogEntryManager.toDto(entry));
                 incomingRequest.setTemplate(
                         themeManager.getWeblogTheme(weblog).getTemplateByRole(Role.PERMALINK));
             }

@@ -15,7 +15,7 @@ export interface MediaFile {
   width: number
   height: number
   notes: string
-  directory?: MediaFolder
+  directoryId?: string
   thumbnailURL: string
   imageFile: boolean
   selected: boolean

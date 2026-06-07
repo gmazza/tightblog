@@ -44,18 +44,19 @@ import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.domain.WebloggerProperties.CommentPolicy;
+import org.tightblog.domain.CommentPolicy;
 
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.SendFailedException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.tightblog.dto.UserDto;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @EnableConfigurationProperties(DynamicProperties.class)
@@ -74,6 +75,7 @@ public class EmailService {
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final DynamicProperties dp;
     private final boolean mailEnabled;
+    private final WeblogEntryManager weblogEntryManager;
 
     @Autowired
     public EmailService(UserManager userManager, UserDao userDao,
@@ -82,7 +84,7 @@ public class EmailService {
                         SpringTemplateEngine standardTemplateEngine, MessageSource messages, DynamicProperties dp,
                         WebloggerPropertiesDao webloggerPropertiesDao,
                         WeblogEntryCommentDao weblogEntryCommentDao,
-                        @Value("${mail.enabled:false}") boolean mailEnabled) {
+                        @Value("${mail.enabled:false}") boolean mailEnabled, WeblogEntryManager weblogEntryManager) {
         this.userManager = userManager;
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
@@ -94,6 +96,7 @@ public class EmailService {
         this.messages = messages;
         this.dp = dp;
         this.mailEnabled = mailEnabled;
+        this.weblogEntryManager = weblogEntryManager;
     }
 
     /**
@@ -103,7 +106,7 @@ public class EmailService {
      *
      * @param user user to send activation email to.
      */
-    public void sendUserActivationEmail(User user) {
+    public void sendUserActivationEmail(UserDto user) {
         if (!mailEnabled) {
             LOG.warn("Cannot send user activation email to {} because mail.enabled=false; either enable" +
                     " or have a blog server admin activate account from User Admin page.", user);
@@ -111,16 +114,16 @@ public class EmailService {
         }
 
         String activationURL = dp.getAbsoluteUrl() + "/tb-ui/app/login?activationCode=" +
-                user.getActivationCode();
+                user.registrationActivationCode();
 
         Context ctx = new Context();
         ctx.setVariable("emailType", "UserActivation");
-        ctx.setVariable("userName", user.getUserName());
+        ctx.setVariable("userName", user.userName());
         ctx.setVariable("activationURL", activationURL);
         String message = standardTemplateEngine.process("emails/CommonEmailLayout", ctx);
 
         String subject = messages.getMessage("user.account.activation.mail.subject", null, Locale.getDefault());
-        String[] to = new String[]{user.getEmailAddress()};
+        String[] to = new String[]{user.emailAddress()};
         sendMessage(null, to, null, subject, message);
     }
 
@@ -219,7 +222,8 @@ public class EmailService {
 
         Context ctx = new Context(weblog.getLocaleInstance());
         ctx.setVariable("comment", comment);
-        String commentURL = urlService.getWeblogEntryCommentsURL(entry);
+        String commentURL = urlService.getWeblogEntryCommentsURL(entry.getWeblog().getHandle(),
+                entry.getAnchor());
         ctx.setVariable("commentURL", commentURL);
         ctx.setVariable("messages", commentNotes);
 
@@ -241,7 +245,7 @@ public class EmailService {
         String[] sendToList = bloggerList.stream()
                 .map(UserWeblogRole::getUser)
                 .map(User::getEmailAddress)
-                .collect(Collectors.toList()).toArray(new String[bloggerList.size()]);
+                .toList().toArray(new String[bloggerList.size()]);
 
         String from = user.getEmailAddress();
         sendMessage(from, sendToList, null, subject, msg);
@@ -272,7 +276,7 @@ public class EmailService {
                 weblogEntryCommentDao.findByWeblogEntryAndStatusApproved(entry).stream()
                 // don't send a routing email to the person who made the comment.
                 .filter(pc -> !comment.getEmail().equalsIgnoreCase(pc.getEmail()))
-                .collect(Collectors.toList());
+                .toList();
 
         for (WeblogEntryComment priorComment : priorComments) {
             // if user has commented twice, count the most recent notify setting
@@ -310,13 +314,13 @@ public class EmailService {
             String[] bloggerEmailAddrs = bloggerList.stream()
                     .map(UserWeblogRole::getUser)
                     .map(User::getEmailAddress)
-                    .collect(Collectors.toList()).toArray(new String[bloggerList.size()]);
+                    .toList().toArray(new String[bloggerList.size()]);
 
             sendMessage(from, bloggerEmailAddrs, null, subject, msg);
         }
 
         // now send to subscribers (different email each with different unsubscribe link)
-        if (subscribers.size() > 0) {
+        if (!subscribers.isEmpty()) {
             for (Map.Entry<String, String> subscriber : subscribers.entrySet()) {
                 Context ctx = getPublishedCommentNotificationContext(comment, subscriber);
                 String msg = standardTemplateEngine.process("emails/NewCommentNotification", ctx);
@@ -331,7 +335,7 @@ public class EmailService {
 
         Context ctx = new Context(weblog.getLocaleInstance());
         ctx.setVariable("comment", comment);
-        String commentURL = urlService.getWeblogEntryCommentsURL(entry);
+        String commentURL = urlService.getWeblogEntryCommentsURL(entry.getWeblog().getHandle(), entry.getAnchor());
         ctx.setVariable("commentURL", commentURL);
         if (subscriber != null) {
             ctx.setVariable("unsubscribeURL", urlService.getCommentNotificationUnsubscribeURL(subscriber.getValue()));
@@ -346,7 +350,7 @@ public class EmailService {
      * @param comments list of comments
      */
     public void sendYourCommentWasApprovedNotifications(List<WeblogEntryComment> comments) {
-        if (!mailEnabled || comments == null || comments.size() < 1) {
+        if (!mailEnabled || comments == null || comments.isEmpty()) {
             return;
         }
 
@@ -363,7 +367,8 @@ public class EmailService {
 
         Context ctx = new Context();
         ctx.setVariable("emailType", "CommentApproved");
-        ctx.setVariable("commentURL", urlService.getCommentURL(entry, wec.getTimestamp()));
+        ctx.setVariable("commentURL", urlService.getCommentURL(entry.getWeblog().getHandle(), entry.getAnchor(),
+                wec.getTimestamp()));
         String message = standardTemplateEngine.process("emails/CommonEmailLayout", ctx);
 
         // send message to author of approved comment
