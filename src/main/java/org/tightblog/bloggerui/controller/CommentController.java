@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.service.EmailService;
-import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.CommentSearchCriteria;
@@ -51,9 +50,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @EnableConfigurationProperties(DynamicProperties.class)
@@ -69,16 +68,14 @@ public class CommentController {
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final WeblogEntryManager weblogEntryManager;
     private final LuceneIndexer luceneIndexer;
-    private final URLService urlService;
     private final EmailService emailService;
     private final DynamicProperties dp;
 
     record CommentData(String entryTitle, List<WeblogEntryComment> comments, boolean hasMore) { }
-    record UnsubscribeResults(boolean foundEntry, String entryTitle, boolean foundSubscription) { }
 
     @Autowired
     public CommentController(WeblogDao weblogDao, WeblogEntryManager weblogEntryManager, DynamicProperties dp,
-                             LuceneIndexer luceneIndexer, URLService urlService, EmailService emailService,
+                             LuceneIndexer luceneIndexer, EmailService emailService,
                              WebloggerPropertiesDao webloggerPropertiesDao,
                              WeblogEntryDao weblogEntryDao,
                              WeblogEntryCommentDao weblogEntryCommentDao) {
@@ -88,16 +85,15 @@ public class CommentController {
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.weblogEntryManager = weblogEntryManager;
         this.luceneIndexer = luceneIndexer;
-        this.urlService = urlService;
         this.emailService = emailService;
         this.dp = dp;
     }
 
     @PostMapping(value = "/{weblogId}/page/{page}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
+    @PreAuthorize("@securityService.hasAccess(#ignoredP.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
     public CommentData getWeblogComments(@PathVariable String weblogId, @PathVariable int page,
                                          @RequestParam(required = false) String entryId,
-                                         @RequestBody CommentSearchCriteria criteria, Principal p) {
+                                         @RequestBody CommentSearchCriteria criteria, Principal ignoredP) {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
         criteria.setWeblog(weblog);
@@ -109,10 +105,9 @@ public class CommentController {
         criteria.setOffset(page * ITEMS_PER_PAGE);
         criteria.setMaxResults(ITEMS_PER_PAGE + 1);
 
-        List<WeblogEntryComment> entryComments = weblogEntryManager.getComments(criteria).stream()
-                .peek(c -> c.getWeblogEntry().setPermalink(
-                        urlService.getWeblogEntryURL(c.getWeblogEntry())))
-                .collect(Collectors.toList());
+        //                .peek(c -> c.getWeblogEntry().setPermalink(
+//                        urlService.getWeblogEntryURL(c.getWeblogEntry())))
+        List<WeblogEntryComment> entryComments = new ArrayList<>(weblogEntryManager.getComments(criteria));
 
         boolean hasMore = false;
         if (entryComments.size() > ITEMS_PER_PAGE) {

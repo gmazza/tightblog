@@ -508,7 +508,6 @@ public class WeblogManager {
                  weblog.getName(),
                  weblog.getTagline(),
                  weblog.getAbout(),
-                 weblog.getAbsoluteURL(),
                  weblog.getHandle(),
                  weblog.getTheme(),
                  weblog.getLocale(),
@@ -522,7 +521,6 @@ public class WeblogManager {
                  false,
                  categoryNames,
                  weblog.getHitsToday(),
-                 weblogEntryCommentDao.countByWeblogAndStatusUnapproved(weblog),
                  weblog.getAnalyticsCode(),
                  weblog.getCommentSpamFilter()
          );

@@ -29,7 +29,9 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Template;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.URLModel;
 import org.tightblog.dao.UserDao;
@@ -266,13 +268,15 @@ public class UIControllerTest {
 
         WeblogEntry entry = new WeblogEntry();
         entry.setAnchor(TEST_ENTRY_ANCHOR);
-        entry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        entry.setStatus(EntryPublishStatus.PUBLISHED);
         when(mockWEM.getWeblogEntryByAnchor(weblog, entry.getAnchor())).thenReturn(entry);
+        WeblogEntryDto entryDto = new WeblogEntryDto(entry.getId(), entry.getAnchor(), entry.getStatus());
+        when(mockWEM.toDto(entry)).thenReturn(entryDto);
 
         ResponseEntity<Resource> result = controller.getByEntry(TEST_BLOG_HANDLE, TEST_ENTRY_ANCHOR, mockRequest, mockPrincipal);
         assertEquals(HttpStatus.OK, result.getStatusCode());
         WeblogPageRequest wpr = TestUtils.extractWeblogPageRequestFromMockRenderer(mockRenderer);
-        assertEquals(TEST_ENTRY_ANCHOR, wpr.getWeblogEntry().getAnchor());
+        assertEquals(TEST_ENTRY_ANCHOR, wpr.getWeblogEntry().anchor());
         assertEquals(permalinkTemplate, wpr.getTemplate());
         assertNull(wpr.getCustomPageName());
         assertNull(wpr.getCategory());
@@ -288,7 +292,7 @@ public class UIControllerTest {
         verify(mockWELG).getPermalinkPager(eq(weblog), any(), any());
 
         // test redirect to home page (i.e., usage of weblog template) if weblog entry not published
-        entry.setStatus(WeblogEntry.PubStatus.DRAFT);
+        entry.setStatus(EntryPublishStatus.DRAFT);
 
         Mockito.clearInvocations(mockWM, mockCache, mockRenderer, mockWELG);
         result = controller.getByEntry(TEST_BLOG_HANDLE, TEST_ENTRY_ANCHOR,
@@ -317,7 +321,7 @@ public class UIControllerTest {
 
         // test 404 if exception during rendering
         when(mockWEM.getWeblogEntryByAnchor(weblog, TEST_ENTRY_ANCHOR)).thenReturn(entry);
-        entry.setStatus(WeblogEntry.PubStatus.PUBLISHED);
+        entry.setStatus(EntryPublishStatus.PUBLISHED);
         doThrow(new IllegalArgumentException()).when(mockRenderer).render(any(), any());
 
         Mockito.clearInvocations(mockWM, mockCache);

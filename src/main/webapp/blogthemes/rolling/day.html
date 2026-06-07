@@ -17,19 +17,19 @@
             <div class="card-text searchable_text" th:case="${false}" th:utext="|${model.getTransformedSummary(entry)} ${utils.msg('macro.weblog.readMoreLink', url.getURL(entry))}|"></div>
         </th:block>
         <p class="pubInfo">
-            Posted by <span th:utext="${entry.creator.screenName}">xxx</span> in <span class="category" th:utext="${entry.category.name}">xxx</span>
+            Posted by <span th:utext="${entry.creatorScreenName}">xxx</span> in <span class="category" th:utext="${entry.categoryName}">xxx</span>
             <span th:if="${entry.publishTime != null}">at <a th:href="${url.getURL(entry)}" th:utext="${utils.formatTemporal(entry.publishTime, utils.msg('macro.weblog.timedatepattern'))}">xxx</a></span>
-            <th:block th:if="${entry.getTags() != null && entry.getTags().size() > 0}">
+            <th:block th:if="${entry.getTagsAsSet() != null && entry.getTagsAsSet().size() > 0}">
                 <span>| Tags:</span>
-                <span th:each="tag : ${entry.getTags()}">
+                <span th:each="tag : ${entry.getTagsAsSet()}">
                     &nbsp;<a th:href="${url.getEntriesURLForTag(tag, model.category)}" th:utext="${tag}">xxx</a>
                 </span>
             </th:block>
             <span th:if="${model.isUserBlogPublisher()}">
                 | <a th:href="${url.getEntryEditURL(entry)}" th:utext="${utils.msg('generic.edit')}">xxx</a>
             </span>
-            <span th:if="${model.canSubmitNewComments(entry) || entry.commentCount > 0}">
-                | <a th:href="${url.getCommentsURL(entry)}" th:utext="|${utils.msg('macro.weblog.comments')}[${entry.commentCount}]|">xxx</a>
+            <span th:if="${model.canSubmitNewComments(entry) || entry.approvedCommentCount > 0}">
+                | <a th:href="${url.getCommentsURL(entry)}" th:utext="|${utils.msg('macro.weblog.comments')}[${entry.approvedCommentCount}]|">xxx</a>
             </span>
         </p>
     </div>

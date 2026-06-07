@@ -81,7 +81,7 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
         // delete weblog roles
         role = userWeblogRoleDao.findByUserAndWeblog(testUser, testWeblog);
         assertNotNull(role);
-        userManager.deleteUserWeblogRole(role);
+        userManager.deleteUserWeblogRole(role.getUser().getId(), role.getWeblog().getId());
 
         // check that delete was successful
         role = userWeblogRoleDao.findByUserAndWeblog(testUser, testWeblog);
@@ -96,7 +96,7 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
         assertSame(role.getWeblogRole(), WeblogRole.OWNER);
 
         // revoke role
-        userManager.deleteUserWeblogRole(role);
+        userManager.deleteUserWeblogRole(role.getUser().getId(), role.getWeblog().getId());
 
         // add post role
         userManager.grantWeblogRole(testUser, testWeblog, WeblogRole.POST);
@@ -167,7 +167,7 @@ public class UserManagerWeblogRoleIT extends WebloggerTest {
 
         // test user can be retired from weblog
         UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(user, testWeblog);
-        userManager.deleteUserWeblogRole(uwr);
+        userManager.deleteUserWeblogRole(uwr.getUser().getId(), uwr.getWeblog().getId());
 
         userRoles = userWeblogRoleDao.findByUser(user);
         assertEquals(0, userRoles.size());

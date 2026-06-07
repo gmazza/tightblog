@@ -22,15 +22,14 @@ package org.tightblog.bloggerui.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.bloggerui.model.SuccessResponse;
 import org.tightblog.bloggerui.model.Violation;
 import org.tightblog.dto.QRCodeData;
 import org.tightblog.dto.UserDto;
+import org.tightblog.dto.UserHasWeblogDto;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
@@ -90,7 +89,6 @@ public class UserController {
     private final EmailService emailService;
     private final MessageSource messages;
     private final WebloggerPropertiesDao webloggerPropertiesDao;
-    private final WeblogEntryCommentDao weblogEntryCommentDao;
     private final URLService urlService;
 
     @PersistenceContext
@@ -101,14 +99,12 @@ public class UserController {
                           UserWeblogRoleDao userWeblogRoleDao, MessageSource messageSource,
                           EmailService emailService, UserDao userDao,
                           URLService urlService,
-                          WeblogEntryCommentDao weblogEntryCommentDao,
                           WebloggerPropertiesDao webloggerPropertiesDao) {
         this.weblogDao = weblogDao;
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.userManager = userManager;
         this.userWeblogRoleDao = userWeblogRoleDao;
         this.userDao = userDao;
-        this.weblogEntryCommentDao = weblogEntryCommentDao;
         this.urlService = urlService;
         this.emailService = emailService;
         this.messages = messageSource;
@@ -267,13 +263,6 @@ public class UserController {
         return saveUser(user, newData, p, response, false);
     }
 
-    @GetMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/members")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'OWNER')")
-    public List<UserWeblogRole> getWeblogMembers(@PathVariable String weblogId, Principal p) {
-        Weblog weblog = weblogDao.getReferenceById(weblogId);
-        return userWeblogRoleDao.findByWeblog(weblog);
-    }
-
     @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/user/{userId}/role/{role}/associate")
     public ResponseEntity<String> addUserToWeblog(@PathVariable String weblogId, @PathVariable String userId,
                                           @PathVariable WeblogRole role, Principal p, Locale locale) {
@@ -288,7 +277,8 @@ public class UserController {
             if (WeblogRole.NOBLOGNEEDED.equals(role)) {
                 UserWeblogRole uwr = userWeblogRoleDao.findByUserAndWeblog(newMember, weblog);
                 if (uwr != null) {
-                    userManager.deleteUserWeblogRole(uwr);
+                    userWeblogRoleDao.delete(uwr);
+                    userManager.deleteUserWeblogRole(uwr.getUser().getId(), uwr.getWeblog().getId());
                 }
             } else {
                 userManager.grantWeblogRole(newMember, weblog, role);
@@ -301,28 +291,28 @@ public class UserController {
 
     @PostMapping(value = "/tb-ui/authoring/rest/weblog/{weblogId}/memberupdate")
     public ResponseEntity<?> updateWeblogMembership(@PathVariable String weblogId, Principal p, Locale locale,
-                                                 @RequestBody List<UserWeblogRole> uwrs) {
+                                                 @RequestBody List<UserHasWeblogDto> uhwdList) {
 
         Weblog weblog = weblogDao.findById(weblogId).orElse(null);
         User user = userDao.findEnabledByUserName(p.getName());
         if (user != null && weblog != null && user.hasEffectiveGlobalRole(GlobalRole.ADMIN)) {
 
             // must remain at least one admin
-            List<UserWeblogRole> owners = uwrs.stream()
-                    .filter(r -> r.getWeblogRole().equals(WeblogRole.OWNER))
-                    .toList();
-            if (owners.isEmpty()) {
+            if (uhwdList.stream().noneMatch(r -> r.role().equals(WeblogRole.OWNER))) {
                 return ValidationErrorResponse.badRequest(
                         messages.getMessage("members.oneAdminRequired", null, locale));
             }
 
             // one iteration for each line (user) in the members table
-            for (UserWeblogRole uwr : uwrs) {
-                if (WeblogRole.NOBLOGNEEDED.equals(uwr.getWeblogRole())) {
-                    userManager.deleteUserWeblogRole(uwr);
+            for (UserHasWeblogDto uhwd : uhwdList) {
+                if (WeblogRole.NOBLOGNEEDED.equals(uhwd.role())) {
+                    userManager.deleteUserWeblogRole(uhwd.userId(), uhwd.weblogId());
                 } else {
-                    userManager.grantWeblogRole(
-                            uwr.getUser(), uwr.getWeblog(), uwr.getWeblogRole());
+                    User userToUpdate = userDao.findById(uhwd.userId()).orElse(null);
+                    if (userToUpdate != null) {
+                        userManager.grantWeblogRole(
+                                userToUpdate, weblog, uhwd.role());
+                    }
                 }
             }
             return SuccessResponse.textMessage(
@@ -460,23 +450,20 @@ public class UserController {
     }
 
     @GetMapping(value = "/tb-ui/admin/rest/useradmin/user/{id}/weblogs")
-    public List<UserWeblogRole> getUsersWeblogs(@PathVariable String id, HttpServletResponse response) {
+    public List<UserHasWeblogDto> getUsersWeblogs(@PathVariable String id, HttpServletResponse response) {
         User user = userDao.findByIdOrNull(id);
         if (user == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
         List<UserWeblogRole> uwrs = userWeblogRoleDao.findByUser(user);
-        for (UserWeblogRole uwr : uwrs) {
-            entityManager.detach(uwr); // uwr now a DTO
-            uwr.getWeblog().setAbsoluteURL(urlService.getWeblogURL(uwr.getWeblog()));
-            uwr.setUser(null);
-        }
-        return uwrs;
+        return uwrs.stream()
+                .map(userManager::toDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/tb-ui/authoring/rest/loggedinuser/weblogs")
-    public List<UserWeblogRole> getLoggedInUsersWeblogs(Principal p, HttpServletResponse response) {
+    public List<UserHasWeblogDto> getLoggedInUsersWeblogs(Principal p, HttpServletResponse response) {
         User user = userDao.findEnabledByUserName(p.getName());
         if (user == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -484,15 +471,12 @@ public class UserController {
         }
 
         List<UserWeblogRole> uwrs = userWeblogRoleDao.findByUser(user);
-        for (UserWeblogRole uwr : uwrs) {
-            entityManager.detach(uwr); // uwr now a DTO
-            uwr.getWeblog().setAbsoluteURL(urlService.getWeblogURL(uwr.getWeblog()));
-            uwr.getWeblog().setUnapprovedComments(
-                    weblogEntryCommentDao.countByWeblogAndStatusUnapproved(uwr.getWeblog()));
-            uwr.setUser(null);
-        }
 
-        return uwrs;
+        List<UserHasWeblogDto> uwrDtos = uwrs.stream()
+                .map(userManager::toDto)
+                .toList();
+
+        return uwrDtos;
     }
 
     @PostMapping(value = "/tb-ui/authoring/rest/weblogrole/{id}/emails/{emailComments}")
@@ -508,11 +492,12 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/tb-ui/authoring/rest/weblogrole/{id}/detach")
-    public void resignFromWeblog(@PathVariable String id, Principal p, HttpServletResponse response) {
-        UserWeblogRole uwr = userWeblogRoleDao.findByIdOrNull(id);
+    @PostMapping(value = "/tb-ui/authoring/rest/user/{userId}/weblog/{weblogId}/detach")
+    public void resignFromWeblog(@PathVariable String userId, @PathVariable String weblogId,
+                                 Principal p, HttpServletResponse response) {
+        UserWeblogRole uwr = userWeblogRoleDao.findByUserIdAndWeblogId(userId, weblogId);
         if (uwr != null && uwr.getUser().getUserName().equals(p.getName())) {
-            userManager.deleteUserWeblogRole(uwr);
+            userManager.deleteUserWeblogRole(uwr.getUser().getId(), uwr.getWeblog().getId());
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

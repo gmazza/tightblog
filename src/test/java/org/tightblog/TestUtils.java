@@ -17,8 +17,10 @@ package org.tightblog;
 
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.requests.WeblogSearchRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
@@ -61,7 +63,7 @@ public class TestUtils {
 
     @SuppressWarnings("unchecked")
     public static WeblogPageRequest extractWeblogPageRequestFromMockRenderer(ThymeleafRenderer mockRenderer)
-        throws IOException {
+            throws IOException {
         ArgumentCaptor<Map<String, Object>> captor = (ArgumentCaptor<Map<String, Object>>) (ArgumentCaptor<?>)
                 ArgumentCaptor.forClass(Map.class);
         verify(mockRenderer).render(any(), captor.capture());
@@ -102,11 +104,22 @@ public class TestUtils {
     /**
      * Some tests are expected to log an exception while running, this notice
      * helps to separate expected exceptions vs. non-expected ones in the logging
-     * @param log - logger to log to
+     *
+     * @param log           - logger to log to
      * @param exceptionType - name of exception (IllegalArgumentException, FileNotFoundException, etc.)
      */
     public static void logExpectedException(Logger log, String exceptionType) {
         log.info("Test is expected to log a/an {}:", exceptionType);
+    }
+
+    public static WeblogEntryDto genWeblogEntryDto(String anchor, Instant publishTime) {
+        return new WeblogEntryDto(UUID.randomUUID().toString(), null, anchor, publishTime,
+                EntryPublishStatus.PUBLISHED, null);
+    }
+
+    public static WeblogEntryDto genWeblogEntryDto(String id, String anchor, Instant publishTime, String title,
+                                                   EntryPublishStatus status) {
+        return new WeblogEntryDto(id, title, anchor, publishTime, status, null);
     }
 
     public static WeblogEntry genWeblogEntry(Weblog weblog, String anchor, Instant publishTime) {
@@ -114,8 +127,36 @@ public class TestUtils {
         entry.setId(UUID.randomUUID().toString());
         entry.setWeblog(weblog);
         entry.setAnchor(anchor);
+        entry.setStatus(EntryPublishStatus.PUBLISHED);
         entry.setPublishTime(publishTime);
         return entry;
     }
 
+    /**
+     * Sets up a mock WeblogEntryManager so that toDto() calls TestUtils.genWeblogEntryDto
+     * with anchor and publishTime from the WeblogEntry argument.
+     */
+    public static void mockWeblogEntryManagerToDto(org.tightblog.service.WeblogEntryManager mockManager) {
+        when(mockManager.toDto(any())).thenAnswer(invocation -> {
+            Object arg = invocation.getArgument(0);
+            if (arg instanceof WeblogEntry entry) {
+                String anchor = entry.getAnchor() != null ? entry.getAnchor() : "default-anchor";
+                java.time.Instant publishTime = entry.getPublishTime();
+                return genWeblogEntryDto(entry.getId(), anchor, publishTime, entry.getTitle(), entry.getStatus());
+            }
+            return null;
+        });
+    }
+
+    public static boolean weblogEntryEqualsDto(WeblogEntry entry, WeblogEntryDto dto) {
+        if (entry == null || entry.getId() == null || dto == null) {
+            return false;
+        }
+        boolean publishTimeEqual = (entry.getPublishTime() == null && dto.publishTime() == null)
+                || (entry.getPublishTime() != null && entry.getPublishTime().equals(dto.publishTime()));
+        return entry.getId().equals(dto.id())
+                && entry.getAnchor().equals(dto.anchor())
+                && publishTimeEqual
+                && entry.getStatus().equals(dto.status());
+    }
 }

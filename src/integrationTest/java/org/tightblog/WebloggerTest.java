@@ -23,6 +23,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.tightblog.domain.EditFormat;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.WeblogManager;
 import org.tightblog.config.DynamicProperties;
@@ -116,7 +118,7 @@ public abstract class WebloggerTest {
         testWeblog.setName("Test Weblog");
         testWeblog.setTagline("Test Weblog");
         testWeblog.setHandle(handle);
-        testWeblog.setEditFormat(Weblog.EditFormat.HTML);
+        testWeblog.setEditFormat(EditFormat.HTML);
         testWeblog.setCommentSpamFilter("");
         testWeblog.setTheme("basic");
         testWeblog.setLocale("en_US");
@@ -139,16 +141,16 @@ public abstract class WebloggerTest {
     protected WeblogEntry setupWeblogEntry(String anchor, Weblog weblog, User user) {
         Weblog weblogInSession = weblogDao.findByIdOrNull(weblog.getId());
         return setupWeblogEntry(anchor, weblogInSession.getWeblogCategories().stream().findFirst().get().getName(),
-                WeblogEntry.PubStatus.PUBLISHED, weblog, user);
+                EntryPublishStatus.PUBLISHED, weblog, user);
     }
 
     protected WeblogEntry setupWeblogEntry(String anchor, String catName,
-                                           WeblogEntry.PubStatus status, Weblog weblog, User user) {
+                                           EntryPublishStatus status, Weblog weblog, User user) {
 
         WeblogEntry testEntry = new WeblogEntry();
         testEntry.setTitle(anchor);
         testEntry.setText("blah blah entry");
-        testEntry.setEditFormat(Weblog.EditFormat.HTML);
+        testEntry.setEditFormat(EditFormat.HTML);
         testEntry.setAnchor(anchor);
         testEntry.setPublishTime(Instant.now());
         testEntry.setStatus(status);

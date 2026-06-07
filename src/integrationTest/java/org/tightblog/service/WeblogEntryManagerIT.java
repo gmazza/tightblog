@@ -43,7 +43,7 @@ import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogEntryTag;
 import org.tightblog.domain.Weblog;
@@ -106,7 +106,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         testEntry.setPublishTime(Instant.now());
         testEntry.setWeblog(testWeblog);
         testEntry.setCreator(testUser);
-        testEntry.setStatus(PubStatus.DRAFT);
+        testEntry.setStatus(EntryPublishStatus.DRAFT);
 
         WeblogCategory cat = weblogCategoryDao.findByWeblogAndName(testWeblog, "General");
         testEntry.setCategory(cat);
@@ -151,15 +151,15 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         WeblogEntry entry5 = setupWeblogEntry("entry5", testWeblog, testUser);
         
         // make a couple changes
-        entry1.setStatus(PubStatus.PUBLISHED);
+        entry1.setStatus(EntryPublishStatus.PUBLISHED);
         entry1.setSearchDescription("sample search description");
         weblogEntryManager.saveWeblogEntry(entry1);
         
-        entry2.setStatus(PubStatus.PUBLISHED);
+        entry2.setStatus(EntryPublishStatus.PUBLISHED);
         entry2.setPublishTime(Instant.now().plus(2, ChronoUnit.HOURS));
         weblogEntryManager.saveWeblogEntry(entry2);
 
-        entry3.setStatus(PubStatus.DRAFT);
+        entry3.setStatus(EntryPublishStatus.DRAFT);
         entry3.setPublishTime(Instant.now().plus(1, ChronoUnit.DAYS));
         weblogEntryManager.saveWeblogEntry(entry3);
         
@@ -197,7 +197,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         WeblogEntrySearchCriteria wesc9 = new WeblogEntrySearchCriteria();
         wesc9.setWeblog(testWeblog);
         wesc9.setCategoryName("General");
-        wesc9.setStatus(PubStatus.PUBLISHED);
+        wesc9.setStatus(EntryPublishStatus.PUBLISHED);
         entries = weblogEntryManager.getWeblogEntries(wesc9);
         assertNotNull(entries);
         assertEquals(3, entries.size());
@@ -205,7 +205,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         // get all (non-future) PUBLISHED entries only 
         WeblogEntrySearchCriteria wesc2 = new WeblogEntrySearchCriteria();
         wesc2.setWeblog(testWeblog);
-        wesc2.setStatus(PubStatus.PUBLISHED);
+        wesc2.setStatus(EntryPublishStatus.PUBLISHED);
         entries = weblogEntryManager.getWeblogEntries(wesc2);
         assertNotNull(entries);
         assertEquals(3, entries.size());
@@ -294,7 +294,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             testEntry.setTitle("entryTestEntry");
             testEntry.setText("blah blah entry");
             testEntry.setAnchor("testEntryAnchor");
-            testEntry.setStatus(PubStatus.PUBLISHED);
+            testEntry.setStatus(EntryPublishStatus.PUBLISHED);
             testEntry.setPublishTime(Instant.now());
             testEntry.setWeblog(testWeblog);
             testEntry.setCreator(testUser);
@@ -311,8 +311,8 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             entry = weblogEntryDao.findByIdOrNull(id);
             assertNotNull(entry);
             assertEquals(testEntry, entry);
-            assertNotNull(entry.getTags());
-            assertEquals(1, entry.getTags().size());
+            assertNotNull(entry.getTagSet());
+            assertEquals(1, entry.getTagSet().size());
             assertEquals("testtag", (entry.getTagSet()
                     .iterator().next()).getName());
 
@@ -339,7 +339,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         weblogEntryManager.saveWeblogEntry(entry);
 
         entry = weblogEntryDao.findByIdOrNull(id);
-        assertEquals(3, entry.getTags().size());
+        assertEquals(3, entry.getTagSet().size());
 
         weblogEntryManager.removeWeblogEntry(entry);
     }
@@ -357,7 +357,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         weblogEntryManager.saveWeblogEntry(entry);
 
         entry = weblogEntryDao.findByIdOrNull(id);
-        assertEquals(1, entry.getTags().size());
+        assertEquals(1, entry.getTagSet().size());
 
         weblogEntryManager.removeWeblogEntry(entry);
     }
@@ -373,14 +373,14 @@ public class WeblogEntryManagerIT extends WebloggerTest {
             weblogEntryManager.saveWeblogEntry(entry);
 
             entry = weblogEntryDao.findByIdOrNull(id);
-            assertEquals(2, entry.getTags().size());
+            assertEquals(2, entry.getTagSet().size());
 
             entry = weblogEntryDao.findByIdOrNull(id);
             entry.getTagSet().clear();
             weblogEntryManager.saveWeblogEntry(entry);
 
             entry = weblogEntryDao.findByIdOrNull(id);
-            assertEquals(0, entry.getTags().size());
+            assertEquals(0, entry.getTagSet().size());
             weblogEntryManager.removeWeblogEntry(entry);
         } catch (Throwable t) {
             StringWriter sw = new StringWriter();
@@ -446,7 +446,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         String id = entry.getId();
 
         entry = weblogEntryDao.findByIdOrNull(id);
-        assertEquals(2, entry.getTags().size());
+        assertEquals(2, entry.getTagSet().size());
 
         entry.updateTags(new HashSet<>(Arrays.asList("testwillstaytag testnewtag testnewtag3".split("\\s+"))));
         weblogEntryManager.saveWeblogEntry(entry);
@@ -456,7 +456,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
                 .map(WeblogEntryTag::getName)
                 .collect(Collectors.toCollection(HashSet::new));
 
-        assertEquals(3, entry.getTags().size());
+        assertEquals(3, entry.getTagSet().size());
         assertEquals(3, tagNames.size());
         assertTrue(tagNames.contains("testwillstaytag"));
         assertTrue(tagNames.contains("testnewtag"));
@@ -663,7 +663,7 @@ public class WeblogEntryManagerIT extends WebloggerTest {
         testEntry.setAnchor("testEntryAnchor");
         testEntry.setPublishTime(Instant.now());
         testEntry.setWeblog(testWeblog);
-        testEntry.setStatus(PubStatus.DRAFT);
+        testEntry.setStatus(EntryPublishStatus.DRAFT);
         testEntry.setCreator(testUser);
 
         WeblogCategory cat = weblogCategoryDao.findByWeblogAndName(testWeblog, "General");

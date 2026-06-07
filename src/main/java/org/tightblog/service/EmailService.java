@@ -44,7 +44,7 @@ import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
-import org.tightblog.domain.WebloggerProperties.CommentPolicy;
+import org.tightblog.domain.CommentPolicy;
 
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -75,6 +75,7 @@ public class EmailService {
     private final WebloggerPropertiesDao webloggerPropertiesDao;
     private final DynamicProperties dp;
     private final boolean mailEnabled;
+    private final WeblogEntryManager weblogEntryManager;
 
     @Autowired
     public EmailService(UserManager userManager, UserDao userDao,
@@ -83,7 +84,7 @@ public class EmailService {
                         SpringTemplateEngine standardTemplateEngine, MessageSource messages, DynamicProperties dp,
                         WebloggerPropertiesDao webloggerPropertiesDao,
                         WeblogEntryCommentDao weblogEntryCommentDao,
-                        @Value("${mail.enabled:false}") boolean mailEnabled) {
+                        @Value("${mail.enabled:false}") boolean mailEnabled, WeblogEntryManager weblogEntryManager) {
         this.userManager = userManager;
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
@@ -95,6 +96,7 @@ public class EmailService {
         this.messages = messages;
         this.dp = dp;
         this.mailEnabled = mailEnabled;
+        this.weblogEntryManager = weblogEntryManager;
     }
 
     /**
@@ -220,7 +222,8 @@ public class EmailService {
 
         Context ctx = new Context(weblog.getLocaleInstance());
         ctx.setVariable("comment", comment);
-        String commentURL = urlService.getWeblogEntryCommentsURL(entry);
+        String commentURL = urlService.getWeblogEntryCommentsURL(entry.getWeblog().getHandle(),
+                entry.getAnchor());
         ctx.setVariable("commentURL", commentURL);
         ctx.setVariable("messages", commentNotes);
 
@@ -332,7 +335,7 @@ public class EmailService {
 
         Context ctx = new Context(weblog.getLocaleInstance());
         ctx.setVariable("comment", comment);
-        String commentURL = urlService.getWeblogEntryCommentsURL(entry);
+        String commentURL = urlService.getWeblogEntryCommentsURL(entry.getWeblog().getHandle(), entry.getAnchor());
         ctx.setVariable("commentURL", commentURL);
         if (subscriber != null) {
             ctx.setVariable("unsubscribeURL", urlService.getCommentNotificationUnsubscribeURL(subscriber.getValue()));
@@ -364,7 +367,8 @@ public class EmailService {
 
         Context ctx = new Context();
         ctx.setVariable("emailType", "CommentApproved");
-        ctx.setVariable("commentURL", urlService.getCommentURL(entry, wec.getTimestamp()));
+        ctx.setVariable("commentURL", urlService.getCommentURL(entry.getWeblog().getHandle(), entry.getAnchor(),
+                wec.getTimestamp()));
         String message = standardTemplateEngine.process("emails/CommonEmailLayout", ctx);
 
         // send message to author of approved comment

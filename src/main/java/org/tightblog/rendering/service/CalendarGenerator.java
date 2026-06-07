@@ -27,7 +27,7 @@ import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.rendering.domain.CalendarData;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.util.Utilities;
@@ -74,7 +74,7 @@ public class CalendarGenerator {
         wesc.setStartDate(startTime.atZone(ZoneId.systemDefault()).toInstant());
         wesc.setEndDate(endTime.atZone(ZoneId.systemDefault()).toInstant());
         wesc.setCategoryName(pageRequest.getCategory());
-        wesc.setStatus(PubStatus.PUBLISHED);
+        wesc.setStatus(EntryPublishStatus.PUBLISHED);
         Map<LocalDate, List<WeblogEntry>> dateToEntryMap = weblogEntryManager.getDateToWeblogEntryMap(wesc);
 
         // Allows for different formatting for today's date

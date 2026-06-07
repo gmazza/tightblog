@@ -26,7 +26,9 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopFieldDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntry;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.SearchResultsModel;
 import org.tightblog.service.indexer.FieldConstants;
@@ -58,9 +60,6 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     private int limit;
     private SearchResultsModel searchModel;
 
-    // not yet implemented
-    private boolean searchAllBlogs;
-
     public WeblogSearchRequest(String weblogHandle, Principal principal, SearchResultsModel searchModel) {
         super(weblogHandle, principal, searchModel);
         this.searchModel = searchModel;
@@ -80,10 +79,6 @@ public class WeblogSearchRequest extends WeblogPageRequest {
 
     public int getLimit() {
         return limit;
-    }
-
-    public boolean isSearchAllBlogs() {
-        return searchAllBlogs;
     }
 
     public int getResultCount() {
@@ -115,17 +110,14 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     @Override
     public WeblogEntryListGenerator.WeblogEntryListData getWeblogEntriesPager() {
         if (pager == null) {
-            Map<LocalDate, List<WeblogEntry>> entriesByDateMap = Collections.emptyMap();
+            Map<LocalDate, List<WeblogEntryDto>> entriesByDateMap = Collections.emptyMap();
 
             if (searchPhrase != null) {
 
                 // setup the search
                 SearchTask searchTask = new SearchTask(searchModel.getLuceneIndexer());
                 searchTask.setTerm(searchPhrase);
-
-                if (!searchAllBlogs) {
-                    searchTask.setWeblogHandle(getWeblogHandle());
-                }
+                searchTask.setWeblogHandle(getWeblogHandle());
 
                 if (StringUtils.isNotEmpty(category)) {
                     searchTask.setCategory(category);
@@ -143,13 +135,15 @@ public class WeblogSearchRequest extends WeblogPageRequest {
                     // Convert hits into WeblogEntry instances.  Results are mapped by Day -> Set of entries
                     // to eliminate any duplicates and then converted into Day -> List map used by pagers
                     entriesByDateMap = convertHitsToEntries(hitsArr, searchTask).entrySet().stream()
-                            .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue()),
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    e -> new ArrayList<>(e.getValue()),
                                     (v1, v2) -> {
-                                        throw new RuntimeException(String.format("Duplicate key for values %s and %s",
-                                                v1, v2));
-                                    },
-                                    () -> new TreeMap<LocalDate, List<WeblogEntry>>(Comparator.reverseOrder()))
-                            );
+                                        throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
+                                        },
+                                    () -> new TreeMap<LocalDate, List<WeblogEntryDto>>(Comparator.reverseOrder())
+                            ));
+
                 }
             }
             pager = searchModel.getWeblogEntryListGenerator().getSearchPager(weblog, searchPhrase,
@@ -161,8 +155,8 @@ public class WeblogSearchRequest extends WeblogPageRequest {
     /**
      * Create weblog entries for each result found.
      */
-    public Map<LocalDate, TreeSet<WeblogEntry>> convertHitsToEntries(ScoreDoc[] hits, SearchTask searchTask) {
-        Map<LocalDate, TreeSet<WeblogEntry>> results = new HashMap<>();
+    public Map<LocalDate, TreeSet<WeblogEntryDto>> convertHitsToEntries(ScoreDoc[] hits, SearchTask searchTask) {
+        Map<LocalDate, TreeSet<WeblogEntryDto>> results = new HashMap<>();
 
         // determine offset and limit
         this.offset = getPageNum() * RESULTS_PER_PAGE;
@@ -175,7 +169,7 @@ public class WeblogSearchRequest extends WeblogPageRequest {
             this.limit = hits.length - this.offset;
         }
 
-        WeblogEntry entry;
+        WeblogEntryDto entryDto;
         Document doc;
         for (int i = offset; i < offset + limit; i++) {
             try {
@@ -184,19 +178,19 @@ public class WeblogSearchRequest extends WeblogPageRequest {
                 log.warn("IOException processing {}", hits[i].doc, e);
                 continue;
             }
-            entry = searchModel.getWeblogEntryDao().
+            WeblogEntry entry = searchModel.getWeblogEntryDao().
                     findByIdOrNull(doc.getField(FieldConstants.ID).stringValue());
+            entryDto = searchModel.getWeblogEntryManager().toDto(entry);
 
-            if (entry != null && WeblogEntry.PubStatus.PUBLISHED.equals(entry.getStatus())) {
-                LocalDate pubDate = entry.getPublishTime().atZone(ZoneId.systemDefault()).toLocalDate();
+            if (entryDto != null && EntryPublishStatus.PUBLISHED.equals(entryDto.status())) {
+                LocalDate pubDate = entryDto.publishTime().atZone(ZoneId.systemDefault()).toLocalDate();
 
                 // ensure we do not get duplicates from Lucene by using a set collection.
-                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntry::getPublishTime).reversed()
-                        .thenComparing(WeblogEntry::getTitle)));
-                results.get(pubDate).add(entry);
+                results.putIfAbsent(pubDate, new TreeSet<>(Comparator.comparing(WeblogEntryDto::publishTime).reversed()
+                        .thenComparing(WeblogEntryDto::title)));
+                results.get(pubDate).add(entryDto);
             }
         }
-
         return results;
     }
 }

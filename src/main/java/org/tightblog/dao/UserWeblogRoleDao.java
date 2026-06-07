@@ -35,6 +35,8 @@ public interface UserWeblogRoleDao extends JpaRepository<UserWeblogRole, String>
 
     List<UserWeblogRole> findByWeblog(Weblog weblog);
 
+    UserWeblogRole findByUserIdAndWeblogId(String userId, String weblogId);
+
     default List<User> findByWeblogAndStatusEnabled(Weblog weblog) {
         return findByWeblog(weblog).stream().map(UserWeblogRole::getUser).filter(
                 u->UserStatus.ENABLED.equals(u.getStatus())).collect(Collectors.toList());

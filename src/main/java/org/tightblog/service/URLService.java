@@ -113,10 +113,10 @@ public class URLService {
     /**
      * Get a url to edit a specific weblog entry.
      */
-    public String getEntryEditURL(WeblogEntry entry) {
-        String url = dp.getAbsoluteUrl() + "/tb-ui/app/entryEdit/" + entry.getWeblog().getId();
+    public String getEntryEditURL(String weblogId, String entryId) {
+        String url = dp.getAbsoluteUrl() + "/tb-ui/app/entryEdit/" + weblogId;
         Map<String, String> params = new HashMap<>();
-        params.put("entryId", entry.getId());
+        params.put("entryId", entryId);
         return url + Utilities.getQueryString(params);
     }
 
@@ -131,7 +131,7 @@ public class URLService {
      * Get root url for a given weblog.
      */
     public String getWeblogURL(Weblog weblog) {
-        return getWeblogRootURL(weblog);
+        return getWeblogRootURL(weblog.getHandle());
     }
 
     /**
@@ -145,15 +145,9 @@ public class URLService {
 
     /**
      * Get the POST url for a weblog entry comment.
-     * @param entry weblog entry where comment is being placed
      */
-    public String getWeblogEntryPostCommentURL(WeblogEntry entry) {
-        String url = "";
-        if (entry != null) {
-            url = getWeblogURL(entry.getWeblog()) + "entrycomment/"
-                    + Utilities.encode(entry.getAnchor());
-        }
-        return url;
+    public String getWeblogEntryPostCommentURL(Weblog weblog, String entryAnchor) {
+        return getWeblogURL(weblog) + "entrycomment/" + Utilities.encode(entryAnchor);
     }
 
     /**
@@ -172,19 +166,17 @@ public class URLService {
 
     /**
      * Get url for the comments section of a single weblog entry
-     * @param entry entry whose comments it is desired to view
      */
-    public String getWeblogEntryCommentsURL(WeblogEntry entry) {
-        return getWeblogEntryURL(entry) + "#comments";
+    public String getWeblogEntryCommentsURL(String weblogHandle, String entryAnchor) {
+        return getWeblogEntryURL(weblogHandle, entryAnchor) + "#comments";
     }
 
     /**
      * Get url for a single weblog entry comment
-     * @param entry entry whose comments it is desired to view
      * @param timeStamp timestamp of comment (used to identify comment desired)
      */
-    public String getCommentURL(WeblogEntry entry, String timeStamp) {
-        return getWeblogEntryURL(entry) + "#comment-" + timeStamp;
+    public String getCommentURL(String weblogHandle, String entryAnchor, String timeStamp) {
+        return getWeblogEntryURL(weblogHandle, entryAnchor) + "#comment-" + timeStamp;
     }
 
     /**
@@ -217,15 +209,21 @@ public class URLService {
     }
 
     /* Weblog URL before any params added */
-    private String getWeblogRootURL(Weblog weblog) {
-        return dp.getAbsoluteUrl() + "/" + weblog.getHandle() + "/";
+    private String getWeblogRootURL(String weblogHandle) {
+        return dp.getAbsoluteUrl() + "/" + weblogHandle + "/";
     }
 
     /**
      * Get url for a single weblog entry on a given weblog.
      */
     public String getWeblogEntryURL(WeblogEntry entry) {
-        String url = getWeblogRootURL(entry.getWeblog()) + "entry/" + Utilities.encode(entry.getAnchor());
+        String url = getWeblogRootURL(entry.getWeblog().getHandle()) + "entry/" + Utilities.encode(entry.getAnchor());
+        Map<String, String> params = new HashMap<>();
+        return url + Utilities.getQueryString(params);
+    }
+
+    public String getWeblogEntryURL(String weblogHandle, String entryAnchor) {
+        String url = getWeblogRootURL(weblogHandle) + "entry/" + Utilities.encode(entryAnchor);
         Map<String, String> params = new HashMap<>();
         return url + Utilities.getQueryString(params);
     }
@@ -235,7 +233,7 @@ public class URLService {
      */
     public String getWeblogCollectionURL(Weblog weblog, String category, String dateString, String tag, int pageNum) {
 
-        String pathinfo = getWeblogRootURL(weblog);
+        String pathinfo = getWeblogRootURL(weblog.getHandle());
         Map<String, String> params = new HashMap<>();
 
         if (category != null && dateString == null) {
@@ -278,7 +276,7 @@ public class URLService {
      * @return URL, absolute or relative, for the given pageLink.
      */
     public String getCustomPageURL(Weblog weblog, String pageLink, String dateString) {
-        String url = getWeblogRootURL(weblog);
+        String url = getWeblogRootURL(weblog.getHandle());
         Map<String, String> params = new HashMap<>();
 
         if (pageLink != null && pageLink.length() > 0) {

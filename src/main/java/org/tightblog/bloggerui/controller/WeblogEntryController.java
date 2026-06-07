@@ -26,7 +26,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.bloggerui.model.Violation;
-import org.tightblog.dao.WeblogEntryCommentDao;
+import org.tightblog.domain.EditFormat;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.service.URLService;
 import org.tightblog.service.UserManager;
 import org.tightblog.service.WeblogEntryManager;
@@ -40,7 +41,7 @@ import org.tightblog.domain.User;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogEntryTagAggregate;
 import org.tightblog.domain.WeblogRole;
@@ -83,15 +84,14 @@ public class WeblogEntryController {
     private final LuceneIndexer luceneIndexer;
     private final URLService urlService;
     private final MessageSource messages;
-    private final WeblogEntryCommentDao weblogEntryCommentDao;
     private final DynamicProperties dp;
 
     // Max Tag options to display for autocomplete
     private final int maxAutocompleteTags;
 
-    private record TagAutocompleteData(String prefix, List<WeblogEntryTagAggregate> tagcounts) { }
-    private record WeblogEntryData(List<WeblogEntry> entries, boolean hasMore) { }
-    private record RecentWeblogEntryData(String id, String title, String entryEditURL) { }
+    public record TagAutocompleteData(String prefix, List<WeblogEntryTagAggregate> tagcounts) { }
+    public record WeblogEntryData(List<WeblogEntryDto> entries, boolean hasMore) { }
+    public record RecentWeblogEntryData(String id, String title, String entryEditURL) { }
 
     @Autowired
     public WeblogEntryController(WeblogDao weblogDao, WeblogCategoryDao weblogCategoryDao,
@@ -99,7 +99,6 @@ public class WeblogEntryController {
                                  WeblogEntryManager weblogEntryManager, LuceneIndexer luceneIndexer,
                                  URLService urlService, MessageSource messages,
                                  WeblogEntryDao weblogEntryDao, DynamicProperties dp,
-                                 WeblogEntryCommentDao weblogEntryCommentDao,
                                  @Value("${max.autocomplete.tags:20}") int maxAutocompleteTags) {
         this.weblogDao = weblogDao;
         this.weblogEntryDao = weblogEntryDao;
@@ -112,7 +111,6 @@ public class WeblogEntryController {
         this.urlService = urlService;
         this.messages = messages;
         this.dp = dp;
-        this.weblogEntryCommentDao = weblogEntryCommentDao;
         this.maxAutocompleteTags = maxAutocompleteTags;
     }
 
@@ -121,18 +119,10 @@ public class WeblogEntryController {
 
     @GetMapping(value = "/{id}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntry), #id, 'POST')")
-    public WeblogEntry getWeblogEntry(@PathVariable String id, Principal p) {
+    public WeblogEntryDto getWeblogEntry(@PathVariable String id, Principal p) {
 
         WeblogEntry entry = weblogEntryDao.findByIdOrNull(id);
-        entry.setWeblogEntryCommentDao(weblogEntryCommentDao);
-        entry.setPermalink(urlService.getWeblogEntryURL(entry));
-        entry.setPreviewUrl(urlService.getWeblogEntryDraftPreviewURL(entry));
-
-        if (entry.getPublishTime() != null) {
-            entry.setCreator(null);
-        }
-
-        return entry;
+        return weblogEntryManager.toDto(entry);
     }
 
     @PostMapping(value = "/{weblogId}/page/{page}")
@@ -146,24 +136,24 @@ public class WeblogEntryController {
         criteria.setOffset(page * ITEMS_PER_PAGE);
         criteria.setMaxResults(ITEMS_PER_PAGE + 1);
         criteria.setCalculatePermalinks(true);
-        List<WeblogEntry> rawEntries = weblogEntryManager.getWeblogEntries(criteria);
-
-        List<WeblogEntry> entries = rawEntries.stream()
-                .peek(re -> re.setWeblog(null))
-                .peek(re -> re.getCategory().setWeblog(null)).collect(Collectors.toList());
+        List<WeblogEntry> entries = weblogEntryManager.getWeblogEntries(criteria);
 
         boolean hasMore = false;
-        if (rawEntries.size() > ITEMS_PER_PAGE) {
-            entries.remove(entries.size() - 1);
+        if (entries.size() > ITEMS_PER_PAGE) {
+            entries.removeLast();
             hasMore = true;
         }
 
-        return new WeblogEntryData(entries, hasMore);
+        List<WeblogEntryDto> entryDtos = entries.stream()
+                .map(weblogEntryManager::toDto)
+                .collect(Collectors.toList());
+
+        return new WeblogEntryData(entryDtos, hasMore);
     }
 
     @GetMapping(value = "/{weblogId}/recententries/{pubStatus}")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public List<RecentWeblogEntryData> getRecentEntries(@PathVariable String weblogId, @PathVariable PubStatus pubStatus,
+    public List<RecentWeblogEntryData> getRecentEntries(@PathVariable String weblogId, @PathVariable EntryPublishStatus pubStatus,
                                               Principal p) {
 
         Weblog weblog = weblogDao.findByIdOrNull(weblogId);
@@ -177,14 +167,15 @@ public class WeblogEntryController {
 
             List<WeblogEntry> fullEntries = weblogEntryManager.getWeblogEntries(wesc);
             entries.addAll(fullEntries.stream().map(e -> new RecentWeblogEntryData(e.getId(),
-                    e.getTitle(), urlService.getEntryEditURL(e))).collect(Collectors.toList()));
+                    e.getTitle(), urlService.getEntryEditURL(e.getWeblog().getId(), e.getId()))).toList());
         }
         return entries;
     }
 
     @GetMapping(value = "/{id}/tagdata")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public TagAutocompleteData getWeblogTagData(@PathVariable String id, @RequestParam("prefix") String prefix) {
+    @PreAuthorize("@securityService.hasAccess(#ignoredP.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
+    public TagAutocompleteData getWeblogTagData(@PathVariable String id, @RequestParam("prefix") String prefix,
+                                                Principal ignoredP) {
         List<WeblogEntryTagAggregate> tags;
         Weblog weblog = weblogDao.findById(id).orElse(null);
         tags = weblogManager.getTags(weblog, null, prefix, 0, maxAutocompleteTags);
@@ -195,14 +186,15 @@ public class WeblogEntryController {
     // save
     @PostMapping(value = "/{weblogId}/entries")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.Weblog), #weblogId, 'POST')")
-    public ResponseEntity<?> postEntry(@PathVariable String weblogId, @Valid @RequestBody WeblogEntry entryData,
+    public ResponseEntity<?> postEntry(@PathVariable String weblogId,
+                                       @Valid @RequestBody WeblogEntryDto incomingEntryDto,
                                        Locale locale, Principal p) {
 
         boolean createNew = false;
         WeblogEntry entry = null;
 
-        if (entryData.getId() != null) {
-            entry = weblogEntryDao.findByIdOrNull(entryData.getId());
+        if (incomingEntryDto.id() != null) {
+            entry = weblogEntryDao.findByIdOrNull(incomingEntryDto.id());
         }
 
         // Check user permissions
@@ -219,35 +211,35 @@ public class WeblogEntryController {
                 entry = new WeblogEntry();
                 entry.setCreator(user);
                 entry.setWeblog(weblog);
-                entryData.setWeblog(weblog);
             }
 
-            entry.setPublishTime((entryData.getPublishTime() != null) ? entryData.getPublishTime() : Instant.now());
+            entry.setPublishTime((incomingEntryDto.publishTime() != null) ? incomingEntryDto.publishTime() : Instant.now());
 
-            if (PubStatus.PUBLISHED.equals(entryData.getStatus()) &&
+            if (EntryPublishStatus.PUBLISHED.equals(incomingEntryDto.status()) &&
                     entry.getPublishTime().isAfter(Instant.now().plus(1, ChronoUnit.MINUTES))) {
-                entryData.setStatus(PubStatus.SCHEDULED);
+                entry.setStatus(EntryPublishStatus.SCHEDULED);
+            } else {
+                entry.setStatus(incomingEntryDto.status());
             }
 
-            entry.setEditFormat(entryData.getEditFormat());
-            entry.setStatus(entryData.getStatus());
-            entry.setTitle(entryData.getTitle());
-            entry.setText(entryData.getText());
-            entry.setSummary(entryData.getSummary());
-            entry.setNotes(entryData.getNotes());
-            entry.updateTags(Arrays.stream(entryData.getTagsAsString().split("\\s+"))
+            entry.setEditFormat(EditFormat.valueOf(incomingEntryDto.editFormat()));
+            entry.setTitle(incomingEntryDto.title());
+            entry.setText(incomingEntryDto.text());
+            entry.setSummary(incomingEntryDto.summary());
+            entry.setNotes(incomingEntryDto.notes());
+            entry.updateTags(Arrays.stream(incomingEntryDto.tagsAsString().split("\\s+"))
                     .filter(StringUtils::isNotEmpty)
                     .collect(Collectors.toSet()));
-            entry.setSearchDescription(entryData.getSearchDescription());
-            entry.setEnclosureUrl(entryData.getEnclosureUrl());
-            WeblogCategory category = weblogCategoryDao.findByWeblogAndName(weblog, entryData.getCategory().getName());
+            entry.setSearchDescription(incomingEntryDto.searchDescription());
+            entry.setEnclosureUrl(incomingEntryDto.enclosureUrl());
+            WeblogCategory category = weblogCategoryDao.findByWeblogAndName(weblog, incomingEntryDto.categoryName());
             if (category != null) {
                 entry.setCategory(category);
             } else {
                 throw new IllegalArgumentException("Category is invalid.");
             }
 
-            entry.setCommentDays(entryData.getCommentDays());
+            entry.setCommentDays(incomingEntryDto.commentDays());
 
             if (!StringUtils.isEmpty(entry.getEnclosureUrl())) {
                 // Fetch MediaCast resource

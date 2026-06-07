@@ -46,7 +46,7 @@ public class WeblogCategory extends AbstractEntity implements Comparable<WeblogC
     // left-to-right comparative ordering of category, higher numbers go to the right
     private int position;
 
-    WeblogCategory() {
+    public WeblogCategory() {
     }
 
     // no public constructor, desired way to create is via Weblog.addCategory()

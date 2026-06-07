@@ -21,13 +21,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.tightblog.TestUtils;
 import org.tightblog.domain.CommentSearchCriteria;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.SharedTemplate;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WeblogEntry;
 import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WeblogTheme;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.CalendarGenerator;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.PageModel;
@@ -134,7 +135,7 @@ public class WeblogPageRequestTest {
     public void testGetRecentWeblogEntries() {
         WeblogPageRequest wpr = new WeblogPageRequest("myblog", null, pageModel);
 
-        List<WeblogEntry> weblogEntryList = wpr.getRecentWeblogEntries(null, -5);
+        List<WeblogEntryDto> weblogEntryList = wpr.getRecentWeblogEntries(null, -5);
         assertEquals(0, weblogEntryList.size());
 
         // testWeblogEntrySearchCriteria object correctly populated
@@ -144,7 +145,7 @@ public class WeblogPageRequestTest {
         WeblogEntrySearchCriteria wesc = captor.getValue();
         assertEquals(wpr.getWeblog(), wesc.getWeblog());
         assertEquals("stamps", wesc.getCategoryName());
-        assertEquals(WeblogEntry.PubStatus.PUBLISHED, wesc.getStatus());
+        assertEquals(EntryPublishStatus.PUBLISHED, wesc.getStatus());
         assertEquals(50, wesc.getMaxResults());
         assertTrue(wesc.isCalculatePermalinks());
 

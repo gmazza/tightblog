@@ -238,21 +238,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="weblogRole in userBlogList" v-bind:key="weblogRole.weblog.handle">
+            <tr v-for="weblogRole in userBlogList" v-bind:key="weblogRole.weblogHandle">
               <td>
-                <a v-bind:href="weblogRole.weblog.absoluteURL" target="_blank">
-                  {{ weblogRole.weblog.name }} [{{ weblogRole.weblog.handle }}]
+                <a v-bind:href="weblogRole.weblogAbsoluteUrl" target="_blank">
+                  {{ weblogRole.weblogName }} [{{ weblogRole.weblogHandle }}]
                 </a>
               </td>
               <td>
-                {{ weblogRole.weblogRole }}
+                {{ weblogRole.role }}
               </td>
               <td>
                 <img src="@/assets/page_white_edit.png" />
                 <router-link
                   :to="{
                     name: 'entries',
-                    params: { weblogId: weblogRole.weblog.id }
+                    params: { weblogId: weblogRole.weblogId }
                   }"
                   target="_blank"
                   >{{ $t('common.entries') }}</router-link
@@ -263,7 +263,7 @@
                 <router-link
                   :to="{
                     name: 'weblogConfig',
-                    params: { weblogId: weblogRole.weblog.id }
+                    params: { weblogId: weblogRole.weblogId }
                   }"
                   target="_blank"
                   >{{ $t('userAdmin.manage') }}</router-link
@@ -272,7 +272,7 @@
               <td>
                 <button
                   type="button"
-                  v-on:click="setUserWeblogAffiliation(weblogRole.weblog.id!!, 'NOBLOGNEEDED')"
+                  v-on:click="setUserWeblogAffiliation(weblogRole.weblogId, 'NOBLOGNEEDED')"
                 >
                   {{ $t('common.remove') }}
                 </button>
@@ -326,7 +326,7 @@ import { formatDateTime } from '../helpers'
 import * as api from '@/api'
 import type {
   User,
-  UserWeblogRole,
+  UserHasWeblog,
   Weblog,
   ErrorObj,
   ErrorItem
@@ -339,7 +339,7 @@ export default {
       pendingList: [] as User[],
       userToEdit: null,
       userBeingEdited: null as User | null,
-      userBlogList: [] as UserWeblogRole[],
+      userBlogList: [] as UserHasWeblog[],
       weblogIdToAdd: null as string | null,
       weblogToAddRole: null as string | null,
       successMessage: null as string | null,
@@ -354,7 +354,7 @@ export default {
     ...mapState(useDynamicConfigStore, ['userList', 'weblogList']),
     potentialWeblogs: function () {
       return this.weblogList.filter(
-        (w) => this.userBlogList.filter((u) => u.weblog.id === w.id).length === 0
+        (w) => this.userBlogList.filter((u) => u.weblogId === w.id).length === 0
       )
     }
   },

@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "weblogger_properties")
@@ -59,10 +58,6 @@ public class WebloggerProperties extends AbstractEntity {
 
     @Column(name = "max_file_uploads_size_mb")
     private int maxFileUploadsSizeMb = 20;
-
-    // temporary non-persisted fields used for form entry & retrieving associated data
-    @Transient
-    private String mainBlogId;
 
     public Weblog getMainBlog() {
         return mainBlog;
@@ -168,20 +163,12 @@ public class WebloggerProperties extends AbstractEntity {
         this.maxFileUploadsSizeMb = maxFileUploadsSizeMb;
     }
 
-    public String getMainBlogId() {
-        return mainBlogId;
-    }
-
     public int getCommentPolicyLevel() {
        return commentPolicy.getLevel();
     }
 
     public int getSpamPolicyLevel() {
         return spamPolicy.getLevel();
-    }
-
-    public void setMainBlogId(String mainBlogId) {
-        this.mainBlogId = mainBlogId;
     }
 
     public enum RegistrationPolicy {
@@ -196,53 +183,6 @@ public class WebloggerProperties extends AbstractEntity {
 
         public String getLabel() {
             return label;
-        }
-    }
-
-    public enum CommentPolicy {
-        NONE(0, "common.no"),
-        MODERATE_NONPUB(1, "globalConfig.commentmod.nonPubMustModerate"),
-        MODERATE_NONAUTH(2, "globalConfig.commentmod.nonAuthMustModerate");
-
-        private String label;
-
-        private int level;
-
-        CommentPolicy(int level, String label) {
-            this.level = level;
-            this.label = label;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public int getLevel() {
-            return level;
-        }
-    }
-
-    public enum SpamPolicy {
-        DONT_CHECK(0, "globalConfig.spam.skipCheck"),
-        MARK_SPAM(1, "globalConfig.spam.markAsSpam"),
-        NO_EMAIL(2, "globalConfig.spam.noEmailNotification"),
-        JUST_DELETE(3, "globalConfig.spam.autoDelete");
-
-        private String label;
-
-        private int level;
-
-        SpamPolicy(int level, String label) {
-            this.level = level;
-            this.label = label;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public int getLevel() {
-            return level;
         }
     }
 

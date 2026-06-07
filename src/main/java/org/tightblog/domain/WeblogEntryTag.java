@@ -26,7 +26,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.Comparator;
-import java.util.Objects;
 
 @Entity
 @Table(name = "weblog_entry_tag")
@@ -85,27 +84,6 @@ public class WeblogEntryTag extends AbstractEntity implements Comparable<WeblogE
     @Override
     public int compareTo(WeblogEntryTag o) {
         return COMPARATOR.compare(this, o);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof WeblogEntryTag)) {
-            return false;
-        }
-        WeblogEntryTag that = (WeblogEntryTag) other;
-        if (this.id == null || that.id == null) {
-            // if not yet persisted, do not consider equal
-            return false;
-        }
-        return Objects.equals(this.id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 
     public String toString() {

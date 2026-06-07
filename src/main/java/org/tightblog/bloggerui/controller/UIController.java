@@ -35,10 +35,10 @@ import org.tightblog.domain.User;
 import org.tightblog.domain.UserStatus;
 import org.tightblog.domain.UserWeblogRole;
 import org.tightblog.domain.Weblog;
-import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dao.WebloggerPropertiesDao;
+import org.tightblog.dto.WebloggerPropertiesDto;
 import org.tightblog.security.MultiFactorAuthenticationProvider.InvalidVerificationCodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,6 +49,7 @@ import org.tightblog.service.EmailService;
 import org.tightblog.service.ThemeManager;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
+import org.tightblog.util.MapperUtils;
 import org.tightblog.util.Utilities;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -231,12 +232,8 @@ public class UIController {
 
     @GetMapping(value = "/tb-ui/app/any/webloggerproperties")
     @ResponseBody
-    public WebloggerProperties getWebloggerProperties() {
-        WebloggerProperties wp = webloggerPropertiesDao.findOrNull();
-        if (wp.getMainBlog() != null) {
-            wp.setMainBlogId(wp.getMainBlog().getId());
-        }
-        return wp;
+    public WebloggerPropertiesDto getWebloggerProperties() {
+        return MapperUtils.toDto(webloggerPropertiesDao.findOrNull());
     }
 
     private Map<String, Object> getSessionInfo(User user, Weblog weblog) {

@@ -41,7 +41,7 @@
 
 				<div class="panel panel-primary">
 					<div class="panel-heading comments-head" id="comments" th:utext="${
-                            entry.commentCount > 0 ?
+                            entry.approvedCommentCount > 0 ?
                                  utils.msg('macro.weblog.commentNs')
                                     :
                                  utils.msg('macro.weblog.nocommentsyet')}">
@@ -135,7 +135,7 @@
                     <h5 class="card-header">Related entries</h5>
                     <div class="card-body">
                         <ul class="list-group list-group-flush">
-                            <li th:each="recentEntry : ${model.getRecentWeblogEntries(model.weblogEntry.category.name, 20)}"
+                            <li th:each="recentEntry : ${model.getRecentWeblogEntries(model.weblogEntry.categoryName, 20)}"
                                 class="list-group-item">
                                 <a th:href="${url.getURL(recentEntry)}" th:utext="${recentEntry.title}">xxx</a>
                             </li>

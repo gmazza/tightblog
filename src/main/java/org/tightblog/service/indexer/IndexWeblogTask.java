@@ -23,11 +23,12 @@ package org.tightblog.service.indexer;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class IndexWeblogTask extends AbstractIndexTask {
      * @param deleteOnly Remove the weblog(s) from the index.
      */
     public IndexWeblogTask(LuceneIndexer mgr, WeblogEntryManager wem,
-                           Weblog weblog, boolean deleteOnly) {
-        super(mgr);
+                           WeblogEntryCommentDao commentDao, Weblog weblog, boolean deleteOnly) {
+        super(mgr, commentDao);
         this.weblogEntryManager = wem;
         this.weblog = weblog;
         this.deleteOnly = deleteOnly;
@@ -89,7 +90,7 @@ public class IndexWeblogTask extends AbstractIndexTask {
                     // Add entries from weblog(s)
                     WeblogEntrySearchCriteria wesc = new WeblogEntrySearchCriteria();
                     wesc.setWeblog(weblog);
-                    wesc.setStatus(PubStatus.PUBLISHED);
+                    wesc.setStatus(EntryPublishStatus.PUBLISHED);
                     List<WeblogEntry> entries = weblogEntryManager.getWeblogEntries(wesc);
 
                     log.debug("Entries to index: {}", entries.size());

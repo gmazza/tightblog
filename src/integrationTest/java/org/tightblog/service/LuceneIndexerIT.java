@@ -28,11 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.tightblog.WebloggerTest;
 import org.tightblog.dao.WeblogCategoryDao;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.indexer.IndexEntryTask;
 import org.tightblog.service.indexer.SearchTask;
 import org.tightblog.domain.User;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntry.PubStatus;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogCategory;
 import org.junit.jupiter.api.AfterEach;
@@ -55,6 +56,9 @@ public class LuceneIndexerIT extends WebloggerTest {
 
     @Autowired
     private LuceneIndexer luceneIndexer;
+
+    @Autowired
+    private WeblogEntryCommentDao commentDao;
 
     @Autowired
     private WeblogCategoryDao weblogCategoryDao;
@@ -88,7 +92,7 @@ public class LuceneIndexerIT extends WebloggerTest {
         + "begin to lose power, and Spock reports strange sensor readings.");
         wd1.setAnchor("dummy1");
         wd1.setCreator(testUser);
-        wd1.setStatus(PubStatus.PUBLISHED);
+        wd1.setStatus(EntryPublishStatus.PUBLISHED);
         wd1.setPublishTime(Instant.now());
         wd1.setWeblog(testWeblog);
 
@@ -99,7 +103,7 @@ public class LuceneIndexerIT extends WebloggerTest {
         wd1 = weblogEntryDao.findByIdOrNull(wd1.getId());
 
         luceneIndexer.executeIndexOperationNow(
-                new IndexEntryTask(weblogEntryDao, luceneIndexer, wd1, false));
+                new IndexEntryTask(weblogEntryDao, luceneIndexer, commentDao, wd1, false));
 
         WeblogEntry wd2 = new WeblogEntry();
         wd2.setTitle("A Piece of the Action");
@@ -108,7 +112,7 @@ public class LuceneIndexerIT extends WebloggerTest {
           + "the inhabitants of planet Sigma Iotia II, and Uhura puts Kirk "
           + "in communication with Boss Oxmyx.");
         wd2.setAnchor("dummy2");
-        wd2.setStatus(PubStatus.PUBLISHED);
+        wd2.setStatus(EntryPublishStatus.PUBLISHED);
         wd2.setCreator(testUser);
         wd2.setPublishTime(Instant.now());
         wd2.setWeblog(testWeblog);
@@ -120,7 +124,7 @@ public class LuceneIndexerIT extends WebloggerTest {
         wd2 = weblogEntryDao.findByIdOrNull(wd2.getId());
 
         luceneIndexer.executeIndexOperationNow(
-            new IndexEntryTask(weblogEntryDao, luceneIndexer, wd2, false));
+            new IndexEntryTask(weblogEntryDao, luceneIndexer, commentDao, wd2, false));
 
         Thread.sleep(DateUtils.MILLIS_PER_SECOND);
 
@@ -135,9 +139,9 @@ public class LuceneIndexerIT extends WebloggerTest {
         assertEquals(1, search2.getResultsCount());
 
         // Clean up
-        IndexEntryTask t1 = new IndexEntryTask(weblogEntryDao, luceneIndexer, wd1, true);
+        IndexEntryTask t1 = new IndexEntryTask(weblogEntryDao, luceneIndexer, commentDao, wd1, true);
         luceneIndexer.executeIndexOperationNow(t1);
-        IndexEntryTask t2 = new IndexEntryTask(weblogEntryDao, luceneIndexer, wd2, true);
+        IndexEntryTask t2 = new IndexEntryTask(weblogEntryDao, luceneIndexer, commentDao, wd2, true);
         luceneIndexer.executeIndexOperationNow(t2);
 
         SearchTask search3 = new SearchTask(luceneIndexer);

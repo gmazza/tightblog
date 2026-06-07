@@ -93,7 +93,7 @@
             <label for="categoryId">{{ $t('common.category') }}</label>
           </td>
           <td v-show="entry" v-cloak>
-            <select id="categoryId" v-model="entry.category.name" size="1" required>
+            <select id="categoryId" v-model="entry.categoryName" size="1" required>
               <option v-for="cat in weblog.weblogCategoryNames" :value="cat" :key="cat">
                 {{ cat }}
               </option>
@@ -546,7 +546,6 @@ export default {
     return {
       weblog: {} as Weblog,
       entry: {
-        category: {}
       } as WeblogEntry,
       originalEntry: {} as WeblogEntry,
       errorObj: {
@@ -703,8 +702,7 @@ export default {
       this.entry.commentCountIncludingUnapproved = 0
       this.entry.commentDays = this.weblog.defaultCommentDays
       this.entry.editFormat = this.weblog.editFormat
-      this.entry.category = { id: '', name: '' }
-      this.entry.category.name = this.weblog.weblogCategoryNames[0]
+      this.entry.categoryName = this.weblog.weblogCategoryNames[0]
       this.originalEntry = {
         ...this.entry
       }

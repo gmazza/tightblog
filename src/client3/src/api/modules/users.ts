@@ -1,5 +1,5 @@
 import axios, { type AxiosResponse } from 'axios'
-import type { User, UserWeblogRole } from '@/types'
+import type { User, UserHasWeblog } from '@/types'
 
 const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/useradmin'
 
@@ -21,7 +21,7 @@ export function getUserData(userId: string): Promise<AxiosResponse<User>> {
   return axios.get(`${VITE_PUBLIC_PATH}/user/${userId}`)
 }
 
-export function loadUserWeblogs(userId: string): Promise<AxiosResponse<Array<UserWeblogRole>>> {
+export function loadUserWeblogs(userId: string): Promise<AxiosResponse<Array<UserHasWeblog>>> {
   return axios.get(`${VITE_PUBLIC_PATH}/user/${userId}/weblogs`)
 }
 

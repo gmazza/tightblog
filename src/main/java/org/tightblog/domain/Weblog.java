@@ -22,8 +22,6 @@ package org.tightblog.domain;
 
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
-import org.tightblog.domain.WebloggerProperties.CommentPolicy;
-import org.tightblog.domain.WebloggerProperties.SpamPolicy;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.util.Utilities;
 
@@ -45,7 +43,6 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -106,24 +103,12 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
     private int hitsToday;
 
     @Transient
-    private boolean applyCommentDefaults;
-
-    @Transient
     // Transient, derived from and re-calculated each time commentSpamFilter is set
     private List<java.util.regex.Pattern> commentSpamRegexRules = new ArrayList<>();
 
     // temporary non-persisted fields used for form entry & retrieving associated data
     @Transient
-    private int unapprovedComments;
-
-    @Transient
     private Locale localeInstance;
-
-    @Transient
-    private String absoluteURL;
-
-    @Transient
-    private int hashCode;
 
     // Associated objects
     @OneToMany(mappedBy = "weblog", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
@@ -334,17 +319,6 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         this.visible = visible;
     }
 
-    // Used in templates and a few JSP's, explicit JsonProperty annotation needed
-    // because this property is marked @Transient, otherwise Jackson
-    // would ignore it during serialization
-    public String getAbsoluteURL() {
-        return absoluteURL;
-    }
-
-    public void setAbsoluteURL(String absoluteURL) {
-        this.absoluteURL = absoluteURL;
-    }
-
     public String getAnalyticsCode() {
         return analyticsCode;
     }
@@ -487,71 +461,16 @@ public class Weblog extends AbstractEntity implements WeblogOwned {
         return null;
     }
 
-    // convenience methods for populating fields from forms
-
-    public boolean isApplyCommentDefaults() {
-        return applyCommentDefaults;
-    }
-
-    public void setApplyCommentDefaults(boolean applyCommentDefaults) {
-        this.applyCommentDefaults = applyCommentDefaults;
-    }
-
     @Override
     public String toString() {
         return String.format("Weblog: handle=%s, name=%s, id=%s", handle, name, id);
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof Weblog that)) {
-            return false;
-        }
-        if (this.id == null || that.id == null) {
-            // if not yet persisted, do not consider equal
-            return false;
-        }
-        return Objects.equals(this.id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
-    }
-
     static final Comparator<Weblog> HANDLE_COMPARATOR = Comparator.comparing(Weblog::getHandle);
-
-    public int getUnapprovedComments() {
-        return unapprovedComments;
-    }
-
-    public void setUnapprovedComments(int unapprovedComments) {
-        this.unapprovedComments = unapprovedComments;
-    }
 
     @Override
     public Weblog getWeblog() {
         return this;
     }
 
-    public enum EditFormat {
-        HTML("weblogConfig.editFormatType.html"),
-        COMMONMARK("weblogConfig.editFormatType.commonMark");
-
-        private String descriptionKey;
-
-        EditFormat(String descriptionKey) {
-            this.descriptionKey = descriptionKey;
-        }
-
-        public String getDescriptionKey() {
-            return descriptionKey;
-        }
-    }
 }

@@ -23,13 +23,13 @@
     <AppTitleBar />
     <div style="text-align: left; padding: 20px">
       <h1>{{ $t('myBlogs.title') }}</h1>
-      <span v-show="userWeblogRoles.length == 0">
+      <span v-show="userWeblogs.length == 0">
         <p>{{ $t('myBlogs.noblogs') }}</p>
       </span>
 
-      <div v-for="role in userWeblogRoles" :key="role.weblog.id">
+      <div v-for="uw in userWeblogs" :key="uw.weblogId">
         <span class="mm_weblog_name"
-          ><img src="@/assets/folder.png" />&nbsp;{{ role.weblog.name }}</span
+          ><img src="@/assets/folder.png" />&nbsp;{{ uw.weblogName }}</span
         >
 
         <table class="mm_table" width="100%" cellpadding="0" cellspacing="0">
@@ -42,8 +42,8 @@
                       {{ $t('myBlogs.weblogLink') }}
                     </td>
                     <td>
-                      <a v-bind:href="role.weblog.absoluteURL" target="_blank">{{
-                        role.weblog.absoluteURL
+                      <a v-bind:href="uw.weblogAbsoluteUrl" target="_blank">{{
+                          uw.weblogAbsoluteUrl
                       }}</a>
                     </td>
                   </tr>
@@ -52,12 +52,12 @@
                     <td class="mm_subtable_label">
                       {{ $t('common.description') }}
                     </td>
-                    <td>{{ role.weblog.about }}</td>
+                    <td>{{ uw.weblogAbout }}</td>
                   </tr>
 
                   <tr>
                     <td class="mm_subtable_label">{{ $t('common.role') }}</td>
-                    <td>{{ getRoleText(role.weblogRole) }}</td>
+                    <td>{{ getRoleText(uw.role) }}</td>
                   </tr>
 
                   <tr>
@@ -65,8 +65,8 @@
                     <td>
                       <input
                         type="checkbox"
-                        v-model="role.emailComments"
-                        v-on:change="setReceiveCommentsForWeblog(role)"
+                        v-model="uw.emailComments"
+                        v-on:change="setReceiveCommentsForWeblog(uw)"
                       />
                     </td>
                   </tr>
@@ -75,7 +75,7 @@
                     <td class="mm_subtable_label">
                       {{ $t('myBlogs.todaysHits') }}
                     </td>
-                    <td>{{ role.weblog.hitsToday }}</td>
+                    <td>{{ uw.weblogHitsToday }}</td>
                   </tr>
                 </table>
               </td>
@@ -86,7 +86,7 @@
                   :to="{
                     name: 'entryEdit',
                     params: {
-                      weblogId: role.weblog.id
+                      weblogId: uw.weblogId
                     }
                   }"
                   >{{ $t('common.newEntry') }}</router-link
@@ -94,26 +94,26 @@
                 <br />
 
                 <img src="@/assets/table_multiple.png" />
-                <router-link :to="{ name: 'entries', params: { weblogId: role.weblog.id } }">{{
+                <router-link :to="{ name: 'entries', params: { weblogId: uw.weblogId } }">{{
                   $t('common.entries')
                 }}</router-link>
                 <br />
 
                 <img src="@/assets/page_white_edit.png" />
-                <router-link :to="{ name: 'comments', params: { weblogId: role.weblog.id } }"
+                <router-link :to="{ name: 'comments', params: { weblogId: uw.weblogId } }"
                   >{{ $t('common.comments') }}
                 </router-link>
-                <span v-if="role.weblog.unapprovedComments > 0">
+                <span v-if="uw.weblogUnapprovedComments > 0">
                   {{
                     $t('myBlogs.haveUnapprovedComments', {
-                      count: role.weblog.unapprovedComments
+                      count: uw.weblogUnapprovedComments
                     })
                   }}
                 </span>
                 <br />
 
                 <!-- Only admins get access to theme and config settings -->
-                <!--span v-if="role.weblogRole == 'OWNER'"-->
+                <!--span v-if="uw.role == 'OWNER'"-->
                 <!-- And only show theme option if custom themes are enabled -->
                 <span v-if="webloggerProperties.usersCustomizeThemes">
                   <img src="@/assets/layout.png" />
@@ -121,7 +121,7 @@
                     :to="{
                       name: 'templates',
                       params: {
-                        weblogId: role.weblog.id
+                        weblogId: uw.weblogId
                       }
                     }"
                     >{{ $t('myBlogs.theme') }}</router-link
@@ -133,7 +133,7 @@
                 <router-link
                   :to="{
                     name: 'weblogConfig',
-                    params: { weblogId: role.weblog.id }
+                    params: { weblogId: uw.weblogId }
                   }"
                   >{{ $t('weblogConfig.updateTitle') }}</router-link
                 >
@@ -141,7 +141,7 @@
                 <!--/span-->
 
                 <!-- disallow owners from resigning from blog -->
-                <span v-if="role.weblogRole !== 'OWNER'">
+                <span v-if="uw.role !== 'OWNER'">
                   <button type="button" v-on:click="confirmResignDialog.reveal">
                     <img src="@/assets/delete.png" /> {{ $t('myBlogs.resign') }}
                   </button>
@@ -158,7 +158,7 @@
                   class="modal-title"
                   v-html="
                     $t('myBlogs.confirmResignation', {
-                      weblogName: role.weblog.name
+                      weblogName: uw.weblogName
                     })
                   "
                 ></h5>
@@ -170,7 +170,7 @@
                 ></button>
               </div>
               <div class="modal-footer">
-                <button @click="detachUserFromWeblog(role.weblog.id!)">
+                <button @click="detachUserFromWeblog(uw.userId!, uw.weblogId!)">
                   {{ $t('common.confirm') }}
                 </button>
                 <button @click="confirmResignDialog.cancel">{{ $t('common.cancel') }}</button>
@@ -194,20 +194,19 @@ import { useSessionInfoStore } from '../stores/sessionInfo'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { mapState, mapActions } from 'pinia'
 import { useConfirmDialog } from '@vueuse/core'
-import type { UserWeblogRole, WeblogRole } from '@/types'
+import type { UserHasWeblog, WeblogRole } from '@/types'
 
 const confirmResignDialogObj = useConfirmDialog()
 
 export default {
   data: function () {
     return {
-      roles: [] as UserWeblogRole[],
       errorObj: {},
       isFetching: true
     }
   },
   computed: {
-    ...mapState(useSessionInfoStore, ['sessionInfo', 'userWeblogRoles']),
+    ...mapState(useSessionInfoStore, ['sessionInfo', 'userWeblogs']),
     ...mapState(useDynamicConfigStore, ['webloggerProperties']),
     confirmResignDialog: function () {
       return confirmResignDialogObj
@@ -216,7 +215,7 @@ export default {
   methods: {
     ...mapActions(useSessionInfoStore, [
       'loadSessionInfo',
-      'loadUserWeblogRoles',
+      'loadUserWeblogs',
       'setReceiveCommentsForWeblog',
       'detachUserFromWeblog'
     ]),
@@ -238,8 +237,8 @@ export default {
     if (!this.sessionInfo.authenticatedUser) {
       await this.loadSessionInfo()
     }
-    if (this.userWeblogRoles === undefined || this.userWeblogRoles.length === 0) {
-      await this.loadUserWeblogRoles()
+    if (this.userWeblogs === undefined || this.userWeblogs.length === 0) {
+      await this.loadUserWeblogs()
     }
     this.isFetching = false
   }

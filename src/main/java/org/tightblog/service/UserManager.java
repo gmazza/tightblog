@@ -24,6 +24,7 @@ import io.nayuki.qrcodegen.QrCode;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.domain.GlobalRole;
 import org.tightblog.domain.WeblogOwned;
 import org.tightblog.domain.User;
@@ -35,6 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.tightblog.dao.UserDao;
 import org.tightblog.dao.UserWeblogRoleDao;
 import org.tightblog.dto.UserDto;
+import org.tightblog.dto.UserHasWeblogDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -51,11 +53,16 @@ public class UserManager {
 
     private final UserDao userDao;
     private final UserWeblogRoleDao userWeblogRoleDao;
+    private final URLService urlService;
+    private final WeblogEntryCommentDao weblogEntryCommentDao;
 
     @Autowired
-    public UserManager(UserDao userDao, UserWeblogRoleDao userWeblogRoleDao) {
+    public UserManager(UserDao userDao, UserWeblogRoleDao userWeblogRoleDao,
+                       URLService urlService, WeblogEntryCommentDao weblogEntryCommentDao) {
         this.userDao = userDao;
         this.userWeblogRoleDao = userWeblogRoleDao;
+        this.urlService = urlService;
+        this.weblogEntryCommentDao = weblogEntryCommentDao;
     }
 
     /**
@@ -148,9 +155,12 @@ public class UserManager {
         userDao.evictUser(user);
     }
 
-    public void deleteUserWeblogRole(UserWeblogRole uwr) {
-        userWeblogRoleDao.delete(uwr);
-        userWeblogRoleDao.evictUserWeblogRole(uwr.getUser(), uwr.getWeblog());
+    public void deleteUserWeblogRole(String userId, String weblogId) {
+        UserWeblogRole uwr = userWeblogRoleDao.findByUserIdAndWeblogId(userId, weblogId);
+        if (uwr != null) {
+            userWeblogRoleDao.delete(uwr);
+            userWeblogRoleDao.evictUserWeblogRole(uwr.getUser(), uwr.getWeblog());
+        }
     }
 
     /**
@@ -208,6 +218,24 @@ public class UserManager {
         return new UserDto(user.getId(), user.getScreenName(), user.getUserName(), user.getEmailAddress(),
                 user.getStatus().name(), user.getGlobalRole().name(), user.getDateCreated(), user.getLastLogin(),
                 user.getRegistrationActivationCode());
+    }
+
+    public UserHasWeblogDto toDto(UserWeblogRole uwr) {
+        String absoluteUrl = urlService.getWeblogURL(uwr.getWeblog());
+        int unapprovedComments =
+                weblogEntryCommentDao.countByWeblogAndStatusUnapproved(uwr.getWeblog());
+
+        return new UserHasWeblogDto(
+                uwr.getUser().getUserName(),
+                uwr.getWeblog().getId(),
+                uwr.getWeblog().getName(),
+                uwr.getWeblog().getHandle(),
+                absoluteUrl,
+                uwr.getWeblog().getAbout(),
+                uwr.getWeblog().getHitsToday(),
+                unapprovedComments,
+                uwr.getWeblogRole(),
+                uwr.isEmailComments());
     }
 
 }

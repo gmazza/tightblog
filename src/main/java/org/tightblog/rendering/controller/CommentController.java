@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.tightblog.dao.WeblogEntryDao;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.service.CommentSpamChecker;
 import org.tightblog.service.EmailService;
@@ -44,8 +45,8 @@ import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
 import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WebloggerProperties;
-import org.tightblog.domain.WebloggerProperties.CommentPolicy;
-import org.tightblog.domain.WebloggerProperties.SpamPolicy;
+import org.tightblog.domain.CommentPolicy;
+import org.tightblog.domain.SpamPolicy;
 import org.tightblog.rendering.service.CommentAuthenticator;
 import org.tightblog.domain.WeblogEntryComment.SpamCheckResult;
 import org.tightblog.rendering.requests.WeblogPageRequest;
@@ -102,7 +103,7 @@ public class CommentController extends AbstractController {
     private static final String EMAIL_ADDR_REGEXP = "^.*@.*[.].{2,}$";
 
     private final WeblogDao weblogDao;
-
+    private final WeblogEntryDao weblogEntryDao;
     private final UserDao userDao;
     private final LuceneIndexer luceneIndexer;
     private final WeblogEntryManager weblogEntryManager;
@@ -121,14 +122,13 @@ public class CommentController extends AbstractController {
     }
 
     @Autowired
-    public CommentController(WeblogDao weblogDao, UserDao userDao, LuceneIndexer luceneIndexer,
-                             WeblogEntryManager weblogEntryManager, UserManager userManager,
-                             EmailService emailService,
-                             MessageSource messages, PageModel pageModel,
-                             CommentSpamChecker commentSpamChecker,
-                             WebloggerPropertiesDao webloggerPropertiesDao) {
+    public CommentController(WeblogDao weblogDao, WeblogEntryDao weblogEntryDao, UserDao userDao,
+                             LuceneIndexer luceneIndexer, WeblogEntryManager weblogEntryManager, UserManager userManager,
+                             EmailService emailService, MessageSource messages, PageModel pageModel,
+                             CommentSpamChecker commentSpamChecker, WebloggerPropertiesDao webloggerPropertiesDao) {
         this.webloggerPropertiesDao = webloggerPropertiesDao;
         this.weblogDao = weblogDao;
+        this.weblogEntryDao = weblogEntryDao;
         this.userDao = userDao;
         this.luceneIndexer = luceneIndexer;
         this.weblogEntryManager = weblogEntryManager;
@@ -156,9 +156,9 @@ public class CommentController extends AbstractController {
             throws IOException, ServletException {
 
         WebloggerProperties props = webloggerPropertiesDao.findOrNull();
-        WebloggerProperties.CommentPolicy commentOption = props.getCommentPolicy();
+        CommentPolicy commentOption = props.getCommentPolicy();
 
-        if (WebloggerProperties.CommentPolicy.NONE.equals(commentOption)) {
+        if (CommentPolicy.NONE.equals(commentOption)) {
             LOG.info("Getting comment post even though commenting is disabled -- returning 404");
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -185,7 +185,7 @@ public class CommentController extends AbstractController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         } else {
-            incomingRequest.setWeblogEntry(entry);
+            incomingRequest.setWeblogEntry(weblogEntryManager.toDto(entry));
         }
 
         if (incomingRequest.getAuthenticatedUser() != null) {
@@ -200,7 +200,8 @@ public class CommentController extends AbstractController {
         String errorProperty;
         String errorValue = null;
 
-        if (!weblogEntryManager.canSubmitNewComments(incomingRequest.getWeblogEntry())) {
+        if (!weblogEntryManager.canSubmitNewComments(incomingRequest.getWeblog().getCommentPolicy(),
+                incomingRequest.getWeblogEntry())) {
             errorProperty = "comments.disabled";
         } else if (commentAuthenticator != null && incomingRequest.getBlogger() == null
                 && !commentAuthenticator.authenticate(request)) {
@@ -263,7 +264,7 @@ public class CommentController extends AbstractController {
                     emailService.sendNewPublishedCommentNotification(incomingComment);
 
                     if (luceneIndexer.isIndexComments()) {
-                        luceneIndexer.updateIndex(incomingRequest.getWeblogEntry(), false);
+                        luceneIndexer.updateIndex(incomingComment.getWeblogEntry(), false);
                     }
                 } else if (!ApprovalStatus.SPAM.equals(status) || spamPolicy.getLevel() < SpamPolicy.NO_EMAIL.getLevel()) {
                     emailService.sendPendingCommentNotice(incomingComment, spamEvaluations);
@@ -282,7 +283,7 @@ public class CommentController extends AbstractController {
 
         // now send the user back to the weblog entry page via PageProcessor
         String dispatchUrl = PageController.PATH + "/" + weblog.getHandle() + "/entry/"
-                + Utilities.encode(incomingRequest.getWeblogEntry().getAnchor());
+                + Utilities.encode(incomingRequest.getWeblogEntry().anchor());
 
         LOG.debug("comment processed, forwarding to {}", dispatchUrl);
         // add comment so PageProcessor can place it in the PageModel for rendering
@@ -316,7 +317,9 @@ public class CommentController extends AbstractController {
         comment.setNotify(request.getParameter("notify") != null);
         comment.setName(Utilities.removeHTML(request.getParameter("name")));
         comment.setEmail(Utilities.removeHTML(request.getParameter("email")));
-        comment.setWeblogEntry(pageRequest.getWeblogEntry());
+        // hack until WeblogEntryCommentDto
+        WeblogEntry we = weblogEntryDao.findByIdOrNull(pageRequest.getWeblogEntry().id());
+        comment.setWeblogEntry(we);
         comment.setRemoteHost(request.getRemoteHost());
         comment.setPostTime(Instant.now());
         comment.setCreator(pageRequest.getBlogger());

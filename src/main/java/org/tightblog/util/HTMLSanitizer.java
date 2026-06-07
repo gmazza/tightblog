@@ -66,6 +66,15 @@ public final class HTMLSanitizer {
         public Safelist getSafelist() {
             return safelist;
         }
+
+        public static Level fromSanitizingLevel(int sanitizingLevel) {
+            for (Level level : Level.values()) {
+                if (level.getSanitizingLevel() == sanitizingLevel) {
+                    return level;
+                }
+            }
+            throw new IllegalArgumentException("Invalid HTML sanitizing level: " + sanitizingLevel);
+        }
     }
 
 }

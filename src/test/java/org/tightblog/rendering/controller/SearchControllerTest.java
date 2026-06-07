@@ -36,8 +36,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
 import org.tightblog.dao.WeblogEntryDao;
+import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.SharedTheme;
 import org.tightblog.domain.WeblogEntry;
+import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.Model;
 import org.tightblog.rendering.model.SearchResultsModel;
@@ -52,6 +54,7 @@ import org.tightblog.domain.WeblogTheme;
 import org.tightblog.rendering.cache.CachedContent;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 import org.tightblog.dao.WeblogDao;
+import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.indexer.FieldConstants;
 import org.tightblog.service.indexer.SearchTask;
 
@@ -82,6 +85,7 @@ public class SearchControllerTest {
     private Weblog weblog;
     private WeblogDao mockWD;
     private WeblogTheme mockWeblogTheme;
+    private WeblogEntryManager mockWeblogEntryManager;
     private ThemeManager mockThemeManager;
     private ThymeleafRenderer mockRenderer;
     private ApplicationContext mockApplicationContext;
@@ -94,7 +98,7 @@ public class SearchControllerTest {
     private WeblogTemplate searchResultsTemplate;
 
     @Captor
-    ArgumentCaptor<Map<LocalDate, List<WeblogEntry>>> entriesByDateMapCaptor;
+    ArgumentCaptor<Map<LocalDate, List<WeblogEntryDto>>> entriesByDateMapCaptor;
 
     @Captor
     ArgumentCaptor<Map<String, Object>> stringObjectMapCaptor;
@@ -130,11 +134,16 @@ public class SearchControllerTest {
         mockWELG = mock(WeblogEntryListGenerator.class);
         mockWeblogEntryDao = mock(WeblogEntryDao.class);
 
+        mockWeblogEntryManager = mock(WeblogEntryManager.class);
+        // Use TestUtils to set up mockWeblogEntryManager.toDto
+        TestUtils.mockWeblogEntryManagerToDto(mockWeblogEntryManager);
+
         SearchResultsModel mockSearchResultsModel = mock(SearchResultsModel.class);
         when(mockSearchResultsModel.getWeblogEntryListGenerator()).thenReturn(mockWELG);
         when(mockSearchResultsModel.getLuceneIndexer()).thenReturn(mockLuceneIndexer);
         when(mockSearchResultsModel.getWeblogEntryDao()).thenReturn(mockWeblogEntryDao);
         when(mockSearchResultsModel.getThemeManager()).thenReturn(mockThemeManager);
+        when(mockSearchResultsModel.getWeblogEntryManager()).thenReturn(mockWeblogEntryManager);
 
         controller = new SearchController(mockWD, mockRenderer, mockThemeManager, mockSearchResultsModel);
         controller.setApplicationContext(mockApplicationContext);
@@ -247,14 +256,14 @@ public class SearchControllerTest {
         Instant now = Instant.now();
         Instant oneDayAgo = now.minus(1, ChronoUnit.DAYS);
         Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
-        WeblogEntry entry1 = createWeblogEntry("blogEntry1", oneDayAgo, WeblogEntry.PubStatus.PUBLISHED);
+        WeblogEntry entry1 = createWeblogEntry("blogEntry1", oneDayAgo, EntryPublishStatus.PUBLISHED);
         // entry 2 should not appear in search results as it is not in published state
-        WeblogEntry entry2 = createWeblogEntry("blogEntry2", oneDayAgo, WeblogEntry.PubStatus.DRAFT);
+        WeblogEntry entry2 = createWeblogEntry("blogEntry2", oneDayAgo, EntryPublishStatus.DRAFT);
         // entry 3 should appear in a different map entry (list) as entry1 as it was published on a different day
-        WeblogEntry entry3 = createWeblogEntry("blogEntry3", threeDaysAgo, WeblogEntry.PubStatus.PUBLISHED);
+        WeblogEntry entry3 = createWeblogEntry("blogEntry3", threeDaysAgo, EntryPublishStatus.PUBLISHED);
         // entry 4 should appear in the same map entry (list) as entry1 as it was published on the same day
         // should appear before entry1 in list due to secondary ordering by title.
-        WeblogEntry entry4 = createWeblogEntry("ABlogEntry4", oneDayAgo, WeblogEntry.PubStatus.PUBLISHED);
+        WeblogEntry entry4 = createWeblogEntry("ABlogEntry4", oneDayAgo, EntryPublishStatus.PUBLISHED);
 
         IndexableField if1 = new StringField(FieldConstants.ID, entry1.getId(), Field.Store.YES);
         IndexableField if2 = new StringField(FieldConstants.ID, entry2.getId(), Field.Store.YES);
@@ -284,15 +293,15 @@ public class SearchControllerTest {
         when(mockIndexSearcher.doc(hits[2].doc)).thenReturn(doc3);
         when(mockIndexSearcher.doc(hits[3].doc)).thenReturn(doc4);
 
-        Map<LocalDate, TreeSet<WeblogEntry>> testMap = wsr.convertHitsToEntries(hits, mockSearchTask);
+        Map<LocalDate, TreeSet<WeblogEntryDto>> testMap = wsr.convertHitsToEntries(hits, mockSearchTask);
         assertEquals(2, testMap.size());
-        Set<WeblogEntry> oneDayAgoSet = testMap.get(oneDayAgo.atZone(ZoneId.systemDefault()).toLocalDate());
+        TreeSet<WeblogEntryDto> oneDayAgoSet = testMap.get(oneDayAgo.atZone(ZoneId.systemDefault()).toLocalDate());
         assertEquals(2, oneDayAgoSet.size());
-        assertEquals(entry4, ((TreeSet) oneDayAgoSet).first());
-        assertTrue(oneDayAgoSet.contains(entry1));
-        Set<WeblogEntry> threeDaysAgoSet = testMap.get(threeDaysAgo.atZone(ZoneId.systemDefault()).toLocalDate());
+        assertEquals(entry4.getId(), oneDayAgoSet.first().id());
+        assertTrue(getIdsFromSet(oneDayAgoSet).contains(entry1.getId()));
+        TreeSet<WeblogEntryDto> threeDaysAgoSet = testMap.get(threeDaysAgo.atZone(ZoneId.systemDefault()).toLocalDate());
         assertEquals(1, threeDaysAgoSet.size());
-        assertTrue(threeDaysAgoSet.contains(entry3));
+        assertTrue(getIdsFromSet(threeDaysAgoSet).contains(entry3.getId()));
 
         // test recovers from an IOException by skipping problematic doc
         when(mockIndexSearcher.doc(hits[0].doc)).thenThrow(new IOException());
@@ -300,11 +309,15 @@ public class SearchControllerTest {
         assertEquals(2, testMap.size());
         oneDayAgoSet = testMap.get(oneDayAgo.atZone(ZoneId.systemDefault()).toLocalDate());
         assertEquals(1, oneDayAgoSet.size());
-        assertEquals(entry4, ((TreeSet) oneDayAgoSet).first());
-        assertFalse(oneDayAgoSet.contains(entry1));
+        assertEquals(entry4.getId(), oneDayAgoSet.first().id());
+        assertFalse(getIdsFromSet(oneDayAgoSet).contains(entry1.getId()));
         threeDaysAgoSet = testMap.get(threeDaysAgo.atZone(ZoneId.systemDefault()).toLocalDate());
         assertEquals(1, threeDaysAgoSet.size());
-        assertTrue(threeDaysAgoSet.contains(entry3));
+        assertTrue(getIdsFromSet(threeDaysAgoSet).contains(entry3.getId()));
+    }
+
+    private List<String> getIdsFromSet(TreeSet<WeblogEntryDto> set) {
+        return set.stream().map(WeblogEntryDto::id).toList();
     }
 
     @Test
@@ -315,8 +328,8 @@ public class SearchControllerTest {
         WeblogSearchRequest wsr = TestUtils.extractWeblogSearchRequestFromMockRenderer(mockRenderer);
 
         Instant now = Instant.now();
-        WeblogEntry entry1 = createWeblogEntry("blogEntry1", now, WeblogEntry.PubStatus.PUBLISHED);
-        WeblogEntry entry2 = createWeblogEntry("blogEntry2", now, WeblogEntry.PubStatus.PUBLISHED);
+        WeblogEntry entry1 = createWeblogEntry("blogEntry1", now, EntryPublishStatus.PUBLISHED);
+        WeblogEntry entry2 = createWeblogEntry("blogEntry2", now, EntryPublishStatus.PUBLISHED);
         IndexableField if1 = new StringField(FieldConstants.ID, entry1.getId(), Field.Store.YES);
         IndexableField if2 = new StringField(FieldConstants.ID, entry2.getId(), Field.Store.YES);
         Document doc1 = new Document();
@@ -341,12 +354,12 @@ public class SearchControllerTest {
 
         wsr.getWeblogEntriesPager();
         verify(mockWELG).getSearchPager(any(), any(), any(), anyInt(), entriesByDateMapCaptor.capture(), eq(false));
-        Map<LocalDate, List<WeblogEntry>> results = entriesByDateMapCaptor.getValue();
+        Map<LocalDate, List<WeblogEntryDto>> results = entriesByDateMapCaptor.getValue();
         LocalDate expectedDate = now.atZone(ZoneId.systemDefault()).toLocalDate();
         assertEquals(1, results.size());
         assertEquals(2, results.get(expectedDate).size());
-        assertEquals("blogEntry1Anchor", results.get(expectedDate).get(0).getAnchor());
-        assertEquals("blogEntry2Anchor", results.get(expectedDate).get(1).getAnchor());
+        assertEquals("blogEntry1Anchor", results.get(expectedDate).get(0).anchor());
+        assertEquals("blogEntry2Anchor", results.get(expectedDate).get(1).anchor());
         assertEquals(2, wsr.getResultCount());
         assertEquals(0, wsr.getOffset());
         assertEquals(2, wsr.getLimit());
@@ -355,7 +368,7 @@ public class SearchControllerTest {
         assertTrue(wsr.toString().contains("category=collectibles searchPhrase=stamps"));
     }
 
-    private WeblogEntry createWeblogEntry(String title, Instant publishTime, WeblogEntry.PubStatus status) {
+    private WeblogEntry createWeblogEntry(String title, Instant publishTime, EntryPublishStatus status) {
         WeblogEntry entry = new WeblogEntry();
         entry.setId(UUID.randomUUID().toString());
         entry.setWeblog(weblog);

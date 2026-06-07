@@ -22,6 +22,7 @@ package org.tightblog.service.indexer;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.tightblog.dao.WeblogEntryCommentDao;
 import org.tightblog.service.LuceneIndexer;
 import org.tightblog.domain.WeblogEntry;
 import org.slf4j.Logger;
@@ -46,8 +47,8 @@ public class IndexEntryTask extends AbstractIndexTask {
      * @param deleteOnly If true just remove the weblog entry from the index.
      */
     public IndexEntryTask(WeblogEntryDao weblogEntryDao, LuceneIndexer indexer,
-                          WeblogEntry weblogEntry, boolean deleteOnly) {
-        super(indexer);
+                          WeblogEntryCommentDao commentDao, WeblogEntry weblogEntry, boolean deleteOnly) {
+        super(indexer, commentDao);
         this.weblogEntryDao = weblogEntryDao;
         this.weblogEntry = weblogEntry;
         this.deleteOnly = deleteOnly;

@@ -20,7 +20,6 @@
  */
 package org.tightblog.domain;
 
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -31,14 +30,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(name = "weblogger_user")
 public class User extends AbstractEntity {
-
-    @Transient
-    private int hashCode;
 
     @NotBlank(message = "{error.add.user.missingUserName}")
     @Pattern(regexp = "[a-z0-9]*", message = "{error.add.user.badUserName}")
@@ -156,19 +151,6 @@ public class User extends AbstractEntity {
 
     public String toString() {
         return "User: id=" + id + ", screenName=" + screenName + ", email=" + emailAddress + ", status=" + status;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this || (other instanceof User && Objects.equals(id, ((User) other).id));
-    }
-
-    @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Objects.hashCode(id);
-        }
-        return hashCode;
     }
 
 }

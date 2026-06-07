@@ -17,9 +17,9 @@ package org.tightblog.rendering.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.tightblog.domain.EditFormat;
 import org.tightblog.service.URLService;
 import org.tightblog.service.WeblogEntryManager;
-import org.tightblog.domain.Weblog;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,8 +53,8 @@ public class FeedModelTest {
 
     @Test
     public void testPassThroughMethods() {
-        when(mockWeblogEntryManager.processBlogText(Weblog.EditFormat.COMMONMARK, "testText"))
+        when(mockWeblogEntryManager.processBlogText(EditFormat.COMMONMARK, "testText"))
                 .thenReturn("processedTestText");
-        assertEquals("processedTestText", feedModel.render(Weblog.EditFormat.COMMONMARK, "testText"));
+        assertEquals("processedTestText", feedModel.render(EditFormat.COMMONMARK, "testText"));
     }
 }
