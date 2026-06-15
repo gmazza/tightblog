@@ -25,9 +25,11 @@ import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.SharedTemplate;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntryComment;
+import org.tightblog.domain.WeblogEntryComment.ApprovalStatus;
 import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogRole;
 import org.tightblog.domain.WeblogTheme;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.CalendarGenerator;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
@@ -78,21 +80,22 @@ public class WeblogPageRequestTest {
     @Test
     public void testGetCommentForm() {
         WeblogPageRequest wpr = new WeblogPageRequest("myblog", null, pageModel);
+        when(mockWEM.toCommentDto(any())).thenReturn(new WeblogEntryCommentDto("", "", "", "",
+                ApprovalStatus.PENDING));
 
         // no comment form provided at request time
-        WeblogEntryComment comment = wpr.getCommentForm();
-        assertNotNull(comment);
-        assertEquals("", comment.getName());
-        assertEquals("", comment.getEmail());
-        assertEquals("", comment.getUrl());
-        assertEquals("", comment.getContent());
+        WeblogEntryCommentDto commentDto = wpr.getCommentForm();
+        assertNotNull(commentDto);
+        assertEquals("", commentDto.name());
+        assertEquals("", commentDto.email());
+        assertEquals("", commentDto.url());
+        assertEquals("", commentDto.content());
 
         // comment form at request time
-        WeblogEntryComment comment2 = new WeblogEntryComment();
-        comment2.setName("Bob");
-        comment2.setEmail("bob@email.com");
-        comment2.setUrl("https://www.google.com");
-        comment2.setContent("This is my comment.");
+        WeblogEntryCommentDto comment2 = new WeblogEntryCommentDto(
+                "Bob", "bob@email.com", "https://www.google.com", "This is my comment.",
+                ApprovalStatus.PENDING
+        );
         wpr.setCommentForm(comment2);
 
         assertEquals(comment2, wpr.getCommentForm());

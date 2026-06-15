@@ -264,7 +264,7 @@ public class WeblogEntryController {
             dp.updateLastSitewideChange();
 
             // notify search of the new entry
-            if (entry.isPublished()) {
+            if (entry.getStatus().isPublished()) {
                 luceneIndexer.updateIndex(entry, false);
             } else if (!createNew) {
                 luceneIndexer.updateIndex(entry, true);
@@ -284,7 +284,7 @@ public class WeblogEntryController {
         WeblogEntry entry = weblogEntryDao.findByIdOrNull(id);
         if (entry != null) {
             // remove from search index
-            if (entry.isPublished()) {
+            if (entry.getStatus().isPublished()) {
                 luceneIndexer.updateIndex(entry, true);
             }
             weblogEntryManager.removeWeblogEntry(entry);

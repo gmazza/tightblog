@@ -32,6 +32,7 @@ import org.tightblog.rendering.requests.WeblogRequest;
 import org.tightblog.dao.WebloggerPropertiesDao;
 import org.tightblog.util.Utilities;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
@@ -102,6 +103,10 @@ public class UtilitiesModel implements Model {
 
     public String getSystemVersion() {
         return systemVersion;
+    }
+
+    public long toEpochMilli(Instant instant) {
+        return instant != null ? instant.toEpochMilli() : 0L;
     }
 
     /**

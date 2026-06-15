@@ -43,6 +43,7 @@ import org.tightblog.domain.WeblogEntrySearchCriteria;
 import org.tightblog.domain.WeblogEntryTag;
 import org.tightblog.domain.WebloggerProperties;
 import org.tightblog.dto.AtomEnclosureDto;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.util.Utilities;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -732,8 +733,8 @@ public class WeblogEntryManager {
             List<WeblogEntryComment> comments = weblogEntryCommentDao.findByWeblogEntry(entry);
 
             for (WeblogEntryComment comment : comments) {
-                if (comment.getNotify() && comment.getEmail().equalsIgnoreCase(commentWithUnsubscribingUser.getEmail())) {
-                    comment.setNotify(false);
+                if (comment.getNotifyMe() && comment.getEmail().equalsIgnoreCase(commentWithUnsubscribingUser.getEmail())) {
+                    comment.setNotifyMe(false);
                     weblogEntryCommentDao.save(comment);
                     found = true;
                 }
@@ -783,4 +784,28 @@ public class WeblogEntryManager {
                 entry.getCreator().getScreenName()
         );
     }
+
+    public WeblogEntryCommentDto toCommentDto(WeblogEntryComment comment) {
+        return toCommentDto(comment, null);
+    }
+
+    public WeblogEntryCommentDto toCommentDto(WeblogEntryComment comment, String submitResponseMessage) {
+        if (comment == null) {
+            return null;
+        }
+        return new WeblogEntryCommentDto(
+                comment.getId(),
+                comment.getPostTime(),
+                comment.getStatus(),
+                toDto(comment.getWeblogEntry()),
+                comment.getName(),
+                comment.getEmail(),
+                comment.getUrl(),
+                comment.getContent(),
+                comment.getNotifyMe(),
+                comment.getRemoteHost(),
+                submitResponseMessage
+        );
+    }
+
 }

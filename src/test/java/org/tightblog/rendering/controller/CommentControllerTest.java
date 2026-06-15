@@ -29,6 +29,7 @@ import org.tightblog.TestUtils;
 import org.tightblog.dao.WeblogEntryDao;
 import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.SpamPolicy;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.rendering.service.CommentSpamChecker;
@@ -106,7 +107,7 @@ public class CommentControllerTest {
         mockRequest = TestUtils.createMockServletRequestForWeblogEntryRequest();
         when(mockRequest.getParameter("name")).thenReturn("Sam");
         when(mockRequest.getParameter("email")).thenReturn("sam@yopmail.com");
-        when(mockRequest.getParameter("notify")).thenReturn("notify");
+        when(mockRequest.getParameter("notifyMe")).thenReturn("notifyMe");
         when(mockRequest.getRemoteHost()).thenReturn("https://www.duckduckgo.com");
         when(mockRequest.getParameter("url")).thenReturn("https://www.glenmazza.net");
         when(mockRequest.getParameter("content")).thenReturn("My comment for this blog entry.");
@@ -137,6 +138,12 @@ public class CommentControllerTest {
         weblogEntry.setWeblog(weblog);
         when(mockWEM.getWeblogEntryByAnchor(weblog, weblogEntry.getAnchor())).thenReturn(weblogEntry);
         when(mockWEM.canSubmitNewComments(any(), any())).thenReturn(true);
+        when(mockWEM.toCommentDto(any(), any())).thenAnswer(invocation -> {
+            WeblogEntryComment comment = invocation.getArgument(0);
+            return new WeblogEntryCommentDto(
+                    comment.getName(), comment.getEmail(), comment.getUrl(), comment.getContent(), comment.getStatus()
+            );
+        });
         when(mockWED.findByIdOrNull(weblogEntry.getId())).thenReturn(weblogEntry);
 
         weblogEntryDto = new WeblogEntryDto(weblogEntry.getId(), weblogEntry.getAnchor(), weblogEntry.getStatus());
@@ -186,13 +193,10 @@ public class CommentControllerTest {
 
             // still approved
             verifyForwardAfterSpamChecking(ApprovalStatus.APPROVED, "commentServlet.commentAccepted");
-            ArgumentCaptor<WeblogEntryComment> commentCaptor = ArgumentCaptor.forClass(WeblogEntryComment.class);
+            ArgumentCaptor<WeblogEntryCommentDto> commentCaptor = ArgumentCaptor.forClass(WeblogEntryCommentDto.class);
             verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            WeblogEntryComment testComment = commentCaptor.getValue();
-            assertEquals("", testComment.getContent());
-
-            // blogger written to comment object
-            assertEquals(user, testComment.getCreator());
+            WeblogEntryCommentDto testComment = commentCaptor.getValue();
+            assertEquals("", testComment.content());
 
             // make subsequent tests a non-blogger comment
             when(mockAuthenticator.authenticate(mockRequest)).thenReturn(true);
@@ -210,11 +214,6 @@ public class CommentControllerTest {
             verify(mockES).sendPendingCommentNotice(any(), any());
             verify(mockIM, never()).updateIndex(weblogEntry, false);
 
-            // no blogger written to comment object
-            verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            testComment = commentCaptor.getValue();
-            assertNull(testComment.getCreator());
-
             // check spam persisted to database with autodelete spam off
             Mockito.clearInvocations(mockWEM, mockES, mockIM);
             when(mockCommentSpamChecker.evaluate(any(), any())).thenReturn(SpamCheckResult.SPAM);
@@ -231,24 +230,6 @@ public class CommentControllerTest {
 
             Mockito.clearInvocations(mockWEM);
 
-        } catch (IOException | ServletException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void checkBloggerFieldPopulatedCorrectly() {
-        try {
-            properties.setCommentPolicy(CommentPolicy.MODERATE_NONPUB);
-            processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), mockPrincipal);
-            ArgumentCaptor<WeblogEntryComment> commentCaptor = ArgumentCaptor.forClass(WeblogEntryComment.class);
-            verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            assertEquals(user, commentCaptor.getValue().getCreator());
-
-            Mockito.clearInvocations(mockRequest);
-            processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(), null);
-            verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-            assertNull(commentCaptor.getValue().getCreator());
         } catch (IOException | ServletException e) {
             fail();
         }
@@ -337,16 +318,16 @@ public class CommentControllerTest {
                 "Content not processed correctly (text, safelist filtering of tags, and adding paragraph tags)");
         assertEquals("Sam", wec.getName());
         assertEquals("https://www.foo.com", wec.getUrl(), "https:// not added to URL");
-        assertTrue(wec.getNotify());
+        assertTrue(wec.getNotifyMe());
         assertEquals("sam@yopmail.com", wec.getEmail());
         assertEquals("https://www.duckduckgo.com", wec.getRemoteHost());
         assertEquals(weblogEntry, wec.getWeblogEntry());
         assertEquals(blogger, wec.getCreator());
         assertNotNull(wec.getPostTime());
 
-        when(mockRequest.getParameter("notify")).thenReturn(null);
+        when(mockRequest.getParameter("notifyMe")).thenReturn(null);
         wec = processor.createCommentFromRequest(mockRequest, wpr, HTMLSanitizer.Level.BASIC);
-        assertFalse(wec.getNotify());
+        assertFalse(wec.getNotifyMe());
         assertEquals("<p>Enjoy <a href=\"http://www.abc.com\" rel=\"nofollow\">My Link</a> from Bob!</p>", wec.getContent(),
                 "Content not processed correctly (text and safelist filtering of tags)");
 
@@ -448,9 +429,9 @@ public class CommentControllerTest {
         Mockito.clearInvocations(mockMessageSource, mockRequest, mockRequestDispatcher);
         processor.postComment(mockRequest, mockResponse, weblog.getHandle(), weblogEntry.getAnchor(),
                 hasPrincipal ? mockPrincipal : null);
-        ArgumentCaptor<WeblogEntryComment> commentCaptor = ArgumentCaptor.forClass(WeblogEntryComment.class);
+        ArgumentCaptor<WeblogEntryCommentDto> commentCaptor = ArgumentCaptor.forClass(WeblogEntryCommentDto.class);
         verify(mockRequest).setAttribute(eq("commentForm"), commentCaptor.capture());
-        assertTrue(commentCaptor.getValue().isInvalid());
+        assertEquals(ApprovalStatus.INVALID, commentCaptor.getValue().status());
         verify(mockMessageSource).getMessage(errorProperty, new Object[] {errorValue}, Locale.GERMAN);
         verify(mockRequest).getRequestDispatcher(PageController.PATH + "/myblog/entry/entry-anchor");
         verify(mockRequestDispatcher).forward(mockRequest, mockResponse);

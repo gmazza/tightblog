@@ -49,7 +49,7 @@
                     <th:block th:with="comments=${entry.getComments()}">
                         <div class="panel-body">
                             <th:block th:each="comment,iterStat : ${comments}" th:if="${comment.approved}">
-                                <div th:id="|comment-${comment.timestamp}|" th:class="${iterStat.even}? 'even' : 'odd'">
+                                <div th:id="|comment-${utils.toEpochMilli(comment.postTime)}|" th:class="${iterStat.even}? 'even' : 'odd'">
                                     <p th:utext="${comment.content}">xxx</p>
                                     <p class="small">
                                     <span th:utext="${utils.msg('macro.weblog.postedby')}">xxx</span>
@@ -57,7 +57,7 @@
                                             <b th:utext="${comment.name}">xxx</b>
                                         </a>
                                     <span th:utext="|${utils.msg('macro.weblog.on')} ${utils.formatTemporal(comment.postTime, utils.msg('macro.weblog.datetimepattern'))}|">xxx</span>
-                                    <a th:href="${url.getCommentURL(entry, comment.timestamp)}"
+                                    <a th:href="${url.getCommentURL(entry, comment.postTime)}"
                                        class="entrypermalink" th:title="${utils.msg('macro.weblog.commentpermalink.title')}">#</a>
                                     </p>
                                 </div>

@@ -31,6 +31,7 @@ import org.tightblog.service.URLService;
 import org.tightblog.config.DynamicProperties;
 import org.tightblog.rendering.requests.WeblogRequest;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -114,8 +115,8 @@ public class URLModel implements Model {
         return null;
     }
 
-    public String getCommentURL(String anchor, String timeStamp) {
-        return urlService.getCommentURL(weblog.getHandle(), anchor, timeStamp);
+    public String getCommentURL(String anchor, Instant postTime) {
+        return urlService.getCommentURL(weblog.getHandle(), anchor, postTime);
     }
 
     public String getWeblogEntryPostCommentURL(WeblogEntryDto entry) {

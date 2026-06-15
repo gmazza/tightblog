@@ -178,7 +178,7 @@ public class CommentController extends AbstractController {
         }
 
         WeblogEntry entry = weblogEntryManager.getWeblogEntryByAnchor(weblog, incomingRequest.getWeblogEntryAnchor());
-        if (entry == null || !entry.isPublished()) {
+        if (entry == null || !entry.getStatus().isPublished()) {
             LOG.info("Commenter attempted to leave comment for weblog {}'s entry with unknown or " +
                             "unpublished anchor: {}, returning 404",
                     incomingRequest.getWeblogHandle(), incomingRequest.getWeblogEntryAnchor());
@@ -211,11 +211,11 @@ public class CommentController extends AbstractController {
             errorProperty = validateComment(incomingComment);
         }
 
+        String submitResponseMessage = null;
         if (errorProperty != null) {
             // return error due to bad/missing input
             incomingComment.setStatus(ApprovalStatus.INVALID);
-            incomingComment.setSubmitResponseMessage(messages.getMessage(errorProperty, new Object[]{errorValue},
-                    request.getLocale()));
+            submitResponseMessage = messages.getMessage(errorProperty, new Object[]{errorValue}, request.getLocale());
         } else {
             // Otherwise next check if comment needs moderation (approval)
             boolean ownComment = userManager.checkWeblogRole(incomingRequest.getBlogger(), weblog,
@@ -227,7 +227,8 @@ public class CommentController extends AbstractController {
             String commentStatusKey;
 
             // most restrictive policy between weblog and global in effect
-            SpamPolicy spamPolicy = Stream.of(incomingComment.getWeblog().getSpamPolicy(), props.getSpamPolicy())
+            SpamPolicy spamPolicy = Stream.of(incomingComment.getWeblogEntry().getWeblog().getSpamPolicy(),
+                            props.getSpamPolicy())
                     .max(Comparator.comparing(Enum::ordinal))
                     .orElse(SpamPolicy.MARK_SPAM);
             Map<String, List<String>> spamEvaluations = new HashMap<>();
@@ -249,8 +250,7 @@ public class CommentController extends AbstractController {
                 }
             }
 
-            incomingComment.setSubmitResponseMessage(messages.getMessage(commentStatusKey, null,
-                    request.getLocale()));
+            submitResponseMessage = messages.getMessage(commentStatusKey, null, request.getLocale());
 
             ApprovalStatus status = incomingComment.getStatus();
 
@@ -271,7 +271,8 @@ public class CommentController extends AbstractController {
                 }
             } else {
                 LOG.info("Incoming comment from {} ({}) for blog {} judged to be spam, deleted per blog's spam policy",
-                        incomingComment.getName(), incomingComment.getEmail(), incomingComment.getWeblog().getHandle());
+                        incomingComment.getName(), incomingComment.getEmail(),
+                        incomingComment.getWeblog().getHandle());
             }
 
             // detach comment object in case of comment approvals, allows for comment to appear in comment list
@@ -287,7 +288,7 @@ public class CommentController extends AbstractController {
 
         LOG.debug("comment processed, forwarding to {}", dispatchUrl);
         // add comment so PageProcessor can place it in the PageModel for rendering
-        request.setAttribute("commentForm", incomingComment);
+        request.setAttribute("commentForm", weblogEntryManager.toCommentDto(incomingComment, submitResponseMessage));
         RequestDispatcher dispatcher = request.getRequestDispatcher(dispatchUrl);
         dispatcher.forward(request, response);
     }
@@ -314,10 +315,10 @@ public class CommentController extends AbstractController {
                                                 HTMLSanitizer.Level sanitizerLevel) {
 
         WeblogEntryComment comment = new WeblogEntryComment();
-        comment.setNotify(request.getParameter("notify") != null);
+        comment.setNotifyMe(request.getParameter("notifyMe") != null);
         comment.setName(Utilities.removeHTML(request.getParameter("name")));
         comment.setEmail(Utilities.removeHTML(request.getParameter("email")));
-        // hack until WeblogEntryCommentDto
+
         WeblogEntry we = weblogEntryDao.findByIdOrNull(pageRequest.getWeblogEntry().id());
         comment.setWeblogEntry(we);
         comment.setRemoteHost(request.getRemoteHost());

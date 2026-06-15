@@ -14,4 +14,8 @@ public enum EntryPublishStatus {
     public String getFilterMessageConstant() {
         return filterMessageConstant;
     }
+
+    public boolean isPublished() {
+        return this == PUBLISHED;
+    }
 }
