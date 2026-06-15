@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.tightblog.config.DynamicProperties;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.service.EmailService;
 import org.tightblog.service.WeblogEntryManager;
 import org.tightblog.service.LuceneIndexer;
@@ -71,7 +72,7 @@ public class CommentController {
     private final EmailService emailService;
     private final DynamicProperties dp;
 
-    record CommentData(String entryTitle, List<WeblogEntryComment> comments, boolean hasMore) { }
+    public record CommentData(String entryTitle, List<WeblogEntryCommentDto> comments, boolean hasMore) { }
 
     @Autowired
     public CommentController(WeblogDao weblogDao, WeblogEntryManager weblogEntryManager, DynamicProperties dp,
@@ -105,22 +106,25 @@ public class CommentController {
         criteria.setOffset(page * ITEMS_PER_PAGE);
         criteria.setMaxResults(ITEMS_PER_PAGE + 1);
 
-        //                .peek(c -> c.getWeblogEntry().setPermalink(
-//                        urlService.getWeblogEntryURL(c.getWeblogEntry())))
         List<WeblogEntryComment> entryComments = new ArrayList<>(weblogEntryManager.getComments(criteria));
 
         boolean hasMore = false;
         if (entryComments.size() > ITEMS_PER_PAGE) {
-            entryComments.remove(entryComments.size() - 1);
+            entryComments.removeLast();
             hasMore = true;
         }
 
-        return new CommentData(entryId != null ? criteria.getEntry().getTitle() : null, entryComments, hasMore);
+        List<WeblogEntryCommentDto> entryCommentDtos = new ArrayList<>(entryComments.size());
+        for (WeblogEntryComment comment : entryComments) {
+            entryCommentDtos.add(weblogEntryManager.toCommentDto(comment));
+        }
+
+        return new CommentData(entryId != null ? criteria.getEntry().getTitle() : null, entryCommentDtos, hasMore);
     }
 
     @DeleteMapping(value = "/{id}")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id,  'POST')")
-    public void deleteComment(@PathVariable String id, Principal p) {
+    @PreAuthorize("@securityService.hasAccess(#ignoredP.name, T(org.tightblog.domain.WeblogEntryComment), #id,  'POST')")
+    public void deleteComment(@PathVariable String id, Principal ignoredP) {
         WeblogEntryComment itemToRemove = weblogEntryCommentDao.findByIdOrNull(id);
         weblogEntryManager.removeComment(itemToRemove);
         luceneIndexer.updateIndex(itemToRemove.getWeblogEntry(), false);
@@ -128,16 +132,16 @@ public class CommentController {
     }
 
     @PostMapping(value = "/{id}/approve")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
+    @PreAuthorize("@securityService.hasAccess(#ignoredP.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void approveComment(@PathVariable String id, Principal p) {
+    public void approveComment(@PathVariable String id, Principal ignoredP) {
         changeApprovalStatus(id, ApprovalStatus.APPROVED);
     }
 
     @PostMapping(value = "/{id}/hide")
-    @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
+    @PreAuthorize("@securityService.hasAccess(#ignoredP.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void hideComment(@PathVariable String id, Principal p) {
+    public void hideComment(@PathVariable String id, Principal ignoredP) {
         changeApprovalStatus(id, ApprovalStatus.DISAPPROVED);
     }
 
@@ -158,7 +162,7 @@ public class CommentController {
 
     @PutMapping(value = "/{id}/content")
     @PreAuthorize("@securityService.hasAccess(#p.name, T(org.tightblog.domain.WeblogEntryComment), #id, 'POST')")
-    public WeblogEntryComment updateComment(@PathVariable String id, Principal p, @RequestBody String content)
+    public WeblogEntryCommentDto updateComment(@PathVariable String id, Principal p, @RequestBody String content)
             throws IOException {
 
         WeblogEntryComment wec = weblogEntryCommentDao.findByIdOrNull(id);
@@ -171,6 +175,6 @@ public class CommentController {
         wec.setContent(Jsoup.clean(fixedContent, commentHTMLSafelist));
 
         weblogEntryManager.saveComment(wec, true);
-        return wec;
+        return weblogEntryManager.toCommentDto(wec);
     }
 }

@@ -28,6 +28,7 @@ import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
 import org.tightblog.util.Utilities;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -173,10 +174,17 @@ public class URLService {
 
     /**
      * Get url for a single weblog entry comment
-     * @param timeStamp timestamp of comment (used to identify comment desired)
+     * @param postTime time comment was posted by commenter (used to identify comment desired)
      */
-    public String getCommentURL(String weblogHandle, String entryAnchor, String timeStamp) {
-        return getWeblogEntryURL(weblogHandle, entryAnchor) + "#comment-" + timeStamp;
+    public String getCommentURL(String weblogHandle, String entryAnchor, Instant postTime) {
+        return getWeblogEntryURL(weblogHandle, entryAnchor) + "#comment-" + getCommentTimestamp(postTime);
+    }
+
+    private String getCommentTimestamp(Instant postTime) {
+        if (postTime != null) {
+            return Long.toString(postTime.toEpochMilli());
+        }
+        return null;
     }
 
     /**

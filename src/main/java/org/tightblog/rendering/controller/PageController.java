@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.tightblog.config.DynamicProperties;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.rendering.model.PageModel;
 import org.tightblog.dao.UserDao;
 import org.tightblog.service.WeblogEntryManager;
@@ -42,7 +43,6 @@ import org.tightblog.domain.Template;
 import org.tightblog.domain.Template.Role;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.rendering.requests.WeblogPageRequest;
 import org.tightblog.rendering.service.ThymeleafRenderer;
 import org.tightblog.dao.WeblogDao;
@@ -142,7 +142,7 @@ public class PageController extends AbstractController {
             WeblogEntry entry = weblogEntryManager.getWeblogEntryByAnchor(weblog,
                     incomingRequest.getWeblogEntryAnchor());
 
-            if (entry == null || !entry.isPublished()) {
+            if (entry == null || !entry.getStatus().isPublished()) {
                 LOGGER.warn("For weblog {}, invalid or not yet published entry {} requested, returning home page instead.",
                         weblogHandle, anchor);
                 return getHomePage(weblogHandle, 0, request, principal);
@@ -273,7 +273,7 @@ public class PageController extends AbstractController {
         String cacheKey = null;
 
         // Check cache for content except during comment feedback/preview (i.e., commentForm present)
-        WeblogEntryComment commentForm = (WeblogEntryComment) request.getAttribute("commentForm");
+        WeblogEntryCommentDto commentForm = (WeblogEntryCommentDto) request.getAttribute("commentForm");
 
         // pages containing user-specific comment forms aren't cached
         CachedContent rendererOutput = null;
