@@ -22,6 +22,7 @@ package org.tightblog.rendering.requests;
 
 import org.tightblog.domain.EditFormat;
 import org.tightblog.domain.EntryPublishStatus;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.domain.CalendarData;
 import org.tightblog.domain.CommentSearchCriteria;
@@ -67,7 +68,7 @@ public class WeblogPageRequest extends WeblogRequest {
     private Template template;
     private WeblogEntryDto weblogEntry;
     private PageModel pageModel;
-    private WeblogEntryComment commentForm;
+    private WeblogEntryCommentDto commentForm;
     protected WeblogEntryListGenerator.WeblogEntryListData pager;
 
     public WeblogPageRequest(String weblogHandle, Principal principal, PageModel pageModel) {
@@ -186,15 +187,16 @@ public class WeblogPageRequest extends WeblogRequest {
                 weblogEntryAnchor, weblogDate, category, tag, customPageName);
     }
 
-    public WeblogEntryComment getCommentForm() {
+    public WeblogEntryCommentDto getCommentForm() {
         if (commentForm == null) {
-            commentForm = new WeblogEntryComment();
-            commentForm.initializeFormFields();
+            WeblogEntryComment wec = new WeblogEntryComment();
+            wec.initializeFormFields();
+            commentForm = pageModel.getWeblogEntryManager().toCommentDto(wec);
         }
         return commentForm;
     }
 
-    public void setCommentForm(WeblogEntryComment commentForm) {
+    public void setCommentForm(WeblogEntryCommentDto commentForm) {
         this.commentForm = commentForm;
     }
 

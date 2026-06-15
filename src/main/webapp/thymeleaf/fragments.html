@@ -175,7 +175,8 @@
 
             <th:block th:switch="${model.canSubmitNewComments(entry)}">
                 <div class="card-body" th:case="${true}">
-                    <span class="card-text" th:classappend="${cform.invalid} ? 'error' : (${!#strings.isEmpty(cform.submitResponseMessage)} ? 'status' : '')"
+                    <span class="card-text" th:classappend="${cform.status == T(org.tightblog.domain.WeblogEntryComment.ApprovalStatus).INVALID} ?
+                        'error' : (${!#strings.isEmpty(cform.submitResponseMessage)} ? 'status' : '')"
                           th:utext="${cform.submitResponseMessage}">xxx</span>
 
                     <form method="post" focus="name" name="commentForm">
@@ -202,7 +203,7 @@
                             <textarea id="contentId" name="content" class="form-control" cols="40" rows="10" maxlength="2000" th:utext="${cform.content}" required>xxx</textarea>
                         </div>
                         <div class="form-group form-check" th:if="${utils.commentEmailNotify}">
-                            <input type="checkbox" class="form-check-input" id="notifyId" name="notify" th:checked="${cform.notify}">
+                            <input type="checkbox" class="form-check-input" id="notifyId" name="notifyMe" th:checked="${cform.notifyMe}">
                             <label for="notifyId" class="form-check-label" th:utext="${utils.msg('macro.weblog.notifyMeOfComments')}">xxx</label>
                         </div>
                         <th:block th:if="${model.blogger == null}">

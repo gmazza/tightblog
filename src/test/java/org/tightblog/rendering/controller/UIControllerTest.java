@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.tightblog.TestUtils;
 import org.tightblog.domain.EntryPublishStatus;
 import org.tightblog.domain.Template;
+import org.tightblog.dto.WeblogEntryCommentDto;
 import org.tightblog.dto.WeblogEntryDto;
 import org.tightblog.rendering.service.WeblogEntryListGenerator;
 import org.tightblog.rendering.model.URLModel;
@@ -43,7 +44,6 @@ import org.tightblog.service.ThemeManager;
 import org.tightblog.domain.Template.Role;
 import org.tightblog.domain.Weblog;
 import org.tightblog.domain.WeblogEntry;
-import org.tightblog.domain.WeblogEntryComment;
 import org.tightblog.domain.WeblogTemplate;
 import org.tightblog.domain.WeblogTheme;
 import org.tightblog.rendering.cache.CachedContent;
@@ -137,6 +137,7 @@ public class UIControllerTest {
         PageModel mockPageModel = mock(PageModel.class);
         mockWELG = mock(WeblogEntryListGenerator.class);
         when(mockPageModel.getWeblogEntryListGenerator()).thenReturn(mockWELG);
+        when(mockPageModel.getWeblogEntryManager()).thenReturn(mockWEM);
 
         controller = new PageController(mockWD, mockCache, mockWM, mockWEM,
                 mockRenderer, mockThemeManager, mockPageModel,
@@ -459,8 +460,7 @@ public class UIControllerTest {
         when(mockThemeManager.getSharedTheme(any())).thenReturn(sharedTheme);
         when(mockWeblogTheme.getTemplateByName("my-custom-page")).thenReturn(sharedTemplate);
 
-        WeblogEntryComment comment = new WeblogEntryComment();
-        comment.setId("comment1");
+        WeblogEntryCommentDto comment = new WeblogEntryCommentDto("comment1");
         when(mockRequest.getAttribute("commentForm")).thenReturn(comment);
         controller.getByCustomPage(TEST_BLOG_HANDLE, "my-custom-page", null, mockRequest, mockPrincipal);
 
@@ -495,7 +495,7 @@ public class UIControllerTest {
 
     @Test
     public void testCommentFormsSkipCache() {
-        WeblogEntryComment wec = new WeblogEntryComment();
+        WeblogEntryCommentDto wec = new WeblogEntryCommentDto("mytest");
         when(mockRequest.getAttribute("commentForm")).thenReturn(wec);
         controller.getHomePage(TEST_BLOG_HANDLE, 0, mockRequest, mockPrincipal);
         verify(mockWM, never()).incrementHitCount(any());

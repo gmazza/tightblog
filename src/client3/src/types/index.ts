@@ -15,9 +15,9 @@ export interface Comment {
   email: string
   url: string
   content: string
+  remoteHost: string
   originalContent: string
   editable: boolean
-  remoteHost: string
 }
 
 export interface EntryCommentsQueryParams {

@@ -212,7 +212,7 @@ public class EmailService {
      * @param commentNotes any spam or validation issues found, to be placed within the email.
      */
     public void sendPendingCommentNotice(WeblogEntryComment comment, Map<String, List<String>> commentNotes) {
-        if (!mailEnabled || comment.isApproved()) {
+        if (!mailEnabled || comment.getStatus().isApproved()) {
             return;
         }
 
@@ -260,7 +260,7 @@ public class EmailService {
     public void sendNewPublishedCommentNotification(WeblogEntryComment comment) {
         if (!mailEnabled ||
                 !webloggerPropertiesDao.findOrNull().isUsersCommentNotifications() ||
-                !comment.isApproved()) {
+                !comment.getStatus().isApproved()) {
             return;
         }
 
@@ -280,7 +280,7 @@ public class EmailService {
 
         for (WeblogEntryComment priorComment : priorComments) {
             // if user has commented twice, count the most recent notify setting
-            if (priorComment.getNotify()) {
+            if (priorComment.getNotifyMe()) {
                 LOG.info("Add to subscribers list: {}", priorComment.getEmail());
                 subscribers.put(priorComment.getEmail().toLowerCase(), priorComment.getId());
             } else {
@@ -368,7 +368,7 @@ public class EmailService {
         Context ctx = new Context();
         ctx.setVariable("emailType", "CommentApproved");
         ctx.setVariable("commentURL", urlService.getCommentURL(entry.getWeblog().getHandle(), entry.getAnchor(),
-                wec.getTimestamp()));
+                wec.getPostTime()));
         String message = standardTemplateEngine.process("emails/CommonEmailLayout", ctx);
 
         // send message to author of approved comment

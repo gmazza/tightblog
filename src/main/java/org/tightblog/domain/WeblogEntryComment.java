@@ -56,7 +56,8 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
     @Enumerated(EnumType.STRING)
     private ApprovalStatus status = ApprovalStatus.DISAPPROVED;
 
-    private Boolean notify = Boolean.FALSE;
+    @Column(name = "notify")
+    private Boolean notifyMe = Boolean.FALSE;
 
     @Column(name = "remote_host")
     private String remoteHost;
@@ -73,9 +74,6 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
     // nullable, used in cases where comment is created by a registered user
     @ManyToOne
     private User creator;
-
-    @Transient
-    private String submitResponseMessage;
 
     public WeblogEntry getWeblogEntry() {
         return weblogEntry;
@@ -145,12 +143,12 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
      * True if person who wrote comment wishes to be notified of new comments
      * on the same weblog entry.
      */
-    public Boolean getNotify() {
-        return this.notify;
+    public Boolean getNotifyMe() {
+        return this.notifyMe;
     }
 
-    public void setNotify(Boolean notify) {
-        this.notify = notify;
+    public void setNotifyMe(Boolean notify) {
+        this.notifyMe = notify;
     }
 
     /**
@@ -178,46 +176,6 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
-    }
-
-    /**
-     * True if comment is pending moderator approval.
-     */
-    @Transient
-    public Boolean isPending() {
-        return ApprovalStatus.PENDING.equals(getStatus());
-    }
-
-    /**
-     * Indicates that comment has been approved for display on weblog.
-     */
-    @Transient
-    public Boolean isApproved() {
-        return ApprovalStatus.APPROVED.equals(getStatus());
-    }
-
-    @Transient
-    public boolean isInvalid() {
-        return ApprovalStatus.INVALID.equals(getStatus());
-    }
-
-    /**
-     * Timestamp to be used to formulate comment permlink.
-     */
-    @Transient
-    public String getTimestamp() {
-        if (getPostTime() != null) {
-            return Long.toString(getPostTime().toEpochMilli());
-        }
-        return null;
-    }
-
-    public String getSubmitResponseMessage() {
-        return submitResponseMessage;
-    }
-
-    public void setSubmitResponseMessage(String submitResponseMessage) {
-        this.submitResponseMessage = submitResponseMessage;
     }
 
     public void initializeFormFields() {
@@ -256,6 +214,7 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
                 name, email, postTime);
     }
 
+    // needed for WeblogOwned interface, but not serialized to database
     @Transient
     @JsonIgnore
     @Override
@@ -290,6 +249,10 @@ public class WeblogEntryComment extends AbstractEntity implements WeblogOwned {
 
         public String getMessageConstant() {
             return messageConstant;
+        }
+
+        public boolean isApproved() {
+            return this == APPROVED;
         }
     }
 

@@ -33,7 +33,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
@@ -288,14 +287,6 @@ public class WeblogEntry extends AbstractEntity implements WeblogOwned {
         // will erase tags not in the new list, JPA will delete them from DB.
         getTagSet().clear();
         getTagSet().addAll(newTagSet);
-    }
-
-    /**
-     * Convenience method for checking published status
-     */
-    @Transient
-    public boolean isPublished() {
-        return EntryPublishStatus.PUBLISHED.equals(getStatus());
     }
 
     @Override
