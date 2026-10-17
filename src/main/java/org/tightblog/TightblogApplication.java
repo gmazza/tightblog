@@ -22,7 +22,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @SpringBootApplication
 // https://docs.spring.io/spring/docs/current/spring-framework-reference/integration.html#cache-annotation-enable
@@ -30,7 +30,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 // Search code for @Scheduled annotations for scheduled tasks
 @EnableScheduling
 // Enable @PreAuthorize, etc., security checks on controller methods
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 // extending SBSI to make deployable as a WAR file
 @EnableJpaRepositories(
         basePackages = {"org.tightblog.domain", "org.tightblog.dao"}
