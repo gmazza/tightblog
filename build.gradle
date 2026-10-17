@@ -155,12 +155,10 @@ dependencies {
 	implementation("jakarta.el:jakarta.el-api:6.0.1")
 
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat-runtime'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
-	runtimeOnly("org.springframework.boot:spring-boot-properties-migrator")
-
-	integrationTestImplementation 'org.testcontainers:testcontainers-mysql:2.0.5'
-	integrationTestImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.5'
+	integrationTestImplementation 'org.testcontainers:testcontainers-mysql:2.0.1'
+	integrationTestImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.1'
 	integrationTestImplementation 'com.mysql:mysql-connector-j:9.1.0'
 }
 
