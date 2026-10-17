@@ -120,7 +120,6 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-webmvc')
 	implementation 'org.springframework.boot:spring-boot-starter-restclient'
-	implementation 'org.springframework:spring-web'
 	implementation('org.springframework.boot:spring-boot-starter-mail')
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
@@ -156,7 +155,7 @@ dependencies {
 	implementation("jakarta.el:jakarta.el-api:6.0.1")
 
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat-runtime'
 
 	runtimeOnly("org.springframework.boot:spring-boot-properties-migrator")
 
@@ -233,8 +232,6 @@ bootWar {
 
 test {
     useJUnitPlatform()
-    // The war plugin's providedRuntime handling drops spring-web from the runtime classpath
-    classpath += configurations.compileClasspath.filter { it.name.startsWith('spring-web-') }
 }
 
 tasks.processResources.dependsOn(tasks.copyUiToStatic)
