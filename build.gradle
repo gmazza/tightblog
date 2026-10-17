@@ -8,7 +8,7 @@ plugins {
 	id "com.github.ben-manes.versions" version "0.52.0"
 	id 'com.github.node-gradle.node' version '5.0.0'
 	id 'war'
-	id "org.springframework.boot" version "3.5.5"
+	id "org.springframework.boot" version "4.1.1"
 	id "checkstyle"
 	// run jacoco via gradle jacocoTestReport, report in build/reports
 	id 'jacoco'
@@ -118,7 +118,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation('org.springframework.boot:spring-boot-starter-security')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
-	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-webmvc')
+	implementation 'org.springframework.boot:spring-boot-starter-restclient'
+	implementation 'org.springframework:spring-web'
 	implementation('org.springframework.boot:spring-boot-starter-mail')
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
@@ -140,7 +142,7 @@ dependencies {
 	implementation('commons-fileupload:commons-fileupload:1.6.0')
 	implementation("io.nayuki:qrcodegen:1.8.0")
 	// Jackson Hibernate module to support lazy loading
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6:2.19.2'
+	implementation 'tools.jackson.datatype:jackson-datatype-hibernate7'
 
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
@@ -155,6 +157,8 @@ dependencies {
 
 	// https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-create-a-deployable-war-file
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	runtimeOnly("org.springframework.boot:spring-boot-properties-migrator")
 
 	integrationTestImplementation 'org.testcontainers:testcontainers-mysql:2.0.5'
 	integrationTestImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.5'
@@ -229,6 +233,8 @@ bootWar {
 
 test {
     useJUnitPlatform()
+    // The war plugin's providedRuntime handling drops spring-web from the runtime classpath
+    classpath += configurations.compileClasspath.filter { it.name.startsWith('spring-web-') }
 }
 
 tasks.processResources.dependsOn(tasks.copyUiToStatic)

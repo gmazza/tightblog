@@ -39,9 +39,9 @@ public class MultiFactorAuthenticationProvider extends DaoAuthenticationProvider
     public MultiFactorAuthenticationProvider(UserDao userDao,
                                              UserDetailsService userDetailsService,
                                              MessageSource messageSource) {
+        super(userDetailsService);
         this.userDao = userDao;
         setPasswordEncoder(new BCryptPasswordEncoder());
-        setUserDetailsService(userDetailsService);
         setMessageSource(messageSource);
     }
 

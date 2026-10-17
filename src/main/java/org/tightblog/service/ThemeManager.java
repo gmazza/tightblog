@@ -20,7 +20,7 @@
  */
 package org.tightblog.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,12 +60,12 @@ public class ThemeManager implements ServletContextAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThemeManager.class);
 
     private ServletContext servletContext;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private final WeblogTemplateDao weblogTemplateDao;
 
     @Autowired
-    public ThemeManager(ObjectMapper objectMapper, WeblogTemplateDao weblogTemplateDao) {
-        this.objectMapper = objectMapper;
+    public ThemeManager(JsonMapper jsonMapper, WeblogTemplateDao weblogTemplateDao) {
+        this.jsonMapper = jsonMapper;
         this.weblogTemplateDao = weblogTemplateDao;
     }
 
@@ -187,7 +187,7 @@ public class ThemeManager implements ServletContextAware {
 
         try (InputStream is = servletContext.getResourceAsStream(themeJson)) {
             if (is != null) {
-                sharedTheme = objectMapper.readValue(is, SharedTheme.class);
+                sharedTheme = jsonMapper.readValue(is, SharedTheme.class);
                 sharedTheme.setThemeDir(themePath);
 
                 // load resource representing preview image

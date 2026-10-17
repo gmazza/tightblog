@@ -32,14 +32,11 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.pattern.PathPatternParser;
 import org.tightblog.security.CsrfSecurityRequestMatcher;
 import org.tightblog.security.CustomAuthenticationSuccessHandler;
 import org.tightblog.security.CustomWebAuthenticationDetailsSource;
 import org.tightblog.security.MultiFactorAuthenticationProvider;
-
-import java.util.LinkedHashMap;
 
 @Configuration
 @EnableWebSecurity
@@ -114,16 +111,17 @@ public class WebSecurityConfiguration {
 
     @Bean
     public AuthenticationEntryPoint delegatingEntryPoint() {
-        final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map = new LinkedHashMap<>();
         // UI endpoints (also with defaultEntryPoint below), return login form if unauthorized
-        map.put(createPathPatternRequestMatcher("/"), new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
         // REST endpoints, want to return 401 if unauthorized
-        map.put(createPathPatternRequestMatcher("/tb-ui/admin/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-        map.put(createPathPatternRequestMatcher("/tb-ui/authoring/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-
-        final DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(map);
-        entryPoint.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"));
-        return entryPoint;
+        return DelegatingAuthenticationEntryPoint.builder()
+                .addEntryPointFor(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"),
+                        createPathPatternRequestMatcher("/"))
+                .addEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        createPathPatternRequestMatcher("/tb-ui/admin/**"))
+                .addEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        createPathPatternRequestMatcher("/tb-ui/authoring/**"))
+                .defaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/tb-ui/app/login"))
+                .build();
     }
 
     private PathPatternRequestMatcher createPathPatternRequestMatcher(String pattern) {
