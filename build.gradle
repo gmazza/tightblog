@@ -124,7 +124,7 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-mail')
 	implementation('org.springframework.boot:spring-boot-starter-log4j2')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
-	implementation('org.flywaydb:flyway-core')
+	implementation('org.springframework.boot:spring-boot-starter-flyway')
 	implementation('org.flywaydb:flyway-mysql')
 	implementation('org.springframework.security:spring-security-taglibs')
 	implementation('org.apache.commons:commons-lang3:3.21.0')
