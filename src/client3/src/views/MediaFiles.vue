@@ -288,6 +288,7 @@ import type { ErrorObj, MediaFile, MediaFolder, ErrorItem } from '../types'
 import { AxiosError } from 'axios'
 import { useConfirmDialog } from '@vueuse/core'
 import * as api from '@/api'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const confirmMoveFilesDialogObj = useConfirmDialog()
 const confirmDeleteFilesDialogObj = useConfirmDialog()
@@ -481,7 +482,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj.errors.push(

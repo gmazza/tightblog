@@ -518,6 +518,7 @@ import api from '@/api'
 import { useConfirmDialog } from '@vueuse/core'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const confirmLeaveNoSaveDialogObj = useConfirmDialog()
 const confirmDeleteDialogObj = useConfirmDialog()
@@ -660,7 +661,7 @@ export default {
             this.errorObj = {
               errors: [
                 this.$t('entryEdit.sessionTimedOut', {
-                  loginUrl: import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
+                  loginUrl: VITE_PUBLIC_PATH + '/app/login-redirect'
                 })
               ]
             }
@@ -710,7 +711,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj.errors.push(

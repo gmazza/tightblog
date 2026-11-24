@@ -1,6 +1,7 @@
 import axios, { type AxiosResponse } from 'axios'
+import { VITE_PUBLIC_PATH as APP_BASE_PATH } from '@/api/publicPath'
 
-const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest'
+const VITE_PUBLIC_PATH = APP_BASE_PATH + '/authoring/rest'
 
 import type { Template, WeblogTemplateData } from '@/types'
 

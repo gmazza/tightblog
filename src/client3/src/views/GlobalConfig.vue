@@ -246,6 +246,7 @@ import { useStartupConfigStore } from '../stores/startupConfig'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { AxiosError } from 'axios'
 import { mapState, mapActions } from 'pinia'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 export default {
   data() {
@@ -308,7 +309,7 @@ export default {
         this.errorMessage = errorMsg
       } else if (error instanceof AxiosError && error.response?.status === 401) {
         console.log('Redirecting...')
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else if (error instanceof AxiosError && error.response) {
         this.errorMessage = error.response.data.error
       } else if (error) {

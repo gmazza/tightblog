@@ -34,12 +34,13 @@
 <script lang="ts">
 import { AxiosError } from 'axios'
 import api from '@/api'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 export default {
   data() {
     return {
       qrCode: null as string | null,
-      loginUrl: import.meta.env.VITE_PUBLIC_PATH + '/app/relogin',
+      loginUrl: VITE_PUBLIC_PATH + '/app/relogin',
       errorObj: {
         errors: []
       },
@@ -58,7 +59,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else if (error instanceof AxiosError && error.response?.data) {
         this.errorObj = error.response.data
       }

@@ -1,11 +1,12 @@
 import axios, { type AxiosResponse } from 'axios'
 import type { User, UserHasWeblog } from '@/types'
+import { VITE_PUBLIC_PATH as APP_BASE_PATH } from '@/api/publicPath'
 
-const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/useradmin'
+const VITE_PUBLIC_PATH = APP_BASE_PATH  + '/admin/rest/useradmin'
 
 export function loadUser(userId: string): Promise<User> {
   return axios
-    .get(import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId)
+    .get(APP_BASE_PATH  + '/authoring/rest/userprofile/' + userId)
     .then((response) => response.data)
 }
 
@@ -31,19 +32,19 @@ export function updateUser(userId: string, user: User): Promise<AxiosResponse<Us
 
 export function loadUserList(): Promise<User[]> {
   return axios
-    .get(import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/useradmin/userlist')
+    .get(APP_BASE_PATH  + '/admin/rest/useradmin/userlist')
     .then((response) => response.data)
 }
 
 export function saveUser(userId: string, user: User): Promise<User> {
   return axios.post(
-    import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/userprofile/' + userId,
+      APP_BASE_PATH  + '/authoring/rest/userprofile/' + userId,
     user
   )
 }
 
 export function registerUser(user: User) {
-  return axios.post(import.meta.env.VITE_PUBLIC_PATH + '/register/rest/registeruser', user)
+  return axios.post(APP_BASE_PATH + '/register/rest/registeruser', user)
 }
 
 export function setUserWeblogAffiliation(

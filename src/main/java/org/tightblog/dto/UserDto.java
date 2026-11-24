@@ -5,7 +5,13 @@ import java.time.Instant;
 public record UserDto(String id, String screenName, String userName, String emailAddress,
                       String userStatus, String globalRole, Instant dateCreated, Instant lastLogin,
                       String registrationActivationCode,
-                      String passwordText, String passwordConfirm, boolean hasMfaSecret, boolean eraseMfaSecret) {
+                      String passwordText, String passwordConfirm, Boolean hasMfaSecret, Boolean eraseMfaSecret) {
+
+    // Normalize missing or null MFA flags to false (Jackson 3 rejects null values for primitive booleans).
+    public UserDto {
+        hasMfaSecret = Boolean.TRUE.equals(hasMfaSecret);
+        eraseMfaSecret = Boolean.TRUE.equals(eraseMfaSecret);
+    }
 
     // for sending to front-end, no password info provided
     public UserDto(String id, String screenName, String userName, String emailAddress,

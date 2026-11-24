@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -55,7 +56,7 @@ const router = createRouter({
       name: 'logout',
       beforeEnter: () => {
         console.log('Redirecting from /app/logout...')
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/logout'
+        window.location.href = VITE_PUBLIC_PATH + '/app/logout'
       }
     } as unknown as RouteRecordRaw,
     {
@@ -63,7 +64,7 @@ const router = createRouter({
       name: 'loginRedirect',
       beforeEnter: () => {
         console.log('Redirecting to login from /login-redirect...')
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login-redirect'
       }
     } as unknown as RouteRecordRaw,
     {
@@ -71,7 +72,7 @@ const router = createRouter({
       name: 'loginRedirect',
       beforeEnter: () => {
         console.log('Redirecting to login from /app/login-redirect...')
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login-redirect'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login-redirect'
       }
     } as unknown as RouteRecordRaw,
     {

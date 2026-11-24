@@ -183,6 +183,7 @@
 <script lang="ts">
 import type { MediaFile, ErrorObj, ErrorItem } from '@/types'
 import * as api from '@/api'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 export default {
   props: {
@@ -238,7 +239,7 @@ export default {
         })
         .catch((error) => {
           if (error.response?.status === 401) {
-            window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+            window.location.href = VITE_PUBLIC_PATH + '/app/login'
           } else {
             this.errorObj.errors.push(
               ...Object.values(error.response?.data.errors as Record<string, ErrorItem>)

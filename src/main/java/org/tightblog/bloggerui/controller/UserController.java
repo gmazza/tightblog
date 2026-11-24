@@ -67,7 +67,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -200,9 +199,12 @@ public class UserController {
         long userCount = userDao.count();
 
         if (userCount > 0 && WebloggerProperties.RegistrationPolicy.DISABLED.equals(option)) {
-            LOGGER.warn("Registration attempt for a user {} when registrations are disabled, returning 403",
-                    Optional.ofNullable(newData).map(UserDto::emailAddress).orElse("(unknown)"));
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            List<Violation> errors = new ArrayList<>();
+
+            errors.add(new Violation(messages.getMessage("error.add.user.regisrationDisabled",
+                    null, locale)));
+
+            return ValidationErrorResponse.badRequest(errors);
         }
 
         List<Violation> errors = validateUser(null, newData, true, locale);
@@ -335,7 +337,6 @@ public class UserController {
             }
 
             if (add) {
-                user.setStatus(UserStatus.valueOf(newData.userStatus()));
                 if (userDao.count() == 0) {
                     // first person in is always an admin
                     user.setGlobalRole(GlobalRole.ADMIN);
@@ -352,20 +353,19 @@ public class UserController {
             }
 
             try {
+                String newPassword = newData.passwordText();
+                if (!StringUtils.isBlank(newPassword)) {
+                    String hashedNewPassword = userManager.hashPassword(newPassword);
+                    user.setPasswordHash(hashedNewPassword);
+                }
                 userDao.saveAndFlush(user);
                 userDao.evictUser(user);
-                // reset password if set
-                if (!StringUtils.isBlank(newData.passwordText())) {
-                    String newPassword = newData.passwordText();
 
-                    if (!StringUtils.isEmpty(newPassword)) {
-                        userManager.updateCredentials(user.getId(), newPassword);
-                    }
-                    // reset MFA secret if requested
-                    if (newData.eraseMfaSecret()) {
-                        userDao.eraseMfaCode(user.getId());
-                    }
+                // reset MFA secret if requested
+                if (newData.eraseMfaSecret()) {
+                    userDao.eraseMfaCode(user.getId());
                 }
+
                 response.setStatus(HttpServletResponse.SC_OK);
             } catch (RollbackException e) {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);

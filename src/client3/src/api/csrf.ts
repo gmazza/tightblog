@@ -1,5 +1,6 @@
 // csrf.ts
 import axios from 'axios';
+import { VITE_PUBLIC_PATH as APP_BASE_PATH } from '@/api/publicPath'
 
 interface CsrfToken {
     token: string;
@@ -7,7 +8,7 @@ interface CsrfToken {
     parameterName: string;
 }
 
-const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH
+const VITE_PUBLIC_PATH = APP_BASE_PATH
 
 /**
  * Initializes the CSRF token for Axios by calling the Spring Boot CSRF endpoint
