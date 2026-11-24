@@ -133,13 +133,14 @@ import { AxiosError } from 'axios'
 import { useDynamicConfigStore } from '../stores/dynamicConfig'
 import { useStartupConfigStore } from '../stores/startupConfig'
 import type { CacheItem, ErrorItem, ErrorObj } from '@/types'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 import api from '@/api'
 
 export default {
   data() {
     return {
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/',
+      urlRoot: VITE_PUBLIC_PATH + '/admin/rest/server/',
       weblogToReindex: null as string | null,
       successMessage: null as string | null,
       errorObj: {
@@ -201,7 +202,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj.errors.push(

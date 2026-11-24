@@ -77,17 +77,9 @@ public class UserManager {
         userDao.evictUser(user);
     }
 
-    /**
-     * Update user password.  This method takes an unencrypted password
-     * and will encrypt it prior to storing in database.
-     *
-     * @param userId      internal ID of user
-     * @param newPassword unencrypted password.
-     */
-    public void updateCredentials(String userId, String newPassword) {
+    public String hashPassword(String password) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encodedPwd = encoder.encode(newPassword);
-        userDao.updatePassword(userId, encodedPwd);
+        return encoder.encode(password);
     }
 
     /**

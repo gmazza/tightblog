@@ -236,6 +236,7 @@ import { useStartupConfigStore } from '../stores/startupConfig'
 import api2 from '@/api'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 export default {
   components: {
@@ -265,7 +266,7 @@ export default {
       } as ErrorObj,
       selectedCommentId: null,
       pageNum: 0,
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/comments/',
+      urlRoot: VITE_PUBLIC_PATH + '/authoring/rest/comments/',
       isFetching: true
     }
   },
@@ -386,7 +387,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj = error.response?.data

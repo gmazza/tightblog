@@ -1,7 +1,8 @@
 import axios, { type AxiosResponse } from 'axios'
 import type { TagUpdateResults, WeblogTagSummaryData } from '@/types'
+import { VITE_PUBLIC_PATH as APP_BASE_PATH } from '@/api/publicPath'
 
-const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/tags'
+const VITE_PUBLIC_PATH = APP_BASE_PATH + '/authoring/rest/tags'
 
 export function loadTags(
   weblogId: string,

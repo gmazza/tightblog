@@ -183,6 +183,7 @@ import type { ErrorObj, WeblogEntryTag, TagUpdateResults, WeblogTagSummaryData }
 import * as api from '@/api'
 import { AxiosError } from 'axios'
 import { useConfirmDialog } from '@vueuse/core'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const confirmDeleteDialogObj = useConfirmDialog()
 const updateTagDialogObj = useConfirmDialog()
@@ -202,7 +203,7 @@ export default {
       editModalCurrentTag: null as string | null,
       newTagName: null as string | null,
       pageNum: 0,
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/tags/',
+      urlRoot: VITE_PUBLIC_PATH + '/authoring/rest/tags/',
       resultsMap: {} as TagUpdateResults,
       successMessage: '' as string | null,
       errorObj: {
@@ -330,7 +331,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else if (error instanceof AxiosError && error.response?.data) {
         this.errorObj = error.response.data
       } else {

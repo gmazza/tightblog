@@ -153,6 +153,8 @@ import { useSessionInfoStore } from '../stores/sessionInfo'
 import type { User, ErrorObj, ErrorItem } from '@/types'
 import * as api from '@/api'
 import { AxiosError } from 'axios'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
+import { getApiErrorMessages } from '@/api/errorHandling'
 
 export default {
   data: function () {
@@ -232,17 +234,12 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
-      } else {
-        if (error instanceof AxiosError && error.response?.data?.errors) {
-          this.errorObj.errors.push(
-            ...Object.values(error.response.data.errors as Record<string, ErrorItem>)
-              .map((errorItem: ErrorItem) => errorItem.message)
-              .filter((message) => message !== null)
-          )
-        } else {
-          this.errorObj = { errors: ['An unknown error occurred'] }
-        }
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
+        return
+      }
+
+      this.errorObj = {
+        errors: getApiErrorMessages(error) ?? ['An unknown error occurred']
       }
     }
   },
@@ -255,3 +252,33 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.password-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 32px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 2px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle:hover {
+  color: #222;
+}
+</style>

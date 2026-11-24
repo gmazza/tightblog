@@ -104,6 +104,7 @@ import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useSessionInfoStore } from '../stores/sessionInfo'
 import * as api from '@/api'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const confirmLeaveNoSaveDialogObj = useConfirmDialog()
 
@@ -208,7 +209,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj.errors.push(

@@ -24,9 +24,12 @@ function createProxyConfiguration() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  // see end of UIController.java for route-to-Vue method
-  base: '/tb-ui/',
+// see end of UIController.java for route-to-Vue method
+export default defineConfig(({ command }) => ({
+// Use /tb-ui/ for local Vite development, matching the dev-server proxy routes.
+// Use ../ for production because SPA routes are one level below /tb-ui.
+// This keeps asset URLs correct under any Tomcat context path.
+  base: command === 'build' ? './' : '/tb-ui/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -58,4 +61,4 @@ export default defineConfig({
   build: {
       sourcemap: true
   }
-})
+}))

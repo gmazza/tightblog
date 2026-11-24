@@ -294,6 +294,7 @@ import type {
   WeblogEntry,
   WeblogEntriesData
 } from '@/types'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 import { mapState, mapActions } from 'pinia'
 import { AxiosError } from 'axios'
 import { useSessionInfoStore } from '../stores/sessionInfo'
@@ -328,7 +329,7 @@ export default {
         errors: []
       } as ErrorObj,
       pageNum: 0,
-      urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest/weblogentries/',
+      urlRoot: VITE_PUBLIC_PATH + '/authoring/rest/weblogentries/',
       entryToDelete: null as WeblogEntry | null,
       isFetching: true
     }
@@ -396,7 +397,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else {
         if (error instanceof AxiosError) {
           this.errorObj = error.response?.data

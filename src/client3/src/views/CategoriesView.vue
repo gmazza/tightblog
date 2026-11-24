@@ -146,6 +146,7 @@ import type { ErrorItem, ErrorObj, WeblogCategory } from '@/types'
 import * as api from '@/api'
 import { AxiosError } from 'axios'
 import { useConfirmDialog } from '@vueuse/core'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const confirmDeleteDialogObj = useConfirmDialog()
 const upsertCategoryDialogObj = useConfirmDialog()
@@ -247,7 +248,7 @@ export default {
     },
     commonErrorResponse: function (error: unknown) {
       if (error instanceof AxiosError && error.response?.status === 401) {
-        window.location.href = import.meta.env.VITE_PUBLIC_PATH + '/app/login'
+        window.location.href = VITE_PUBLIC_PATH + '/app/login'
       } else if (error instanceof AxiosError && error.response?.status === 409) {
         this.showUpdateErrorMessage = true
       } else {

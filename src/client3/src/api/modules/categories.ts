@@ -1,7 +1,8 @@
 import axios, { type AxiosResponse } from 'axios'
 import type { WeblogCategory } from '@/types'
+import { VITE_PUBLIC_PATH as APP_BASE_PATH } from '@/api/publicPath'
 
-const VITE_PUBLIC_PATH = import.meta.env.VITE_PUBLIC_PATH + '/authoring/rest'
+const VITE_PUBLIC_PATH = APP_BASE_PATH + '/authoring/rest'
 
 export function loadCategories(weblogId: string): Promise<AxiosResponse<Array<WeblogCategory>>> {
   return axios.get(`${VITE_PUBLIC_PATH}/categories?weblogId=${weblogId}`)

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import api from '@/api'
 import type { CacheItem } from '@/types'
+import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 type State = {
   items: CacheItem[]
@@ -10,7 +11,7 @@ type State = {
 export const useCacheStore = defineStore('caches', {
   state: (): State => ({
     items: [],
-    urlRoot: import.meta.env.VITE_PUBLIC_PATH + '/admin/rest/server/'
+    urlRoot: VITE_PUBLIC_PATH + '/admin/rest/server/'
   }),
   getters: {},
   actions: {
