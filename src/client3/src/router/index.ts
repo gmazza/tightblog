@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { VITE_PUBLIC_PATH } from '@/api/publicPath'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(new URL(document.baseURI).pathname),
   routes: [
     {
       path: '/',

@@ -114,7 +114,7 @@ public class LazyExpiringCache {
                     .build();
         } else {
             contentCache = null;
-            log.warn("Cache {} has been DISABLED", cacheHandlerId);
+            log.warn("Cache {} is disabled", cacheHandlerId);
         }
     }
 

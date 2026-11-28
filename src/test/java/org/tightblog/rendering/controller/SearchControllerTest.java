@@ -288,10 +288,10 @@ public class SearchControllerTest {
         hits[2] = new ScoreDoc(333, 60);
         hits[3] = new ScoreDoc(444, 50);
 
-        when(mockIndexSearcher.doc(hits[0].doc)).thenReturn(doc1);
-        when(mockIndexSearcher.doc(hits[1].doc)).thenReturn(doc2);
-        when(mockIndexSearcher.doc(hits[2].doc)).thenReturn(doc3);
-        when(mockIndexSearcher.doc(hits[3].doc)).thenReturn(doc4);
+        when(mockIndexSearcher.storedFields().document(hits[0].doc)).thenReturn(doc1);
+        when(mockIndexSearcher.storedFields().document(hits[1].doc)).thenReturn(doc2);
+        when(mockIndexSearcher.storedFields().document(hits[2].doc)).thenReturn(doc3);
+        when(mockIndexSearcher.storedFields().document(hits[3].doc)).thenReturn(doc4);
 
         Map<LocalDate, TreeSet<WeblogEntryDto>> testMap = wsr.convertHitsToEntries(hits, mockSearchTask);
         assertEquals(2, testMap.size());

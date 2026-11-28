@@ -26,11 +26,20 @@ function createProxyConfiguration() {
 // https://vitejs.dev/config/
 // see end of UIController.java for route-to-Vue method
 export default defineConfig(({ command }) => ({
-// Use /tb-ui/ for local Vite development, matching the dev-server proxy routes.
-// Use ../ for production because SPA routes are one level below /tb-ui.
-// This keeps asset URLs correct under any Tomcat context path.
+// Build assets stay relative to the HTML base, which the server renders with the
+// current Tomcat context path. In Vite development, use the local /tb-ui/ base.
   base: command === 'build' ? './' : '/tb-ui/',
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    {
+      name: 'tightblog-ui-base',
+      transformIndexHtml(html) {
+        return command === 'build'
+          ? html
+          : html.replace('<base href="__TB_UI_BASE__" />', '<base href="/tb-ui/" />')
+      }
+    }
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

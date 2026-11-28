@@ -59,6 +59,7 @@ import jakarta.persistence.TypedQuery;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -674,7 +675,7 @@ public class WeblogEntryManager {
 
         AtomEnclosureDto resource;
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            HttpURLConnection con = (HttpURLConnection) URI.create(url).toURL().openConnection();
             con.setRequestMethod("HEAD");
             int response = con.getResponseCode();
             String message = con.getResponseMessage();

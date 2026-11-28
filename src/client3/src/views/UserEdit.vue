@@ -101,15 +101,33 @@
               <label for="passwordText">{{ $t('userEdit.password') }}</label>
             </td>
             <td class="field">
-              <input
-                id="passwordText"
-                type="password"
-                size="20"
-                v-model="userBeingEdited.passwordText"
-                minlength="8"
-                maxlength="20"
-                autocomplete="new-password"
-              />
+              <div class="password-input-wrapper">
+                <input
+                    id="passwordText"
+                    :type="showPassword ? 'text' : 'password'"
+                    size="20"
+                    v-model="userBeingEdited.passwordText"
+                    minlength="8"
+                    maxlength="20"
+                    autocomplete="new-password"
+                />
+                <button
+                    type="button"
+                    class="password-toggle"
+                    @click="showPassword = !showPassword"
+                    :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                    :aria-pressed="showPassword"
+                    title="Toggle password visibility"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18"
+                       fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path v-if="showPassword" d="M3 3l18 18"/>
+                  </svg>
+                </button>
+              </div>
             </td>
             <td class="description">{{ $t(varText.passwordTipKey) }}</td>
           </tr>
@@ -118,15 +136,33 @@
               <label for="passwordConfirm">{{ $t('userEdit.passwordConfirm') }}</label>
             </td>
             <td class="field">
-              <input
-                id="passwordConfirm"
-                type="password"
-                size="20"
-                v-model="userBeingEdited.passwordConfirm"
-                minlength="8"
-                maxlength="20"
-                autocomplete="new-password"
-              />
+              <div class="password-input-wrapper">
+                <input
+                    id="passwordConfirm"
+                    :type="showPasswordConfirm ? 'text' : 'password'"
+                    size="20"
+                    v-model="userBeingEdited.passwordConfirm"
+                    minlength="8"
+                    maxlength="20"
+                    autocomplete="new-password"
+                />
+                <button
+                    type="button"
+                    class="password-toggle"
+                    @click="showPasswordConfirm = !showPasswordConfirm"
+                    :aria-label="showPasswordConfirm ? 'Hide password' : 'Show password'"
+                    :aria-pressed="showPasswordConfirm"
+                    title="Toggle password visibility"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18"
+                       fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path v-if="showPasswordConfirm" d="M3 3l18 18"/>
+                  </svg>
+                </button>
+              </div>
             </td>
             <td class="description"></td>
           </tr>
@@ -165,7 +201,9 @@ export default {
       errorObj: {
         errors: []
       } as ErrorObj,
-      isFetching: true
+      isFetching: true,
+      showPassword: false,
+      showPasswordConfirm: false,
     }
   },
   computed: {

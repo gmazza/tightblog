@@ -21,9 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.tightblog.bloggerui.model.StartupConfiguration;
@@ -55,6 +57,7 @@ import org.tightblog.util.Utilities;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,6 +80,7 @@ public class UIController {
     private final Environment environment;
     private final DynamicProperties dynamicProperties;
     private final ThemeManager themeManager;
+    private volatile String bloggerUiIndexHtml;
 
     @Autowired
     public UIController(UserDao userDao,
@@ -193,9 +197,30 @@ public class UIController {
 
     @RequestMapping(value = "/tb-ui/app/register")
     public String redirect() {
-        // Forward to home page so that route is preserved.
-        LOG.info("Redirecting to Vue app for user registration");
-        return "forward:/tb-ui/index.html#/app/register";
+        // Using HTML 5 history mode, so forward: with no Vue fragments
+        LOG.info("Forwarding to Vue app for user registration");
+        return "forward:/tb-ui/index.html";
+    }
+
+    @GetMapping(value = "/tb-ui/index.html", produces = "text/html;charset=UTF-8")
+    @ResponseBody
+    public String bloggerUiIndex(HttpServletRequest request) throws IOException {
+        // The base must be in the original HTML so the browser's preload scanner uses
+        // the right asset paths before parsing the rest of the document.
+        String html = bloggerUiIndexHtml;
+        if (html == null) {
+            synchronized (this) {
+                html = bloggerUiIndexHtml;
+                if (html == null) {
+                    try (var input = new ClassPathResource("static/tb-ui/index.html").getInputStream()) {
+                        html = StreamUtils.copyToString(input, StandardCharsets.UTF_8)
+                                .replace("__TB_UI_BASE__", request.getContextPath() + "/tb-ui/");
+                        bloggerUiIndexHtml = html;
+                    }
+                }
+            }
+        }
+        return html;
     }
 
     @RequestMapping(value = "/tb-ui/app/get-default-blog")
@@ -307,13 +332,13 @@ public class UIController {
     // https://stackoverflow.com/a/59290035/1207540
     @RequestMapping(value = "/tb-ui/admin/**")
     public String redirectAdmin() {
-        // Forward to home page so that route is preserved.
+        // Forward to home page so that route in browser URL is preserved.
+        // Vue will handle the route.
         return "forward:/tb-ui/index.html";
     }
 
     @RequestMapping(value = "/tb-ui/app/**")
     public String redirectApp() {
-        // Forward to home page so that route is preserved.
         return "forward:/tb-ui/index.html";
     }
 
