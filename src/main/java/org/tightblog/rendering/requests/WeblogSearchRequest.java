@@ -173,7 +173,7 @@ public class WeblogSearchRequest extends WeblogPageRequest {
         Document doc;
         for (int i = offset; i < offset + limit; i++) {
             try {
-                doc = searchTask.getSearcher().doc(hits[i].doc);
+                doc = searchTask.getSearcher().storedFields().document(hits[i].doc);
             } catch (IOException e) {
                 log.warn("IOException processing {}", hits[i].doc, e);
                 continue;

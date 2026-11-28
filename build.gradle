@@ -114,6 +114,8 @@ spotbugs {
 }
 */
 
+def luceneVersion = '10.3.2'
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation('org.springframework.boot:spring-boot-starter-security')
@@ -128,9 +130,9 @@ dependencies {
 	implementation('org.springframework.security:spring-security-taglibs')
 	implementation('org.apache.commons:commons-lang3:3.21.0')
 	implementation('org.apache.commons:commons-text:1.15.0')
-	implementation('org.apache.lucene:lucene-analyzers-common:8.11.4')
-	implementation('org.apache.lucene:lucene-queryparser:8.11.4')
-	implementation('org.apache.lucene:lucene-backward-codecs:8.11.4')
+	implementation("org.apache.lucene:lucene-analysis-common:${luceneVersion}")
+	implementation("org.apache.lucene:lucene-queryparser:${luceneVersion}")
+	implementation("org.apache.lucene:lucene-backward-codecs:${luceneVersion}")
 	implementation("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2")
 	implementation("org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1")
 	implementation('commons-validator:commons-validator:1.11.0')
@@ -193,6 +195,9 @@ tasks.register('npmBuildBloggerUI', NpmTask) {
 
 	// Tell Gradle when to rerun this task
 	inputs.dir("$uiDir/src") // Vue source files
+	inputs.file("$uiDir/index.html")
+	inputs.file("$uiDir/vite.config.ts")
+	inputs.dir("$uiDir/styles")
 	inputs.file("$uiDir/package.json")
 	inputs.file("$uiDir/package-lock.json")
 	outputs.dir(uiDistDir)  // Output directory

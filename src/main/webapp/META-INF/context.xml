@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+  <JarScanner>
+    <JarScanFilter
+        tldSkip="*"
+        tldScan="spring-webmvc-*.jar,spring-security-taglibs-*.jar,jakarta.servlet.jsp.jstl-3.*.jar" />
+  </JarScanner>
+</Context>

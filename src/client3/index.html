@@ -2,21 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      // Determine the application's base URL from the current browser location.
-      // For example, /tightblog/tb-ui/app/register becomes /tightblog/tb-ui/.
-      (() => {
-          const uiPath = '/tb-ui/'
-          const markerIndex = window.location.pathname.lastIndexOf(uiPath)
-          const contextPath =
-              markerIndex >= 0 ? window.location.pathname.slice(0, markerIndex) : ''
-
-          const baseElement = document.createElement('base')
-          baseElement.href = `${contextPath}${uiPath}`
-          document.head.appendChild(baseElement)
-      })()
-    </script>
-    <link rel="icon" href="/favicon.ico" />
+    <!-- Server replaces this with the context-aware base before the browser discovers assets. -->
+    <base href="__TB_UI_BASE__" />
+    <link rel="icon" href="../favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" />
     <link
