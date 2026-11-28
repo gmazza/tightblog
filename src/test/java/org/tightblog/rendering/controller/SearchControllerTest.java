@@ -19,6 +19,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopFieldDocs;
@@ -94,6 +95,7 @@ public class SearchControllerTest {
     private WeblogEntryListGenerator mockWELG;
     private SearchTask mockSearchTask;
     private IndexSearcher mockIndexSearcher;
+    private StoredFields mockStoredFields;
     private WeblogEntryDao mockWeblogEntryDao;
     private WeblogTemplate searchResultsTemplate;
 
@@ -127,6 +129,8 @@ public class SearchControllerTest {
         when(mockApplicationContext.getBean(anyString(), eq(Set.class))).thenReturn(new HashSet<>());
 
         mockIndexSearcher = mock(IndexSearcher.class);
+        mockStoredFields = mock(StoredFields.class);
+        when(mockIndexSearcher.storedFields()).thenReturn(mockStoredFields);
         mockSearchTask = mock(SearchTask.class);
         when(mockSearchTask.getSearcher()).thenReturn(mockIndexSearcher);
 
@@ -288,10 +292,10 @@ public class SearchControllerTest {
         hits[2] = new ScoreDoc(333, 60);
         hits[3] = new ScoreDoc(444, 50);
 
-        when(mockIndexSearcher.storedFields().document(hits[0].doc)).thenReturn(doc1);
-        when(mockIndexSearcher.storedFields().document(hits[1].doc)).thenReturn(doc2);
-        when(mockIndexSearcher.storedFields().document(hits[2].doc)).thenReturn(doc3);
-        when(mockIndexSearcher.storedFields().document(hits[3].doc)).thenReturn(doc4);
+        when(mockStoredFields.document(hits[0].doc)).thenReturn(doc1);
+        when(mockStoredFields.document(hits[1].doc)).thenReturn(doc2);
+        when(mockStoredFields.document(hits[2].doc)).thenReturn(doc3);
+        when(mockStoredFields.document(hits[3].doc)).thenReturn(doc4);
 
         Map<LocalDate, TreeSet<WeblogEntryDto>> testMap = wsr.convertHitsToEntries(hits, mockSearchTask);
         assertEquals(2, testMap.size());
@@ -304,7 +308,7 @@ public class SearchControllerTest {
         assertTrue(getIdsFromSet(threeDaysAgoSet).contains(entry3.getId()));
 
         // test recovers from an IOException by skipping problematic doc
-        when(mockIndexSearcher.doc(hits[0].doc)).thenThrow(new IOException());
+        when(mockStoredFields.document(hits[0].doc)).thenThrow(new IOException());
         testMap = wsr.convertHitsToEntries(hits, mockSearchTask);
         assertEquals(2, testMap.size());
         oneDayAgoSet = testMap.get(oneDayAgo.atZone(ZoneId.systemDefault()).toLocalDate());
@@ -339,8 +343,8 @@ public class SearchControllerTest {
         ScoreDoc[] hits = new ScoreDoc[2];
         hits[0] = new ScoreDoc(111, 90);
         hits[1] = new ScoreDoc(222, 80);
-        when(mockIndexSearcher.doc(hits[0].doc)).thenReturn(doc1);
-        when(mockIndexSearcher.doc(hits[1].doc)).thenReturn(doc2);
+        when(mockStoredFields.document(hits[0].doc)).thenReturn(doc1);
+        when(mockStoredFields.document(hits[1].doc)).thenReturn(doc2);
 
         TopFieldDocs docs = new TopFieldDocs(new TotalHits(2, TotalHits.Relation.EQUAL_TO), hits, null);
         // mock executeIndexOperationNow to return the specified SearchTask object
